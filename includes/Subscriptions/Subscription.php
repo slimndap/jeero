@@ -2,6 +2,7 @@
 namespace Jeero\Subscriptions;
 
 use Jeero\Db;
+use Jeero\Admin;
 
 /**
  * Subscription class.
@@ -16,7 +17,15 @@ class Subscription {
 	 */
 	public $ID;
 	
+	/**
+	 * The fields of this Subscription.
+	 * The fields are provided by Mother, based on the value of $settings.
+	 * @var		array	$fields
+	 * @since	1.0
+	 */
 	public $fields = array();
+	
+	public $logo;
 	
 	/**
 	 * Time (UTC) after which there will be an update for this Subscription.
@@ -24,7 +33,7 @@ class Subscription {
 	 * 
 	 * @var	int
 	 */
-	public $next_update;
+	public $next_delivery;
 	
 	/**
 	 * The settings of this Subscription.
@@ -57,6 +66,23 @@ class Subscription {
 		
 	}
 	
+	function get_fields() {
+		
+		$fields = array();
+		
+		foreach( $this->fields as $config ) {
+			$setting = null;
+
+			if ( !empty( $this->settings[ $config[ 'name' ] ] ) ) {
+				$setting = $this->settings[ $config[ 'name' ] ];
+			}
+			$fields[] = Admin\Fields\get_field( $config, $this->ID, $setting );
+		}
+		return $fields;
+		
+		
+	}
+	
 	function load( ) {
 		
 		$data = Db\Subscriptions\get_subscription( $this->ID );
@@ -65,10 +91,16 @@ class Subscription {
 			return;
 		}
 		
-		$this->fields = $data[ 'fields' ];
-		$this->settings = $data[ 'settings' ];
-		$this->status = $data[ 'status' ];
+		$this->next_delivery = $data[ 'next_delivery' ];
 		
+		$defaults = array(
+			'theater' => false,
+		);
+		
+		$settings = wp_parse_args( $data[ 'settings' ], $defaults );
+		
+		$this->settings = $settings;
+
 	}
 
 	function set( $key, $value ) {
@@ -80,13 +112,15 @@ class Subscription {
 	function save() {
 		
 		$data = array(
-			'fields' => $this->fields,
 			'settings' => $this->settings,
-			'status' => $this->status,	
+			'next_delivery' => date( 'Y-m-d H:i:s', $this->next_delivery ),
 		);
-
+		
 		Db\Subscriptions\save_subscription( $this->ID, $data );
 		
+		$this->load();
+		
 	}
+	
 
 }

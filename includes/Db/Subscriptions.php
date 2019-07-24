@@ -1,6 +1,27 @@
 <?php
 namespace Jeero\Db\Subscriptions;
 
+function get_settings() {
+	
+	global $wpdb;
+	
+	$sql = "SELECT ID, settings FROM {$wpdb->base_prefix}jeero_subscriptions";
+
+	$result = $wpdb->get_results( $sql, ARRAY_A );
+
+	if ( is_null( $result ) ) {
+		return $result;
+	}
+	
+	$settings = array();
+	
+	foreach( $result as $subscription ) {
+		$settings[ $subscription[ 'ID' ] ] = json_decode( $subscription[ 'settings' ], true );
+	}
+	
+	return $settings;
+}
+
 function get_subscriptions() {
 	
 	global $wpdb;
@@ -8,7 +29,7 @@ function get_subscriptions() {
 	$sql = "SELECT * FROM {$wpdb->base_prefix}jeero_subscriptions";
 
 	$result = $wpdb->get_results( $sql, ARRAY_A );
-	
+
 	if ( is_null( $result) ) {
 		return $result;
 	}
@@ -16,8 +37,8 @@ function get_subscriptions() {
 	$subscriptions = array();
 	
 	foreach( $result as $subscription ) {
-		$subscription[ 'fields' ] = json_decode( $subscription[ 'fields' ], true );
 		$subscription[ 'settings' ] = json_decode( $subscription[ 'settings' ], true );		
+		$subscription[ 'next_delivery' ] = strtotime( $subscription[ 'next_delivery' ] );		
 		$subscriptions[ $subscription[ 'ID' ] ] = $subscription;
 	}
 	
@@ -38,8 +59,8 @@ function get_subscription( $ID ) {
 		return $subscription;
 	}
 	
-	$subscription[ 'fields' ] = json_decode( $subscription[ 'fields' ], true );
 	$subscription[ 'settings' ] = json_decode( $subscription[ 'settings' ], true );
+	$subscription[ 'next_delivery' ] = strtotime( $subscription[ 'next_delivery' ] );		
 	
 	return $subscription;
 	
@@ -55,31 +76,27 @@ function save_subscription( $ID, $data ) {
 			'status' => '',
 			'fields' => array(),
 			'settings' => array(),
-			'next_update' => NULL,
+			'next_delivery' => NULL,
 		)
 	);
 	
 	$sql = "INSERT INTO {$wpdb->base_prefix}jeero_subscriptions 
-		(ID, status, fields, settings, next_update) 
-		VALUES ( %s, %s, %s, %s, %s ) 
+		(`ID`, `settings`, `next_delivery` ) 
+		VALUES ( %s, %s, %s ) 
 		ON DUPLICATE KEY 
 		UPDATE 
-		status = VALUES( status ), 
-		fields = VALUES( fields ), 
-		settings = VALUES( settings ), 
-		next_update = VALUES( next_update )";
+		`settings` = VALUES( `settings` ), 
+		`next_delivery` = VALUES( `next_delivery` )";
 
 	$sql = $wpdb->prepare( 
 		$sql, 
 		array(
 			$ID,
-			$data[ 'status' ],
-			json_encode( $data[ 'fields' ] ),
 			json_encode( $data[ 'settings' ] ),
-			$data[ 'next_update' ],
+			$data[ 'next_delivery' ],
 		)
 	);
-	
+
 	$wpdb->query( $sql );
 	
 }

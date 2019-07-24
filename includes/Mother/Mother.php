@@ -8,17 +8,28 @@ use Theaters\Theater;
 use Jeero\Subscriptions\Subscription;
 use Jeero\Db;
 
-const BASE_URL = 'https://mother.jeero.ooo';
+//const BASE_URL = 'https://mother.jeero.ooo/api/v1';
+const BASE_URL = 'http://jeero.local/api/v1';
 
-/**
- * Asks Mother to remind a Theater about a Subscription.
- * 
- * @since	1.0
- * @param	Subscription		$subscription	The Subscription.
- * @return  boolean|WP_Error	<true> if successful. An error if there was a problem.
- */
-function check_status( Subscription $subscription ) {
+function get_inbox() {
 	
+	// Send request to Mother.
+	$args = array(
+		'site_url' => site_url(),
+	);
+	return get( 'inbox', $args );	
+	
+}
+
+function get_subscription( $subscription_id, $settings ) {
+
+	// Send request to Mother.
+	$args = array(
+		'site_url' => site_url(),
+		'settings' => $settings,
+	);
+	return get( 'subscriptions/'.$subscription_id, $args );	
+
 }
 
 /**
@@ -26,30 +37,15 @@ function check_status( Subscription $subscription ) {
  * 
  * @return	Subscription[]|WP_Error		All Subscriptions or an error if there is a problem.
  */
-function get_subscriptions() {
+function get_subscriptions( $settings ) {
 	
 	// Send request to Mother.
 	$args = array(
 		'site_url' => site_url(),
-		'settings' => Db\Subscriptions\get_subscriptions(),
+		'settings' => $settings,
 	);
-	$answers = get( 'subscriptions', $args );	
-	
-	if ( is_wp_error( $answers ) ) {
-		return $answers;
-	}
-	
-	$subscriptions = array();
-	foreach( $answers as $answer ) {
-		$subscription = new Subscription( $answer[ 'ID' ] );
-		$subscription->set( 'status', $answer[ 'status' ] );
-		$subscription->set( 'fields', $answer[ 'fields' ] );
-		$subscription->save();
+	return get( 'subscriptions', $args );	
 
-		$subscriptions[ $subscription->get( 'ID' ) ] = $subscription;
-	}
-	
-	return $subscriptions;
 }
 
 /**
@@ -65,17 +61,16 @@ function subscribe_me( ) {
 		'settings' => Db\Subscriptions\get_subscriptions(),
 	);
 	$answer = post( 'subscriptions', $args );
-	
+
 	if ( is_wp_error( $answer ) ) {
 		return new \WP_Error( 'mother', sprintf( __( 'Failed to add a new subscription: %s.', 'jeero' ), $answer->get_error_message() ) );
 	}
 	
-	$subscription = new Subscription( $answer[ 'ID' ] );
-	$subscription->set( 'status', $answer[ 'status' ] );
-	$subscription->set( 'fields', $answer[ 'fields' ] );
-	$subscription->save();
+	if ( empty( $answer[ 'ID' ] ) ) {
+		return new \WP_Error( 'mother', __( 'Failed to add a new subscription: incorrect response.', 'jeero' ) );		
+	}
 	
-	return $subscription;
+	return $answer;
 }
 
 function get( $endpoint, $data = array() ) {
@@ -89,7 +84,7 @@ function get( $endpoint, $data = array() ) {
 		if ( !empty( $data ) ) {
 			$url = add_query_arg( $data, $url );
 		}
-		
+
 		$response = wp_remote_get( $url );
 
 	}
@@ -117,7 +112,6 @@ function post( $endpoint, $data = array() ) {
 			);
 			
 		}
-		
 		$response = wp_remote_post( $url, $args );
 
 	}
@@ -125,7 +119,17 @@ function post( $endpoint, $data = array() ) {
 	if ( is_wp_error( $response ) ) {
 		return $response;
 	}
+	
+	$body = json_decode( wp_remote_retrieve_body( $response ), true );
 
-	return json_decode( wp_remote_retrieve_body( $response ), true );	
+	if ( 200 != wp_remote_retrieve_response_code( $response ) ) {
+		if ( empty( $body[ 'message' ] ) ) {
+			return new \WP_Error( 'mother', wp_remote_retrieve_body( $response ) );			
+		} else {
+			return new \WP_Error( 'mother', $body[ 'message' ] );
+		}
+	}
+
+	return $body;	
 	
 }
