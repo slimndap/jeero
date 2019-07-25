@@ -14,6 +14,7 @@ class List_Table extends \WP_List_Table {
 			'logo' => '',
 			'subscription' => 'Source',
 			'calendar' => 'Destination',
+			'interval' => 'Interval',
 			'next_delivery' => 'Next sync',
 		);
 		return $columns;
@@ -40,6 +41,10 @@ class List_Table extends \WP_List_Table {
 		?><img src="<?php echo $subscription->get( 'logo' ); ?>" alt="<?php printf( __( '%s logo', 'jeero' ), $settings[ 'theater' ] ); ?>" style="width: 40px; height: auto;"><?php
 		return ob_get_clean();
 
+    }
+    
+    function column_interval( $subscription ) {
+	    return human_time_diff( 0, $subscription->get( 'interval') );
     }
     
 	function column_next_delivery( $subscription ) {

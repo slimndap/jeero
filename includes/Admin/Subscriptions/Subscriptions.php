@@ -191,6 +191,11 @@ function update_subscription() {
 	// Save settings to Subscription.
 	$subscription = Subscriptions\get_subscription( $_GET[ 'subscription_id' ] );	
 
+	if ( is_wp_error( $subscription ) ) {
+		Admin\add_error( $subscription );
+		wp_safe_redirect( get_admin_edit_url( $subscription->get( 'ID' ) ) );			
+	}
+
 	$settings = array();	
 	foreach( $subscription->get_fields() as $field ) {
 		$setting = $field->get_setting_from_form( $_GET );

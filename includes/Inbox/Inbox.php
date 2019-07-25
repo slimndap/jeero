@@ -1,12 +1,12 @@
 <?php
 /**
- * Handles the inbox.
+ * Handles the Inbox.
  *
  * Steps: 
- * 1. User creates/updates the settings of a Subscription.
- * 2. Jeero picks up items from Inbox is Subscription status is 'ready'.
- * 3. Jeero checks schedule for next delivery and plans the next pick up. 
- * 4. Jeero moves items from Inbox into the Queue.
+ * 1. Jeero asks Mother to check the Inbox.
+ * 2. Mother returns items from Inbox.
+ * 3. Jeero moves items into the Queue. 
+ * 4. Jeero plans to ask Mother again in a minute.
  */
 namespace Jeero\Inbox;
 
@@ -28,46 +28,17 @@ function pickup_items() {
 	
 	$inbox = Mother\get_inbox();
 	
-	// Check and save schedule for next delivery.
-	foreach( $inbox[ 'schedule' ] as $ID => $schedule ) {
-		$subscription = new Subscriptions\Subscription( $ID );
-		$subscription->set( 'next_delivery', $schedule[ 'next_delivery' ] );
-		$subscription->save();
-	}
-	
 	// Schedule the next pick up.
 	schedule_next_pickup();
 	
 	// Move items to Queue.
 	
-	return $inbox[ 'items' ];
+	return $inbox;
 	
 }
 
 /**
- * Gets the timestamp of the next delivery.
- *
- * Based of the value of the next delivery of all Subscriptions.
- * 
- * @since	1.0
- * @return	int
- */
-function get_next_delivery() {
-	
-	$subscriptions = Db\Subscriptions\get_subscriptions();
-	
-	if ( empty( $subscriptions ) ) {
-		return false;	
-	}
-	
-	$next_delivery = min( wp_list_pluck( $subscriptions, 'next_delivery' ) );
-	
-	return $next_delivery;
-	
-}
-
-/**
- * Gets the timestamp of the next schedule pick up..
+ * Gets the timestamp of the next scheduled pick up.
  * 
  * @since	1.0
  * @return	int
@@ -79,7 +50,7 @@ function get_next_pickup() {
 }
 
 /**
- * Schedule the next pick up, based on first upcoming delivery.
+ * Schedules the next pick up.
  * 
  * @since	1.0
  * @return 	void
@@ -89,13 +60,7 @@ function schedule_next_pickup() {
 	// Remove any previously scheduled pickups.
 	wp_clear_scheduled_hook( PICKUP_ITEMS_HOOK );
 	
-	$next_delivery = get_next_delivery();
-
-	if ( empty( $next_delivery ) ) {
-		return;
-	}
-	
-	// Schedule next pickup, based on first upcoming delivery.
-	wp_schedule_single_event( $next_delivery, PICKUP_ITEMS_HOOK );
+	// Ask Mother to check again in a minute.
+	wp_schedule_single_event( time() + MINUTE_IN_SECONDS, PICKUP_ITEMS_HOOK );
 	
 }

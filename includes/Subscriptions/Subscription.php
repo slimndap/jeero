@@ -27,6 +27,8 @@ class Subscription {
 	
 	public $logo;
 	
+	public $interval;
+	
 	/**
 	 * Time (UTC) after which there will be an update for this Subscription.
 	 * So no need to check for updates before this time.
@@ -91,8 +93,6 @@ class Subscription {
 			return;
 		}
 		
-		$this->next_delivery = $data[ 'next_delivery' ];
-		
 		$defaults = array(
 			'theater' => false,
 		);
@@ -113,7 +113,6 @@ class Subscription {
 		
 		$data = array(
 			'settings' => $this->settings,
-			'next_delivery' => date( 'Y-m-d H:i:s', $this->next_delivery ),
 		);
 		
 		Db\Subscriptions\save_subscription( $this->ID, $data );

@@ -54,6 +54,8 @@ function get_subscription( $subscription_id ) {
 		'status' => false,
 		'logo' => false,
 		'fields' => array(),
+		'interval' => null,
+		'next_delivery' => null,
 	);
 	
 	$answer = wp_parse_args( $answer, $defaults );
@@ -62,6 +64,8 @@ function get_subscription( $subscription_id ) {
 	$subscription->set( 'status', $answer[ 'status' ] );
 	$subscription->set( 'logo', $answer[ 'logo' ] );
 	$subscription->set( 'fields', $answer[ 'fields' ] );
+	$subscription->set( 'interval', $answer[ 'interval' ] );
+	$subscription->set( 'next_delivery', $answer[ 'next_delivery' ] );
 
 	return $subscription;
 }
@@ -88,6 +92,8 @@ function get_subscriptions() {
 			'status' => false,
 			'logo' => false,
 			'fields' => array(),
+			'interval' => null,
+			'next_delivery' => null,
 		);
 		
 		$answer = wp_parse_args( $answer, $defaults );
@@ -96,6 +102,10 @@ function get_subscriptions() {
 		$subscription->set( 'status', $answer[ 'status' ] );
 		$subscription->set( 'logo', $answer[ 'logo' ] );
 		$subscription->set( 'fields', $answer[ 'fields' ] );
+				
+		$subscription->set( 'interval', $answer[ 'interval' ] );
+		$subscription->set( 'next_delivery', $answer[ 'next_delivery' ] );
+		
 
 		$subscriptions[ $subscription->get( 'ID' ) ] = $subscription;
 	}

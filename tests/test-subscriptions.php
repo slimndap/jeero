@@ -67,6 +67,7 @@ class Subscriptions_Test extends WP_UnitTestCase {
 				'ID' => 'another fake ID',
 				'status' => 'active',
 				'next_update' => time() + DAY_IN_SECONDS,
+				'interval' => 3600,
 				'fields' => array(
 					array(
 						'name' => 'theater',

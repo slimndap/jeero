@@ -37,8 +37,6 @@ function get_subscriptions() {
 	$subscriptions = array();
 	
 	foreach( $result as $subscription ) {
-		$subscription[ 'settings' ] = json_decode( $subscription[ 'settings' ], true );		
-		$subscription[ 'next_delivery' ] = strtotime( $subscription[ 'next_delivery' ] );		
 		$subscriptions[ $subscription[ 'ID' ] ] = $subscription;
 	}
 	
@@ -60,7 +58,6 @@ function get_subscription( $ID ) {
 	}
 	
 	$subscription[ 'settings' ] = json_decode( $subscription[ 'settings' ], true );
-	$subscription[ 'next_delivery' ] = strtotime( $subscription[ 'next_delivery' ] );		
 	
 	return $subscription;
 	
@@ -76,24 +73,21 @@ function save_subscription( $ID, $data ) {
 			'status' => '',
 			'fields' => array(),
 			'settings' => array(),
-			'next_delivery' => NULL,
 		)
 	);
 	
 	$sql = "INSERT INTO {$wpdb->base_prefix}jeero_subscriptions 
-		(`ID`, `settings`, `next_delivery` ) 
-		VALUES ( %s, %s, %s ) 
+		(`ID`, `settings` ) 
+		VALUES ( %s, %s ) 
 		ON DUPLICATE KEY 
 		UPDATE 
-		`settings` = VALUES( `settings` ), 
-		`next_delivery` = VALUES( `next_delivery` )";
+		`settings` = VALUES( `settings` )";
 
 	$sql = $wpdb->prepare( 
 		$sql, 
 		array(
 			$ID,
 			json_encode( $data[ 'settings' ] ),
-			$data[ 'next_delivery' ],
 		)
 	);
 

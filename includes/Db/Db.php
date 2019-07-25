@@ -19,7 +19,6 @@ function upgrade_100() {
     $sql = "CREATE TABLE `{$wpdb->base_prefix}jeero_subscriptions` (
       `ID` varchar(191) NOT NULL,
       `settings` longtext,
-      `next_delivery` datetime,
       PRIMARY KEY  (`ID`)
     ) $charset_collate;";
 
