@@ -21,7 +21,7 @@ class Checkbox extends Field {
 		foreach( $this->choices as $value => $label ) {
 			?><label>
 				<input name="<?php echo $this->name; ?>[]" type="checkbox" value="<?php echo $value; ?>"<?php checked( 
-					in_array( $value, $this->value ), true, true ); ?>> <?php 
+					in_array( $value, (array) $this->value ), true, true ); ?>> <?php 
 				echo $label; 
 			?></label>
 			<br><?php

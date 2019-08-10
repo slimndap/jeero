@@ -2,6 +2,7 @@
 namespace Jeero\Admin\Subscriptions;
 
 use Jeero\Subscriptions;
+use Jeero\Admin;
 
 if( ! class_exists( 'WP_List_Table' ) ) {
     require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
@@ -44,10 +45,25 @@ class List_Table extends \WP_List_Table {
     }
     
     function column_interval( $subscription ) {
+	    
+	    $interval = $subscription->get( 'interval');
+	    
+	    if ( empty( $interval ) ) {
+		    return;
+	    }
+	    
 	    return human_time_diff( 0, $subscription->get( 'interval') );
     }
     
 	function column_next_delivery( $subscription ) {
+		
+		$next_delivery = $subscription->get( 'next_delivery' );
+
+	    if ( empty( $next_delivery ) ) {
+		    return;
+	    }
+	    
+	    return human_time_diff( time(), $subscription->get( 'next_delivery' ) );
 		return date_i18n( 'd-m-Y H:i:s', $subscription->get( 'next_delivery' ) );
 	}
     
@@ -98,10 +114,12 @@ class List_Table extends \WP_List_Table {
 		$subscriptions = Subscriptions\get_subscriptions();
 		
 		if ( is_wp_error( $subscriptions ) ) {
-			return $subscriptions;
+			Admin/add_error( $subscriptions );
+			$this->items = array();		
+			return false;
 		}
 		
-		$this->items = $subscriptions;
+		$this->items = $subscriptions;		
 	}
 	
 }

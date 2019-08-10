@@ -1,0 +1,42 @@
+<?php
+namespace Jeero\Calendars;
+
+function get_active_calendars() {
+	
+	$slugs = array();
+	
+	if ( class_exists( 'WP_Theatre' ) ) {
+		$slugs[] = 'Theater_For_WordPress';
+	}
+	
+	if ( class_exists( 'Tribe__Events__Main' ) ) {
+		$slugs[] = 'The_Events_Calendar';
+	}
+	
+	if ( class_exists( 'Ai1ec_Front_Controller' ) ) {
+		$slugs[] = 'All_In_One_Event_Calendar';
+	}
+		
+	$calendars = array();
+	
+	foreach ( $slugs as $slug ) {
+		
+		$calendar = get_calendar( $slug );
+		$calendars[ $slug ] = $calendar->get( 'name' );
+		
+	}
+	
+	return $calendars;
+	
+}
+
+function get_calendar( $slug = '' ) {
+	
+	$class = __NAMESPACE__.'\\'.$slug;
+	if ( class_exists( $class ) ) {
+		return new $class();
+	}
+
+	return new Calendar();	
+	
+}

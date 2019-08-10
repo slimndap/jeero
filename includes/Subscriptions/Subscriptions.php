@@ -7,6 +7,7 @@ namespace Jeero\Subscriptions;
 
 use Jeero\Db;
 use Jeero\Mother;
+use Jeero\Calendars;
 
 const JEERO_SUBSCRIPTIONS_STATUS_SETUP = 'setup';
 const JEERO_SUBSCRIPTIONS_STATUS_READY = 'ready';
@@ -60,10 +61,17 @@ function get_subscription( $subscription_id ) {
 	
 	$answer = wp_parse_args( $answer, $defaults );
 	
+	// Add fields from Mother.
+	$fields = $answer[ 'fields' ];
+	
+	// Add fields from Calendar.
+	$calendar = Calendars\get_calendar();
+	$fields = array_merge( $fields, $calendar->get_fields() );
+	
 	// Add the subscription info to the Subscription.
 	$subscription->set( 'status', $answer[ 'status' ] );
 	$subscription->set( 'logo', $answer[ 'logo' ] );
-	$subscription->set( 'fields', $answer[ 'fields' ] );
+	$subscription->set( 'fields', $fields );
 	$subscription->set( 'interval', $answer[ 'interval' ] );
 	$subscription->set( 'next_delivery', $answer[ 'next_delivery' ] );
 
@@ -98,7 +106,7 @@ function get_subscriptions() {
 		
 		$answer = wp_parse_args( $answer, $defaults );
 
-		$subscription = new Subscription( $answer[ 'ID' ] );
+		$subscription = new Subscription( $answer[ 'id' ] );
 		$subscription->set( 'status', $answer[ 'status' ] );
 		$subscription->set( 'logo', $answer[ 'logo' ] );
 		$subscription->set( 'fields', $answer[ 'fields' ] );

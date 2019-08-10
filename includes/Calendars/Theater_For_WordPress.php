@@ -8,4 +8,13 @@ namespace Jeero\Calendars;
  */
 class Theater_For_WordPress extends Calendar {
 	
+	function __construct() {
+		
+		$this->slug = 'Theater_For_WordPress';
+		$this->name = __( 'Theater for WordPress', 'jeero' );
+		
+		parent::__construct();
+
+	}
+	
 }

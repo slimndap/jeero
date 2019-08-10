@@ -10,15 +10,67 @@ use Jeero\Db;
 
 //const BASE_URL = 'https://mother.jeero.ooo/api/v1';
 const BASE_URL = 'http://jeero.local/api/v1';
+const BASE_URL_AWS = 'https://ql621w5yfk.execute-api.eu-west-1.amazonaws.com/jeero';
 
-function get_inbox() {
+function delete( $endpoint, $data = array() ) {
 	
+	$url = BASE_URL.'/'.$endpoint;
+	
+	if ( !empty( $data ) ) {
+		$url = add_query_arg( $data, $url );
+	}
+
+	$args = array(
+		'timeout' => 10,
+		'method' => 'DELETE',
+	);
+
+	$response = wp_remote_request( $url, $args );	
+}
+
+function delete_aws( $endpoint, $data = array() ) {
+	
+	$url = BASE_URL_AWS.'/'.$endpoint;
+	
+	if ( !empty( $data ) ) {
+		$url = add_query_arg( $data, $url );
+	}
+
+	$args = array(
+		'timeout' => 10,
+		'method' => 'DELETE',
+	);
+
+	$response = wp_remote_request( $url, $args );	
+}
+
+function get_inbox( $settings ) {
+
 	// Send request to Mother.
 	$args = array(
 		'site_url' => site_url(),
+		'settings' => json_encode( $settings ),
 	);
-	return get( 'inbox', $args );	
+	return get_aws( 'inbox', $args );	
 	
+}
+
+function remove_inbox_item( $ID ) {
+	// Send request to Mother.
+	$args = array(
+		'site_url' => site_url(),
+		//'settings' => $settings,
+	);
+	return delete( 'inbox/'. $ID, $args );
+}
+
+function remove_inbox_items( $item_ids ) {
+	// Send request to Mother.
+	$args = array(
+		'site_url' => site_url(),
+		'inbox_id' => json_encode( $item_ids ),
+	);
+	return delete_aws( 'inbox', $args );
 }
 
 function get_subscription( $subscription_id, $settings ) {
@@ -42,9 +94,9 @@ function get_subscriptions( $settings ) {
 	// Send request to Mother.
 	$args = array(
 		'site_url' => site_url(),
-		'settings' => $settings,
+		'settings' => json_encode( $settings ),
 	);
-	return get( 'subscriptions', $args );	
+	return get_aws( 'subscriptions', $args );	
 
 }
 
@@ -85,7 +137,11 @@ function get( $endpoint, $data = array() ) {
 			$url = add_query_arg( $data, $url );
 		}
 
-		$response = wp_remote_get( $url );
+		$args = array(
+			'timeout' => 30,
+		);
+
+		$response = wp_remote_get( $url, $args );
 
 	}
 
@@ -93,7 +149,55 @@ function get( $endpoint, $data = array() ) {
 		return $response;
 	}
 	
-	return json_decode( wp_remote_retrieve_body( $response ), true );
+	$body = json_decode( wp_remote_retrieve_body( $response ), true );
+
+	if ( 200 != wp_remote_retrieve_response_code( $response ) ) {
+		if ( empty( $body[ 'message' ] ) ) {
+			return new \WP_Error( 'mother', wp_remote_retrieve_body( $response ) );			
+		} else {
+			return new \WP_Error( 'mother', $body[ 'message' ] );
+		}
+	}
+	
+	return $body;
+	
+}
+
+function get_aws( $endpoint, $data = array() ) {
+	
+	$response = apply_filters( 'jeero/mother/get/response', NULL, $endpoint, $data );
+
+	if ( is_null( $response ) ) {
+
+		$url = BASE_URL_AWS.'/'.$endpoint;
+		
+		if ( !empty( $data ) ) {
+			$url = add_query_arg( $data, $url );
+		}
+
+		$args = array(
+			'timeout' => 30,
+		);
+
+		$response = wp_remote_get( $url, $args );
+
+	}
+
+	if ( is_wp_error( $response ) ) {
+		return $response;
+	}
+	
+	$body = json_decode( wp_remote_retrieve_body( $response ), true );
+
+	if ( 200 != wp_remote_retrieve_response_code( $response ) ) {
+		if ( empty( $body[ 'message' ] ) ) {
+			return new \WP_Error( 'mother', wp_remote_retrieve_body( $response ) );			
+		} else {
+			return new \WP_Error( 'mother', $body[ 'message' ] );
+		}
+	}
+	
+	return $body;
 	
 }
 

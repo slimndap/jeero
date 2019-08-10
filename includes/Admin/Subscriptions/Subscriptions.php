@@ -61,7 +61,7 @@ function get_edit_html( $subscription_id ) {
 	
 	$subscription = Subscriptions\get_subscription( $subscription_id );
 	if ( is_wp_error( $subscription ) ) {
-		Admin\add_error( $ubscription );
+		Admin\add_error( $subscription );
 		wp_redirect( get_admin_page_url() );
 		exit;
 	}

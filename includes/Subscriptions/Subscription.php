@@ -68,6 +68,12 @@ class Subscription {
 		
 	}
 	
+	/**
+	 * Gets all fields of this Subscription.
+	 * 
+	 * @since	1.0
+	 * @return 	Field[]		All fields of this Subscription.
+	 */
 	function get_fields() {
 		
 		$fields = array();
@@ -80,8 +86,7 @@ class Subscription {
 			}
 			$fields[] = Admin\Fields\get_field( $config, $this->ID, $setting );
 		}
-		return $fields;
-		
+		return $fields;		
 		
 	}
 	

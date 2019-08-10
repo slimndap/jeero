@@ -33,6 +33,7 @@ include_once PLUGIN_PATH.'includes/Admin/Fields/Checkbox.php';
 include_once PLUGIN_PATH.'includes/Admin/Fields/Url.php';
 include_once PLUGIN_PATH.'includes/Admin/Fields/Message.php';
 
+include_once PLUGIN_PATH.'includes/Calendars/Calendars.php';
 include_once PLUGIN_PATH.'includes/Calendars/Calendar.php';
 include_once PLUGIN_PATH.'includes/Calendars/The_Events_Calendar.php';
 include_once PLUGIN_PATH.'includes/Calendars/Theater_For_WordPress.php';

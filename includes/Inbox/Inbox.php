@@ -11,11 +11,13 @@
 namespace Jeero\Inbox;
 
 use Jeero\Mother;
+use Jeero\Admin;
 use Jeero\Db;
 use Jeero\Subscriptions;
 
 const PICKUP_ITEMS_HOOK = 'jeero\inbox\pickup_items';
 
+add_action( 'init', __NAMESPACE__.'\schedule_next_pickup' );
 add_action( PICKUP_ITEMS_HOOK, __NAMESPACE__.'\pickup_items' );
 
 /**
@@ -25,15 +27,19 @@ add_action( PICKUP_ITEMS_HOOK, __NAMESPACE__.'\pickup_items' );
  * @return 	void
  */
 function pickup_items() {
+
+	$settings = Db\Subscriptions\get_settings();
+
+	$items = Mother\get_inbox( $settings );
 	
-	$inbox = Mother\get_inbox();
+	if ( is_wp_error( $items ) ) {
+		Admin\add_error( $items );
+		return;
+	}
+		
+	process_items( $items );
 	
-	// Schedule the next pick up.
-	schedule_next_pickup();
-	
-	// Move items to Queue.
-	
-	return $inbox;
+	return true;
 	
 }
 
@@ -49,6 +55,55 @@ function get_next_pickup() {
 	
 }
 
+function process_item( $item ) {
+	
+	$action = $item[ 'action' ];
+	$theater = $item[ 'theater' ];
+	$calendar = '';
+	
+	do_action( 'jeero/inbox/process/item', $item[ 'data' ], $item[ 'raw' ] );
+
+	do_action( 'jeero/inbox/process/item/'.$action, $item[ 'data' ], $item[ 'raw' ] );
+	
+	do_action( 'jeero/inbox/process/item/'.$action.'/theater='.$theater, $item[ 'data' ], $item[ 'raw' ] );
+	do_action( 'jeero/inbox/process/item/'.$action.'/calendar='.$calendar, $item[ 'data' ], $item[ 'raw' ] );
+	do_action( 'jeero/inbox/process/item/'.$action.'/theater='.$theater.'&calendar='.$calendar, $item[ 'data' ], $item[ 'raw' ] );
+	
+	// Remove from Inbox
+	remove_item( $item[ 'ID' ] );
+}
+
+function process_items( $items ) {
+	
+	if ( empty( $items ) ) {
+		return;
+	}
+	
+	$items_processed = array();
+	
+	foreach( $items as $item ) {
+		process_item( $item );
+		$items_processed[] = $item;
+	}
+	
+	error_log( sprintf( '%d items processed.', count( $items_processed ) ) );
+	
+	remove_items( $items_processed )
+}
+
+function remove_item( $ID ) {
+	error_log( sprintf( 'Removing item %s from Inbox.', $ID ) );
+	
+	return Mother\remove_inbox_item( $ID );
+}
+
+function remove_items( $items ) {
+	
+	$item_ids = wp_list_pluck( $items, 'ID' );
+	return Mother\remove_inbox_items( $item_ids );
+	
+}
+
 /**
  * Schedules the next pick up.
  * 
@@ -56,9 +111,13 @@ function get_next_pickup() {
  * @return 	void
  */
 function schedule_next_pickup() {
+
+	$next_pickup = get_next_pickup();
 	
-	// Remove any previously scheduled pickups.
-	wp_clear_scheduled_hook( PICKUP_ITEMS_HOOK );
+	// Bail if pickup is already scheduled.
+	if ( $next_pickup ) {
+		return;
+	}
 	
 	// Ask Mother to check again in a minute.
 	wp_schedule_single_event( time() + MINUTE_IN_SECONDS, PICKUP_ITEMS_HOOK );
