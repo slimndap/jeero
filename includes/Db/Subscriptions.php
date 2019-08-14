@@ -1,96 +1,47 @@
 <?php
 namespace Jeero\Db\Subscriptions;
 
+const JEERO_OPTION_SUBSCRIPTION = 'jeero_subscriptions';
+
 function get_settings() {
 	
-	global $wpdb;
-	
-	$sql = "SELECT ID, settings FROM {$wpdb->base_prefix}jeero_subscriptions";
+	$subscriptions = get_subscriptions();
 
-	$result = $wpdb->get_results( $sql, ARRAY_A );
-
-	if ( is_null( $result ) ) {
-		return $result;
-	}
-	
-	$settings = array();
-	
-	foreach( $result as $subscription ) {
-		$settings[ $subscription[ 'ID' ] ] = json_decode( $subscription[ 'settings' ], true );
+	$settings = array();	
+	foreach( $subscriptions as $subscription_id => $subscription ) {
+		$settings[ $subscription_id ] = $subscription[ 'settings' ];
 	}
 	
 	return $settings;
+
 }
 
 function get_subscriptions() {
 	
-	global $wpdb;
-	
-	$sql = "SELECT * FROM {$wpdb->base_prefix}jeero_subscriptions";
+	return get_option( JEERO_OPTION_SUBSCRIPTION, array() );
 
-	$result = $wpdb->get_results( $sql, ARRAY_A );
-
-	if ( is_null( $result) ) {
-		return $result;
-	}
-	
-	$subscriptions = array();
-	
-	foreach( $result as $subscription ) {
-		$subscriptions[ $subscription[ 'ID' ] ] = $subscription;
-	}
-	
-	return $subscriptions;
 }
 
-function get_subscription( $ID ) {
+function get_subscription( $subscription_id ) {
 	
-	global $wpdb;
+	$subscriptions = get_subscriptions();
 	
-	$sql = "SELECT * FROM {$wpdb->base_prefix}jeero_subscriptions
-		WHERE ID = %s";
-	$sql = $wpdb->prepare( $sql, $ID );
-	
-	$subscription = $wpdb->get_row( $sql, ARRAY_A );	
-	
-	if ( is_null( $subscription) ) {
-		return $subscription;
+	if ( empty( $subscriptions[ $subscription_id ] ) ) {
+		return false;
 	}
 	
-	$subscription[ 'settings' ] = json_decode( $subscription[ 'settings' ], true );
-	
-	return $subscription;
-	
+	return $subscriptions[ $subscription_id ];
+		
 }
 
-function save_subscription( $ID, $data ) {
+function save_subscription( $subscription_id, $data ) {
 	
-	global $wpdb;
+	$subscriptions = get_subscriptions();
 	
-	$data = wp_parse_args( 
-		$data, 
-		array(
-			'status' => '',
-			'fields' => array(),
-			'settings' => array(),
-		)
+	$subscriptions[ $subscription_id ] = array(
+		'settings' => $data[ 'settings' ],
 	);
 	
-	$sql = "INSERT INTO {$wpdb->base_prefix}jeero_subscriptions 
-		(`ID`, `settings` ) 
-		VALUES ( %s, %s ) 
-		ON DUPLICATE KEY 
-		UPDATE 
-		`settings` = VALUES( `settings` )";
-
-	$sql = $wpdb->prepare( 
-		$sql, 
-		array(
-			$ID,
-			json_encode( $data[ 'settings' ] ),
-		)
-	);
-
-	$wpdb->query( $sql );
-	
+	update_option( JEERO_OPTION_SUBSCRIPTION, $subscriptions, false );
+		
 }

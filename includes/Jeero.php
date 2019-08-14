@@ -20,7 +20,6 @@
  */
 namespace Jeero;
 
-include_once PLUGIN_PATH.'includes/Db/Db.php';
 include_once PLUGIN_PATH.'includes/Db/Subscriptions.php';
 
 include_once PLUGIN_PATH.'includes/Admin/Admin.php';

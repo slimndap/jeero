@@ -78,9 +78,9 @@ function get_subscription( $subscription_id, $settings ) {
 	// Send request to Mother.
 	$args = array(
 		'site_url' => site_url(),
-		'settings' => $settings,
+		'settings' => json_encode( $settings ),
 	);
-	return get( 'subscriptions/'.$subscription_id, $args );	
+	return get_aws( 'subscriptions/'.$subscription_id, $args );	
 
 }
 

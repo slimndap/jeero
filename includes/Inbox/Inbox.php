@@ -69,8 +69,6 @@ function process_item( $item ) {
 	do_action( 'jeero/inbox/process/item/'.$action.'/calendar='.$calendar, $item[ 'data' ], $item[ 'raw' ] );
 	do_action( 'jeero/inbox/process/item/'.$action.'/theater='.$theater.'&calendar='.$calendar, $item[ 'data' ], $item[ 'raw' ] );
 	
-	// Remove from Inbox
-	remove_item( $item[ 'ID' ] );
 }
 
 function process_items( $items ) {
@@ -88,7 +86,7 @@ function process_items( $items ) {
 	
 	error_log( sprintf( '%d items processed.', count( $items_processed ) ) );
 	
-	remove_items( $items_processed )
+	remove_items( $items_processed );
 }
 
 function remove_item( $ID ) {
@@ -97,8 +95,10 @@ function remove_item( $ID ) {
 	return Mother\remove_inbox_item( $ID );
 }
 
-function remove_items( $items ) {
+function remove_items( array $items ) {
 	
+	error_log( sprintf( 'Removing %d items from Inbox.', count( $items ) ) );
+
 	$item_ids = wp_list_pluck( $items, 'ID' );
 	return Mother\remove_inbox_items( $item_ids );
 	
