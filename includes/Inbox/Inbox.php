@@ -33,11 +33,11 @@ function pickup_items() {
 	$items = Mother\get_inbox( $settings );
 	
 	if ( is_wp_error( $items ) ) {
-		Admin\add_error( $items );
+		Admin\Notices\add_error( $items );
 		return;
 	}
 		
-	process_items( $items );
+	process_items( $items ); // @todo Queue items instead of process.
 	
 	return true;
 	
@@ -120,6 +120,6 @@ function schedule_next_pickup() {
 	}
 	
 	// Ask Mother to check again in a minute.
-	wp_schedule_single_event( time() + MINUTE_IN_SECONDS, PICKUP_ITEMS_HOOK );
+	\wp_schedule_single_event( time() + MINUTE_IN_SECONDS, PICKUP_ITEMS_HOOK );
 	
 }

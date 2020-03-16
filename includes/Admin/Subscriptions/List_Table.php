@@ -3,6 +3,7 @@ namespace Jeero\Admin\Subscriptions;
 
 use Jeero\Subscriptions;
 use Jeero\Admin;
+use Jeero\Calendars;
 
 if( ! class_exists( 'WP_List_Table' ) ) {
     require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
@@ -17,6 +18,7 @@ class List_Table extends \WP_List_Table {
 			'calendar' => 'Destination',
 			'interval' => 'Interval',
 			'next_delivery' => 'Next sync',
+			'limit' => 'Limit',
 		);
 		return $columns;
 	}
@@ -28,6 +30,22 @@ class List_Table extends \WP_List_Table {
             default:
                 return print_r( $item, true ) ;
         }
+    }
+    
+    function column_calendar( $subscription ) {
+
+		$settings = $subscription->get( 'settings' );
+		
+		if ( empty( $settings[ 'calendar' ] ) ) {
+			return;
+		}
+		
+		foreach( $settings[ 'calendar' ] as $slug ) {
+			
+			$calendar = Calendars\get_calendar( $slug );
+			?><div><?php echo $calendar->get( 'name' ); ?></div><?php
+		}
+
     }
     
     function column_logo( $subscription ) {
@@ -55,7 +73,18 @@ class List_Table extends \WP_List_Table {
 	    return human_time_diff( 0, $subscription->get( 'interval') );
     }
     
-	function column_next_delivery( $subscription ) {
+    function column_limit( $subscription ) {
+	    
+	    $limit = $subscription->get( 'limit');
+	    
+	    if ( empty( $interval ) ) {
+		    return __( 'Unknown', 'jeero' );
+	    }
+	    
+	    return sprintf( _n( '%d event', '%d events', $limit, 'jeero' ), $limit );
+    }
+    
+    function column_next_delivery( $subscription ) {
 		
 		$next_delivery = $subscription->get( 'next_delivery' );
 
@@ -114,7 +143,7 @@ class List_Table extends \WP_List_Table {
 		$subscriptions = Subscriptions\get_subscriptions();
 		
 		if ( is_wp_error( $subscriptions ) ) {
-			Admin/add_error( $subscriptions );
+			Admin\Notices\add_error( $subscriptions );
 			$this->items = array();		
 			return false;
 		}

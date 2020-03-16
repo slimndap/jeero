@@ -15,6 +15,6 @@ class Theater {
 	 */
 	public $ID;
 	
-
+	public $display_name;
 	
 }

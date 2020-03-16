@@ -3,6 +3,7 @@ namespace Jeero\Subscriptions;
 
 use Jeero\Db;
 use Jeero\Admin;
+use Jeero\Mother;
 
 /**
  * Subscription class.
@@ -24,6 +25,8 @@ class Subscription {
 	 * @since	1.0
 	 */
 	public $fields = array();
+	
+	public $limit;
 	
 	public $logo;
 	
@@ -121,6 +124,8 @@ class Subscription {
 		);
 		
 		Db\Subscriptions\save_subscription( $this->ID, $data );
+		
+		Mother\update_subscription( $this->ID, $this->settings );
 		
 		$this->load();
 		

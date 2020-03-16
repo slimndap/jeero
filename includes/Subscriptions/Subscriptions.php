@@ -27,7 +27,7 @@ function add_subscription( ) {
 		return $answer;
 	}
 
-	return $answer[ 'ID' ];
+	return $answer[ 'id' ];
 
 }
 

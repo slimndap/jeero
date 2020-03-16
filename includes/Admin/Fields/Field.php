@@ -22,7 +22,10 @@ class Field {
 		}
 		
 		$this->subscription_id = $subscription_id;
-		$this->value = $value;
+		
+		if ( !is_null( $value ) ) {
+			$this->value = $value;
+		}
 		
 	}
 	

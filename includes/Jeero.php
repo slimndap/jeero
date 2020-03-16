@@ -31,6 +31,8 @@ include_once PLUGIN_PATH.'includes/Admin/Fields/Select.php';
 include_once PLUGIN_PATH.'includes/Admin/Fields/Checkbox.php';
 include_once PLUGIN_PATH.'includes/Admin/Fields/Url.php';
 include_once PLUGIN_PATH.'includes/Admin/Fields/Message.php';
+include_once PLUGIN_PATH.'includes/Admin/Fields/Error.php';
+include_once PLUGIN_PATH.'includes/Admin/Notices/Notices.php';
 
 include_once PLUGIN_PATH.'includes/Calendars/Calendars.php';
 include_once PLUGIN_PATH.'includes/Calendars/Calendar.php';

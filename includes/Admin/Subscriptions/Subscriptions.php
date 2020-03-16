@@ -61,7 +61,7 @@ function get_edit_html( $subscription_id ) {
 	
 	$subscription = Subscriptions\get_subscription( $subscription_id );
 	if ( is_wp_error( $subscription ) ) {
-		Admin\add_error( $subscription );
+		Admin\Notices\add_error( $subscription );
 		wp_redirect( get_admin_page_url() );
 		exit;
 	}
@@ -162,9 +162,9 @@ function add_new_subscription() {
 	}
 	
 	$subscription_id = Subscriptions\add_subscription();
-	
+
 	if ( is_wp_error( $subscription_id ) ) {
-		Admin\add_error( $subscription_id );
+		Admin\Notices\add_error( $subscription_id );
 		wp_safe_redirect( get_admin_page_url() );
 		exit;
 	}
@@ -192,7 +192,7 @@ function update_subscription() {
 	$subscription = Subscriptions\get_subscription( $_GET[ 'subscription_id' ] );	
 
 	if ( is_wp_error( $subscription ) ) {
-		Admin\add_error( $subscription );
+		Admin\Notices\add_error( $subscription );
 		wp_safe_redirect( get_admin_edit_url( $subscription->get( 'ID' ) ) );			
 	}
 
@@ -205,10 +205,13 @@ function update_subscription() {
 	$subscription->save();
 	
 	$subscription = Subscriptions\get_subscription( $subscription->get( 'ID' ) );
+	$settings = $subscription->get( 'settings' );
 	
-	if ( \Jeero\Subscriptions\JEERO_SUBSCRIPTIONS_STATUS_SETUP == $subscription->get( 'status' ) ) {		
+	if ( \Jeero\Subscriptions\JEERO_SUBSCRIPTIONS_STATUS_SETUP == $subscription->get( 'status' ) ) {	
+		Admin\Notices\add_success( sprintf( __( '%s subscription updated. Please enter any missing settings below.', 'jeero' ), $settings[ 'theater' ] ) );	
 		wp_safe_redirect( get_admin_edit_url( $subscription->get( 'ID' ) ) );	
 	} else {
+		Admin\Notices\add_success( sprintf( __( '%s subscription updated.', 'jeero' ), $settings[ 'theater' ] ) );	
 		Inbox\pickup_items();
 		wp_safe_redirect( get_admin_page_url() );	
 	}
