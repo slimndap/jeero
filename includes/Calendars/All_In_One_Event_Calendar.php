@@ -1,19 +1,19 @@
 <?php
 namespace Jeero\Calendars;
 
-const JEERO_CALENDARS_THE_EVENTS_CALENDAR_REF_KEY = 'jeero/the_events_calendar/ref';
+const JEERO_CALENDARS_ALL_IN_ONE_EVENT_CALENDAR_REF_KEY = 'jeero/all_in_one_event_calendar/ref';
 
 /**
  * The_Events_Calendar class.
  * 
  * @extends Calendar
  */
-class The_Events_Calendar extends Calendar {
+class All_In_One_Event_Calendar extends Calendar {
 
 	function __construct() {
 		
-		$this->slug = 'The_Events_Calendar';
-		$this->name = __( 'The Events Calendar', 'jeero' );
+		$this->slug = 'All_In_One_Event_Calendar';
+		$this->name = __( 'All In One Event Calendar', 'jeero' );
 		
 		parent::__construct();
 		
@@ -22,16 +22,17 @@ class The_Events_Calendar extends Calendar {
 	function get_event_by_ref( $ref ) {
 		
 		$args = array(
+			'post_type' => \AI1EC_POST_TYPE,
 			'post_status' => 'any',
 			'meta_query' => array(
 				array(
-					'key' => JEERO_CALENDARS_THE_EVENTS_CALENDAR_REF_KEY,
+					'key' => JEERO_CALENDARS_ALL_IN_ONE_EVENT_CALENDAR_REF_KEY,
 					'value' => $ref,					
 				),
 			),
 		);
 		
-		$events = \tribe_get_events( $args );
+		$events = get_posts( $args );
 		
 		if ( empty( $events ) ) {
 			return false;
@@ -67,6 +68,8 @@ class The_Events_Calendar extends Calendar {
 	
 	function process_data( $data, $raw ) {
 		
+		global $ai1ec_front_controller;
+		
 		$data = parent::process_data( $data, $raw );
 		
 		if ( \is_wp_error( $data ) ) {			
@@ -74,49 +77,50 @@ class The_Events_Calendar extends Calendar {
 		}
 		
 		$ref = $data[ 'ref' ];
-		
-		$event_start = strtotime( $data[ 'start' ] ) + get_option( 'gmt_offset' ) * 3600;
-		$event_end = strtotime( $data[ 'end' ] ) + get_option( 'gmt_offset' ) * 3600;
 
-		$args = array(
-			'EventStartDate' => date( 'Y-m-d', $event_start ),
-			'EventStartHour' => date( 'H', $event_start ),
-			'EventStartMinute' => date( 'i', $event_start ),
-			'EventEndDate' => date( 'Y-m-d', $event_end ),
-			'EventEndHour' => date( 'H', $event_end ),
-			'EventEndMinute' => date( 'i', $event_end ),
-		);
-		
+        $args = array(
+            'ticket_url' => $data[ 'tickets_url' ],
+            'post' => array(
+				'post_status' => 'draft',
+				'post_type' => \AI1EC_POST_TYPE,
+				'post_title' => $data[ 'title' ],
+				'post_content' => '',
+            ),
+        );
+
 		if ( !empty( $data[ 'venue' ] ) ) {
-			$args[ 'venue' ] = array(
-				'VenueID' => $this->get_venue_id( $data[ 'venue' ][ 'title' ] ),
-			);
+			$args[ 'venue' ] = $data[ 'venue' ][ 'title' ];
 		}
 		
 		if ( !empty( $data[ 'prices' ] ) ) {
 			$amounts = \wp_list_pluck( $data[ 'prices' ], 'amount' );
-			$args[ 'EventCost' ]	 = min( $amounts );
+			$args[ 'cost' ]	 = min( $amounts );
 		}
 		
+		$Ai1ec_Event = $ai1ec_front_controller->return_registry( true )->get( 'model.event', $args );		
+
 		if ( $event_id = $this->get_event_by_ref( $ref ) ) {
-			
-			$event_id = \tribe_update_event( $event_id, $args );
+						
+			$Ai1ec_Event->set( 'post_id', $event_id );
+			$Ai1ec_Event->set( 'post', get_post( $event_id ) );
+			$Ai1ec_Event->save( true );
 
 			error_log( sprintf( '[%s] Updating event %d / %d.', $this->name, $ref, $event_id ) );
+			
 			
 		} else {
 			
 			error_log( sprintf( '[%s] Creating event %d.', $this->name, $ref ) );
-
-			$args[ 'post_title' ]= $data[ 'title' ];
-			$args[ 'EventURL' ] = $data[ 'tickets_url' ];
 			
-			$event_id = \tribe_create_event( $args );
+			$event_id = $Ai1ec_Event->save();
 			
-			\add_post_meta( $event_id, JEERO_CALENDARS_THE_EVENTS_CALENDAR_REF_KEY, $data[ 'ref' ] );
-
+			if ( !$event_id ) {
+				return new \WP_Error( $this->slug, sprintf( 'could not save event %d.', $ref ) );
+			}
+			
+			\add_post_meta( $event_id, JEERO_CALENDARS_ALL_IN_ONE_EVENT_CALENDAR_REF_KEY, $data[ 'ref' ] );
 		}
-		
+
 		
 		return $data;
 		

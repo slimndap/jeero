@@ -1,6 +1,17 @@
 <?php
 namespace Jeero\Calendars;
 
+add_action( 'init', __NAMESPACE__.'\add_import_actions' );
+
+function add_import_actions() {
+	
+	$calendars = get_active_calendars();
+	foreach( $calendars as $calendar ) {		
+		add_action( 'jeero/inbox/process/item/import/calendar='.$calendar->get( 'slug' ), array( $calendar, 'import' ), 10, 2 );		
+	}
+	
+}
+
 function get_active_calendars() {
 	
 	$slugs = array();
@@ -21,8 +32,7 @@ function get_active_calendars() {
 	
 	foreach ( $slugs as $slug ) {
 		
-		$calendar = get_calendar( $slug );
-		$calendars[ $slug ] = $calendar->get( 'name' );
+		$calendars[] = get_calendar( $slug );
 		
 	}
 	

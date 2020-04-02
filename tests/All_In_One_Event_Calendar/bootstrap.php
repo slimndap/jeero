@@ -22,10 +22,17 @@ require_once $_tests_dir . '/includes/functions.php';
 /**
  * Manually load the plugin being tested.
  */
+
 function _manually_load_plugin() {
-	require dirname( dirname( __FILE__ ) ) . '/jeero.php';
+	global $ai1ec_front_controller;
+	require dirname( dirname( __FILE__ ) ) . '/../jeero.php';
+	require dirname( dirname( __FILE__ ) ) . '/../../all-in-one-event-calendar/all-in-one-event-calendar.php';	
 }
+
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 
 // Start up the WP testing environment.
 require $_tests_dir . '/includes/bootstrap.php';
+
+require 'tests/includes/jeero.php';
+

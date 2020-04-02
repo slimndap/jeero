@@ -28,6 +28,8 @@ add_action( PICKUP_ITEMS_HOOK, __NAMESPACE__.'\pickup_items' );
  */
 function pickup_items() {
 
+	error_log( 'Pick up items from inbox.' );
+
 	$settings = Db\Subscriptions\get_settings();
 
 	$items = Mother\get_inbox( $settings );
@@ -35,6 +37,12 @@ function pickup_items() {
 	if ( is_wp_error( $items ) ) {
 		Admin\Notices\add_error( $items );
 		return;
+	}
+	
+	if ( empty( $items ) ) {
+		error_log( 'No items found in inbox.' );		
+	} else {
+		error_log( sprintf( '%d items found in inbox.', count( $items ) ) );
 	}
 		
 	process_items( $items ); // @todo Queue items instead of process.
@@ -59,15 +67,25 @@ function process_item( $item ) {
 	
 	$action = $item[ 'action' ];
 	$theater = $item[ 'theater' ];
-	$calendar = '';
+
+	$subscription = new Subscriptions\Subscription( $item[ 'subscription_id' ] );
 	
 	do_action( 'jeero/inbox/process/item', $item[ 'data' ], $item[ 'raw' ] );
 
 	do_action( 'jeero/inbox/process/item/'.$action, $item[ 'data' ], $item[ 'raw' ] );
 	
 	do_action( 'jeero/inbox/process/item/'.$action.'/theater='.$theater, $item[ 'data' ], $item[ 'raw' ] );
-	do_action( 'jeero/inbox/process/item/'.$action.'/calendar='.$calendar, $item[ 'data' ], $item[ 'raw' ] );
-	do_action( 'jeero/inbox/process/item/'.$action.'/theater='.$theater.'&calendar='.$calendar, $item[ 'data' ], $item[ 'raw' ] );
+	
+	if ( !empty( $subscription->get( 'settings' )[ 'calendar' ] ) ) {
+
+		foreach( $subscription->get( 'settings' )[ 'calendar' ] as $calendar ) {
+			
+			do_action( 'jeero/inbox/process/item/'.$action.'/calendar='.$calendar, $item[ 'data' ], $item[ 'raw' ] );
+			do_action( 'jeero/inbox/process/item/'.$action.'/theater='.$theater.'&calendar='.$calendar, $item[ 'data' ], $item[ 'raw' ] );
+			
+		}
+		
+	}
 	
 }
 

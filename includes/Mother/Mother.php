@@ -72,7 +72,8 @@ function get_inbox( $settings ) {
 	$args = array(
 		'settings' => json_encode( $settings ),
 	);
-	return get_aws( 'inbox', $args );	
+	
+	return get( 'inbox', $args );	
 	
 }
 
@@ -100,7 +101,7 @@ function get_subscription( $subscription_id, $settings ) {
 	$args = array(
 		'settings' => json_encode( $settings ),
 	);
-	return get_aws( 'subscriptions/'.$subscription_id, $args );	
+	return get( 'subscriptions/'.$subscription_id, $args );	
 
 }
 
@@ -116,7 +117,7 @@ function get_subscriptions( $settings ) {
 		'settings' => urlencode( json_encode( $settings ) ),
 	);
 
-	$subscriptions = get_aws( 'subscriptions', $args );
+	$subscriptions = get( 'subscriptions', $args );
 	
 	return $subscriptions;	
 
@@ -157,52 +158,10 @@ function update_subscription( $subscription_id, $settings ) {
 
 }
 
-
 function get( $endpoint, $data = array() ) {
 	
 	$response = apply_filters( 'jeero/mother/get/response', NULL, $endpoint, $data );
-
-	if ( is_null( $response ) ) {
-
-		$url = BASE_URL.'/'.$endpoint;
-		
-		if ( !empty( $data ) ) {
-			$url = add_query_arg( $data, $url );
-		}
-
-		$args = array(
-			'timeout' => 30,
-			'headers' => array(
-				'site_url' => site_url(),
-				'site_key' => get_site_key(),
-			),
-		);
-
-		$response = wp_remote_get( $url, $args );
-
-	}
-
-	if ( is_wp_error( $response ) ) {
-		return $response;
-	}
-	
-	$body = json_decode( wp_remote_retrieve_body( $response ), true );
-
-	if ( 200 != wp_remote_retrieve_response_code( $response ) ) {
-		if ( empty( $body[ 'message' ] ) ) {
-			return new \WP_Error( 'mother', wp_remote_retrieve_body( $response ) );			
-		} else {
-			return new \WP_Error( 'mother', $body[ 'message' ] );
-		}
-	}
-	
-	return $body;
-	
-}
-
-function get_aws( $endpoint, $data = array() ) {
-	
-	$response = apply_filters( 'jeero/mother/get/response', NULL, $endpoint, $data );
+	$response = apply_filters( 'jeero/mother/get/response/endpoint='.$endpoint, $response, $endpoint, $data );
 
 	if ( is_null( $response ) ) {
 
@@ -254,6 +213,7 @@ function get_error( $code, $message ) {
 function post( $endpoint, $data = array() ) {
 	
 	$response = apply_filters( 'jeero/mother/post/response', NULL, $endpoint, $data );
+	$response = apply_filters( 'jeero/mother/post/response/endpoint='.$endpoint, $response, $endpoint, $data );
 
 	if ( is_null( $response ) ) {
 

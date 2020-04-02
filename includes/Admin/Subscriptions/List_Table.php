@@ -13,7 +13,6 @@ class List_Table extends \WP_List_Table {
 	
 	function get_columns() {
 		$columns = array(
-			'logo' => '',
 			'subscription' => 'Source',
 			'calendar' => 'Destination',
 			'interval' => 'Interval',
@@ -48,20 +47,6 @@ class List_Table extends \WP_List_Table {
 
     }
     
-    function column_logo( $subscription ) {
-
-		if ( empty( $subscription->get( 'logo' ) ) ) {
-			return;
-		}
-		
-		$settings = $subscription->get( 'settings' );
-		
-		ob_start();
-		?><img src="<?php echo $subscription->get( 'logo' ); ?>" alt="<?php printf( __( '%s logo', 'jeero' ), $settings[ 'theater' ] ); ?>" style="width: 40px; height: auto;"><?php
-		return ob_get_clean();
-
-    }
-    
     function column_interval( $subscription ) {
 	    
 	    $interval = $subscription->get( 'interval');
@@ -92,8 +77,15 @@ class List_Table extends \WP_List_Table {
 		    return;
 	    }
 	    
-	    return human_time_diff( time(), $subscription->get( 'next_delivery' ) );
-		return date_i18n( 'd-m-Y H:i:s', $subscription->get( 'next_delivery' ) );
+	    ob_start();
+	    
+	    ?><span title="<?php
+		    echo date_i18n( 'd-m-Y H:i:s', $subscription->get( 'next_delivery' ) ); 
+		?>"><?php 
+		    echo human_time_diff( $subscription->get( 'next_delivery' ), current_time( 'timestamp' ) );
+		?></span><?php
+			
+		return ob_get_clean();
 	}
     
     function column_subscription( $subscription ) {
@@ -108,11 +100,16 @@ class List_Table extends \WP_List_Table {
 		
 		?><strong>
 			<a class="row-title" href="<?php echo get_admin_edit_url( $subscription->get( 'ID' ) ); ?>"><?php
+				
+				if ( !empty( $subscription->get( 'logo' ) ) ) {
+					?><img src="<?php echo $subscription->get( 'logo' ); ?>" alt="<?php printf( __( '%s logo', 'jeero' ), $settings[ 'theater' ] ); ?>" style="width: auto; height: 1.5em;"> <?php
+				}
+
+
 				if ( !empty( $settings[ 'theater' ] ) ) {
 					echo $settings[ 'theater' ];
 				}
-			?></a> - 
-			<span><?php echo $subscription->get( 'status' ); ?></span>
+			?></a>
 		</strong><?php
 			
 		echo $this->row_actions( $actions );

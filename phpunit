@@ -1,0 +1,16 @@
+#!/bin/bash
+
+phpunit --configuration tests/configuration/Jeero.xml
+if [ $? -ne 0 ]; then
+        exit 0
+fi
+
+phpunit --configuration tests/configuration/The_Events_Calendar.xml
+if [ $? -ne 0 ]; then
+        exit 0
+fi
+
+phpunit --configuration tests/configuration/All_In_One_Event_Calendar.xml
+if [ $? -ne 0 ]; then
+        exit 0
+fi

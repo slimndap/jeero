@@ -1,27 +1,10 @@
 <?php
-/**
- * @group admin
- */
- 
-use Jeero\Admin;
-use Jeero\Subscriptions;
-
-class Admin_Test extends WP_UnitTestCase {
-	
-	function setUp() {
-		
-		// Set hook suffix to prevent WP_List_Table from generating warnings.
-		$GLOBALS['hook_suffix'] = '';		
-	}
+class Jeero_Test extends WP_UnitTestCase {
 	
 	function get_mock_response_for_add_subscription( $response, $endpoint, $args ) {
 		
-		if ( 'subscriptions' != $endpoint ) {
-			return $response;
-		}
-		
 		$body = array(
-			'ID' => 'a fake ID',
+			'id' => 'a fake ID',
 			'status' => 'setup',
 			'fields' => array(
 				array(
@@ -50,13 +33,9 @@ class Admin_Test extends WP_UnitTestCase {
 
 	function get_mock_response_for_get_subscriptions( $response, $endpoint, $args ) {
 		
-		if ( 'subscriptions' != $endpoint ) {
-			return $response;
-		}
-		
 		$body = array(
 			array(
-				'ID' => 'a fake ID',
+				'id' => 'a fake ID',
 				'status' => 'setup',
 				'fields' => array(
 					array(
@@ -73,9 +52,10 @@ class Admin_Test extends WP_UnitTestCase {
 				),
 			),			
 			array(
-				'ID' => 'another fake ID',
+				'id' => 'another fake ID',
 				'status' => 'active',
 				'next_update' => time() + DAY_IN_SECONDS,
+				'interval' => 3600,
 				'fields' => array(
 					array(
 						'name' => 'theater',
@@ -109,7 +89,7 @@ class Admin_Test extends WP_UnitTestCase {
 		}
 		
 		$body = array(
-			'ID' => 'a fake ID',
+			'id' => 'a fake ID',
 			'status' => 'setup',
 			'fields' => array(
 				array(
@@ -123,6 +103,11 @@ class Admin_Test extends WP_UnitTestCase {
 						'stager' => 'Stager',	
 					),
 				),
+				array(
+					'name' => 'test_field',
+					'type' => 'text',
+					'label' => 'Test field',
+				)
 			),
 		);	
 		
@@ -135,53 +120,51 @@ class Admin_Test extends WP_UnitTestCase {
 		);
 			
 	}
-
-	function test_empty_subscriptions_shows_onboarding() {
-
-		$actual = Admin\Subscriptions\get_admin_page_html();
-		$expected = 'class="onboarding"';
+	
+	function get_mock_response_for_get_inbox( $response, $endpoint, $args ) {
 		
-		$this->assertContains( $expected, $actual );
+		$body = array(
+			array(
+				'ID' => 'a fake inbox ID',
+				'action' => 'import',
+				'item' => 'event',
+				'theater' => 'veezi',
+				'subscription_id' => 'a fake ID',
+				'data' => array(
+					'title' => 'A test event',
+					'description' => 'A description.',
+					'start' => time() + 48 * HOUR_IN_SECONDS,
+					'end' => time() + 90 * MINUTE_IN_SECONDS + 48 * HOUR_IN_SECONDS,
+					'image' => '',
+					'ref' => '123',
+					'tickets_url' => 'https://slimndap.com',
+					'location' => array(
+						'name' => 'Paard',
+						'address' => array(
+							
+						),
+					),
+					'offers' => array(
+						array(
+							'availability' => 'InStock',
+							'price' => '20',
+							'currency' => 'EUR',
+							'url' => 'https://slimndap.com',	
+						),
+					),	
+				
+				),
+				'raw' => 'Raw event data',
+			),
+		);
 		
+		return array(
+			'body' => json_encode( $body ),
+			'response' => array(
+				'code' => 200,
+				'message' => 'OK',	
+			),
+		);
+			
 	}
-
-	function test_subscription_is_added() {
-	}
-
-	function test_subscriptions_in_list_table() {
-
-		add_filter( 'jeero/mother/get/response', array( $this, 'get_mock_response_for_get_subscriptions' ), 10, 3 );
-		
-		$actual = Admin\Subscriptions\get_admin_page_html();
-		$expected = 'a fake ID';
-		
-		$this->assertContains( $expected, $actual );
-	}
-
-	function test_edit_form() {
-		
-		add_filter( 'jeero/mother/get/response', array( $this, 'get_mock_response_for_get_subscription' ), 10, 3 );
-
-		$_GET[ 'edit' ] = 'a fake ID';
-		
-		$actual = Admin\Subscriptions\get_admin_page_html();
-		$expected = '<input type="hidden" name="subscription_id" value="a fake ID">';
-		
-		$this->assertContains( $expected, $actual );
-		
-	}
-
-	function test_edit_form_has_fields() {
-
-		add_filter( 'jeero/mother/get/response', array( $this, 'get_mock_response_for_get_subscription' ), 10, 3 );
-
-		$_GET[ 'edit' ] = 'a fake ID';
-		
-		$actual = Admin\Subscriptions\get_admin_page_html();
-		$expected = '<select name="theater"';
-		
-		$this->assertContains( $expected, $actual );
-
-	}
-
 }
