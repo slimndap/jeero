@@ -68,20 +68,45 @@ function process_item( $item ) {
 	$action = $item[ 'action' ];
 	$theater = $item[ 'theater' ];
 
-	$subscription = new Subscriptions\Subscription( $item[ 'subscription_id' ] );
-	
-	do_action( 'jeero/inbox/process/item', $item[ 'data' ], $item[ 'raw' ] );
+	do_action( 
+		'jeero/inbox/process/item', 
+		$item[ 'data' ], 
+		$item[ 'raw' ],
+		$action,
+		$theater
+	);
 
-	do_action( 'jeero/inbox/process/item/'.$action, $item[ 'data' ], $item[ 'raw' ] );
+	do_action( 
+		'jeero/inbox/process/item/'.$action, 
+		$item[ 'data' ], 
+		$item[ 'raw' ],
+		$theater
+	);
 	
-	do_action( 'jeero/inbox/process/item/'.$action.'/theater='.$theater, $item[ 'data' ], $item[ 'raw' ] );
+	do_action( 
+		'jeero/inbox/process/item/'.$action.'/theater='.$theater, 
+		$item[ 'data' ], 
+		$item[ 'raw' ] 
+	);
+	
+	$subscription = new Subscriptions\Subscription( $item[ 'subscription_id' ] );
 	
 	if ( !empty( $subscription->get( 'settings' )[ 'calendar' ] ) ) {
 
 		foreach( $subscription->get( 'settings' )[ 'calendar' ] as $calendar ) {
 			
-			do_action( 'jeero/inbox/process/item/'.$action.'/calendar='.$calendar, $item[ 'data' ], $item[ 'raw' ] );
-			do_action( 'jeero/inbox/process/item/'.$action.'/theater='.$theater.'&calendar='.$calendar, $item[ 'data' ], $item[ 'raw' ] );
+			do_action( 
+				'jeero/inbox/process/item/'.$action.'/calendar='.$calendar, 
+				$item[ 'data' ], 
+				$item[ 'raw' ],
+				$theater
+			);
+			
+			do_action( 
+				'jeero/inbox/process/item/'.$action.'/theater='.$theater.'&calendar='.$calendar, 
+				$item[ 'data' ], 
+				$item[ 'raw' ]
+			);
 			
 		}
 		

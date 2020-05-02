@@ -7,7 +7,7 @@ function add_import_actions() {
 	
 	$calendars = get_active_calendars();
 	foreach( $calendars as $calendar ) {		
-		add_action( 'jeero/inbox/process/item/import/calendar='.$calendar->get( 'slug' ), array( $calendar, 'import' ), 10, 2 );		
+		add_action( 'jeero/inbox/process/item/import/calendar='.$calendar->get( 'slug' ), array( $calendar, 'import' ), 10, 3 );		
 	}
 	
 }

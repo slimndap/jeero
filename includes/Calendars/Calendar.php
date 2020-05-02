@@ -36,24 +36,30 @@ class Calendar {
 		
 	}
 	
+	function get_ref_key( $theater ) {
+		return sprintf( 'jeero/%s/%s/ref', $this->get( 'slug' ), $theater );
+	}
+	
 	function get( $key ) {
 		return $this->{ $key };
 	}
 	
-	function import( $data, $raw ) {
+	function import( $data, $raw, $theater ) {
 		
-		$result = $this->process_data( $data, $raw );
+		error_log( sprintf( '[%s] Import of %s item started.', $this->get( 'name' ), $theater ) );
+
+		$result = $this->process_data( $data, $raw, $theater );
 		
 		if ( \is_wp_error( $result ) ) {
-			error_log( sprintf( '[%s] Import failed: %s.', $this->get( 'name' ), $result->get_error_message() ) );
+			error_log( sprintf( '[%s] Import of %s item failed: %s.', $this->get( 'name' ), $theater, $result->get_error_message() ) );
 			return;
 		}
 		
-		error_log( sprintf( '[%s] Import successful.', $this->get( 'name' ) ) );
+		error_log( sprintf( '[%s] Import of %s item successful.', $this->get( 'name' ), $theater ) );
 
 	}
 	
-	function process_data( $data, $raw ) {
+	function process_data( $data, $raw, $theater ) {
 
 		if ( empty( $data[ 'ref' ] ) ) {			
 			return new \WP_Error( 'jeero/import', 'Ref identifier is missing' );

@@ -19,13 +19,15 @@ class The_Events_Calendar extends Calendar {
 		
 	}
 	
-	function get_event_by_ref( $ref ) {
+	function get_event_by_ref( $ref, $theater ) {
+		
+		error_log( sprintf( '[%s] Looking for existing %s item %s.', $this->get( 'name' ), $theater, $ref ) );
 		
 		$args = array(
 			'post_status' => 'any',
 			'meta_query' => array(
 				array(
-					'key' => JEERO_CALENDARS_THE_EVENTS_CALENDAR_REF_KEY,
+					'key' => $this->get_ref_key( $theater ),
 					'value' => $ref,					
 				),
 			),
@@ -65,9 +67,9 @@ class The_Events_Calendar extends Calendar {
 		return $venue_id;		
 	}
 	
-	function process_data( $data, $raw ) {
+	function process_data( $data, $raw, $theater ) {
 		
-		$data = parent::process_data( $data, $raw );
+		$data = parent::process_data( $data, $raw, $theater );
 		
 		if ( \is_wp_error( $data ) ) {			
 			return $data;
@@ -98,7 +100,7 @@ class The_Events_Calendar extends Calendar {
 			$args[ 'EventCost' ]	 = min( $amounts );
 		}
 		
-		if ( $event_id = $this->get_event_by_ref( $ref ) ) {
+		if ( $event_id = $this->get_event_by_ref( $ref, $theater ) ) {
 			
 			$event_id = \tribe_update_event( $event_id, $args );
 
@@ -113,7 +115,7 @@ class The_Events_Calendar extends Calendar {
 			
 			$event_id = \tribe_create_event( $args );
 			
-			\add_post_meta( $event_id, JEERO_CALENDARS_THE_EVENTS_CALENDAR_REF_KEY, $data[ 'ref' ] );
+			\add_post_meta( $event_id, $this->get_ref_key( $theater ), $data[ 'ref' ] );
 
 		}
 		
