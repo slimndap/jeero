@@ -6,13 +6,7 @@
  * \copyright GNU Public License
  *
  * \section intro Introduction
- * Jeero is a little boy who dreams of going to the theater.
- * He asks his mother to contact the Theaters to negotiate a Subscription to their list of Shows.
- * The Theaters regularly leave a list of new events in his inbox. 
- * which Jeero checks eand empties continously.
- * He then Works diligently through all the data to put it in one of his beautiful Calendars.
- *
- * _Jeero also syncs all events and tickets from your ticketing solution with your favourite calendar plugin._
+ * Jeero syncs all events and tickets from your ticketing solution with your favourite WordPress calendar plugin.
  */
  
 /**
@@ -50,7 +44,3 @@ include_once PLUGIN_PATH.'includes/Subscriptions/Subscription.php';
 include_once PLUGIN_PATH.'includes/Inbox/Inbox.php';
 
 include_once PLUGIN_PATH.'includes/Mother/Mother.php';
-
-include_once PLUGIN_PATH.'includes/Work/Work.php';
-include_once PLUGIN_PATH.'includes/Work/Task.php';
-include_once PLUGIN_PATH.'includes/Work/Import.php';

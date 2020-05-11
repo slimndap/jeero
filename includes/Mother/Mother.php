@@ -8,30 +8,12 @@ use Theaters\Theater;
 use Jeero\Subscriptions\Subscription;
 use Jeero\Db;
 
-//const BASE_URL = 'https://mother.jeero.ooo/api/v1';
-const BASE_URL = 'http://jeero.local/api/v1';
-const BASE_URL_AWS = 'https://ql621w5yfk.execute-api.eu-west-1.amazonaws.com/jeero';
+const BASE_URL = 'https://ql621w5yfk.execute-api.eu-west-1.amazonaws.com/jeero';
 const SITE_KEY = 'jeero/mother/site_key';
 
 function delete( $endpoint, $data = array() ) {
 	
 	$url = BASE_URL.'/'.$endpoint;
-	
-	if ( !empty( $data ) ) {
-		$url = add_query_arg( $data, $url );
-	}
-
-	$args = array(
-		'timeout' => 10,
-		'method' => 'DELETE',
-	);
-
-	$response = wp_remote_request( $url, $args );	
-}
-
-function delete_aws( $endpoint, $data = array() ) {
-	
-	$url = BASE_URL_AWS.'/'.$endpoint;
 	
 	if ( !empty( $data ) ) {
 		$url = add_query_arg( $data, $url );
@@ -92,7 +74,7 @@ function remove_inbox_items( $item_ids ) {
 	$args = array(
 		'inbox_id' => json_encode( $item_ids ),
 	);
-	return delete_aws( 'inbox', $args );
+	return delete( 'inbox', $args );
 }
 
 function get_subscription( $subscription_id, $settings ) {
@@ -165,7 +147,7 @@ function get( $endpoint, $data = array() ) {
 
 	if ( is_null( $response ) ) {
 
-		$url = BASE_URL_AWS.'/'.$endpoint;
+		$url = BASE_URL.'/'.$endpoint;
 		
 		if ( !empty( $data ) ) {
 			$url = add_query_arg( $data, $url );
@@ -217,7 +199,7 @@ function post( $endpoint, $data = array() ) {
 
 	if ( is_null( $response ) ) {
 
-		$url = BASE_URL_AWS.'/'.$endpoint;
+		$url = BASE_URL.'/'.$endpoint;
 		
 		if ( !empty( $data ) ) {
 			
