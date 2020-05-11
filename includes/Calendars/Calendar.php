@@ -12,8 +12,6 @@ class Calendar {
 	
 	function __construct() {
 		
-		//$this->load_fields();
-		
 	}
 	
 	function get_fields() {
@@ -57,6 +55,12 @@ class Calendar {
 		
 		error_log( sprintf( '[%s] Import of %s item successful.', $this->get( 'name' ), $theater ) );
 
+	}
+	
+	function localize_timestamp( $timestamp ) {
+		
+		return $timestamp + get_option( 'gmt_offset' ) * HOUR_IN_SECONDS;
+		
 	}
 	
 	function process_data( $data, $raw, $theater ) {

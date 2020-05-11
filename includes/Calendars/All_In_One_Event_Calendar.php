@@ -83,7 +83,7 @@ class All_In_One_Event_Calendar extends Calendar {
             'post' => array(
 				'post_status' => 'draft',
 				'post_type' => \AI1EC_POST_TYPE,
-				'post_title' => $data[ 'title' ],
+				'post_title' => $data[ 'production' ][ 'title' ],
 				'post_content' => '',
             ),
         );

@@ -131,25 +131,26 @@ class Jeero_Test extends WP_UnitTestCase {
 				'theater' => 'veezi',
 				'subscription_id' => 'a fake ID',
 				'data' => array(
-					'title' => 'A test event',
-					'description' => 'A description.',
+					'production' => array(
+						'title' => 'A test event',
+						'description' => 'A description.',						
+					),
 					'start' => time() + 48 * HOUR_IN_SECONDS,
 					'end' => time() + 90 * MINUTE_IN_SECONDS + 48 * HOUR_IN_SECONDS,
 					'image' => '',
 					'ref' => '123',
 					'tickets_url' => 'https://slimndap.com',
-					'location' => array(
-						'name' => 'Paard',
+					'venue' => array(
+						'title' => 'Paard',
 						'address' => array(
 							
 						),
 					),
-					'offers' => array(
+					'prices' => array(
 						array(
-							'availability' => 'InStock',
-							'price' => '20',
+							'title' => 'Regular',
+							'amount' => '20',
 							'currency' => 'EUR',
-							'url' => 'https://slimndap.com',	
 						),
 					),	
 				

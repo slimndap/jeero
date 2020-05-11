@@ -1,8 +1,6 @@
 <?php
 namespace Jeero\Calendars;
 
-const JEERO_CALENDARS_THE_EVENTS_CALENDAR_REF_KEY = 'jeero/the_events_calendar/ref';
-
 /**
  * The_Events_Calendar class.
  * 
@@ -77,8 +75,8 @@ class The_Events_Calendar extends Calendar {
 		
 		$ref = $data[ 'ref' ];
 		
-		$event_start = strtotime( $data[ 'start' ] ) + get_option( 'gmt_offset' ) * 3600;
-		$event_end = strtotime( $data[ 'end' ] ) + get_option( 'gmt_offset' ) * 3600;
+		$event_start = $this->localize_timestamp( strtotime( $data[ 'start' ] ) );
+		$event_end = $this->localize_timestamp( strtotime( $data[ 'end' ] ) );
 
 		$args = array(
 			'EventStartDate' => date( 'Y-m-d', $event_start ),
@@ -110,7 +108,7 @@ class The_Events_Calendar extends Calendar {
 			
 			error_log( sprintf( '[%s] Creating event %d.', $this->name, $ref ) );
 
-			$args[ 'post_title' ]= $data[ 'title' ];
+			$args[ 'post_title' ]= $data[ 'production' ][ 'title' ];
 			$args[ 'EventURL' ] = $data[ 'tickets_url' ];
 			
 			$event_id = \tribe_create_event( $args );

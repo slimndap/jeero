@@ -51,7 +51,7 @@ class The_Events_Calendar_Test extends Jeero_Test {
 			'post_status' => 'any',
 			'meta_query' => array(
 				array(
-					'key' => 'jeero/the_events_calendar/ref',
+					'key' => 'jeero/the_events_calendar/veezi/ref',
 					'value' => 123,					
 				),
 			),
