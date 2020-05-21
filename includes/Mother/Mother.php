@@ -8,7 +8,7 @@ use Theaters\Theater;
 use Jeero\Subscriptions\Subscription;
 use Jeero\Db;
 
-const BASE_URL = 'https://ql621w5yfk.execute-api.eu-west-1.amazonaws.com/jeero';
+const BASE_URL = 'https://ql621w5yfk.execute-api.eu-west-1.amazonaws.com/jeero/v1';
 const SITE_KEY = 'jeero/mother/site_key';
 
 function delete( $endpoint, $data = array() ) {
@@ -81,7 +81,7 @@ function get_subscription( $subscription_id, $settings ) {
 
 	// Send request to Mother.
 	$args = array(
-		'settings' => json_encode( $settings ),
+		'settings' => json_encode( $settings, JSON_FORCE_OBJECT ),
 	);
 	return get( 'subscriptions/'.$subscription_id, $args );	
 
@@ -93,15 +93,14 @@ function get_subscription( $subscription_id, $settings ) {
  * @return	Subscription[]|WP_Error		All Subscriptions or an error if there is a problem.
  */
 function get_subscriptions( $settings ) {
-	
 	// Send request to Mother.
 	$args = array(
-		'settings' => urlencode( json_encode( $settings ) ),
+		'settings' => urlencode( json_encode( $settings, JSON_FORCE_OBJECT ) ),
 	);
 
 	$subscriptions = get( 'subscriptions', $args );
 	
-	return $subscriptions;	
+	return $subscriptions;
 
 }
 

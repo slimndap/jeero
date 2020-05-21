@@ -33,7 +33,7 @@ use Jeero\Subscriptions;
 use Jeero\Inbox;
 
 add_action( 'admin_init', __NAMESPACE__.'\add_new_subscription' );
-add_action( 'admin_init', __NAMESPACE__.'\update_subscription' );
+add_action( 'admin_init', __NAMESPACE__.'\process_form' );
 
 
 /**
@@ -48,12 +48,41 @@ function do_admin_page() {
 	
 }
 
+function process_form() {
+
+	if ( !isset( $_GET[ 'jeero/nonce' ] ) ) {
+		return;
+	}
+	
+	if ( !wp_verify_nonce( $_GET[ 'jeero/nonce' ], 'save' ) ) {
+		return;
+	}
+	
+	if ( empty( $_GET[ 'subscription_id' ] ) ) {
+		return;
+	}
+
+	$subscription = update_subscription( $_GET );
+	$settings = $subscription->get( 'settings' );
+	
+	if ( \Jeero\Subscriptions\JEERO_SUBSCRIPTIONS_STATUS_SETUP == $subscription->get( 'status' ) ) {	
+		Admin\Notices\add_success( sprintf( __( '%s subscription updated. Please enter any missing settings below.', 'jeero' ), $settings[ 'theater' ] ) );	
+		wp_safe_redirect( get_admin_edit_url( $subscription->get( 'ID' ) ) );	
+	} else {
+		Admin\Notices\add_success( sprintf( __( '%s subscription updated.', 'jeero' ), $settings[ 'theater' ] ) );	
+		Inbox\pickup_items();
+		wp_safe_redirect( get_admin_page_url() );	
+	}
+	
+	exit;
+}
+
 /**
  * Gets the HTML for the Edit Subscription Admin page.
  *
  * Builds a form based on the fields of the Subscription.
  * 
- * @param	int		$subscription_id	The ID of the Subscription.
+ * @param	int		$subscription_id		The ID of the Subscription.
  * @return 	string|WP_Error				The HTML for the Edit Subscription Admin page.
  *										Or an error if there was a problem.
  */
@@ -75,7 +104,6 @@ function get_edit_html( $subscription_id ) {
 			?><input type="hidden" name="subscription_id" value="<?php echo $subscription_id; ?>">
 			<table class="form-table">
 				<tbody><?php
-					
 					foreach( $subscription->get_fields() as $field ) {
 						?><tr>
 							<th scope="row">
@@ -112,8 +140,15 @@ function get_list_table_html() {
 		<hr class="wp-header-end"><?php
 			
 		$list_table->display(); 
-		
-		?><p><?php printf( __( 'Next scheduled sync: %s', 'jeero' ), date_i18n( 'Y-m-d H:i:s', Inbox\get_next_pickup() ) ); ?></p>
+
+		$next_pickup = Inbox\get_next_pickup() + get_option( 'gmt_offset' ) * HOUR_IN_SECONDS;
+	    
+	    ?><p title="<?php
+		    echo date_i18n( 'd-m-Y H:i:s', $next_pickup ); 
+		?>"><?php 
+		    printf( __( 'Next pickup in %s.', 'jeero' ), human_time_diff( $next_pickup, current_time( 'timestamp' ) ) );
+		?></p>
+
 	</div><?php
 		
 	return ob_get_clean();
@@ -174,22 +209,10 @@ function add_new_subscription() {
 	
 }
 
-function update_subscription() {
-
-	if ( !isset( $_GET[ 'jeero/nonce' ] ) ) {
-		return;
-	}
-	
-	if ( !wp_verify_nonce( $_GET['jeero/nonce'], 'save' ) ) {
-		return;
-	}
-	
-	if ( empty( $_GET[ 'subscription_id' ] ) ) {
-		return;
-	}
+function update_subscription( $form_data ) {
 
 	// Save settings to Subscription.
-	$subscription = Subscriptions\get_subscription( $_GET[ 'subscription_id' ] );	
+	$subscription = Subscriptions\get_subscription( $form_data[ 'subscription_id' ] );	
 
 	if ( is_wp_error( $subscription ) ) {
 		Admin\Notices\add_error( $subscription );
@@ -198,25 +221,14 @@ function update_subscription() {
 
 	$settings = array();	
 	foreach( $subscription->get_fields() as $field ) {
-		$setting = $field->get_setting_from_form( $_GET );
+		$setting = $field->get_setting_from_form( $form_data );
 		$settings[ $field->get( 'name' ) ] = $setting;
 	}	
 	$subscription->set( 'settings', $settings );
 	$subscription->save();
 	
-	$subscription = Subscriptions\get_subscription( $subscription->get( 'ID' ) );
-	$settings = $subscription->get( 'settings' );
+	return Subscriptions\get_subscription( $subscription->get( 'ID' ) );
 	
-	if ( \Jeero\Subscriptions\JEERO_SUBSCRIPTIONS_STATUS_SETUP == $subscription->get( 'status' ) ) {	
-		Admin\Notices\add_success( sprintf( __( '%s subscription updated. Please enter any missing settings below.', 'jeero' ), $settings[ 'theater' ] ) );	
-		wp_safe_redirect( get_admin_edit_url( $subscription->get( 'ID' ) ) );	
-	} else {
-		Admin\Notices\add_success( sprintf( __( '%s subscription updated.', 'jeero' ), $settings[ 'theater' ] ) );	
-		Inbox\pickup_items();
-		wp_safe_redirect( get_admin_page_url() );	
-	}
-	
-	exit;
 	
 }
 

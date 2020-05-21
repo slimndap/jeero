@@ -1,5 +1,5 @@
 <?php
-namespace Jeero\Admin\Fields;
+namespace Jeero\Subscriptions\Fields;
 
 class Field {
 	
@@ -58,6 +58,10 @@ class Field {
 		}
 		return $data[ $this->name ];
 		
+	}
+	
+	function get_value() {
+		return $this->value;
 	}
 	
 	function save_setting( $setting ) {

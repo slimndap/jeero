@@ -80,19 +80,34 @@ class Subscription {
 	function get_fields() {
 		
 		$fields = array();
-		
+
 		foreach( $this->fields as $config ) {
 			$setting = null;
 
-			if ( !empty( $this->settings[ $config[ 'name' ] ] ) ) {
-				$setting = $this->settings[ $config[ 'name' ] ];
+			if ( $setting = $this->get_setting( $config[ 'name' ] ) ) {
+				$fields[] = Fields\get_field_from_config( $config, $this->ID, $setting );
+			} else {
+				$fields[] = Fields\get_field_from_config( $config, $this->ID );				
 			}
-			$fields[] = Admin\Fields\get_field( $config, $this->ID, $setting );
 		}
+		
 		return $fields;		
 		
 	}
+		
+	function get_setting( $name ) {
+		
+		$settings = $this->get( 'settings' );
+		
+		if ( isset( $settings[ $name ] ) ) {
+			return $settings[ $name ];
+		}
+		
+		return false;
+
+	}
 	
+
 	function load( ) {
 		
 		$data = Db\Subscriptions\get_subscription( $this->ID );

@@ -30,7 +30,7 @@ function pickup_items() {
 
 	error_log( 'Pick up items from inbox.' );
 
-	$settings = Db\Subscriptions\get_settings();
+	$settings = Subscriptions\get_setting_values();
 
 	$items = Mother\get_inbox( $settings );
 	
@@ -68,42 +68,27 @@ function process_item( $item ) {
 	$action = $item[ 'action' ];
 	$theater = $item[ 'theater' ];
 
-	do_action( 
-		'jeero/inbox/process/item', 
-		$item[ 'data' ], 
-		$item[ 'raw' ],
-		$action,
-		$theater
-	);
-
-	do_action( 
-		'jeero/inbox/process/item/'.$action, 
-		$item[ 'data' ], 
-		$item[ 'raw' ],
-		$theater
-	);
-	
-	do_action( 
-		'jeero/inbox/process/item/'.$action.'/theater='.$theater, 
-		$item[ 'data' ], 
-		$item[ 'raw' ] 
-	);
-	
 	$subscription = new Subscriptions\Subscription( $item[ 'subscription_id' ] );
 	
-	if ( !empty( $subscription->get( 'settings' )[ 'calendar' ] ) ) {
+	$result = false;
+	
+	$calendars = $subscription->get_setting( 'calendar' );
+	
+	if ( !empty( $calendars ) ) {
 
-		foreach( $subscription->get( 'settings' )[ 'calendar' ] as $calendar ) {
+		foreach( $calendars as $calendar ) {
 			
-			do_action( 
+			$result = apply_filters( 
 				'jeero/inbox/process/item/'.$action.'/calendar='.$calendar, 
+				$result,
 				$item[ 'data' ], 
 				$item[ 'raw' ],
 				$theater
 			);
 			
-			do_action( 
+			$result = apply_filters(
 				'jeero/inbox/process/item/'.$action.'/theater='.$theater.'&calendar='.$calendar, 
+				$result, 
 				$item[ 'data' ], 
 				$item[ 'raw' ]
 			);
@@ -111,6 +96,30 @@ function process_item( $item ) {
 		}
 		
 	}
+	
+	$result = apply_filters( 
+		'jeero/inbox/process/item/'.$action.'/theater='.$theater, 
+		$result,
+		$item[ 'data' ], 
+		$item[ 'raw' ] 
+	);
+
+	$result = apply_filters(
+		'jeero/inbox/process/item/'.$action, 
+		$result, 
+		$item[ 'data' ], 
+		$item[ 'raw' ],
+		$theater
+	);
+	
+	$result = apply_filters(
+		'jeero/inbox/process/item', 
+		$result, 
+		$item[ 'data' ], 
+		$item[ 'raw' ],
+		$action,
+		$theater
+	);
 	
 }
 

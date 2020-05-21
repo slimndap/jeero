@@ -66,14 +66,14 @@ class All_In_One_Event_Calendar extends Calendar {
 		return $venue_id;		
 	}
 	
-	function process_data( $data, $raw, $theater ) {
+	function process_data( $result, $data, $raw, $theater ) {
 		
 		global $ai1ec_front_controller;
 		
-		$data = parent::process_data( $data, $raw, $theater );
+		$result = parent::process_data( $result, $data, $raw, $theater );
 		
-		if ( \is_wp_error( $data ) ) {			
-			return $data;
+		if ( \is_wp_error( $result ) ) {			
+			return $result;
 		}
 		
 		$ref = $data[ 'ref' ];
@@ -122,7 +122,7 @@ class All_In_One_Event_Calendar extends Calendar {
 		}
 
 		
-		return $data;
+		return $Ai1ec_Event;
 		
 	}
 	

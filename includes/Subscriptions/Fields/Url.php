@@ -1,5 +1,5 @@
 <?php
-namespace Jeero\Admin\Fields;
+namespace Jeero\Subscriptions\Fields;
 
 class Url extends Field {
 		

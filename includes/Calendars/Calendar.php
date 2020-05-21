@@ -16,21 +16,36 @@ class Calendar {
 	
 	function get_fields() {
 		
+		$fields = array();
+		
 		$choices = array();
 		
 		foreach( get_active_calendars() as $calendar ) {
 			$choices[ $calendar->get( 'slug' ) ] = $calendar->get( 'name' );
 		}
 		
-		return array(
-			array(
-				'name' => 'calendar',
-				'label' => 'Calendar plugin',
-				'type' => 'checkbox',
-				'choices' => $choices,
-				'required' => true,
-			),
-		);
+		if ( empty( $choices ) ) {
+			$fields = array(
+				array(
+					'name' => 'calendar',
+					'label' => 'Calendar plugin',
+					'type' => 'error',
+					'value' => __( 'Please activate one or more supported calendar plugins.', 'jeero' ),
+				),
+			);
+		} else {
+			$fields = array(
+				array(
+					'name' => 'calendar',
+					'label' => 'Calendar plugin',
+					'type' => 'checkbox',
+					'choices' => $choices,
+					'required' => true,
+				),
+			);
+		}
+		
+		return $fields;
 		
 	}
 	
@@ -42,11 +57,11 @@ class Calendar {
 		return $this->{ $key };
 	}
 	
-	function import( $data, $raw, $theater ) {
+	function import( $result, $data, $raw, $theater ) {
 		
 		error_log( sprintf( '[%s] Import of %s item started.', $this->get( 'name' ), $theater ) );
 
-		$result = $this->process_data( $data, $raw, $theater );
+		$result = $this->process_data( $result, $data, $raw, $theater );
 		
 		if ( \is_wp_error( $result ) ) {
 			error_log( sprintf( '[%s] Import of %s item failed: %s.', $this->get( 'name' ), $theater, $result->get_error_message() ) );
@@ -55,6 +70,8 @@ class Calendar {
 		
 		error_log( sprintf( '[%s] Import of %s item successful.', $this->get( 'name' ), $theater ) );
 
+		return $result;
+		
 	}
 	
 	function localize_timestamp( $timestamp ) {
@@ -63,13 +80,13 @@ class Calendar {
 		
 	}
 	
-	function process_data( $data, $raw, $theater ) {
+	function process_data( $result, $data, $raw, $theater ) {
 
 		if ( empty( $data[ 'ref' ] ) ) {			
 			return new \WP_Error( 'jeero/import', 'Ref identifier is missing' );
 		}
 		
-		return $data;
+		return $result;
 		
 	}
 	

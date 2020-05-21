@@ -31,6 +31,21 @@ function add_subscription( ) {
 
 }
 
+
+function get_setting_values() {
+
+	$subscriptions = Db\Subscriptions\get_subscriptions();
+
+	$settings = array();	
+	foreach( $subscriptions as $subscription_id => $subscription_data ) {
+		
+		$subscription = new Subscription( $subscription_id );
+		$settings[ $subscription_id ] = $subscription->get( 'settings' );
+	}
+	
+	return $settings;	
+			
+}
 /**
  * Gets a Subscription.
  *
@@ -44,9 +59,10 @@ function get_subscription( $subscription_id ) {
 
 	// Get the settings from the DB.
 	$subscription = new \Jeero\Subscriptions\Subscription( $subscription_id );
-	
+
 	// Ask Mother for subscription info, based on the current settings.
 	$answer = Mother\get_subscription( $subscription_id, $subscription->get( 'settings' ) );
+
 	if ( is_wp_error( $answer ) ) {
 		return $answer;
 	}
@@ -57,6 +73,7 @@ function get_subscription( $subscription_id ) {
 		'fields' => array(),
 		'interval' => null,
 		'next_delivery' => null,
+		'limit' => null,
 	);
 	
 	$answer = wp_parse_args( $answer, $defaults );
@@ -74,6 +91,7 @@ function get_subscription( $subscription_id ) {
 	$subscription->set( 'fields', $fields );
 	$subscription->set( 'interval', $answer[ 'interval' ] );
 	$subscription->set( 'next_delivery', $answer[ 'next_delivery' ] );
+	$subscription->set( 'limit', $answer[ 'limit' ] );
 
 	return $subscription;
 }
@@ -87,7 +105,7 @@ function get_subscription( $subscription_id ) {
  */
 function get_subscriptions() {
 
-	$settings = Db\Subscriptions\get_settings();
+	$settings = get_setting_values();
 
 	// Ask Mother for a list of up-to-date subscriptions.
 	$answers = Mother\get_subscriptions( $settings );
@@ -95,13 +113,14 @@ function get_subscriptions() {
 	// Update the Subscriptions in the DB.
 	$subscriptions = array();
 	foreach( $answers as $answer ) {
-
+		
 		$defaults = array(
 			'status' => false,
 			'logo' => false,
 			'fields' => array(),
 			'interval' => null,
 			'next_delivery' => null,
+			'limit' => null,
 		);
 		
 		$answer = wp_parse_args( $answer, $defaults );
@@ -113,7 +132,7 @@ function get_subscriptions() {
 				
 		$subscription->set( 'interval', $answer[ 'interval' ] );
 		$subscription->set( 'next_delivery', $answer[ 'next_delivery' ] );
-		
+		$subscription->set( 'limit', $answer[ 'limit' ] );
 
 		$subscriptions[ $subscription->get( 'ID' ) ] = $subscription;
 	}

@@ -65,12 +65,12 @@ class The_Events_Calendar extends Calendar {
 		return $venue_id;		
 	}
 	
-	function process_data( $data, $raw, $theater ) {
+	function process_data( $result, $data, $raw, $theater ) {
 		
-		$data = parent::process_data( $data, $raw, $theater );
+		$result = parent::process_data( $result, $data, $raw, $theater );
 		
-		if ( \is_wp_error( $data ) ) {			
-			return $data;
+		if ( \is_wp_error( $result ) ) {			
+			return $result;
 		}
 		
 		$ref = $data[ 'ref' ];
@@ -117,8 +117,7 @@ class The_Events_Calendar extends Calendar {
 
 		}
 		
-		
-		return $data;
+		return $event_id;
 		
 	}
 	

@@ -55,14 +55,14 @@ class List_Table extends \WP_List_Table {
 		    return;
 	    }
 	    
-	    return human_time_diff( 0, $subscription->get( 'interval') );
+	    return sprintf( __( 'Every %s', 'jeero' ), human_time_diff( 0, $subscription->get( 'interval') ) );
     }
     
     function column_limit( $subscription ) {
-	    
+
 	    $limit = $subscription->get( 'limit');
 	    
-	    if ( empty( $interval ) ) {
+	    if ( empty( $limit ) ) {
 		    return __( 'Unknown', 'jeero' );
 	    }
 	    
@@ -71,7 +71,7 @@ class List_Table extends \WP_List_Table {
     
     function column_next_delivery( $subscription ) {
 		
-		$next_delivery = $subscription->get( 'next_delivery' );
+		$next_delivery = $subscription->get( 'next_delivery' ) + get_option( 'gmt_offset' ) * HOUR_IN_SECONDS;
 
 	    if ( empty( $next_delivery ) ) {
 		    return;
@@ -80,9 +80,9 @@ class List_Table extends \WP_List_Table {
 	    ob_start();
 	    
 	    ?><span title="<?php
-		    echo date_i18n( 'd-m-Y H:i:s', $subscription->get( 'next_delivery' ) ); 
+		    echo date_i18n( 'd-m-Y H:i:s', $next_delivery ); 
 		?>"><?php 
-		    echo human_time_diff( $subscription->get( 'next_delivery' ), current_time( 'timestamp' ) );
+		    echo human_time_diff( $next_delivery, current_time( 'timestamp' ) );
 		?></span><?php
 			
 		return ob_get_clean();
@@ -138,7 +138,7 @@ class List_Table extends \WP_List_Table {
 		$this->_column_headers = array($columns, $hidden, $sortable);
 		
 		$subscriptions = Subscriptions\get_subscriptions();
-		
+
 		if ( is_wp_error( $subscriptions ) ) {
 			Admin\Notices\add_error( $subscriptions );
 			$this->items = array();		
