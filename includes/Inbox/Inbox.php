@@ -141,12 +141,6 @@ function process_items( $items ) {
 	remove_items( $items_processed );
 }
 
-function remove_item( $ID ) {
-	error_log( sprintf( 'Removing item %s from Inbox.', $ID ) );
-	
-	return Mother\remove_inbox_item( $ID );
-}
-
 function remove_items( array $items ) {
 	
 	error_log( sprintf( 'Removing %d items from Inbox.', count( $items ) ) );

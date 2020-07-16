@@ -73,17 +73,22 @@ function get_subscription( $subscription_id ) {
 		'fields' => array(),
 		'interval' => null,
 		'next_delivery' => null,
+		'theater' => array(),
 		'limit' => null,
 	);
 	
 	$answer = wp_parse_args( $answer, $defaults );
 	
-	// Add fields from Mother.
-	$fields = $answer[ 'fields' ];
+	
 	
 	// Add fields from Calendar.
 	$calendar = Calendars\get_calendar();
-	$fields = array_merge( $fields, $calendar->get_fields() );
+	$fields = $calendar->get_fields();
+
+	// Prepend fields from Mother.
+	if ( !empty( $answer[ 'fields' ] ) ) {
+		$fields = array_merge( $answer[ 'fields' ], $calendar->get_fields() );
+	}
 	
 	// Add the subscription info to the Subscription.
 	$subscription->set( 'status', $answer[ 'status' ] );
@@ -92,6 +97,7 @@ function get_subscription( $subscription_id ) {
 	$subscription->set( 'interval', $answer[ 'interval' ] );
 	$subscription->set( 'next_delivery', $answer[ 'next_delivery' ] );
 	$subscription->set( 'limit', $answer[ 'limit' ] );
+	$subscription->set( 'theater', $answer[ 'theater' ] );
 
 	return $subscription;
 }
@@ -133,6 +139,8 @@ function get_subscriptions() {
 		$subscription->set( 'interval', $answer[ 'interval' ] );
 		$subscription->set( 'next_delivery', $answer[ 'next_delivery' ] );
 		$subscription->set( 'limit', $answer[ 'limit' ] );
+		
+		$subscription->set( 'theater', $answer[ 'theater' ] );
 
 		$subscriptions[ $subscription->get( 'ID' ) ] = $subscription;
 	}

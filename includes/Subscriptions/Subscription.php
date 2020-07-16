@@ -40,6 +40,8 @@ class Subscription {
 	 */
 	public $next_delivery;
 	
+	public $theater = array();
+	
 	/**
 	 * The settings of this Subscription.
 	 * @var array	$settings
@@ -49,7 +51,7 @@ class Subscription {
 	
 	/**
 	 * The status of this Subscription.
-	 * @var string	$status
+	 * @var 	string	$status
 	 * @since	1.0
 	 */	
 	public $status;

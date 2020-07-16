@@ -3,7 +3,7 @@
  * Manages the Subscription section in the Admin.
  *
  * Subscriptions are managed by Mother, but Jeero keeps a local copy with Subscription settings.
- * The Subscription settings are always passed as part of any conversation with Mother. 
+ * The Subscription settings are always passed as part of most conversations with Mother. 
  * Mother never stores the settings.
  *
  * ### Adding a Subscription
@@ -48,6 +48,15 @@ function do_admin_page() {
 	
 }
 
+/**
+ * Process the Edit Subscription Admin form.
+ *
+ * Redirects user to Subscriptions Admin page if settings validate.
+ * Redirects user back to Subscription Admin form if settings don't validate.
+ * 
+ * @since	1.0
+ * @return	void
+ */
 function process_form() {
 
 	if ( !isset( $_GET[ 'jeero/nonce' ] ) ) {
@@ -64,17 +73,22 @@ function process_form() {
 
 	$subscription = update_subscription( $_GET );
 	$settings = $subscription->get( 'settings' );
+	$theater = $subscription->get( 'theater' );
 	
-	if ( \Jeero\Subscriptions\JEERO_SUBSCRIPTIONS_STATUS_SETUP == $subscription->get( 'status' ) ) {	
-		Admin\Notices\add_success( sprintf( __( '%s subscription updated. Please enter any missing settings below.', 'jeero' ), $settings[ 'theater' ] ) );	
+	if ( \Jeero\Subscriptions\JEERO_SUBSCRIPTIONS_STATUS_SETUP == $subscription->get( 'status' ) ) {
+		
+		Admin\Notices\add_success( sprintf( __( '%s subscription updated. Please enter any missing settings below.', 'jeero' ), $theater[ 'title' ] ) );
 		wp_safe_redirect( get_admin_edit_url( $subscription->get( 'ID' ) ) );	
+		
 	} else {
-		Admin\Notices\add_success( sprintf( __( '%s subscription updated.', 'jeero' ), $settings[ 'theater' ] ) );	
-		Inbox\pickup_items();
+		
+		Admin\Notices\add_success( sprintf( __( '%s subscription updated.', 'jeero' ), $theater[ 'title' ] ) );			
 		wp_safe_redirect( get_admin_page_url() );	
+		
 	}
 	
 	exit;
+	
 }
 
 /**
@@ -82,13 +96,14 @@ function process_form() {
  *
  * Builds a form based on the fields of the Subscription.
  * 
- * @param	int		$subscription_id		The ID of the Subscription.
- * @return 	string|WP_Error				The HTML for the Edit Subscription Admin page.
- *										Or an error if there was a problem.
+ * @param	int				$subscription_id		The ID of the Subscription.
+ * @return 	string|WP_Error						The HTML for the Edit Subscription Admin page.
+ *												Or an error if there was a problem.
  */
 function get_edit_html( $subscription_id ) {
 	
 	$subscription = Subscriptions\get_subscription( $subscription_id );
+
 	if ( is_wp_error( $subscription ) ) {
 		Admin\Notices\add_error( $subscription );
 		wp_redirect( get_admin_page_url() );
@@ -127,6 +142,12 @@ function get_edit_html( $subscription_id ) {
 	return ob_get_clean();
 }
 
+/**
+ * Gets the HTML for the List Table on the Subscriptions Admin page.
+ * 
+ * @since	1.0
+ * @return	string
+ */
 function get_list_table_html() {
 	
 	ob_start();
@@ -155,12 +176,26 @@ function get_list_table_html() {
 
 }
 
+/**
+ * Gets the edit URL for the Edit Subscription Admin page.
+ * 
+ * @since	1.0
+ * @param 	string	$subscription_id
+ * @return	string
+ */
 function get_admin_edit_url( $subscription_id ) {
 	return add_query_arg( 'edit', $subscription_id, get_admin_page_url() );
 }
 
+/**
+ * Gets the HTML for the Subscriptions Admin pages.
+ * 
+ * @since	1.0
+ * @return	string
+ */
 function get_admin_page_html() {
 
+	// Return Edit Subscription Admin page when editing a subscription. 
 	if ( isset( $_GET[ 'edit' ] ) ) {
 		return get_edit_html( $_GET[ 'edit' ] );
 	}
@@ -169,10 +204,22 @@ function get_admin_page_html() {
 	
 }
 
+/**
+ * Gets the URL for the Subscriptions Admin page.
+ * 
+ * @since	1.0
+ * @return	string
+ */
 function get_admin_page_url() {
 	return admin_url( 'admin.php?page=jeero/subscriptions');
 }
 
+/**
+ * Gets the URL for creating a new subscription.
+ * 
+ * @since	1.0
+ * @return	string
+ */
 function get_new_subscription_url() {	
 	return wp_nonce_url( get_admin_page_url(), 'add', 'jeero/nonce' );
 }
@@ -209,6 +256,13 @@ function add_new_subscription() {
 	
 }
 
+/**
+ * Updates a Subscription with data from the Edit Subscription Admin form.
+ * 
+ * @since	1.0
+ * @param 	array	$form_data
+ * @return 	Subscription
+ */
 function update_subscription( $form_data ) {
 
 	// Save settings to Subscription.

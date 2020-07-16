@@ -100,14 +100,11 @@ class List_Table extends \WP_List_Table {
 		
 		?><strong>
 			<a class="row-title" href="<?php echo get_admin_edit_url( $subscription->get( 'ID' ) ); ?>"><?php
-				
-				if ( !empty( $subscription->get( 'logo' ) ) ) {
-					?><img src="<?php echo $subscription->get( 'logo' ); ?>" alt="<?php printf( __( '%s logo', 'jeero' ), $settings[ 'theater' ] ); ?>" style="width: auto; height: 1.5em;"> <?php
-				}
 
+				if ( !empty( $subscription->get( 'theater' ) ) ) {
+					?><img src="<?php echo $subscription->get( 'theater' )[ 'logo' ]; ?>" alt="<?php printf( __( '%s logo', 'jeero' ), $settings[ 'theater' ] ); ?>" style="width: auto; height: 1.5em;">
 
-				if ( !empty( $settings[ 'theater' ] ) ) {
-					echo $settings[ 'theater' ];
+					<?php echo $subscription->get( 'theater' )[ 'title' ];
 				}
 			?></a>
 		</strong><?php

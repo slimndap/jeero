@@ -6,7 +6,7 @@
  * \copyright GNU Public License
  *
  * \section intro Introduction
- * Jeero syncs all events and tickets from your ticketing solution with your favourite WordPress calendar plugin.
+ * Synchronizes events and tickets from your existing ticketing solution with popular calendar plugins.
  */
  
 /**

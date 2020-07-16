@@ -4,6 +4,14 @@
  */
 namespace Jeero\Admin;
 
+add_action( 'admin_menu', __NAMESPACE__.'\add_menu_item' );
+
+/**
+ * Adds the Jeero menu to the admin.
+ * 
+ * @since	1.0
+ * @return 	void
+ */
 function add_menu_item() {
 	
 	add_menu_page(
@@ -17,5 +25,4 @@ function add_menu_item() {
     );
     
 }
-add_action( 'admin_menu', __NAMESPACE__.'\add_menu_item' );
 

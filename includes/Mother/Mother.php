@@ -1,6 +1,6 @@
 <?php
 /**
- * Sends Mother out to visit Theaters.
+ * Handles all communication with the Jeero API (Mother).
  */
 namespace Jeero\Mother;
 
@@ -8,9 +8,18 @@ use Theaters\Theater;
 use Jeero\Subscriptions\Subscription;
 use Jeero\Db;
 
-const BASE_URL = 'https://ql621w5yfk.execute-api.eu-west-1.amazonaws.com/jeero/v1';
+//const BASE_URL = 'https://ql621w5yfk.execute-api.eu-west-1.amazonaws.com/jeero/v1';
+const BASE_URL = 'https://ql621w5yfk.execute-api.eu-west-1.amazonaws.com/jeero_staging/v1';
 const SITE_KEY = 'jeero/mother/site_key';
 
+/**
+ * Sends a DELETE request to Mother.
+ * 
+ * @since	1.0
+ * @param 	string			$endpoint
+ * @param	array 			$data (default: array())
+ * @return 	array|WP_Error
+ */
 function delete( $endpoint, $data = array() ) {
 	
 	$url = BASE_URL.'/'.$endpoint;
@@ -31,10 +40,18 @@ function delete( $endpoint, $data = array() ) {
 	$response = wp_remote_request( $url, $args );	
 }
 
+
+/**
+ * Gets the key for this website, used for authentication of API requests.
+ * 
+ * @since	1.0
+ * @return	string	The key for this website.
+ */
 function get_site_key() {
 	
 	$site_key = get_option( SITE_KEY );
 	
+	// Generate site key if not present yet.
 	if ( empty( $site_key ) ) {
 		$site_key = uniqid();
 		update_option( SITE_KEY, $site_key, false );
@@ -44,13 +61,28 @@ function get_site_key() {
 	
 }
 
+
+/**
+ * Gets the unique identifier for this website, used for authentication of API requests.
+ *
+ * The identifier is based on the site url and key.
+ * 
+ * @since	1.0
+ * @return	string
+ */
 function get_site_identifier() {
 	return site_url().'_'.get_site_key();	
 }
 
+/**
+ * Gets the contents of the inbox.
+ * 
+ * @since	1.0
+ * @param 	array			$settings	The setting values of all subscriptions.
+ * @return	array|WP_Error
+ */
 function get_inbox( $settings ) {
 
-	// Send request to Mother.
 	$args = array(
 		'settings' => json_encode( $settings ),
 	);
@@ -59,41 +91,49 @@ function get_inbox( $settings ) {
 	
 }
 
-function remove_inbox_item( $ID ) {
-	// Send request to Mother.
-	$args = array(
-		'site_url' => site_url(),
-		'site_key' => get_site_key(),
-		//'settings' => $settings,
-	);
-	return delete( 'inbox/'. $ID, $args );
-}
-
+/**
+ * Removes items from the inbox.
+ * 
+ * @since	1.0
+ * @param	string[]		$item_ids	The IDs of the inbox items.
+ * @return	array|WP_Error
+ */
 function remove_inbox_items( $item_ids ) {
-	// Send request to Mother.
+
 	$args = array(
 		'inbox_id' => json_encode( $item_ids ),
 	);
 	return delete( 'inbox', $args );
+
 }
 
+/**
+ * Gets a subscription.
+ * 
+ * @since	1.0
+ * @param 	string	$subscription_id
+ * @param	array	$settings			The settings for the subscription.
+ * @return	array|WP_Error
+ */
 function get_subscription( $subscription_id, $settings ) {
 
-	// Send request to Mother.
 	$args = array(
 		'settings' => json_encode( $settings, JSON_FORCE_OBJECT ),
 	);
+
 	return get( 'subscriptions/'.$subscription_id, $args );	
 
 }
 
 /**
- * Asks Mother for a list of all Subscriptions.
+ * Gets all subscriptions.
  * 
- * @return	Subscription[]|WP_Error		All Subscriptions or an error if there is a problem.
+ * @since	1.0
+ * @param 	array			$settings	The setting values of all subscriptions.
+ * @return	array|WP_Error
  */
 function get_subscriptions( $settings ) {
-	// Send request to Mother.
+
 	$args = array(
 		'settings' => urlencode( json_encode( $settings, JSON_FORCE_OBJECT ) ),
 	);
@@ -105,19 +145,16 @@ function get_subscriptions( $settings ) {
 }
 
 /**
- * Asks Mother to set up a new Subscription with a Theater.
+ * Creates a new subscription.
  * 
- * @return	Subscription|WP_Error	The new Subscription or an error if there was a problem.
+ * @since	1.0
+ * @return	array|WP_Error
  */
 function subscribe_me( ) {
 	
-	// Send request to Mother.
-	$args = array(
-		'settings' => Db\Subscriptions\get_subscriptions(),
-	);
-	$answer = post( 'subscriptions', $args );
+	$answer = post( 'subscriptions' );
 
-	if ( is_wp_error( $answer ) ) {
+	if ( \is_wp_error( $answer ) ) {
 		return new \WP_Error( 'mother', sprintf( __( 'Failed to add a new subscription: %s.', 'jeero' ), $answer->get_error_message() ) );
 	}
 	
@@ -128,6 +165,14 @@ function subscribe_me( ) {
 	return $answer;
 }
 
+/**
+ * Updates an existing subscription.
+ * 
+ * @since	1.0
+ * @param 	string			$subscription_id
+ * @param	array			$settings			The settings for the subscription.
+ * @return	array|WP_Error
+ */
 function update_subscription( $subscription_id, $settings ) {
 
 	// Send request to Mother.
@@ -139,6 +184,14 @@ function update_subscription( $subscription_id, $settings ) {
 
 }
 
+/**
+ * Sends a GET request to Mother.
+ * 
+ * @since	1.0
+ * @param 	string			$endpoint
+ * @param	array 			$data (default: array())
+ * @return 	array|WP_Error
+ */
 function get( $endpoint, $data = array() ) {
 	
 	$response = apply_filters( 'jeero/mother/get/response', NULL, $endpoint, $data );
@@ -159,22 +212,21 @@ function get( $endpoint, $data = array() ) {
 				'site_key' => get_site_key(),
 			),
 		);
-		
 		$response = wp_remote_get( $url, $args );
 
 	}
 
-	if ( is_wp_error( $response ) ) {
-		return get_error( $response->get_error_code(), $response->get_error_message() );
+	if ( \is_wp_error( $response ) ) {
+		return new \WP_Error( $response->get_error_code(), $response->get_error_message() );
 	}
 	
-	$body = json_decode( wp_remote_retrieve_body( $response ), true );
+	$body = json_decode( \wp_remote_retrieve_body( $response ), true );
 
-	if ( 200 != wp_remote_retrieve_response_code( $response ) ) {
+	if ( 200 != \wp_remote_retrieve_response_code( $response ) ) {
 		if ( empty( $body[ 'message' ] ) ) {
-			return get_error( 'mother', wp_remote_retrieve_body( $response ) );
+			return new \WP_Error( 'mother', \wp_remote_retrieve_body( $response ) );
 		} else {
-			return get_error( 'mother', $body[ 'message' ] );
+			return new \WP_Error( 'mother', $body[ 'message' ] );
 		}
 	}
 	
@@ -182,36 +234,35 @@ function get( $endpoint, $data = array() ) {
 	
 }
 
-function get_error( $code, $message ) {
-	
-	$error = new \WP_Error( $code, $message );
-	do_action( 'qm/error', $error );
-	
-	return $error;
-	
-}
-
+/**
+ * Sends a POST request to Mother.
+ * 
+ * @since	1.0
+ * @param 	string			$endpoint
+ * @param	array 			$data (default: array())
+ * @return 	array|WP_Error
+ */
 function post( $endpoint, $data = array() ) {
 	
-	$response = apply_filters( 'jeero/mother/post/response', NULL, $endpoint, $data );
-	$response = apply_filters( 'jeero/mother/post/response/endpoint='.$endpoint, $response, $endpoint, $data );
+	$response = \apply_filters( 'jeero/mother/post/response', NULL, $endpoint, $data );
+	$response = \apply_filters( 'jeero/mother/post/response/endpoint='.$endpoint, $response, $endpoint, $data );
 
 	if ( is_null( $response ) ) {
 
 		$url = BASE_URL.'/'.$endpoint;
 		
+		$args = array(
+			'headers' => array(
+				'site_url' => \site_url(),
+				'site_key' => get_site_key(),
+			),
+		);
+		
 		if ( !empty( $data ) ) {
-			
-			$args = array(
-				'body' => json_encode( $data ),
-				'headers' => array(
-					'site_url' => site_url(),
-					'site_key' => get_site_key(),
-				),
-			);
-			
+			$args[ 'body' ] = json_encode( $data );
 		}
-		$response = wp_remote_post( $url, $args );
+		
+		$response = \wp_remote_post( $url, $args );
 
 	}
 
@@ -219,11 +270,11 @@ function post( $endpoint, $data = array() ) {
 		return $response;
 	}
 	
-	$body = json_decode( wp_remote_retrieve_body( $response ), true );
+	$body = json_decode( \wp_remote_retrieve_body( $response ), true );
 
-	if ( 200 != wp_remote_retrieve_response_code( $response ) ) {
+	if ( 200 != \wp_remote_retrieve_response_code( $response ) ) {
 		if ( empty( $body[ 'message' ] ) ) {
-			return new \WP_Error( 'mother', wp_remote_retrieve_body( $response ) );			
+			return new \WP_Error( 'mother', \wp_remote_retrieve_body( $response ) );			
 		} else {
 			return new \WP_Error( 'mother', $body[ 'message' ] );
 		}

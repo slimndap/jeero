@@ -1,7 +1,7 @@
 === Jeero ===
 Contributors: slimndap
 Tags: calendar, tickets, events
-Requires at least: 4.5
+Requires at least: 7.3
 Tested up to: 5.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
