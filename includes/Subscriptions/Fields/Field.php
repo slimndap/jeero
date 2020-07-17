@@ -51,12 +51,12 @@ class Field {
 		return $this->label;
 	}
 	
-	function get_setting_from_form( $data ) {
+	function get_setting_from_form( ) {
 		
-		if ( empty( $data[ $this->name ] ) ) {
+		if ( empty( $_GET[ $this->name ] ) ) {
 			return null;
 		}
-		return $data[ $this->name ];
+		return sanitize_text_field( $_GET[ $this->name ] );
 		
 	}
 	

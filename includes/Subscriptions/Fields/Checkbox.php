@@ -32,4 +32,20 @@ class Checkbox extends Field {
 		
 	}
 	
+	function get_setting_from_form( ) {
+		
+		if ( empty( $_GET[ $this->name ] ) ) {
+			return null;
+		}
+		
+		$values = array();
+		
+		for( $c = 0; $c < count( $_GET[ $this->name ] ); $c++ ) {
+			$values[] = sanitize_text_field( $_GET[ $this->name ][ $c ] );
+		}
+
+		return $values;
+		
+	}
+	
 }

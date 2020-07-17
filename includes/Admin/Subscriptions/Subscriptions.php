@@ -70,9 +70,23 @@ function process_form() {
 	if ( empty( $_GET[ 'subscription_id' ] ) ) {
 		return;
 	}
+	
+	// Save settings to Subscription.
+	$subscription = Subscriptions\get_subscription( sanitize_text_field( $_GET[ 'subscription_id' ] ) );	
 
-	$subscription = update_subscription( $_GET );
-	$settings = $subscription->get( 'settings' );
+	if ( \is_wp_error( $subscription ) ) {
+		Admin\Notices\add_error( $subscription );
+		\wp_safe_redirect( get_admin_edit_url( $subscription->get( 'ID' ) ) );			
+	}
+
+	$settings = array();	
+	foreach( $subscription->get_fields() as $field ) {
+		$setting = $field->get_setting_from_form();
+		$settings[ $field->get( 'name' ) ] = $setting;
+	}	
+	$subscription->set( 'settings', $settings );
+	$subscription->save();
+	
 	$theater = $subscription->get( 'theater' );
 	
 	if ( \Jeero\Subscriptions\JEERO_SUBSCRIPTIONS_STATUS_SETUP == $subscription->get( 'status' ) ) {
@@ -197,7 +211,7 @@ function get_admin_page_html() {
 
 	// Return Edit Subscription Admin page when editing a subscription. 
 	if ( isset( $_GET[ 'edit' ] ) ) {
-		return get_edit_html( $_GET[ 'edit' ] );
+		return get_edit_html( sanitize_text_field( $_GET[ 'edit' ] ) );
 	}
 	
 	return get_list_table_html( );	
@@ -255,34 +269,3 @@ function add_new_subscription() {
 	exit;
 	
 }
-
-/**
- * Updates a Subscription with data from the Edit Subscription Admin form.
- * 
- * @since	1.0
- * @param 	array	$form_data
- * @return 	Subscription
- */
-function update_subscription( $form_data ) {
-
-	// Save settings to Subscription.
-	$subscription = Subscriptions\get_subscription( $form_data[ 'subscription_id' ] );	
-
-	if ( is_wp_error( $subscription ) ) {
-		Admin\Notices\add_error( $subscription );
-		wp_safe_redirect( get_admin_edit_url( $subscription->get( 'ID' ) ) );			
-	}
-
-	$settings = array();	
-	foreach( $subscription->get_fields() as $field ) {
-		$setting = $field->get_setting_from_form( $form_data );
-		$settings[ $field->get( 'name' ) ] = $setting;
-	}	
-	$subscription->set( 'settings', $settings );
-	$subscription->save();
-	
-	return Subscriptions\get_subscription( $subscription->get( 'ID' ) );
-	
-	
-}
-
