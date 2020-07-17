@@ -1,36 +1,47 @@
 <?php
+/**	
+ * Manages the List Table on the Subscriptions Admin page.
+ *
+ * @since 1.0
+ */
 namespace Jeero\Admin\Subscriptions;
 
 use Jeero\Subscriptions;
 use Jeero\Admin;
 use Jeero\Calendars;
 
-if( ! class_exists( 'WP_List_Table' ) ) {
+if( ! class_exists( '\WP_List_Table' ) ) {
     require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
 }
 
+/**
+ * List_Table class.
+ */
 class List_Table extends \WP_List_Table {
 	
+	/**
+	 * Gets the columns for the List Table.
+	 * 
+	 * @since	1.0
+	 * @return	array
+	 */
 	function get_columns() {
 		$columns = array(
 			'subscription' => 'Source',
 			'calendar' => 'Destination',
 			'interval' => 'Interval',
-			'next_delivery' => 'Next sync',
+			'next_sync' => 'Next sync',
 			'limit' => 'Limit',
 		);
 		return $columns;
 	}
 	
-	function column_default( $item, $column_name ) {
-        switch( $column_name ) {
-            case 'calendar':
-                return $item->get( $column_name );
-            default:
-                return print_r( $item, true ) ;
-        }
-    }
-    
+	/**
+	 * Outputs the content for the Calendar column.
+	 * 
+	 * @since	1.0
+	 * @return	void
+	 */
     function column_calendar( $subscription ) {
 
 		$settings = $subscription->get( 'settings' );
@@ -47,6 +58,12 @@ class List_Table extends \WP_List_Table {
 
     }
     
+	/**
+	 * Outputs the content for the Interval column.
+	 * 
+	 * @since	1.0
+	 * @return	void
+	 */
     function column_interval( $subscription ) {
 	    
 	    $interval = $subscription->get( 'interval');
@@ -58,6 +75,12 @@ class List_Table extends \WP_List_Table {
 	    return sprintf( __( 'Every %s', 'jeero' ), human_time_diff( 0, $subscription->get( 'interval') ) );
     }
     
+	/**
+	 * Outputs the content for the Events Limit column.
+	 * 
+	 * @since	1.0
+	 * @return	void
+	 */
     function column_limit( $subscription ) {
 
 	    $limit = $subscription->get( 'limit');
@@ -69,7 +92,13 @@ class List_Table extends \WP_List_Table {
 	    return sprintf( _n( '%d event', '%d events', $limit, 'jeero' ), $limit );
     }
     
-    function column_next_delivery( $subscription ) {
+	/**
+	 * Outputs the content for the Next Sync column.
+	 * 
+	 * @since	1.0
+	 * @return	void
+	 */
+    function column_next_sync( $subscription ) {
 		
 		$next_delivery = $subscription->get( 'next_delivery' ) + get_option( 'gmt_offset' ) * HOUR_IN_SECONDS;
 
@@ -88,6 +117,12 @@ class List_Table extends \WP_List_Table {
 		return ob_get_clean();
 	}
     
+	/**
+	 * Outputs the content for the Subscription column.
+	 * 
+	 * @since	1.0
+	 * @return	void
+	 */
     function column_subscription( $subscription ) {
 	    
 	    $actions = array(
@@ -102,9 +137,12 @@ class List_Table extends \WP_List_Table {
 			<a class="row-title" href="<?php echo get_admin_edit_url( $subscription->get( 'ID' ) ); ?>"><?php
 
 				if ( !empty( $subscription->get( 'theater' ) ) ) {
-					?><img src="<?php echo $subscription->get( 'theater' )[ 'logo' ]; ?>" alt="<?php printf( __( '%s logo', 'jeero' ), $settings[ 'theater' ] ); ?>" style="width: auto; height: 1.5em;">
+					
+					if ( !empty( $subscription->get( 'theater' )[ 'logo' ] ) ) {
+						?><img src="<?php echo $subscription->get( 'theater' )[ 'logo' ]; ?>" alt="<?php printf( __( '%s logo', 'jeero' ), $settings[ 'theater' ] ); ?>" style="max-height: 1.5em; max-width: 1.5em; height: auto; width: auto; margin-right: 0.5em;"><?php						
+					}
 
-					<?php echo $subscription->get( 'theater' )[ 'title' ];
+					echo $subscription->get( 'theater' )[ 'title' ];
 				}
 			?></a>
 		</strong><?php
@@ -115,6 +153,12 @@ class List_Table extends \WP_List_Table {
 	    
     }
     
+	/**
+	 * Outputs the content for a empty List Table.
+	 * 
+	 * @since	1.0
+	 * @return	void
+	 */
     function no_items() {
 		?><div class="onboarding">
 			<p><?php 
@@ -128,6 +172,12 @@ class List_Table extends \WP_List_Table {
 		</div><?php
 	}
 
+	/**
+	 * Loads all Subscriptions for the List Table.
+	 * 
+	 * @since	1.0
+	 * @return 	void
+	 */
 	function prepare_items() {
 		$columns = $this->get_columns();
 		$hidden = array();
