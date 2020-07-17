@@ -4,3 +4,5 @@
 /raw				export-ignore
 /tests				export-ignore
 /phpunit.xml.dist	export-ignore
+/phpunit			export-ignore
+/includes/Doxyfile	export-ignore
