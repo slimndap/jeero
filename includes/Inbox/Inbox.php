@@ -2,11 +2,14 @@
 /**
  * Handles the Inbox.
  *
+ * @since	1.0
+ *
  * Steps: 
  * 1. Jeero asks Mother to check the Inbox.
  * 2. Mother returns items from Inbox.
- * 3. Jeero moves items into the Queue. 
- * 4. Jeero plans to ask Mother again in a minute.
+ * 3. Jeero processes items. 
+ * 4. Jeero ask Mother to remove processes items from Inbox.
+ * 5. Jeero plans to ask Mother again in a minute.
  */
 namespace Jeero\Inbox;
 
@@ -21,7 +24,7 @@ add_action( 'init', __NAMESPACE__.'\schedule_next_pickup' );
 add_action( PICKUP_ITEMS_HOOK, __NAMESPACE__.'\pickup_items' );
 
 /**
- * Picks up items from Inbox and schedule the next pick up.
+ * Picks up items from Inbox and processes them.
  * 
  * @since	1.0
  * @return 	void
@@ -45,9 +48,7 @@ function pickup_items() {
 		error_log( sprintf( '%d items found in inbox.', count( $items ) ) );
 	}
 		
-	process_items( $items ); // @todo Queue items instead of process.
-	
-	return true;
+	process_items( $items );
 	
 }
 
@@ -63,6 +64,13 @@ function get_next_pickup() {
 	
 }
 
+/**
+ * Processes a single item from the Inbox.
+ * 
+ * @since	1.0
+ * @param 	array	$item
+ * @return 	void
+ */
 function process_item( $item ) {
 	
 	$action = $item[ 'action' ];
@@ -123,6 +131,13 @@ function process_item( $item ) {
 	
 }
 
+/**
+ * Processes all items in Inbox and removes processed items from Inbox.
+ * 
+ * @since	1.0
+ * @param 	array	$items
+ * @return 	void
+ */
 function process_items( $items ) {
 	
 	if ( empty( $items ) ) {
@@ -141,6 +156,13 @@ function process_items( $items ) {
 	remove_items( $items_processed );
 }
 
+/**
+ * Removes items from the Inbox.
+ * 
+ * @since	1.0
+ * @param 	array $items
+ * @return	array|WP_Error
+ */
 function remove_items( array $items ) {
 	
 	error_log( sprintf( 'Removing %d items from Inbox.', count( $items ) ) );
