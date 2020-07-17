@@ -136,11 +136,7 @@ class Subscription {
 	
 	function save() {
 		
-		$data = array(
-			'settings' => $this->settings,
-		);
-		
-		Db\Subscriptions\save_subscription( $this->ID, $data );
+		Db\Subscriptions\save_subscription( $this->ID, $this->settings );
 		
 		Mother\update_subscription( $this->ID, $this->settings );
 		
