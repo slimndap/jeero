@@ -7,7 +7,7 @@
  * Author URI:      https://jero.ooo
  * Text Domain:     jeero
  * Domain Path:     /languages
- * Version:         1.0
+ * Version:         1.0.1
  *
  * @package         Jeero
  */
