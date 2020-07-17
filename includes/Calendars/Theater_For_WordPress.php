@@ -19,61 +19,6 @@ class Theater_For_WordPress extends Calendar {
 
 	}
 	
-	function add_image_to_library( $url, $production_id, $name, $description ) {
-		
-		require_once(ABSPATH . 'wp-admin/includes/media.php');
-		require_once(ABSPATH . 'wp-admin/includes/file.php');
-		require_once(ABSPATH . 'wp-admin/includes/image.php');
-
-		$tmp = download_url( $url );
-		if ( is_wp_error( $tmp ) ) {
-			return;	
-		}
-
-		$extension = $this->get_extension( $tmp );
-		
-		if (empty( $extension ) ) {
-			return;
-		}
-
-		$file_array = array(
-			'name' => $name.'.'.$extension,
-			'tmp_name' => $tmp,
-		);
-
-		if ( is_wp_error( $tmp ) ) {
-			@unlink($file_array['tmp_name']);
-			$file_array['tmp_name'] = '';
-		}
-		
-		$thumbnail_id = \media_handle_sideload( $file_array, $production_id, $description );
-
-		if ( \is_wp_error( $thumbnail_id ) ) {
-			@unlink( $file_array['tmp_name'] );
-		}
-		
-		return $thumbnail_id;
-
-	}
-	
-	function get_extension( $filename ) {
-	    $img = getimagesize( $filename );
-
-	    if ( !empty( $img[2] ) ) {
-		    
-		    $mimetype = image_type_to_mime_type( $img[2] );
-
-	    	switch( $mimetype ) {
-				case 'image/jpeg': return 'jpg';
-				case 'image/png': return 'png';
-				default: return false;
-	    	}
-	    	
-	    }
-	    	
-		return false;
-	}
-	
 	function get_event_by_ref( $ref, $theater ) {
 				
 		if ( $wpt_event = $this->importer->get_production_by_ref( $ref ) ) {
@@ -137,20 +82,12 @@ class Theater_For_WordPress extends Calendar {
 		
 		if ( !empty( $data[ 'production' ][ 'img' ] ) && !\has_post_thumbnail( $wpt_production->ID ) ) {
 
-			$thumbnail_id = $this->add_image_to_library( 
+			add_featured_image( 
 				$data[ 'production' ][ 'img' ], 
 				$wpt_production->ID, 
-				$data[ 'production' ][ 'ref' ], 
 				$data[ 'production' ][ 'title' ] 
 			);
 			
-			if ( \is_wp_error( $thumbnail_id ) ) {
-				error_log( sprintf( '[%s] Updating thumbnail for event failed %s / %d.', $this->name, $ref, $wpt_production->ID ) );
-				return;
-			}
-			
-			set_post_thumbnail( $wpt_production->ID, $thumbnail_id );
-
 		}
 
 		$event_args = array(
