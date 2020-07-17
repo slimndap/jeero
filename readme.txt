@@ -2,111 +2,65 @@
 Contributors: slimndap
 Tags: calendar, tickets, events
 Requires at least: 7.3
-Tested up to: 5.2.1
+Tested up to: 5.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Here is a short description of the plugin.  This should be no more than 150 characters.  No markup here.
+Imports events and tickets from your existing ticketing solution to popular WordPress calendar plugins.
 
 == Description ==
 
-This is the long description.  No limit, and you can use Markdown (as well as in the following sections).
+Jeero is the missing link between your ticketing solution and your website. 
 
-For backwards compatibility, if this section is missing, the full length of the short description will be used, and
-Markdown parsed.
+Tired of manually copying your event data in WordPress from your external ticketing solution? Jeero will take care of that and keeps you website fully up-to-date, including dates, prices and availability.
 
-A few notes about the sections above:
+Jeero is a subscription based service, provided by [Slim & Dapper](https://slimndap.com). You can easily setup a free subscription inside the plugin. The free subscription is fully functional and lets you sync up to 10 upcoming events at any given time. When you are ready to move ahead you can upgrade to one of the paid plans. 
 
-*   "Contributors" is a comma separated list of wp.org/wp-plugins.org usernames
-*   "Tags" is a comma separated list of tags that apply to the plugin
-*   "Requires at least" is the lowest version that the plugin will work on
-*   "Tested up to" is the highest version that you've *successfully used to test the plugin*. Note that it might work on
-higher versions... this is just the highest one you've verified.
-*   Stable tag should indicate the Subversion "tag" of the latest stable version, or "trunk," if you use `/trunk/` for
-stable.
+Supported ticketing solutions:
 
-    Note that the `readme.txt` of the stable tag is the one that is considered the defining one for the plugin, so
-if the `/trunk/readme.txt` file says that the stable tag is `4.3`, then it is `/tags/4.3/readme.txt` that'll be used
-for displaying information about the plugin.  In this situation, the only thing considered from the trunk `readme.txt`
-is the stable tag pointer.  Thus, if you develop in trunk, you can update the trunk `readme.txt` to reflect changes in
-your in-development version, without having that information incorrectly disclosed about the current stable version
-that lacks those changes -- as long as the trunk's `readme.txt` points to the correct stable tag.
+* RTS
+* Stager
+* Ticketmaster
+* Ticketmatic
+* Veezi
 
-    If no stable tag is provided, it is assumed that trunk is stable, but you should specify "trunk" if that's where
-you put the stable version, in order to eliminate any doubt.
+Supported calendar/event plugins:
+
+* [All In One Event Calendar](/plugins/all-in-one-event-calendar/)
+* [Theater for Wordpress](/plugins/theatre/)
+* [The Events Calendar](/plugins/the-events-calendar/)
+
+= Is your ticketings solution missing? =
+My objective is to offer imports from _any_ ticketing solution to _any_ calendar plugin. [Contact me](mailto:jeroen@slimndap.com), so I can add your solution as well.
 
 == Installation ==
 
-This section describes how to install the plugin and get it working.
+1. Go to Plugins -> Add New and look for 'Jeero'.
+2. Install and activate the Jeero plugin.
+3. Go to Jeero in the WordPress admin and click on ‘Add subscription’.
+4. Select your ticketing solution and your calendar plugin and submit the form.
+5. Fill in the missing fields in the form. Submit the form.
 
-e.g.
+Wait a couple of minutes (max 5) and go to you Calendar plugin.
 
-1. Upload `plugin-name.php` to the `/wp-content/plugins/` directory
-1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Place `<?php do_action('plugin_name_hook'); ?>` in your templates
+You should see the first 10 upcoming events that coming from your ticketing solutions.
 
 == Frequently Asked Questions ==
 
-= A question that someone might have =
+= How do I upgrade? =
 
-An answer to that question.
+I am still working on the subscription engine. Once it ready the possibility to upgrade will be made available inside the plugin. It shouldn't take long.
 
-= What about foo bar? =
+= How much will it cost? =
 
-Answer to foo bar dilemma.
-
-== Screenshots ==
-
-1. This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif). Note that the screenshot is taken from
-the /assets directory or the directory that contains the stable readme.txt (tags or trunk). Screenshots in the /assets
-directory take precedence. For example, `/assets/screenshot-1.png` would win over `/tags/4.3/screenshot-1.png`
-(or jpg, jpeg, gif).
-2. This is the second screen shot
+Subscription rates will range from €20 - €30 per month, depending on your total number of events. 
 
 == Changelog ==
 
 = 1.0 =
-* A change since the previous version.
-* Another change.
-
-= 0.5 =
-* List versions from most recent at top to oldest at bottom.
+* Welcome Jeero!
 
 == Upgrade Notice ==
 
 = 1.0 =
-Upgrade notices describe the reason a user should upgrade.  No more than 300 characters.
-
-= 0.5 =
-This version fixes a security related bug.  Upgrade immediately.
-
-== Arbitrary section ==
-
-You may provide arbitrary sections, in the same format as the ones above.  This may be of use for extremely complicated
-plugins where more information needs to be conveyed that doesn't fit into the categories of "description" or
-"installation."  Arbitrary sections will be shown below the built-in sections outlined above.
-
-== A brief Markdown Example ==
-
-Ordered list:
-
-1. Some feature
-1. Another feature
-1. Something else about the plugin
-
-Unordered list:
-
-* something
-* something else
-* third thing
-
-Here's a link to [WordPress](https://wordpress.org/ "Your favorite software") and one to [Markdown's Syntax Documentation][markdown syntax].
-Titles are optional, naturally.
-
-[markdown syntax]: https://daringfireball.net/projects/markdown/syntax
-            "Markdown is what the parser uses to process much of the readme file"
-
-Markdown uses email style notation for blockquotes and I've been told:
-> Asterisks for *emphasis*. Double it up  for **strong**.
-
-`<?php code(); // goes in backticks ?>`
+Jeero is born!
