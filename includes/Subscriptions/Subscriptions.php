@@ -13,11 +13,11 @@ const JEERO_SUBSCRIPTIONS_STATUS_SETUP = 'setup';
 const JEERO_SUBSCRIPTIONS_STATUS_READY = 'ready';
 
 /**
- * Adds a Subscription.
+ * Adds a new Subscription.
  *
  * Asks Mother to setup a new Subscription.
  * 
- * @return	Subscription	The new Subscription.
+ * @return	string	The ID of the new Subscription.
  */
 function add_subscription( ) {
 	
@@ -32,6 +32,12 @@ function add_subscription( ) {
 }
 
 
+/**
+ * Gets the Settings of all Subscriptions.
+ * 
+ * @since	1.0
+ * @return	array
+ */
 function get_setting_values() {
 
 	$subscriptions = Db\Subscriptions\get_subscriptions();

@@ -26,10 +26,20 @@ class Subscription {
 	 */
 	public $fields = array();
 	
+	/**
+	 * The maximum number of events that will be imported.
+	 * 
+	 * @var		int	$limit
+	 * @since	1.0
+	 */
 	public $limit;
 	
-	public $logo;
-	
+	/**
+	 * The number of seconds between two imports.
+	 * 
+	 * @var		int	$interval
+	 * @since	1.0
+	 */
 	public $interval;
 	
 	/**
@@ -40,6 +50,12 @@ class Subscription {
 	 */
 	public $next_delivery;
 	
+	/**
+	 * The Theater of this Subscription.
+	 * 
+	 * @var 	array
+	 * @since 	1.0
+	 */
 	public $theater = array();
 	
 	/**
@@ -56,6 +72,13 @@ class Subscription {
 	 */	
 	public $status;
 	
+	/**
+	 * Inits the Subscriptions. Sets the ID and load the settings from te DB.
+	 * 
+	 * @access public
+	 * @param mixed $ID
+	 * @return void
+	 */
 	function __construct( $ID ) {
 		
 		$this->set( 'ID', $ID );
@@ -63,6 +86,13 @@ class Subscription {
 		
 	}
 
+	/**
+	 * Gets a property from the Subscription.
+	 * 
+	 * @since	1.0
+	 * @param 	string	$key
+	 * @return	mixed
+	 */
 	function get( $key ) {
 		
 		if ( !isset( $this->{ $key } ) ) {
@@ -97,6 +127,12 @@ class Subscription {
 		
 	}
 		
+	/**
+	 * Gets a setting of this Subscription.
+	 * 
+	 * @since	1.0
+	 * @return 	mixed
+	 */
 	function get_setting( $name ) {
 		
 		$settings = $this->get( 'settings' );
@@ -110,6 +146,12 @@ class Subscription {
 	}
 	
 
+	/**
+	 * Loads the Settings of this Subscription.
+	 * 
+	 * @since	1.0
+	 * @return 	void
+	 */
 	function load( ) {
 		
 		$data = Db\Subscriptions\get_subscription( $this->ID );
@@ -128,19 +170,30 @@ class Subscription {
 
 	}
 
+	/**
+	 * Sets a property from the Subscription.
+	 * 
+	 * @since	1.0
+	 * @param 	string	$key
+	 * @param 	mixed	$value
+	 * @return	void
+	 */
 	function set( $key, $value ) {
 		
 		$this->{ $key } = $value;
 		
 	}
 	
+	
+	/**
+	 * Save this Subscription to the DB. 
+	 * 
+	 * @since	1.0
+	 * @return 	void
+	 */
 	function save() {
 		
 		Db\Subscriptions\save_subscription( $this->ID, $this->settings );
-		
-		Mother\update_subscription( $this->ID, $this->settings );
-		
-		$this->load();
 		
 	}
 	
