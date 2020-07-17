@@ -146,7 +146,9 @@ function get_subscriptions() {
 		$subscription->set( 'next_delivery', $answer[ 'next_delivery' ] );
 		$subscription->set( 'limit', $answer[ 'limit' ] );
 		
-		$subscription->set( 'theater', $answer[ 'theater' ] );
+		if ( isset( $answer[ 'theater' ] ) ) {
+			$subscription->set( 'theater', $answer[ 'theater' ] );
+		}
 
 		$subscriptions[ $subscription->get( 'ID' ) ] = $subscription;
 	}

@@ -47,6 +47,7 @@ class List_Table extends \WP_List_Table {
 		$settings = $subscription->get( 'settings' );
 		
 		if ( empty( $settings[ 'calendar' ] ) ) {
+			?>&mdash;<?php
 			return;
 		}
 		
@@ -143,6 +144,10 @@ class List_Table extends \WP_List_Table {
 					}
 
 					echo $subscription->get( 'theater' )[ 'title' ];
+				} elseif ( !empty( $settings[ 'theater' ] ) ) {
+					echo ucwords( $settings[ 'theater' ] );
+				} else {
+					?>&mdash;<?php
 				}
 			?></a>
 		</strong><?php
