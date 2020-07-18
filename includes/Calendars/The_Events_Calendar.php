@@ -1,6 +1,8 @@
 <?php
 namespace Jeero\Calendars;
 
+use Jeero\Helpers\Images as Images;
+
 /**
  * The_Events_Calendar class.
  * 
@@ -116,6 +118,11 @@ class The_Events_Calendar extends Calendar {
 			\add_post_meta( $event_id, $this->get_ref_key( $theater ), $data[ 'ref' ] );
 
 		}
+
+		$thumbnail_id = Images\update_featured_image_from_url( 
+			$event_id,
+			$data[ 'production' ][ 'img' ]
+		);
 		
 		return $event_id;
 		
