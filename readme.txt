@@ -14,8 +14,6 @@ Jeero is the missing link between your ticketing solution and your website.
 
 Tired of manually copying your event data in WordPress from your external ticketing solution? Jeero will take care of that and keeps you website fully up-to-date, including dates, prices and availability.
 
-Jeero is a subscription based service, provided by [Slim & Dapper](https://slimndap.com). You can easily setup a free subscription inside the plugin. The free subscription is fully functional and lets you sync up to 10 upcoming events at any given time. When you are ready to move ahead you can upgrade to one of the paid plans. 
-
 Supported ticketing solutions:
 
 * RTS
@@ -32,6 +30,10 @@ Supported calendar/event plugins:
 
 = Is your ticketings solution missing? =
 My objective is to offer imports from _any_ ticketing solution to _any_ calendar plugin. [Contact me](mailto:jeroen@slimndap.com), so I can add your solution as well.
+
+= Get started for free =
+Jeero is a subscription based service, provided by [Slim & Dapper](https://slimndap.com). You can easily setup a free subscription inside the plugin. The free subscription is fully functional and lets you sync up to 10 upcoming events at any given time. When you are ready to move ahead you can upgrade to one of the paid plans. 
+
 
 == Installation ==
 

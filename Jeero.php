@@ -1,12 +1,10 @@
 <?php
 /**
  * Plugin Name:     Jeero
- * Plugin URI:      https://jeero.ooo
+ * Plugin URI:      https://slimndap.com
  * Description:     Synchronizes events and tickets from your existing ticketing solution with popular calendar plugins.
- * Author:          Jeroen Schmit
- * Author URI:      https://jero.ooo
- * Text Domain:     jeero
- * Domain Path:     /languages
+ * Author:          Slim & Dapper
+ * Author URI:      https://slimndap.com
  * Version:         1.0.1
  *
  * @package         Jeero
