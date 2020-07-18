@@ -1,6 +1,8 @@
 <?php
 namespace Jeero\Calendars;
 
+use Jeero\Helpers\Images as Images;
+
 const JEERO_CALENDARS_THEATER_FOR_WORDPRESS_REF_KEY = 'jeero/theater_for_wordpress/ref';
 
 /**
@@ -80,14 +82,17 @@ class Theater_For_WordPress extends Calendar {
 			
 		}
 		
-		if ( !empty( $data[ 'production' ][ 'img' ] ) && !\has_post_thumbnail( $wpt_production->ID ) ) {
-
-			add_featured_image( 
-				$data[ 'production' ][ 'img' ], 
-				$wpt_production->ID, 
-				$data[ 'production' ][ 'title' ] 
+		if ( !empty( $data[ 'production' ][ 'img' ] ) ) {
+	
+			$thumbnail_id = Images\update_featured_image_from_url( 
+				$wpt_production->ID,
+				$data[ 'production' ][ 'img' ]
 			);
-			
+
+			if ( \is_wp_error( $thumbnail_id ) ) {
+				error_log( sprintf( 'Updating thumbnail for event failed %s / %d.', $production[ 'title' ], $wpt_production->ID ) );
+			}
+		
 		}
 
 		$event_args = array(
