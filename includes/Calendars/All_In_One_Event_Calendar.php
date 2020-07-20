@@ -66,6 +66,16 @@ class All_In_One_Event_Calendar extends Calendar {
 		return $venue_id;		
 	}
 	
+	/**
+	 * Processes event data from Inbox items.
+	 * 
+	 * @since	1.0
+	 * @param 	mixed $result
+	 * @param 	array	$data		The strcutured data of the event.
+	 * @param 	array	$raw		The raw data of the event.
+	 * @param	string	$theater	The theater.
+	 * @return 	Ai1ec_Event|WP_Error
+	 */
 	function process_data( $result, $data, $raw, $theater ) {
 		
 		global $ai1ec_front_controller;
@@ -79,15 +89,23 @@ class All_In_One_Event_Calendar extends Calendar {
 		$ref = $data[ 'ref' ];
 
         $args = array(
+	        'start' => strtotime( $data[ 'start' ] ),
             'ticket_url' => $data[ 'tickets_url' ],
             'post' => array(
 				'post_status' => 'draft',
 				'post_type' => \AI1EC_POST_TYPE,
 				'post_title' => $data[ 'production' ][ 'title' ],
-				'post_content' => '',
+				'post_content' => empty( $data[ 'production' ][ 'description' ] ) ? '' : $data[ 'production' ][ 'description' ],
             ),
         );
-
+        
+        if ( empty( $data[ 'end' ] ) ) {
+			$args[ 'instant_event' ] =  true;
+			$args[ 'end' ] = strtotime( $data[ 'start' ] ) + 15 * MINUTE_IN_SECONDS;	        
+	    } else {
+			$args[ 'end' ] = strtotime( $data[ 'end' ] );	        
+        }
+        
 		if ( !empty( $data[ 'venue' ] ) ) {
 			$args[ 'venue' ] = $data[ 'venue' ][ 'title' ];
 		}
