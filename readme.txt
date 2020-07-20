@@ -59,6 +59,9 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 
 == Changelog ==
 
+= 1.0.2 =
+Fixes several import issues with the All In One Event Calendar plugin. Adds featured images support to All In One Event Calendar and The Events Calendar imports.
+
 = 1.0 =
 * Welcome Jeero!
 
