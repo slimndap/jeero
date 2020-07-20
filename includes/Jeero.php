@@ -44,3 +44,5 @@ include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Error.php';
 include_once PLUGIN_PATH.'includes/Inbox/Inbox.php';
 
 include_once PLUGIN_PATH.'includes/Mother/Mother.php';
+
+include_once PLUGIN_PATH.'includes/Helpers/Images.php';

@@ -1,6 +1,8 @@
 <?php
 namespace Jeero\Calendars;
 
+use Jeero\Helpers\Images as Images;
+
 const JEERO_CALENDARS_ALL_IN_ONE_EVENT_CALENDAR_REF_KEY = 'jeero/all_in_one_event_calendar/ref';
 
 /**
@@ -138,6 +140,16 @@ class All_In_One_Event_Calendar extends Calendar {
 			
 			\add_post_meta( $event_id, JEERO_CALENDARS_ALL_IN_ONE_EVENT_CALENDAR_REF_KEY, $data[ 'ref' ] );
 		}
+		
+		$thumbnail_id = Images\update_featured_image_from_url( 
+			$event_id,
+			$data[ 'production' ][ 'img' ]
+		);
+
+		if ( \is_wp_error( $thumbnail_id ) ) {
+			error_log( sprintf( 'Updating thumbnail for event failed %s / %d.', $date[ 'production' ][ 'title' ], $event_id ) );
+		}
+
 
 		
 		return $Ai1ec_Event;

@@ -1,6 +1,8 @@
 <?php
 namespace Jeero\Calendars;
 
+use Jeero\Helpers\Images as Images;
+
 const JEERO_CALENDARS_THEATER_FOR_WORDPRESS_REF_KEY = 'jeero/theater_for_wordpress/ref';
 
 /**
@@ -17,61 +19,6 @@ class Theater_For_WordPress extends Calendar {
 		
 		parent::__construct();
 
-	}
-	
-	function add_image_to_library( $url, $production_id, $name, $description ) {
-		
-		require_once(ABSPATH . 'wp-admin/includes/media.php');
-		require_once(ABSPATH . 'wp-admin/includes/file.php');
-		require_once(ABSPATH . 'wp-admin/includes/image.php');
-
-		$tmp = download_url( $url );
-		if ( is_wp_error( $tmp ) ) {
-			return;	
-		}
-
-		$extension = $this->get_extension( $tmp );
-		
-		if (empty( $extension ) ) {
-			return;
-		}
-
-		$file_array = array(
-			'name' => $name.'.'.$extension,
-			'tmp_name' => $tmp,
-		);
-
-		if ( is_wp_error( $tmp ) ) {
-			@unlink($file_array['tmp_name']);
-			$file_array['tmp_name'] = '';
-		}
-		
-		$thumbnail_id = \media_handle_sideload( $file_array, $production_id, $description );
-
-		if ( \is_wp_error( $thumbnail_id ) ) {
-			@unlink( $file_array['tmp_name'] );
-		}
-		
-		return $thumbnail_id;
-
-	}
-	
-	function get_extension( $filename ) {
-	    $img = getimagesize( $filename );
-
-	    if ( !empty( $img[2] ) ) {
-		    
-		    $mimetype = image_type_to_mime_type( $img[2] );
-
-	    	switch( $mimetype ) {
-				case 'image/jpeg': return 'jpg';
-				case 'image/png': return 'png';
-				default: return false;
-	    	}
-	    	
-	    }
-	    	
-		return false;
 	}
 	
 	function get_event_by_ref( $ref, $theater ) {
@@ -135,22 +82,17 @@ class Theater_For_WordPress extends Calendar {
 			
 		}
 		
-		if ( !empty( $data[ 'production' ][ 'img' ] ) && !\has_post_thumbnail( $wpt_production->ID ) ) {
-
-			$thumbnail_id = $this->add_image_to_library( 
-				$data[ 'production' ][ 'img' ], 
-				$wpt_production->ID, 
-				$data[ 'production' ][ 'ref' ], 
-				$data[ 'production' ][ 'title' ] 
+		if ( !empty( $data[ 'production' ][ 'img' ] ) ) {
+	
+			$thumbnail_id = Images\update_featured_image_from_url( 
+				$wpt_production->ID,
+				$data[ 'production' ][ 'img' ]
 			);
-			
-			if ( \is_wp_error( $thumbnail_id ) ) {
-				error_log( sprintf( '[%s] Updating thumbnail for event failed %s / %d.', $this->name, $ref, $wpt_production->ID ) );
-				return;
-			}
-			
-			set_post_thumbnail( $wpt_production->ID, $thumbnail_id );
 
+			if ( \is_wp_error( $thumbnail_id ) ) {
+				error_log( sprintf( 'Updating thumbnail for event failed %s / %d.', $production[ 'title' ], $wpt_production->ID ) );
+			}
+		
 		}
 
 		$event_args = array(

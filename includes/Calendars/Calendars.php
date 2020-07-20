@@ -50,3 +50,5 @@ function get_calendar( $slug = '' ) {
 	return new Calendar();	
 	
 }
+
+	
