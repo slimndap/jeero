@@ -4,7 +4,9 @@ namespace Jeero\Calendars;
 use Jeero\Helpers\Images as Images;
 
 /**
- * The_Events_Calendar class.
+ * Modern_Events_Calendar class.
+ *
+ * @since	1.0.3
  * 
  * @extends Calendar
  */

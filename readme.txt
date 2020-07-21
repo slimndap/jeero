@@ -3,6 +3,7 @@ Contributors: slimndap
 Tags: calendar, tickets, events
 Requires PHP: 7.2
 Tested up to: 5.5
+Requires at least: 4.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
