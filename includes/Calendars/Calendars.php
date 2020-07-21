@@ -28,6 +28,10 @@ function get_active_calendars() {
 		$slugs[] = 'All_In_One_Event_Calendar';
 	}
 		
+	if ( defined( 'MECEXEC' ) ) {
+		$slugs[] = 'Modern_Events_Calendar';
+	}
+		
 	$calendars = array();
 	
 	foreach ( $slugs as $slug ) {
