@@ -45,7 +45,7 @@ Jeero is a subscription based service, provided by [Slim & Dapper](https://slimn
 4. Select your ticketing solution and your calendar plugin and submit the form.
 5. Fill in the missing fields in the form. Submit the form.
 
-Wait a couple of minutes (max 5) and go to you Calendar plugin.
+Wait a couple of minutes (max 5) and go to your Calendar plugin.
 
 You should see the first 10 upcoming events that coming from your ticketing solutions.
 
