@@ -26,6 +26,7 @@ Supported ticketing solutions:
 Supported calendar/event plugins:
 
 * [All In One Event Calendar](/plugins/all-in-one-event-calendar/)
+* [Modern Events Calendar](/plugins/modern-events-calendar-lite/)
 * [Theater for Wordpress](/plugins/theatre/)
 * [The Events Calendar](/plugins/the-events-calendar/)
 
@@ -59,6 +60,9 @@ I am still working on the subscription engine. Once it ready the possibility to 
 Subscription rates will range from €20 - €30 per month, depending on your total number of events. 
 
 == Changelog ==
+
+= 1.0.3 =
+Adds support for the Modern Events Calendar plugin.
 
 = 1.0.2 =
 Fixes several import issues with the All In One Event Calendar plugin. Adds featured images support to All In One Event Calendar and The Events Calendar imports.
