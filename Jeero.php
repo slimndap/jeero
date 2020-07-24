@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:     Jeero
- * Plugin URI:      https://slimndap.com
+ * Plugin URI:      https://jeero.ooo
  * Description:     Synchronizes events and tickets from your existing ticketing solution with popular calendar plugins.
  * Author:          Slim & Dapper
  * Author URI:      https://slimndap.com
