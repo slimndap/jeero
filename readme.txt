@@ -1,6 +1,6 @@
 === Jeero ===
 Contributors: slimndap
-Tags: calendar, tickets, events
+Tags: calendar, tickets, events, veezi, ticketmaster, ticketmatic, stager
 Requires PHP: 7.2
 Tested up to: 5.5
 Requires at least: 4.6
