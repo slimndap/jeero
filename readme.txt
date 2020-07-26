@@ -17,11 +17,11 @@ Tired of manually copying your event data in WordPress from your external ticket
 
 Supported ticketing solutions:
 
-* RTS
-* Stager
-* Ticketmaster
-* Ticketmatic
-* Veezi
+* [RTS](https://jeero.ooo/publish-rts-voorstellingen-on-wordpress/)
+* [Stager](https://jeero.ooo/publish-stager-events-on-wordpress/)
+* [Ticketmaster](https://jeero.ooo/publish-ticketmaster-events-on-wordpress/)
+* [Ticketmatic](https://jeero.ooo/publish-ticketmatic-events-on-wordpress/)
+* [Veezi](https://jeero.ooo/publish-veezi-events-on-wordpress/)
 
 Supported calendar/event plugins:
 
