@@ -19,6 +19,7 @@ Supported ticketing solutions:
 
 * [RTS](https://jeero.ooo/publish-rts-voorstellingen-on-wordpress/)
 * [Stager](https://jeero.ooo/publish-stager-events-on-wordpress/)
+* [TicketingCiné](https://jeero.ooo/publish-ticketingcine-events-on-wordpress/)
 * [Ticketmaster](https://jeero.ooo/publish-ticketmaster-events-on-wordpress/)
 * [Ticketmatic](https://jeero.ooo/publish-ticketmatic-events-on-wordpress/)
 * [Veezi](https://jeero.ooo/publish-veezi-events-on-wordpress/)
@@ -60,6 +61,9 @@ I am still working on the subscription engine. Once it ready the possibility to 
 Subscription rates will range from €20 - €30 per month, depending on your total number of events. 
 
 == Changelog ==
+
+= 1.0.4 =
+Fixes a redirect issue while setting up a new sync.
 
 = 1.0.3 =
 Adds support for the Modern Events Calendar plugin.

@@ -55,6 +55,7 @@ function do_admin_page() {
  * Redirects user back to Subscription Admin form if settings don't validate.
  * 
  * @since	1.0
+ * @since	1.0.4	Reload subscription to refresh data from Mother, based on new settings.
  * @return	void
  */
 function process_form() {
@@ -86,7 +87,10 @@ function process_form() {
 	}	
 	$subscription->set( 'settings', $settings );
 	$subscription->save();
-	
+
+	// Reload subscription to refresh data from Mother, based on new settings.
+	$subscription = Subscriptions\get_subscription( $subscription->ID );	
+
 	$theater = $subscription->get( 'theater' );
 	
 	if ( \Jeero\Subscriptions\JEERO_SUBSCRIPTIONS_STATUS_SETUP == $subscription->get( 'status' ) ) {
