@@ -10,7 +10,7 @@ namespace Jeero\Admin\Notices;
 
 const JEERO_ADMIN_NOTICES_OPTION_KEY = 'jeero/admin/notices';
 
-add_action( 'admin_notices', __NAMESPACE__.'\do_admin_notices' );
+add_action( 'admin_notices', __NAMESPACE__.'\do_admin_notices', 99 );
 
 /**
  * Adds an error notification to the DB.
