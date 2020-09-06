@@ -66,16 +66,15 @@ class List_Table extends \WP_List_Table {
 	 * Gets the columns for the List Table.
 	 * 
 	 * @since	1.0
-	 * @return	array
+	 * @since	1.1		Removed Interval column.
+	 * @return	array	The columns for the List Table.
 	 */
 	function get_columns() {
 		$columns = array(
 			'subscription' => 'Source',
 			'calendar' => 'Destination',
-			'interval' => 'Interval',
 			'next_sync' => 'Next sync',
 			'limit' => 'Limit',
-			'status' => 'Status',
 		);
 		return $columns;
 	}
@@ -101,23 +100,6 @@ class List_Table extends \WP_List_Table {
 			?><div><?php echo $calendar->get( 'name' ); ?></div><?php
 		}
 
-    }
-    
-	/**
-	 * Outputs the content for the Interval column.
-	 * 
-	 * @since	1.0
-	 * @return	void
-	 */
-    function column_interval( $subscription ) {
-	    
-	    $interval = $subscription->get( 'interval');
-	    
-	    if ( empty( $interval ) ) {
-		    return;
-	    }
-	    
-	    return sprintf( __( 'Every %s', 'jeero' ), human_time_diff( 0, $subscription->get( 'interval') ) );
     }
     
 	/**
@@ -162,21 +144,6 @@ class List_Table extends \WP_List_Table {
 		return ob_get_clean();
 	}
     
-    
-	/**
-	 * Outputs the content for the Next Sync column.
-	 * 
-	 * @since	1.0
-	 * @return	void
-	 */
-    function column_status( $subscription ) {
-		
-		$inactive = $subscription->get( 'inactive' );
-
-		if ( $inactive ) {
-			_e( 'Inactive', 'jeero' );
-		}
-	}
     
 	/**
 	 * Outputs the content for the Subscription column.
