@@ -33,6 +33,8 @@ use Jeero\Subscriptions;
 use Jeero\Inbox;
 
 add_action( 'admin_init', __NAMESPACE__.'\add_new_subscription' );
+add_action( 'admin_init', __NAMESPACE__.'\process_activate' );
+add_action( 'admin_init', __NAMESPACE__.'\process_deactivate' );
 add_action( 'admin_init', __NAMESPACE__.'\process_form' );
 
 
@@ -46,6 +48,74 @@ function do_admin_page() {
 
 	echo get_admin_page_html();
 	
+}
+
+function process_activate() {
+	
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;	
+	}
+	
+	if ( !isset( $_GET[ 'jeero/nonce' ] ) ) {
+		return;
+	}
+	
+	if ( !wp_verify_nonce( $_GET['jeero/nonce'], 'activate' ) ) {
+		return;
+	}
+	
+	if ( empty( $_GET[ 'subscription_id' ] ) ) {
+		return;
+	}
+
+	// Save settings to Subscription.
+	$subscription = Subscriptions\get_subscription( sanitize_text_field( $_GET[ 'subscription_id' ] ) );
+	if ( \is_wp_error( $subscription ) ) {
+		Admin\Notices\add_error( $subscription );
+		\wp_safe_redirect( get_admin_page_url( ) );			
+	}
+	
+	$subscription->activate();
+	
+	$theater = $subscription->get( 'theater' );
+
+	Admin\Notices\add_success( sprintf( __( '%s subscription activated.', 'jeero' ), $theater[ 'title' ] ) );
+	wp_safe_redirect( get_admin_page_url( ) );	
+	exit;
+}
+
+function process_deactivate() {
+	
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;	
+	}
+	
+	if ( !isset( $_GET[ 'jeero/nonce' ] ) ) {
+		return;
+	}
+	
+	if ( !wp_verify_nonce( $_GET['jeero/nonce'], 'deactivate' ) ) {
+		return;
+	}
+	
+	if ( empty( $_GET[ 'subscription_id' ] ) ) {
+		return;
+	}
+
+	// Save settings to Subscription.
+	$subscription = Subscriptions\get_subscription( sanitize_text_field( $_GET[ 'subscription_id' ] ) );
+	if ( \is_wp_error( $subscription ) ) {
+		Admin\Notices\add_error( $subscription );
+		\wp_safe_redirect( get_admin_page_url( ) );			
+	}
+	
+	$subscription->deactivate();
+	
+	$theater = $subscription->get( 'theater' );
+
+	Admin\Notices\add_success( sprintf( __( '%s subscription deactivated.', 'jeero' ), $theater[ 'title' ] ) );
+	wp_safe_redirect( add_query_arg( 'inactive', true, get_admin_page_url( ) ) );	
+	exit;
 }
 
 /**
@@ -185,6 +255,8 @@ function get_list_table_html() {
 		<h1 class="wp-heading-inline"><?php _e( 'Jeero', 'jeero' ); ?></h1>
 		<a href="<?php echo get_new_subscription_url();?>" class="page-title-action"><?php _e( 'Add Import', 'jeero' ); ?></a>
 		<hr class="wp-header-end"><?php
+			
+		$list_table->views();
 			
 		$list_table->display(); 
 

@@ -73,6 +73,14 @@ function get_site_identifier() {
 	return site_url().'_'.get_site_key();	
 }
 
+function activate_subscription( $subscription_id ) {
+	return get( 'subscriptions/'.$subscription_id.'/activate' );	
+}
+
+function deactivate_subscription( $subscription_id ) {
+	return get( 'subscriptions/'.$subscription_id.'/deactivate' );	
+}
+
 /**
  * Gets the contents of the inbox.
  * 

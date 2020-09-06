@@ -77,6 +77,7 @@ function get_subscription( $subscription_id ) {
 		'status' => false,
 		'logo' => false,
 		'fields' => array(),
+		'inactive' => false,
 		'interval' => null,
 		'next_delivery' => null,
 		'theater' => array(),
@@ -100,6 +101,7 @@ function get_subscription( $subscription_id ) {
 	$subscription->set( 'status', $answer[ 'status' ] );
 	$subscription->set( 'logo', $answer[ 'logo' ] );
 	$subscription->set( 'fields', $fields );
+	$subscription->set( 'inactive', $answer[ 'inactive' ] );
 	$subscription->set( 'interval', $answer[ 'interval' ] );
 	$subscription->set( 'next_delivery', $answer[ 'next_delivery' ] );
 	$subscription->set( 'limit', $answer[ 'limit' ] );
@@ -142,6 +144,7 @@ function get_subscriptions() {
 		$subscription->set( 'logo', $answer[ 'logo' ] );
 		$subscription->set( 'fields', $answer[ 'fields' ] );
 				
+		$subscription->set( 'inactive', $answer[ 'inactive' ] );
 		$subscription->set( 'interval', $answer[ 'interval' ] );
 		$subscription->set( 'next_delivery', $answer[ 'next_delivery' ] );
 		$subscription->set( 'limit', $answer[ 'limit' ] );

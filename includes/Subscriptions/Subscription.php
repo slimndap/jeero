@@ -34,6 +34,8 @@ class Subscription {
 	 */
 	public $limit;
 	
+	public $inactive;
+	
 	/**
 	 * The number of seconds between two imports.
 	 * 
@@ -145,7 +147,30 @@ class Subscription {
 
 	}
 	
+	function activate() {
+		
+		$answer = Mother\activate_subscription( $this->ID );
+	
+		if ( is_wp_error( $answer ) ) {
+			return $answer;
+		}
+	
+		return false == $answer[ 'inactive' ];
+		
+	}
+	
+	function deactivate() {
 
+		$answer = Mother\deactivate_subscription( $this->ID );
+	
+		if ( is_wp_error( $answer ) ) {
+			return $answer;
+		}
+	
+		return true == $answer[ 'inactive' ];
+		
+	}
+	
 	/**
 	 * Loads the Settings of this Subscription.
 	 * 

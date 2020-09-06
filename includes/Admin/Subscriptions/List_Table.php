@@ -19,17 +19,60 @@ if( ! class_exists( '\WP_List_Table' ) ) {
  */
 class List_Table extends \WP_List_Table {
 	
+	public $subscriptions;
+	
+	function get_views( ) {
+
+		$views = array();
+		
+		if ( empty( $this->subscriptions ) ) {
+			return $views;
+		}
+		
+		$counter = array(
+			'active' => 0,
+			'inactive' => 0,
+		);
+		
+		foreach( $this->subscriptions as $subscription ) {
+			
+			if ( $subscription->get( 'inactive' ) ) {
+				$counter[ 'inactive' ]++;
+			} else {
+				$counter[ 'active' ]++;
+			}
+
+		}
+		
+		if ( $counter[ 'inactive' ] > 0 ) {
+			
+			if ( empty( $_GET[ 'inactive' ] ) ) {
+				$views = array(
+					'active' => '<a href="'.get_admin_page_url().'" class="current">'.__( 'Active subscriptions', 'jeero' ).' <span class="count">('.$counter[ 'active' ]	.')</span></a>',
+					'inactive' => '<a href="'.\add_query_arg( 'inactive', 1, get_admin_page_url() ).'">'.__( 'Inactive subscriptions', 'jeero' ).' <span class="count">('.$counter[ 'inactive' ]	.')</span></a>',
+				);				
+			} else {
+				$views = array(
+					'active' => '<a href="'.get_admin_page_url().'">'.__( 'Active subscriptions', 'jeero' ).' <span class="count">('.$counter[ 'active' ]	.')</span></a>',
+					'inactive' => '<a href="'.\add_query_arg( 'inactive', 1, get_admin_page_url() ).'" class="current">'.__( 'Inactive subscriptions', 'jeero' ).' <span class="count">('.$counter[ 'inactive' ]	.')</span></a>',
+				);				
+			}
+		}
+		
+		return $views;
+	}
+	
 	/**
 	 * Gets the columns for the List Table.
 	 * 
 	 * @since	1.0
-	 * @return	array
+	 * @since	1.1		Removed Interval column.
+	 * @return	array	The columns for the List Table.
 	 */
 	function get_columns() {
 		$columns = array(
 			'subscription' => 'Source',
 			'calendar' => 'Destination',
-			'interval' => 'Interval',
 			'next_sync' => 'Next sync',
 			'limit' => 'Limit',
 		);
@@ -57,23 +100,6 @@ class List_Table extends \WP_List_Table {
 			?><div><?php echo $calendar->get( 'name' ); ?></div><?php
 		}
 
-    }
-    
-	/**
-	 * Outputs the content for the Interval column.
-	 * 
-	 * @since	1.0
-	 * @return	void
-	 */
-    function column_interval( $subscription ) {
-	    
-	    $interval = $subscription->get( 'interval');
-	    
-	    if ( empty( $interval ) ) {
-		    return;
-	    }
-	    
-	    return sprintf( __( 'Every %s', 'jeero' ), human_time_diff( 0, $subscription->get( 'interval') ) );
     }
     
 	/**
@@ -118,6 +144,7 @@ class List_Table extends \WP_List_Table {
 		return ob_get_clean();
 	}
     
+    
 	/**
 	 * Outputs the content for the Subscription column.
 	 * 
@@ -129,6 +156,16 @@ class List_Table extends \WP_List_Table {
 	    $actions = array(
 		    'edit' => '<a href="'.get_admin_edit_url( $subscription->get( 'ID' ) ).'">'.__( 'Edit', 'jeero' ).'</a>',
 	    );
+	    
+	    if ( $subscription->get( 'inactive' ) ) {
+		    $url = \wp_nonce_url( get_admin_page_url(), 'activate', 'jeero/nonce' );
+		    $url = \add_query_arg( 'subscription_id', $subscription->get( 'ID' ), $url );
+		    $actions[ 'activate' ] = '<a href="'.$url.'">'.__( 'Activate', 'jeero' ).'</a>';
+	    } else {
+		    $url = \wp_nonce_url( get_admin_page_url(), 'deactivate', 'jeero/nonce' );
+		    $url = \add_query_arg( 'subscription_id', $subscription->get( 'ID' ), $url );
+		    $actions[ 'deactivate' ] = '<a href="'.$url.'">'.__( 'Deactivate', 'jeero' ).'</a>';		    
+	    }
 	    
 		$settings = $subscription->get( 'settings' );
 		
@@ -189,15 +226,24 @@ class List_Table extends \WP_List_Table {
 		$sortable = array();
 		$this->_column_headers = array($columns, $hidden, $sortable);
 		
-		$subscriptions = Subscriptions\get_subscriptions();
+		$this->subscriptions = Subscriptions\get_subscriptions();
 
-		if ( is_wp_error( $subscriptions ) ) {
-			Admin\Notices\add_error( $subscriptions );
+		if ( is_wp_error( $this->subscriptions ) ) {
+			Admin\Notices\add_error( $this->subscriptions );
 			$this->items = array();		
 			return false;
 		}
 		
-		$this->items = $subscriptions;		
+		$filtered_subscriptions = array();
+		
+		$inactive = !empty( $_GET[ 'inactive' ] );
+		foreach( $this->subscriptions as $subscription ) {
+			if ( $subscription->get( 'inactive' ) == $inactive ) {
+				$filtered_subscriptions[] = $subscription;
+			}
+		}
+		
+		$this->items = $filtered_subscriptions;		
 	}
 	
 }
