@@ -164,6 +164,7 @@ function get_edit_html( $subscription_id ) {
  * Gets the HTML for the List Table on the Subscriptions Admin page.
  * 
  * @since	1.0
+ * @since	1.1	Renamed 'subscriptions' to 'imports'.
  * @return	string
  */
 function get_list_table_html() {
@@ -174,8 +175,8 @@ function get_list_table_html() {
 	$list_table->prepare_items();
 	
 	?><div class="wrap">
-		<h1 class="wp-heading-inline"><?php _e( 'Jeero Ticketsync', 'jeero' ); ?></h1>
-		<a href="<?php echo get_new_subscription_url();?>" class="page-title-action"><?php _e( 'Add Subscription', 'jeero' ); ?></a>
+		<h1 class="wp-heading-inline"><?php _e( 'Jeero', 'jeero' ); ?></h1>
+		<a href="<?php echo get_new_subscription_url();?>" class="page-title-action"><?php _e( 'Add Import', 'jeero' ); ?></a>
 		<hr class="wp-header-end"><?php
 			
 		$list_table->display(); 
@@ -226,10 +227,11 @@ function get_admin_page_html() {
  * Gets the URL for the Subscriptions Admin page.
  * 
  * @since	1.0
+ * @since	1.1	Renamed 'subscriptions' to 'imports'.
  * @return	string
  */
 function get_admin_page_url() {
-	return admin_url( 'admin.php?page=jeero/subscriptions');
+	return admin_url( 'admin.php?page=jeero/imports');
 }
 
 /**
