@@ -131,7 +131,7 @@ function get_edit_html( $subscription_id ) {
 	ob_start();
 	
 	?><div class="wrap">
-		<h1><?php _e( 'Edit Subscription', 'jeero' ); ?></h1>
+		<h1><?php _e( 'Edit Import', 'jeero' ); ?></h1>
 		<form><?php
 			wp_nonce_field( 'save', 'jeero/nonce', true, true );
 			?><input type="hidden" name="subscription_id" value="<?php echo $subscription_id; ?>">
