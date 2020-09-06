@@ -31,6 +31,10 @@ function get_active_calendars() {
 	if ( defined( 'MECEXEC' ) ) {
 		$slugs[] = 'Modern_Events_Calendar';
 	}
+	
+	if ( defined( 'WCS_FILE' ) ) {
+		$slugs[] = 'Events_Schedule_Wp_Plugin';
+	}
 		
 	$calendars = array();
 	
