@@ -48,13 +48,13 @@ class List_Table extends \WP_List_Table {
 			
 			if ( empty( $_GET[ 'inactive' ] ) ) {
 				$views = array(
-					'active' => '<a href="'.get_admin_page_url().'" class="current">'.__( 'Active subscriptions', 'jeero' ).' <span class="count">('.$counter[ 'active' ]	.')</span></a>',
-					'inactive' => '<a href="'.\add_query_arg( 'inactive', 1, get_admin_page_url() ).'">'.__( 'Inactive subscriptions', 'jeero' ).' <span class="count">('.$counter[ 'inactive' ]	.')</span></a>',
+					'active' => '<a href="'.get_admin_page_url().'" class="current">'.__( 'Active imports', 'jeero' ).' <span class="count">('.$counter[ 'active' ]	.')</span></a>',
+					'inactive' => '<a href="'.\add_query_arg( 'inactive', 1, get_admin_page_url() ).'">'.__( 'Inactive imports', 'jeero' ).' <span class="count">('.$counter[ 'inactive' ]	.')</span></a>',
 				);				
 			} else {
 				$views = array(
-					'active' => '<a href="'.get_admin_page_url().'">'.__( 'Active subscriptions', 'jeero' ).' <span class="count">('.$counter[ 'active' ]	.')</span></a>',
-					'inactive' => '<a href="'.\add_query_arg( 'inactive', 1, get_admin_page_url() ).'" class="current">'.__( 'Inactive subscriptions', 'jeero' ).' <span class="count">('.$counter[ 'inactive' ]	.')</span></a>',
+					'active' => '<a href="'.get_admin_page_url().'">'.__( 'Active imports', 'jeero' ).' <span class="count">('.$counter[ 'active' ]	.')</span></a>',
+					'inactive' => '<a href="'.\add_query_arg( 'inactive', 1, get_admin_page_url() ).'" class="current">'.__( 'Inactive imports', 'jeero' ).' <span class="count">('.$counter[ 'inactive' ]	.')</span></a>',
 				);				
 			}
 		}
