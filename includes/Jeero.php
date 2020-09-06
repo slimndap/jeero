@@ -2,7 +2,7 @@
 /**
  * \mainpage Jeero
  * \author Jeroen Schmit
- * \version	1.0
+ * \version	1.1
  * \copyright GNU Public License
  *
  * \section intro Introduction
