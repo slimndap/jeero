@@ -33,6 +33,7 @@ Supported ticketing solutions:
 Supported calendar/event plugins:
 
 * [All In One Event Calendar](/plugins/all-in-one-event-calendar/)
+* [Events Schedule WordPress Plugin](https://demo.curlythemes.com/timetable-wordpress-plugin/)
 * [Modern Events Calendar](/plugins/modern-events-calendar-lite/)
 * [Theater for Wordpress](/plugins/theatre/)
 * [The Events Calendar](/plugins/the-events-calendar/)
@@ -68,19 +69,28 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 
 == Changelog ==
 
+= 1.1 =
+
+* Renamed 'subscriptions' to 'imports'.
+* Made it possible to deactivate an import.
+* Added support for the [Events Schedule WordPress Plugin](https://demo.curlythemes.com/timetable-wordpress-plugin/).
+
 = 1.0.4 =
-Fixes a redirect issue while setting up a new sync.
+Fixed a redirect issue while setting up a new sync.
 
 = 1.0.3 =
-Adds support for the Modern Events Calendar plugin.
+Added support for the Modern Events Calendar plugin.
 
 = 1.0.2 =
-Fixes several import issues with the All In One Event Calendar plugin. Adds featured images support to All In One Event Calendar and The Events Calendar imports.
+Fixed several import issues with the All In One Event Calendar plugin. Adds featured images support to All In One Event Calendar and The Events Calendar imports.
 
 = 1.0 =
 * Welcome Jeero!
 
 == Upgrade Notice ==
+
+= 1.1 = 
+Added the option to deactivate imports and support for the Events Schedule WordPress Plugin.
 
 = 1.0 =
 Jeero is born!
