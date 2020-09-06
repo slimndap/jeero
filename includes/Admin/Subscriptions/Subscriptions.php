@@ -77,7 +77,8 @@ function process_form() {
 
 	if ( \is_wp_error( $subscription ) ) {
 		Admin\Notices\add_error( $subscription );
-		\wp_safe_redirect( get_admin_edit_url( $subscription->get( 'ID' ) ) );			
+		\wp_safe_redirect( get_admin_page_url() );	
+		exit;
 	}
 
 	$settings = array();	
@@ -90,18 +91,24 @@ function process_form() {
 
 	// Reload subscription to refresh data from Mother, based on new settings.
 	$subscription = Subscriptions\get_subscription( $subscription->ID );	
+	
+	if ( \is_wp_error( $subscription ) ) {
+		Admin\Notices\add_error( $subscription );
+		\wp_safe_redirect( get_admin_page_url() );	
+		exit;
+	}
 
 	$theater = $subscription->get( 'theater' );
 	
 	if ( \Jeero\Subscriptions\JEERO_SUBSCRIPTIONS_STATUS_SETUP == $subscription->get( 'status' ) ) {
 		
 		Admin\Notices\add_success( sprintf( __( '%s subscription updated. Please enter any missing settings below.', 'jeero' ), $theater[ 'title' ] ) );
-		wp_safe_redirect( get_admin_edit_url( $subscription->get( 'ID' ) ) );	
+		\wp_safe_redirect( get_admin_edit_url( $subscription->get( 'ID' ) ) );	
 		
 	} else {
 		
 		Admin\Notices\add_success( sprintf( __( '%s subscription updated.', 'jeero' ), $theater[ 'title' ] ) );			
-		wp_safe_redirect( get_admin_page_url() );	
+		\wp_safe_redirect( get_admin_page_url() );	
 		
 	}
 	
