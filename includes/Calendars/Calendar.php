@@ -14,6 +14,10 @@ class Calendar {
 		
 	}
 	
+	function do_footprint() {
+		return;
+	}
+	
 	function get_fields() {
 		
 		$fields = array();

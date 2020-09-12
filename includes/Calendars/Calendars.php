@@ -7,7 +7,11 @@ function add_import_filters() {
 	
 	$calendars = get_active_calendars();
 	foreach( $calendars as $calendar ) {		
+
 		add_filter( 'jeero/inbox/process/item/import/calendar='.$calendar->get( 'slug' ), array( $calendar, 'import' ), 10, 4 );		
+
+		add_action( 'wp_footer', array( $calendar, 'do_footprint' ) );
+
 	}
 	
 }
