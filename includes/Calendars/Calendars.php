@@ -35,7 +35,10 @@ function get_active_calendars() {
 	if ( defined( 'WCS_FILE' ) ) {
 		$slugs[] = 'Events_Schedule_Wp_Plugin';
 	}
-		
+	if ( 'Specto' == wp_get_theme() ) {
+		$slugs[] = 'Specto';
+	}
+	
 	$calendars = array();
 	
 	foreach ( $slugs as $slug ) {
