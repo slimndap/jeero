@@ -2,8 +2,6 @@
 /**
  * \mainpage Jeero
  * \author Jeroen Schmit
- * \version	1.1
- * \copyright GNU Public License
  *
  * \section intro Introduction
  * Synchronizes events and tickets from your existing ticketing solution with popular calendar plugins.
