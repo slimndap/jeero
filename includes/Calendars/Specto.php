@@ -3,10 +3,25 @@ namespace Jeero\Calendars;
 
 use Jeero\Helpers\Images as Images;
 
+if ( 'Specto' == wp_get_theme() ) {
+
+	// Replace data in all movie schedules with data imported by Jeero.
+	add_filter( 'fw_shortcode_render_view:atts', __NAMESPACE__.'\Specto::set_movie_schedule', 10, 2 );
+	
+	// Replace movie times output with a custom version based on the dates imported by Jeero.
+	add_action( 'init', function() {
+		add_shortcode( 'movie_times', __NAMESPACE__.'\Specto::get_movie_times_html' );
+	}, 99 );
+
+}
+
 /**
  * Specto class.
  *
- * @since	1.0.3
+ * Adds support for the Specto theme.
+ * @see 1.envato.market/vRd3N
+ *
+ * @since	1.2
  * 
  * @extends Calendar
  */
@@ -21,6 +36,72 @@ class Specto extends Calendar {
 		
 	}
 	
+	function compare_showtimes( $a, $b ) {
+		
+		$start_a = strtotime( $a[ 'start' ] );
+		$start_b = strtotime( $b[ 'start' ] );
+	
+	    if ($start_a == $start_b) {
+	        return 0;
+	    }
+	    
+	    return ( $start_a < $start_b ) ? -1 : 1;	
+	    
+	}
+
+	function get_movie_times_html() {
+		
+		if ( !is_singular( 'movie' ) ) {
+			return;
+		}
+		
+		ob_start();
+		
+		$showtimes = self::get_showtimes( get_the_id() );
+		
+		$showtimes_per_day = array();
+		foreach( $showtimes as $showtime ) {
+			$day = date( 'Y-m-d', strtotime( $showtime[ 'start' ] ) );
+			if ( empty( $day ) ) {
+				$showtimes_per_day[ $day ] = array();				
+			}
+			$showtimes_per_day[ $day ][] = $showtime;
+			
+		}
+		
+		?><ul class="show-times"><?php
+			foreach( $showtimes_per_day as $day => $showtimes ) {
+				
+				$today = date( 'Y-m-d' ) == $day;
+				
+				?><li<?php if ( $today ) { ?> class="today"<?php } ?>>
+					<i><?php 
+						
+						if ( $today ) {
+							_e( 'Today', 'specto' );
+						} else {
+							echo date_i18n( 'D jS', strtotime( $day ) );
+						}
+						
+					?></i> <?php
+					foreach( $showtimes as $showtime ) {
+						
+						if ( !empty( $showtime[ 'tickets_url' ] ) ) {
+							?><a href="<?php echo $showtime[ 'tickets_url' ]; ?>" class="time"><?php 
+								echo date( get_option( 'time_format' ), strtotime( $showtime['start'] ) ); 
+							?></a><?php								
+						} else {
+							?><span class="time"><?php 
+								echo date( get_option( 'time_format' ), strtotime( $showtime['start'] ) ); 
+							?></span><?php		
+						}
+					}
+				?></li><?php
+			}
+		?></ul><?php
+		return ob_get_clean();
+	}
+
 	function get_fw_options_for_event( $event_id ) {
 		
 		$fw_options = \get_post_meta( $event_id, 'fw_options', true );
@@ -54,6 +135,24 @@ class Specto extends Calendar {
 		
 	}
 	
+	function get_showtimes( $event_id ) {
+	
+		$showtimes_all = \get_post_meta( $event_id, 'jeero/Specto/showtimes', false );
+		
+		$showtimes = array();
+		
+		foreach( $showtimes_all as $showtime ) {
+			
+			$showtimes[] = $showtime;
+			
+		}
+		
+		uasort( $showtimes, __NAMESPACE__.'\Specto::compare_showtimes' );
+		
+		return $showtimes;
+		
+	}
+
 	function set_fw_option( $option, $value, $event_id ) {
 		
 		$options = $this->get_fw_options_for_event( $event_id );
@@ -61,58 +160,6 @@ class Specto extends Calendar {
 		$options[ $option ] = $value;
 		
 		\update_post_meta( $event_id, 'fw_options', $options );
-		
-	}
-	
-	function get_showtimes( $event_id ) {
-		
-		$showtimes_all = \get_post_meta( $event_id, 'jeero/Specto/showtimes', false );
-		
-		$showtimes = array();
-		
-		foreach( $showtimes_all as $showtime ) {
-			
-			$week = date( 'W', strtotime( $showtime[ 'start' ] ) );
-			
-			if ( $week != date( 'W' ) ) {
-				continue;
-			}
-			
-			$showtimes[] = $showtime;
-			
-		}
-		
-		uasort( $showtimes, __NAMESPACE__.'\compare_showtimes' );
-		
-		return $showtimes;
-	}
-	
-	function get_showtimes_javascript( $event_id ) {
-		
-		$showtimes = $this->get_showtimes( $event_id );
-		
-		ob_start();
-		
-		?><script>jQuery( function() { <?php
-			
-			for( $st = 0; $st < count( $showtimes ); $st++ ) {
-				
-				$showtime = $showtimes[ $st ];
-				
-				$time = date( get_option( 'time_format' ), strtotime( $showtime[ 'start' ] ) );
-				
-				printf( 
-					"jQuery( 'ul.show-times>li .time' ).eq( %d ).replaceWith( '<a href=\\\"%s\\\" class=\\\"time\\\">%s</a>' );", 
-					$st,
-					$showtime[ 'tickets_url' ],
-					$time
-				);
-				
-			}
-			
-		?>} );</script><?php
-		
-		return ob_get_clean();
 		
 	}
 	
@@ -129,6 +176,7 @@ class Specto extends Calendar {
 		}
 		
 		\add_post_meta( $event_id, 'jeero/Specto/showtimes', $showtime );
+			
 		
 	}
 
@@ -180,7 +228,6 @@ class Specto extends Calendar {
 
 		$args = array(
 			'post_type' => 'movie',
-			'post_status' => 'draft',
 		);
 		
 		$description = '';
@@ -199,6 +246,7 @@ class Specto extends Calendar {
 			
 			error_log( sprintf( '[%s] Creating event %s.', $this->name, $ref ) );
 
+			$args[ 'post_status' ] = 'draft';
 			$args[ 'post_title' ] = $data[ 'production' ][ 'title' ];
 			
 			if ( !empty( $data[ 'production' ][ 'description' ] ) ) {
@@ -225,295 +273,74 @@ class Specto extends Calendar {
 		$this->update_page_builder( $data, $event_id );
 		
 		return $event_id;
-
-		$page_builder = array (
-			0 => 
-			array (
-			'type' => 'section',
-			'atts' => 
-			array (
-			  'is_fullwidth' => false,
-			  'background_color' => '',
-			  'background_image' => 
-			  array (
-			    'type' => 'custom',
-			    'custom' => '',
-			    'predefined' => '',
-			    'data' => 
-			    array (
-			      'icon' => '',
-			      'css' => 
-			      array (
-			      ),
-			    ),
-			  ),
-			  'video' => '',
-			  'border' => '0px 0px 0px 0px',
-			  'padding_top' => '75',
-			  'padding_bottom' => '75',
-			  'id' => '',
-			),
-			'_items' => 
-			array (
-			  0 => 
-			  array (
-			    'type' => 'column',
-			    'width' => '2_3',
-			    'atts' => 
-			    array (
-			      'padding' => '0 15px 0 15px',
-			      'class' => '',
-			    ),
-			    '_items' => 
-			    array (
-			      0 => 
-			      array (
-			        'type' => 'simple',
-			        'shortcode' => 'special_heading',
-			        'atts' => 
-			        array (
-			          'title' => 'Synopsis',
-			          'heading' => 'h2',
-			          'align' => 'left',
-			          'border' => 'yes',
-			          'colour' => '#ec7532',
-			        ),
-			      ),
-			      1 => 
-			      array (
-			        'type' => 'simple',
-			        'shortcode' => 'movie_info',
-			        'atts' => 
-			        array (
-			          'social' => 'yes',
-			          'title' => 'The plot',
-			          'content' => "$description",
-			          'list' => 
-			          array (
-			            0 => 
-			            array (
-			              'item' => '<i>Director</i> John Doe',
-			            ),
-			            1 => 
-			            array (
-			              'item' => '<i>Starring</i> James Hewitt, Jess Richards',
-			            ),
-			            2 => 
-			            array (
-			              'item' => '<i>Released</i> 15 Nov, 2017',
-			            ),
-			            3 => 
-			            array (
-			              'item' => '<i>Running time</i> 90 mins',
-			            ),
-			          ),
-			        ),
-			      ),
-			    ),
-			  ),
-			  1 => 
-			  array (
-			    'type' => 'column',
-			    'width' => '1_3',
-			    'atts' => 
-			    array (
-			      'padding' => '0 15px 0 15px',
-			      'class' => '',
-			    ),
-			    '_items' => 
-			    array (
-			      0 => 
-			      array (
-			        'type' => 'simple',
-			        'shortcode' => 'special_heading',
-			        'atts' => 
-			        array (
-			          'title' => 'Tickets',
-			          'heading' => 'h2',
-			          'align' => 'left',
-			          'border' => 'yes',
-			          'colour' => '#ec7532',
-			        ),
-			      ),
-			      1 => 
-			      array (
-			        'type' => 'simple',
-			        'shortcode' => 'movie_times',
-			        'atts' => 
-			        array (
-			        ),
-			      ),
-			    ),
-			  ),
-			),
-			),
-			1 => 
-			array (
-			'type' => 'section',
-			'atts' => 
-			array (
-			  'is_fullwidth' => true,
-			  'background_color' => '#101010',
-			  'background_image' => 
-			  array (
-			    'type' => 'custom',
-			    'custom' => '',
-			    'predefined' => '',
-			    'data' => 
-			    array (
-			      'icon' => '',
-			      'css' => 
-			      array (
-			      ),
-			    ),
-			  ),
-			  'video' => '',
-			  'border' => '0px 0px 0px 0px',
-			  'padding_top' => '0',
-			  'padding_bottom' => '0',
-			  'id' => '',
-			),
-			'_items' => 
-			array (
-			  0 => 
-			  array (
-			    'type' => 'column',
-			    'width' => '1_1',
-			    'atts' => 
-			    array (
-			      'padding' => '0 15px 0 15px',
-			      'class' => '',
-			    ),
-			    '_items' => 
-			    array (
-			      0 => 
-			      array (
-			        'type' => 'simple',
-			        'shortcode' => 'movie_gallery',
-			        'atts' => 
-			        array (
-			          'images' => 
-			          array (
-			            0 => 
-			            array (
-			              'thumb' => 
-			              array (
-			                'attachment_id' => '74',
-			                'url' => '//jeero.local/wp-content/uploads/2017/07/gallery-thumb-1.png',
-			              ),
-			              'image' => 
-			              array (
-			                'attachment_id' => '73',
-			                'url' => '//jeero.local/wp-content/uploads/2017/07/gallery-slide-2.jpg',
-			              ),
-			              'url' => 'https://youtu.be/AntcyqJ6brc',
-			            ),
-			            1 => 
-			            array (
-			              'thumb' => 
-			              array (
-			                'attachment_id' => '76',
-			                'url' => '//jeero.local/wp-content/uploads/2017/07/gallery-thumb-3.png',
-			              ),
-			              'image' => 
-			              array (
-			                'attachment_id' => '72',
-			                'url' => '//jeero.local/wp-content/uploads/2017/07/gallery-slide-1.jpg',
-			              ),
-			              'url' => 'https://youtu.be/AntcyqJ6brc',
-			            ),
-			            2 => 
-			            array (
-			              'thumb' => 
-			              array (
-			                'attachment_id' => '77',
-			                'url' => '//jeero.local/wp-content/uploads/2017/07/gallery-thumb-4.png',
-			              ),
-			              'image' => 
-			              array (
-			                'attachment_id' => '72',
-			                'url' => '//jeero.local/wp-content/uploads/2017/07/gallery-slide-1.jpg',
-			              ),
-			              'url' => 'https://youtu.be/AntcyqJ6brc',
-			            ),
-			            3 => 
-			            array (
-			              'thumb' => 
-			              array (
-			                'attachment_id' => '74',
-			                'url' => '//jeero.local/wp-content/uploads/2017/07/gallery-thumb-1.png',
-			              ),
-			              'image' => 
-			              array (
-			                'attachment_id' => '73',
-			                'url' => '//jeero.local/wp-content/uploads/2017/07/gallery-slide-2.jpg',
-			              ),
-			              'url' => '',
-			            ),
-			            4 => 
-			            array (
-			              'thumb' => 
-			              array (
-			                'attachment_id' => '78',
-			                'url' => '//jeero.local/wp-content/uploads/2017/07/gallery-thumb-5.png',
-			              ),
-			              'image' => 
-			              array (
-			                'attachment_id' => '73',
-			                'url' => '//jeero.local/wp-content/uploads/2017/07/gallery-slide-2.jpg',
-			              ),
-			              'url' => 'https://youtu.be/AntcyqJ6brc',
-			            ),
-			            5 => 
-			            array (
-			              'thumb' => 
-			              array (
-			                'attachment_id' => '79',
-			                'url' => '//jeero.local/wp-content/uploads/2017/07/gallery-thumb-6.png',
-			              ),
-			              'image' => 
-			              array (
-			                'attachment_id' => '73',
-			                'url' => '//jeero.local/wp-content/uploads/2017/07/gallery-slide-2.jpg',
-			              ),
-			              'url' => '',
-			            ),
-			            6 => 
-			            array (
-			              'thumb' => 
-			              array (
-			                'attachment_id' => '79',
-			                'url' => '//jeero.local/wp-content/uploads/2017/07/gallery-thumb-6.png',
-			              ),
-			              'image' => 
-			              array (
-			                'attachment_id' => '73',
-			                'url' => '//jeero.local/wp-content/uploads/2017/07/gallery-slide-2.jpg',
-			              ),
-			              'url' => '',
-			            ),
-			          ),
-			          'large' => '6',
-			          'medium' => '4',
-			          'small' => '3',
-			          'xsmall' => '2',
-			        ),
-			      ),
-			    ),
-			  ),
-			),
-			),
-		);
-		
-		\update_post_meta( $event_id, 'fw:opt:ext:pb:page-builder:json', json_encode( $page_builder, JSON_UNESCAPED_UNICODE ) );
-
-		// Update in listings.
-
-		
-		return $event_id;
 		
 	}
 	
+	function set_movie_schedule( $atts, $shortcode ) {
+		
+		if ( 'movie_schedule' != $shortcode ) {
+			return $atts;
+		}
+		
+		$schedule = array(
+			array( 
+				'day' => 'Mon',
+				'movies' => array(),
+			),
+			array( 
+				'day' => 'Tue',
+				'movies' => array(),
+			),
+			array( 
+				'day' => 'Wed',
+				'movies' => array(),
+			),
+			array( 
+				'day' => 'Thu',
+				'movies' => array(),
+			),
+			array( 
+				'day' => 'Fri',
+				'movies' => array(),
+			),
+			array( 
+				'day' => 'Sat',
+				'movies' => array(),
+			),
+			array( 
+				'day' => 'Sun',
+				'movies' => array(),
+			),			 
+		);
+		
+		$args = array(
+			'post_type' => 'movie',
+			'post_status' => 'publish',
+			'posts_per_page' => 100,
+		);
+		$events = get_posts( $args );
+		
+		foreach( $events as $event ) {
+			
+			$showtimes = self::get_showtimes( $event->ID );
+				
+			foreach( $showtimes as $showtime ) {
+	
+				// Skip showtime if not in current week.
+				if ( date( 'W' ) != date( 'W', strtotime( $showtime[ 'start' ] ) ) ) {
+					continue;
+				}
+		
+				$day = strtolower( date( 'N', strtotime( $showtime[ 'start' ] ) ) ) - 1;
+				$atts[ 'schedule' ][ $day ][ 'movies' ][] = $event->ID;
+				
+			}
+			
+		}
+	
+		return $atts;
+	}
+
 	function update_fw_options( $data, $event_id ) {
 		
 		if ( !empty( $data[ 'production' ][ 'img' ] ) ) {
@@ -530,6 +357,11 @@ class Specto extends Calendar {
 
 		}
 			
+		$this->set_fw_option( 'background', array(
+			'attachment_id' => '',
+			'url' => '',
+		), $event_id );
+
 		// Set duration.
 		$event_start = $this->localize_timestamp( strtotime( $data[ 'start' ] ) );
 		$event_end = $this->localize_timestamp( strtotime( $data[ 'end' ] ) );
@@ -562,6 +394,11 @@ class Specto extends Calendar {
 		);
 		
 		foreach( $showtimes as $showtime ) {
+			
+			// Skip showtime if not in current week.
+			if ( date( 'W' ) != date( 'W', strtotime( $showtime[ 'start' ] ) ) ) {
+				continue;
+			}
 
 			$day = strtolower( date( 'D', strtotime( $showtime[ 'start' ] ) ) ).'Time';
 			$time = strtolower( date( 'H:i', strtotime( $showtime[ 'start' ] ) ) );
@@ -671,13 +508,6 @@ class Specto extends Calendar {
 								'type' => 'simple',
 								'shortcode' => 'movie_times',
 							),
-							array(
-								'type' => 'simple',
-								'shortcode' => 'text_block',
-								'atts' => array(
-									'text' => $this->get_showtimes_javascript( $event_id ),
-								),
-							),
 						),
 					),
 
@@ -689,18 +519,10 @@ class Specto extends Calendar {
 		\update_post_meta( $event_id, 'fw:opt:ext:pb:page-builder:json', json_encode( $page_builder, JSON_UNESCAPED_UNICODE ) );
 
 	}
-	
+
 }
 
-function compare_showtimes( $a, $b ) {
-	
-	$start_a = strtotime( $a[ 'start' ] );
-	$start_b = strtotime( $b[ 'start' ] );
 
-    if ($start_a == $start_b) {
-        return 0;
-    }
-    
-    return ( $start_a > $start_b ) ? -1 : 1;	
-    
-}
+
+
+
