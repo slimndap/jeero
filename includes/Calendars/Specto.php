@@ -36,7 +36,7 @@ class Specto extends Calendar {
 		
 	}
 	
-	function compare_showtimes( $a, $b ) {
+	static function compare_showtimes( $a, $b ) {
 		
 		$start_a = strtotime( $a[ 'start' ] );
 		$start_b = strtotime( $b[ 'start' ] );
@@ -49,7 +49,7 @@ class Specto extends Calendar {
 	    
 	}
 
-	function get_movie_times_html() {
+	static function get_movie_times_html() {
 		
 		if ( !is_singular( 'movie' ) ) {
 			return;
@@ -135,7 +135,7 @@ class Specto extends Calendar {
 		
 	}
 	
-	function get_showtimes( $event_id ) {
+	static function get_showtimes( $event_id ) {
 	
 		$showtimes_all = \get_post_meta( $event_id, 'jeero/Specto/showtimes', false );
 		
@@ -276,7 +276,7 @@ class Specto extends Calendar {
 		
 	}
 	
-	function set_movie_schedule( $atts, $shortcode ) {
+	static function set_movie_schedule( $atts, $shortcode ) {
 		
 		if ( 'movie_schedule' != $shortcode ) {
 			return $atts;
