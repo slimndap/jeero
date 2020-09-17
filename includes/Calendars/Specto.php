@@ -257,6 +257,8 @@ class Specto extends Calendar {
 			
 			\add_post_meta( $event_id, $this->get_ref_key( $theater ), $ref );
 
+			$this->update_page_builder( $data, $event_id );			
+
 		}
 		
 		$showtime = array(
@@ -269,8 +271,6 @@ class Specto extends Calendar {
 		$this->update_showtime( $showtime, $event_id );
 		
 		$this->update_fw_options( $data, $event_id );
-		
-		$this->update_page_builder( $data, $event_id );
 		
 		return $event_id;
 		
@@ -436,7 +436,7 @@ class Specto extends Calendar {
 		$event_end = $this->localize_timestamp( strtotime( $data[ 'end' ] ) );
 
 		if ( $event_end > $event_start ) {
-			$running_time = 	sprintf( '<i>Running time</i> %d mins', ( $event_end - $event_start ) / 60 );
+			$running_time = sprintf( '<i>Running time</i> %d mins', ( $event_end - $event_start ) / 60 );
 		}		
 
 		$page_builder = array(
