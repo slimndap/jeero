@@ -223,9 +223,6 @@ class Specto extends Calendar {
 			$ref = 'e'.$data[ 'ref' ];		
 		}
 		
-		$event_start = $this->localize_timestamp( strtotime( $data[ 'start' ] ) );
-		$event_end = $this->localize_timestamp( strtotime( $data[ 'end' ] ) );
-
 		$args = array(
 			'post_type' => 'movie',
 		);
@@ -264,9 +261,12 @@ class Specto extends Calendar {
 		$showtime = array(
 			'ref' => $data[ 'ref' ],
 			'start' => $data[ 'start' ],
-			'end' => $data[ 'end' ],
 			'tickets_url' => $data[ 'tickets_url' ],
 		);
+		
+		if ( !empty( $data[ 'end' ] ) ) {
+			$showtimes[ 'end' ] = $data[ 'end' ];
+		}
 		
 		$this->update_showtime( $showtime, $event_id );
 		
@@ -363,18 +363,22 @@ class Specto extends Calendar {
 		), $event_id );
 
 		// Set duration.
-		$event_start = $this->localize_timestamp( strtotime( $data[ 'start' ] ) );
-		$event_end = $this->localize_timestamp( strtotime( $data[ 'end' ] ) );
-
-		if ( $event_end > $event_start ) {
-
-			$this->set_fw_option( 
-				'runningTime', 
-				sprintf( '%d mins', ( $event_end - $event_start ) / 60 ),
-				$event_id 
-			);
+		if ( !empty( $data[ 'end' ] ) ) {
 			
-		}		
+			$event_start = $this->localize_timestamp( strtotime( $data[ 'start' ] ) );
+			$event_end = $this->localize_timestamp( strtotime( $data[ 'end' ] ) );
+	
+			if ( $event_end > $event_start ) {
+	
+				$this->set_fw_option( 
+					'runningTime', 
+					sprintf( '%d mins', ( $event_end - $event_start ) / 60 ),
+					$event_id 
+				);
+				
+			}		
+			
+		}
 
 		$this->set_fw_option( 'rating', 0, $event_id );
 		
@@ -429,15 +433,17 @@ class Specto extends Calendar {
 			$description = $data[ 'production' ][ 'description' ];	
 		}
 
+		
 		// Set running time.
 		$running_time = '';
-		
-		$event_start = $this->localize_timestamp( strtotime( $data[ 'start' ] ) );
-		$event_end = $this->localize_timestamp( strtotime( $data[ 'end' ] ) );
+		$event_start = $this->localize_timestamp( strtotime( $data[ 'start' ] ) );		
+		if ( !empty( $data[ 'end' ] ) ) {
+			$event_end = $this->localize_timestamp( strtotime( $data[ 'end' ] ) );		
+			if ( $event_end > $event_start ) {
+				$running_time = sprintf( '<i>Running time</i> %d mins', ( $event_end - $event_start ) / 60 );
+			}		
+		}
 
-		if ( $event_end > $event_start ) {
-			$running_time = sprintf( '<i>Running time</i> %d mins', ( $event_end - $event_start ) / 60 );
-		}		
 
 		$page_builder = array(
 			
@@ -474,7 +480,7 @@ class Specto extends Calendar {
 								'atts' => array (
 									'social' => 'yes',
 									'title' => 'The plot',
-									'content' => "$description",
+									'content' => trim( json_encode( $description ), '"' ),
 									'list' => array (
 										array (
 											'item' => $running_time,
