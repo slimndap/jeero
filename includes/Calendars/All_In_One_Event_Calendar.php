@@ -125,7 +125,7 @@ class All_In_One_Event_Calendar extends Calendar {
 			$Ai1ec_Event->set( 'post', get_post( $event_id ) );
 			$Ai1ec_Event->save( true );
 
-			error_log( sprintf( '[%s] Updating event %d / %d.', $this->name, $ref, $event_id ) );
+			error_log( sprintf( '[%s] Updating event %s / %d.', $this->name, $ref, $event_id ) );
 			
 			
 		} else {

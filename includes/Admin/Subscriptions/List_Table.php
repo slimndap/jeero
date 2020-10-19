@@ -71,10 +71,10 @@ class List_Table extends \WP_List_Table {
 	 */
 	function get_columns() {
 		$columns = array(
-			'subscription' => 'Source',
-			'calendar' => 'Destination',
-			'next_sync' => 'Next sync',
-			'limit' => 'Limit',
+			'subscription' => __( 'Source', 'jeero' ),
+			'calendar' => __( 'Destination', 'jeero' ),
+			'next_sync' => __( 'Next sync', 'jeero' ),
+			'plan' => __( 'Current plan', 'jeero' ),
 		);
 		return $columns;
 	}
@@ -141,6 +141,41 @@ class List_Table extends \WP_List_Table {
 		    echo human_time_diff( $next_delivery, current_time( 'timestamp' ) );
 		?></span><?php
 			
+		return ob_get_clean();
+	}
+	
+	function column_plan( $subscription ) {
+		
+		$plans = \Jeero\Mother\get_plans();
+		
+		ob_start();
+		
+		?><ul class="plans"><?php
+			
+			$current_plan = $subscription->get( 'plan' );
+			
+			foreach( $plans as $plan ) {
+				?><li<?php if ( $plan[ 'name' ] == $current_plan[ 'name' ] ) { ?> class="current"<?php } ?>>
+					<div class="limit"><?php printf( __( '%d events', 'jeero' ), $plan[ 'limit' ] );?></div>
+					<div class="monthly_rate"><?php 
+						if ( 0 == $plan[ 'rate_monthly' ] ) {
+							_e( 'free', 'jeero' );
+						} else {
+							printf( '&euro; %d/mo', $plan[ 'rate_monthly' ] / 100 );
+						}
+					?></div>
+				</li><?php
+			}
+			
+		?></ul>
+		
+		<div class="row-actions">
+			<span>
+				<a href="">Change plan</a>
+			</span>
+		</div>
+		<?php
+		
 		return ob_get_clean();
 	}
     

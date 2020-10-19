@@ -19,10 +19,12 @@ Supported ticketing solutions:
 
 * [AudienceView Professional](https://jeero.ooo/publish-audienceview-voorstellingen-on-wordpress/)
 * [OvationTix](https://jeero.ooo/publish-ovationtix-voorstellingen-on-wordpress/)
+* [Resverix](https://jeero.ooo/publish-reservix-voorstellingen-on-wordpress/)
 * [RTS](https://jeero.ooo/publish-rts-voorstellingen-on-wordpress/)
 * [Stager](https://jeero.ooo/publish-stager-events-on-wordpress/)
 * [ThunderTix](https://jeero.ooo/publish-thundertix-events-on-wordpress/)
 * [TicketingCiné](https://jeero.ooo/publish-ticketingcine-events-on-wordpress/)
+* [Ticketlab](https://jeero.ooo/publish-ticketlab-events-on-wordpress/)
 * [Ticketmaster](https://jeero.ooo/publish-ticketmaster-events-on-wordpress/)
 * [Ticketmatic](https://jeero.ooo/publish-ticketmatic-events-on-wordpress/)
 * [Ticketportal](https://jeero.ooo/publish-ticketportal_cz-events-on-wordpress/)

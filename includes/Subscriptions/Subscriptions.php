@@ -80,6 +80,7 @@ function get_subscription( $subscription_id ) {
 		'inactive' => false,
 		'interval' => null,
 		'next_delivery' => null,
+		'plan' => false,
 		'theater' => array(),
 		'limit' => null,
 	);
@@ -105,6 +106,7 @@ function get_subscription( $subscription_id ) {
 	$subscription->set( 'interval', $answer[ 'interval' ] );
 	$subscription->set( 'next_delivery', $answer[ 'next_delivery' ] );
 	$subscription->set( 'limit', $answer[ 'limit' ] );
+	$subscription->set( 'plan', $answer[ 'plan' ] );
 	$subscription->set( 'theater', $answer[ 'theater' ] );
 
 	return $subscription;
@@ -134,9 +136,10 @@ function get_subscriptions() {
 			'fields' => array(),
 			'interval' => null,
 			'next_delivery' => null,
+			'plan' => array(),
 			'limit' => null,
 		);
-		
+
 		$answer = wp_parse_args( $answer, $defaults );
 
 		$subscription = new Subscription( $answer[ 'id' ] );
@@ -148,6 +151,10 @@ function get_subscriptions() {
 		$subscription->set( 'interval', $answer[ 'interval' ] );
 		$subscription->set( 'next_delivery', $answer[ 'next_delivery' ] );
 		$subscription->set( 'limit', $answer[ 'limit' ] );
+
+		if ( isset( $answer[ 'plan' ] ) ) {
+			$subscription->set( 'plan', $answer[ 'plan' ] );
+		}
 		
 		if ( isset( $answer[ 'theater' ] ) ) {
 			$subscription->set( 'theater', $answer[ 'theater' ] );

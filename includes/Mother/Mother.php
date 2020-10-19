@@ -61,6 +61,29 @@ function get_site_key() {
 }
 
 
+function get_plans() {
+	
+	$plans = \wp_list_sort( get( 'plans' ), 'rate_monthly', 'ASC' );
+	
+	return $plans;
+	
+}
+
+function get_default_plan() {
+	
+	$plans = get_plans();
+	
+	foreach( $plans as $plan ) {
+		
+		if ( isset( $plan[ 'default' ] ) && $plan[ 'default' ] ) {
+			return $plan;
+		}
+		
+	}
+	
+	return false;
+}
+
 /**
  * Gets the unique identifier for this website, used for authentication of API requests.
  *

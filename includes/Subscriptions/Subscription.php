@@ -52,6 +52,8 @@ class Subscription {
 	 */
 	public $next_delivery;
 	
+	public $plan;
+	
 	/**
 	 * The Theater of this Subscription.
 	 * 
