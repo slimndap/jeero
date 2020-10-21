@@ -6,7 +6,10 @@ use Jeero\Helpers\Images as Images;
 /**
  * Very_Simple_Event_List class.
  *
- * @since	1.0.3
+ * Adds support for the Very Simple Event List plugin.
+ * @see: https://wordpress.org/plugins/very-simple-event-list/
+ *
+ * @since	1.2
  * 
  * @extends Calendar
  */
@@ -85,7 +88,6 @@ class Very_Simple_Event_List extends Calendar {
 
 			\add_post_meta( $event_id, $this->get_ref_key( $theater ), $data[ 'ref' ] );
 
-			
 		}
 		
 		\update_post_meta( $event_id, 'event-date', $event_start );

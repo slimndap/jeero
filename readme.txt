@@ -13,12 +13,13 @@ Imports events and tickets from your existing ticketing solution to popular Word
 
 Jeero is the missing link between your ticketing solution and your website. 
 
-Tired of manually copying your event data in WordPress from your external ticketing solution? Jeero will take care of that and keeps you website fully up-to-date, including dates, prices and availability.
+Tired of manually copying your event data in WordPress from your external ticketing solution? Jeero takes care of that and keeps you website fully up-to-date, including dates, prices, descriptions, images and availability.
 
 Supported ticketing solutions:
 
-* [AudienceView Professional](https://jeero.ooo/publish-audienceview-voorstellingen-on-wordpress/)
-* [OvationTix](https://jeero.ooo/publish-ovationtix-voorstellingen-on-wordpress/)
+* [AudienceView Professional](https://jeero.ooo/publish-audienceview-events-on-wordpress/)
+* [Billeto](https://jeero.ooo/publish-billeto-events-on-wordpress/)
+* [OvationTix](https://jeero.ooo/publish-ovationtix-events-on-wordpress/)
 * [RTS](https://jeero.ooo/publish-rts-voorstellingen-on-wordpress/)
 * [Stager](https://jeero.ooo/publish-stager-events-on-wordpress/)
 * [ThunderTix](https://jeero.ooo/publish-thundertix-events-on-wordpress/)
@@ -37,6 +38,7 @@ Supported calendar/event plugins:
 * [Modern Events Calendar](/plugins/modern-events-calendar-lite/)
 * [Theater for Wordpress](/plugins/theatre/)
 * [The Events Calendar](/plugins/the-events-calendar/)
+* [Very Simple Event List](/plugins/very-simple-event-list/)
 
 = Is your ticketings solution missing? =
 My objective is to offer imports from _any_ ticketing solution to _any_ calendar plugin. [Contact me](mailto:jeroen@slimndap.com), so I can add your solution as well.
@@ -61,13 +63,17 @@ You should see the first 10 upcoming events that coming from your ticketing solu
 
 = How do I upgrade? =
 
-I am still working on the subscription engine. Once it ready the possibility to upgrade will be made available inside the plugin. It shouldn't take long.
+I am still working on the subscription engine. Once it ready the possibility to upgrade will be made available inside the plugin. It shouldn't take long. For now you can [contact me](mailto:jeroen@slimndap.com) so I can upgrade you manually.
 
 = How much will it cost? =
 
 Subscription rates will range from €20 - €30 per month, depending on your total number of events. 
 
 == Changelog ==
+
+= 1.2 =
+
+* Added support for the [Very Simple Event List plugin](/plugins/very-simple-event-list/).
 
 = 1.1 =
 
