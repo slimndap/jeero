@@ -12,6 +12,16 @@ function add_import_filters() {
 	
 }
 
+/**
+ * Get a list of all active calendars.
+ *
+ * @since	1.0
+ * @since	1.2		Added Very_Simple_Event_List.
+ * @since	1.1		Added Events_Schedule_Wp_Plugin.
+ * @since	1.03	Added Modern_Events_Calendar.
+ *
+ * @return	array	All active calendars.
+ */
 function get_active_calendars() {
 	
 	$slugs = array();
@@ -35,6 +45,10 @@ function get_active_calendars() {
 	if ( defined( 'WCS_FILE' ) ) {
 		$slugs[] = 'Events_Schedule_Wp_Plugin';
 	}
+	
+	if ( is_plugin_active( 'very-simple-event-list/vsel.php' ) ) {
+		$slugs[] = 'Very_Simple_Event_List';
+	}
 		
 	$calendars = array();
 	
@@ -48,15 +62,39 @@ function get_active_calendars() {
 	
 }
 
+/**
+ * Get as calendar.
+ *
+ * @since	1.?
+ * @param	$slug	string	The slug of the calendar.
+ * @return	Calendar
+ */
 function get_calendar( $slug = '' ) {
 	
 	$class = __NAMESPACE__.'\\'.$slug;
 	if ( class_exists( $class ) ) {
+		
+		// Calendar found.
 		return new $class();
 	}
 
+	// Calendar not found, return default Calendar object.
 	return new Calendar();	
 	
+}
+
+/**
+ * Determines whether a plugin is active.
+ *
+ * A copy of the WordPress native 'is_plugin_active()' function, which can only be used when inside the admin.
+ *
+ * @since	1.2
+ * @todo	Add support for 'is_plugin_active_for_network()'
+ *
+ * $param	$plugin_path	string	Path to the plugin file relative to the plugins directory.
+ */
+function is_plugin_active( $plugin_path ) {
+	return in_array( $plugin_path, (array) get_option( 'active_plugins', array() ), true );
 }
 
 	

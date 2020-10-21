@@ -26,6 +26,7 @@ include_once PLUGIN_PATH.'includes/Calendars/The_Events_Calendar.php';
 include_once PLUGIN_PATH.'includes/Calendars/Theater_For_WordPress.php';
 include_once PLUGIN_PATH.'includes/Calendars/Modern_Events_Calendar.php';
 include_once PLUGIN_PATH.'includes/Calendars/Events_Schedule_Wp_Plugin.php';
+include_once PLUGIN_PATH.'includes/Calendars/Very_Simple_Event_List.php';
 
 include_once PLUGIN_PATH.'includes/Theaters/Theaters.php';
 include_once PLUGIN_PATH.'includes/Theaters/Theater.php';
