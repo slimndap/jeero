@@ -19,6 +19,7 @@ Supported ticketing solutions:
 
 * [AudienceView Professional](https://jeero.ooo/publish-audienceview-events-on-wordpress/)
 * [Billeto](https://jeero.ooo/publish-billeto-events-on-wordpress/)
+* [Ovatic](https://jeero.ooo/publish-ovatic-events-on-wordpress/)
 * [OvationTix](https://jeero.ooo/publish-ovationtix-events-on-wordpress/)
 * [Reservix](https://jeero.ooo/publish-reservix-events-on-wordpress/)
 * [RTS](https://jeero.ooo/publish-rts-events-on-wordpress/)
