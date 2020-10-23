@@ -77,6 +77,7 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 = 1.2 =
 
 * Added support for the [Very Simple Event List plugin](/plugins/very-simple-event-list/).
+* Fixed several import issues with The Event Calendar.
 
 = 1.1 =
 
