@@ -77,7 +77,7 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 = 1.2 =
 
 * Added support for the [Very Simple Event List plugin](/plugins/very-simple-event-list/).
-* Fixed several import issues with The Event Calendar.
+* Fixed several import issues with The Events Calendar.
 
 = 1.1 =
 
@@ -99,8 +99,11 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 
 == Upgrade Notice ==
 
+= 1.2 =
+Adds support for the Very Simple Event List plugin.
+
 = 1.1 = 
-Added the option to deactivate imports and support for the Events Schedule WordPress Plugin.
+Adds the option to deactivate imports and support for the Events Schedule WordPress Plugin.
 
 = 1.0 =
 Jeero is born!
