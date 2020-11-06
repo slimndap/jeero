@@ -8,7 +8,7 @@ use Theaters\Theater;
 use Jeero\Subscriptions\Subscription;
 use Jeero\Db;
 
-const BASE_URL = 'https://ql621w5yfk.execute-api.eu-west-1.amazonaws.com/jeero_staging/v1';
+const BASE_URL = 'https://ql621w5yfk.execute-api.eu-west-1.amazonaws.com/jeero/v1';
 const SITE_KEY = 'jeero/mother/site_key';
 
 /**
