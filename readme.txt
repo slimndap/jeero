@@ -37,6 +37,7 @@ Supported ticketing solutions:
 Supported calendar/event plugins:
 
 * [All In One Event Calendar](/plugins/all-in-one-event-calendar/)
+* All [Goodlayers](https://www.goodlayers.com) themes that user their Event Post Type plugin
 * [Events Schedule WordPress Plugin](https://demo.curlythemes.com/timetable-wordpress-plugin/)
 * [Modern Events Calendar](/plugins/modern-events-calendar-lite/)
 * [Theater for Wordpress](/plugins/theatre/)
@@ -74,6 +75,10 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 
 == Changelog ==
 
+= 1.3 =
+
+* Added support for [Goodlayers](https://www.goodlayers.com) themes that user their Event Post Type plugin.
+
 = 1.2 =
 
 * Added support for the [Very Simple Event List plugin](/plugins/very-simple-event-list/).
@@ -98,6 +103,10 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 * Welcome Jeero!
 
 == Upgrade Notice ==
+
+= 1.3 =
+* Adds support for [Goodlayers](https://www.goodlayers.com) themes that user their Event Post Type plugin.
+
 
 = 1.2 =
 Adds support for the Very Simple Event List plugin.
