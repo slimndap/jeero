@@ -22,6 +22,7 @@ include_once PLUGIN_PATH.'includes/Admin/Notices/Notices.php';
 include_once PLUGIN_PATH.'includes/Calendars/Calendars.php';
 include_once PLUGIN_PATH.'includes/Calendars/Calendar.php';
 include_once PLUGIN_PATH.'includes/Calendars/All_In_One_Event_Calendar.php';
+include_once PLUGIN_PATH.'includes/Calendars/GDLR_Events.php';
 include_once PLUGIN_PATH.'includes/Calendars/The_Events_Calendar.php';
 include_once PLUGIN_PATH.'includes/Calendars/Theater_For_WordPress.php';
 include_once PLUGIN_PATH.'includes/Calendars/Modern_Events_Calendar.php';

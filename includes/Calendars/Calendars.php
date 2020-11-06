@@ -50,6 +50,10 @@ function get_active_calendars() {
 		$slugs[] = 'Very_Simple_Event_List';
 	}
 		
+	if ( is_plugin_active( 'gdlr-event/gdlr-event.php' ) ) {
+		$slugs[] = 'GDLR_Events';
+	}
+		
 	$calendars = array();
 	
 	foreach ( $slugs as $slug ) {
