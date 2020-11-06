@@ -6,6 +6,8 @@ use Jeero\Helpers\Images as Images;
 /**
  * GDLR_Events class.
  *
+ * Adds support for the Goodlayers Event Post Type plugin. 
+ *
  * @since	1.3
  * 
  * @extends Calendar
