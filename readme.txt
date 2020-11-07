@@ -21,6 +21,7 @@ Supported ticketing solutions:
 * [Billeto](https://jeero.ooo/publish-billeto-events-on-wordpress/)
 * [Ovatic](https://jeero.ooo/publish-ovatic-events-on-wordpress/)
 * [OvationTix](https://jeero.ooo/publish-ovationtix-events-on-wordpress/)
+* [Place2Book](https://jeero.ooo/publish-place2book-events-on-wordpress/)
 * [Reservix](https://jeero.ooo/publish-reservix-events-on-wordpress/)
 * [RTS](https://jeero.ooo/publish-rts-events-on-wordpress/)
 * [Stager](https://jeero.ooo/publish-stager-events-on-wordpress/)
