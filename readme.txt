@@ -62,7 +62,7 @@ Jeero is a subscription based service, provided by [Slim & Dapper](https://slimn
 
 Wait a couple of minutes (max 5) and go to your Calendar plugin.
 
-You should see the first 10 upcoming events that coming from your ticketing solutions.
+You should see the first 10 upcoming events that are coming from your ticketing solutions.
 
 == Frequently Asked Questions ==
 
@@ -78,7 +78,7 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 
 = 1.3 =
 
-* Added support for [Goodlayers](https://www.goodlayers.com) themes that user their Event Post Type plugin.
+* Added support for [Goodlayers](https://www.goodlayers.com) themes that use their Event Post Type plugin.
 
 = 1.2 =
 
@@ -92,7 +92,7 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 * Added support for the [Events Schedule WordPress Plugin](https://demo.curlythemes.com/timetable-wordpress-plugin/).
 
 = 1.0.4 =
-Fixed a redirect issue while setting up a new sync.
+Fixed a redirect issue while setting up a new import.
 
 = 1.0.3 =
 Added support for the Modern Events Calendar plugin.
