@@ -165,6 +165,7 @@ class GDLR_Events extends Calendar {
 		}			
 		
 		\update_post_meta( $event_id, 'post-option', json_encode( $post_option ) );
+		\update_post_meta( $event_id, 'gdlr-event-date', date( 'Y-m-d H:i', $event_start ) );
 
 		if ( !empty( $data[ 'production' ][ 'img' ] ) ) {
 			
