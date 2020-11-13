@@ -31,6 +31,13 @@ class Theater_For_WordPress extends Calendar {
 		
 	}
 
+	/**
+	 * Processes the data from an event in the inbox.
+	 * 
+	 * @since 	1.?
+	 * @since	1.3.2	Added support for ticket status.
+	 *
+	 */
 	function process_data( $result, $data, $raw, $theater ) {
 		
 		$result = parent::process_data( $result, $data, $raw, $theater );
@@ -106,7 +113,11 @@ class Theater_For_WordPress extends Calendar {
 		
 		if ( !empty( $data[ 'prices' ] ) ) {			
 			foreach( $data[ 'prices' ] as $price ) {
-				$event_args[ 'prices' ][] = sprintf( '%s|%s', $price[ 'amount' ], $price[ 'title' ] );
+				if ( empty( $price[ 'title' ] ) ) {
+					$event_args[ 'prices' ][] = $price[ 'amount' ];					
+				} else {
+					$event_args[ 'prices' ][] = sprintf( '%s|%s', $price[ 'amount' ], $price[ 'title' ] );
+				}
 			}
 		}
 		
@@ -116,6 +127,23 @@ class Theater_For_WordPress extends Calendar {
 			update_post_meta( $wpt_event->ID, 'enddate', $data[ 'end' ] );
 		}
 		
+		$tickets_status = \WPT_Event::tickets_status_onsale;
+		if ( !empty( $data[ 'status' ] ) ) {
+			switch( $data[ 'status' ] ) {
+				case 'cancelled':
+					$tickets_status = \WPT_Event::tickets_status_cancelled;
+					break;
+				case 'hidden':
+					$tickets_status = \WPT_Event::tickets_status_hidden;
+					break;
+				case 'soldout':
+					$tickets_status = \WPT_Event::tickets_status_soldout;
+					break;
+			}
+		}
+
+		update_post_meta( $wpt_event->ID, 'tickets_status', $tickets_status );
+
 		return $wpt_event;
 	}
 	
