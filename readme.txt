@@ -105,6 +105,9 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 
 == Upgrade Notice ==
 
+= 1.3.3 =
+* Fixes a timezone issue with the [Goodlayers](https://www.goodlayers.com) Event Post Type plugin.
+
 = 1.3 =
 * Adds support for [Goodlayers](https://www.goodlayers.com) themes that user their Event Post Type plugin.
 
