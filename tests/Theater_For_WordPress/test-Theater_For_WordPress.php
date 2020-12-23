@@ -124,7 +124,7 @@ class Theater_For_WordPress_Test extends Jeero_Test {
 		$subscription = Subscriptions\get_subscription( 'a fake ID' );
 
 		$actual = wp_list_pluck( $subscription->get( 'fields' ), 'name' );
-		$expected = 'Theater_For_WordPress/import/title';
+		$expected = 'Theater_For_WordPress/import/update/title';
 		
 		$this->assertContains( $expected, $actual, print_r($actual, true ) );
 
@@ -142,7 +142,7 @@ class Theater_For_WordPress_Test extends Jeero_Test {
 		$subscription = Subscriptions\get_subscription( 'a fake ID' );
 		$settings = array(
 			'calendar' => array( 'Theater_For_WordPress' ),
-			'Theater_For_WordPress/import/title' => 'always',
+			'Theater_For_WordPress/import/update/title' => 'always',
 		);
 		$subscription->set( 'settings', $settings );
 		$subscription->save();
@@ -159,6 +159,11 @@ class Theater_For_WordPress_Test extends Jeero_Test {
 
 	}
 	
+	/**
+	 * Tests if title is overwritten after import.
+	 * 
+	 * @since	1.4
+	 */
 	function test_title_is_updated_after_second_import() {
 		global $wp_theatre;
 		
@@ -175,7 +180,7 @@ class Theater_For_WordPress_Test extends Jeero_Test {
 		$settings = array(
 			'theater' => 'veezi',
 			'calendar' => array( 'Theater_For_WordPress' ),
-			'Theater_For_WordPress/import/title' => 'always',
+			'Theater_For_WordPress/import/update/title' => 'always',
 		);
 		
 		$subscription->set( 'settings', $settings );
@@ -210,6 +215,11 @@ class Theater_For_WordPress_Test extends Jeero_Test {
 		
 	}
 	
+	/**
+	 * Tests if title is not overwritten after import.
+	 * 
+	 * @since	1.4
+	 */
 	function test_title_is_not_updated_after_second_import() {
 		global $wp_theatre;
 		
@@ -259,5 +269,45 @@ class Theater_For_WordPress_Test extends Jeero_Test {
 		$this->assertEquals( $expected, $actual );
 		
 	}
+
+	/**
+	 * Tests if event is published after first import.
+	 * 
+	 * @since	1.4
+	 */
+	function test_inbox_event_is_published() {
+		global $wp_theatre;
+		
+		add_filter( 
+			'jeero/mother/get/response/endpoint=subscriptions/a fake ID', 
+			array( $this, 'get_mock_response_for_get_subscription' ), 
+			10, 3 
+		);
+
+		add_filter( 'jeero/mother/get/response/endpoint=inbox', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
+		
+		$subscription = Jeero\Subscriptions\get_subscription( 'a fake ID' );
+		
+		$settings = array(
+			'theater' => 'veezi',
+			'calendar' => array( 'Theater_For_WordPress' ),
+			'Theater_For_WordPress/import/status' => 'publish',
+		);
+		
+		$subscription->set( 'settings', $settings );
+		$subscription->save();
+
+		// Start import.
+		Inbox\pickup_items();
+
+		$events = $wp_theatre->productions->get( );
+		
+		$actual = count( $events );
+		$expected = 1;
+		$this->assertEquals( $expected, $actual );
+		
+	}
+	
+
 
 }

@@ -39,28 +39,11 @@ class Theater_For_WordPress extends Calendar {
 	 */
 	function get_fields() {
 		
-		$fields = array();
-
-		$import_choices = array(
-			'once' => __( 'on first import', 'jeero' ),
-			'always' => __( 'on every import', 'jeero' ),
-		);
+		$fields = parent::get_fields();
 		
-		$import_fields = array(
-			'title' => __( 'event title', 'jeero' ),
-			'description' => __( 'event description', 'jeero' ),
-			'image' => __( 'event image', 'jeero' ),
-		);
+		$fields = array_merge( $fields, $this->get_import_status_fields() );
+		$fields = array_merge( $fields, $this->get_import_update_fields() );
 		
-		foreach( $import_fields as $name => $label ) {
-			$fields[] = array(
-				'name' => sprintf( '%s/import/%s', $this->slug, $name ),
-				'label' => sprintf( __( 'Update %s', 'jeero' ), $label ),
-				'type' => 'select',
-				'choices' => $import_choices,
-			);
-		}
-				
 		return $fields;
 		
 	}
@@ -71,7 +54,8 @@ class Theater_For_WordPress extends Calendar {
 	 * @since 	1.?
 	 * @since	1.3.2	Added support for ticket status.
 	 * @since	1.4		Added support for import settings to decide whether to 
-	 * 					overwrite title/description.image during import.
+	 * 					overwrite title/description/image during import.
+	 * 					Added support for post status settings during import.
 	 *
 	 */
 	function process_data( $result, $data, $raw, $theater, $subscription ) {
@@ -110,18 +94,18 @@ class Theater_For_WordPress extends Calendar {
 				'ID' => $wpt_production->ID,
 			);
 			
-			if ( 'always' == $import_settings[ $this->slug.'/import/title' ] ) {
+			if ( 'always' == $this->get_setting( 'import/update/title', $subscription, 'once' ) ) {
 				$post[ 'post_title' ] = $data[ 'production' ][ 'title' ];
 			}
 			
-			if ( 'always' == $import_settings[ $this->slug.'/import/description' ] ) {
+			if ( 'always' == $this->get_setting( 'import/update/description', $subscription, 'once' ) ) {
 				$post[ 'post_content' ] = $data[ 'production' ][ 'description' ];
 			}
 			
 			\wp_update_post( $post );
 			
 			if ( 
-				'always' == $import_settings[ $this->slug.'/import/image' ] &&
+				'always' == $this->get_setting( 'import/update/image', $subscription, 'once' ) && 
 				!empty( $data[ 'production' ][ 'img' ] )
 			) {
 				$this->update_image( $wpt_production	, $data[ 'production' ][ 'img' ] );
@@ -135,7 +119,7 @@ class Theater_For_WordPress extends Calendar {
 				'post_type' => \WPT_Production::post_type_name,
 				'post_title' => $data[ 'production' ][ 'title' ],
 				'post_content' => $data[ 'production' ][ 'description' ],
-				'post_status' => 'draft',
+				'post_status' => $this->get_setting( 'import/status', $subscription, 'draft' ),
 			);
 			
 			$post_id = \wp_insert_post( $post, true );
@@ -203,7 +187,7 @@ class Theater_For_WordPress extends Calendar {
 	}
 	
 	/**
-	 * Update image of a production.
+	 * Updates the image of a production.
 	 * 
 	 * @since	1.4
 	 * @param 	WPT_Production	$wpt_production
@@ -213,7 +197,7 @@ class Theater_For_WordPress extends Calendar {
 	function update_image( $wpt_production, $image_url ) { 
 		$thumbnail_id = Images\update_featured_image_from_url( 
 			$wpt_production->ID,
-			$data[ 'production' ][ 'img' ]
+			$image_url
 		);
 
 		if ( \is_wp_error( $thumbnail_id ) ) {
