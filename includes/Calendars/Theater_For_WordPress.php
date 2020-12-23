@@ -30,17 +30,53 @@ class Theater_For_WordPress extends Calendar {
 		return false;
 		
 	}
+	
+	/**
+	 * Gets all fields for this calendar.
+	 * 
+	 * @since	1.4
+	 * @return	array
+	 */
+	function get_fields() {
+		
+		$fields = array();
+
+		$import_choices = array(
+			'once' => __( 'on first import', 'jeero' ),
+			'always' => __( 'on every import', 'jeero' ),
+		);
+		
+		$import_fields = array(
+			'title' => __( 'event title', 'jeero' ),
+			'description' => __( 'event description', 'jeero' ),
+			'image' => __( 'event image', 'jeero' ),
+		);
+		
+		foreach( $import_fields as $name => $label ) {
+			$fields[] = array(
+				'name' => sprintf( '%s/import/%s', $this->slug, $name ),
+				'label' => sprintf( __( 'Update %s', 'jeero' ), $label ),
+				'type' => 'select',
+				'choices' => $import_choices,
+			);
+		}
+				
+		return $fields;
+		
+	}
 
 	/**
 	 * Processes the data from an event in the inbox.
 	 * 
 	 * @since 	1.?
 	 * @since	1.3.2	Added support for ticket status.
+	 * @since	1.4		Added support for import settings to decide whether to 
+	 * 					overwrite title/description.image during import.
 	 *
 	 */
-	function process_data( $result, $data, $raw, $theater ) {
+	function process_data( $result, $data, $raw, $theater, $subscription ) {
 		
-		$result = parent::process_data( $result, $data, $raw, $theater );
+		$result = parent::process_data( $result, $data, $raw, $theater, $subscription );
 		
 		if ( \is_wp_error( $result ) ) {			
 			return $result;
@@ -59,9 +95,37 @@ class Theater_For_WordPress extends Calendar {
 			$ref = 'e'.$data[ 'ref' ];		
 		}
 
+		$import_defaults = array(
+			$this->slug.'/import/title' => 'once',
+			$this->slug.'/import/description' => 'once',
+			$this->slug.'/import/image' => 'once',
+		);
+		$import_settings = wp_parse_args( $subscription->get( 'settings' ), $import_defaults );
+			
 		if ( $wpt_production = $importer->get_production_by_ref( $ref ) ) {
 			
 			error_log( sprintf( '[%s] Updating event %s / %d.', $this->name, $ref, $wpt_production->ID ) );
+			
+			$post = array(
+				'ID' => $wpt_production->ID,
+			);
+			
+			if ( 'always' == $import_settings[ $this->slug.'/import/title' ] ) {
+				$post[ 'post_title' ] = $data[ 'production' ][ 'title' ];
+			}
+			
+			if ( 'always' == $import_settings[ $this->slug.'/import/description' ] ) {
+				$post[ 'post_content' ] = $data[ 'production' ][ 'description' ];
+			}
+			
+			\wp_update_post( $post );
+			
+			if ( 
+				'always' == $import_settings[ $this->slug.'/import/image' ] &&
+				!empty( $data[ 'production' ][ 'img' ] )
+			) {
+				$this->update_image( $wpt_production	, $data[ 'production' ][ 'img' ] );
+			}
 			
 		} else {
 
@@ -87,21 +151,12 @@ class Theater_For_WordPress extends Calendar {
 			
 			$wpt_production = new \WPT_Production( $post_id );
 			
-		}
-		
-		if ( !empty( $data[ 'production' ][ 'img' ] ) ) {
-	
-			$thumbnail_id = Images\update_featured_image_from_url( 
-				$wpt_production->ID,
-				$data[ 'production' ][ 'img' ]
-			);
-
-			if ( \is_wp_error( $thumbnail_id ) ) {
-				error_log( sprintf( 'Updating thumbnail for event failed %s / %d.', $production[ 'title' ], $wpt_production->ID ) );
+			if ( !empty( $data[ 'production' ][ 'img' ] ) ) {
+				$this->update_image( $wpt_production	, $data[ 'production' ][ 'img' ] );
 			}
-		
+			
 		}
-
+		
 		$event_args = array(
 			'production' => $wpt_production->ID,
 			'venue' => $data[ 'venue' ][ 'title' ] ?? '',
@@ -145,6 +200,25 @@ class Theater_For_WordPress extends Calendar {
 		update_post_meta( $wpt_event->ID, 'tickets_status', $tickets_status );
 
 		return $wpt_event;
+	}
+	
+	/**
+	 * Update image of a production.
+	 * 
+	 * @since	1.4
+	 * @param 	WPT_Production	$wpt_production
+	 * @param	string 			$image_url
+	 * @return 	void
+	 */
+	function update_image( $wpt_production, $image_url ) { 
+		$thumbnail_id = Images\update_featured_image_from_url( 
+			$wpt_production->ID,
+			$data[ 'production' ][ 'img' ]
+		);
+
+		if ( \is_wp_error( $thumbnail_id ) ) {
+			error_log( sprintf( 'Updating thumbnail for event failed %s / %d.', $wpt_production->title(), $wpt_production->ID ) );
+		}		
 	}
 	
 }

@@ -72,17 +72,20 @@ class All_In_One_Event_Calendar extends Calendar {
 	 * Processes event data from Inbox items.
 	 * 
 	 * @since	1.0
-	 * @param 	mixed $result
-	 * @param 	array	$data		The strcutured data of the event.
-	 * @param 	array	$raw		The raw data of the event.
-	 * @param	string	$theater	The theater.
+	 * @since	1.4	Added the subscription param.
+	 *
+	 * @param 	mixed 			$result
+	 * @param 	array			$data		The structured data of the event.
+	 * @param 	array			$raw		The raw data of the event.
+	 * @param	string			$theater		The theater.
+	 * @param	Subscription		$theater		The subscription.
 	 * @return 	Ai1ec_Event|WP_Error
 	 */
-	function process_data( $result, $data, $raw, $theater ) {
+	function process_data( $result, $data, $raw, $theater, $subscription ) {
 		
 		global $ai1ec_front_controller;
 		
-		$result = parent::process_data( $result, $data, $raw, $theater );
+		$result = parent::process_data( $result, $data, $raw, $theater, $subscription);
 		
 		if ( \is_wp_error( $result ) ) {			
 			return $result;
@@ -147,7 +150,7 @@ class All_In_One_Event_Calendar extends Calendar {
 		);
 
 		if ( \is_wp_error( $thumbnail_id ) ) {
-			error_log( sprintf( 'Updating thumbnail for event failed %s / %d.', $date[ 'production' ][ 'title' ], $event_id ) );
+			error_log( sprintf( 'Updating thumbnail for event failed %s / %d.', $data[ 'production' ][ 'title' ], $event_id ) );
 		}
 
 

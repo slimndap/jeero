@@ -59,6 +59,7 @@ function get_setting_values() {
  * 
  * @since	1.0
  * @since	1.4		Set a default value for 'interval'.
+ * 					Added support for custom calendar fields.
  *
  * @param 	int						$subscription_id	The Subscription ID.
  * @return	Subscription|WP_Error	The Subscription. Or an error if something went wrong.
@@ -88,15 +89,26 @@ function get_subscription( $subscription_id ) {
 	
 	$answer = wp_parse_args( $answer, $defaults );
 	
+	$fields = array();
 	
-	
-	// Add fields from Calendar.
-	$calendar = Calendars\get_calendar();
-	$fields = $calendar->get_fields();
+	// Add calendar checkboxes.
+	$fields[] = Calendars\get_calendars_field();
+
+	// Add custom fields for selected calendars.
+	$calendar_slugs = $subscription->get_setting( 'calendar' );
+
+	if ( !empty( $calendar_slugs ) ) {
+
+		foreach( $calendar_slugs as $calendar_slug ) {
+			$calendar = Calendars\get_calendar( $calendar_slug );
+			$fields = array_merge( $fields, $calendar->get_fields() );
+		}
+		
+	}
 
 	// Prepend fields from Mother.
 	if ( !empty( $answer[ 'fields' ] ) ) {
-		$fields = array_merge( $answer[ 'fields' ], $calendar->get_fields() );
+		$fields = array_merge( $answer[ 'fields' ], $fields );
 	}
 	
 	// Add the subscription info to the Subscription.

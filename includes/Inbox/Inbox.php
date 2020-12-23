@@ -68,6 +68,8 @@ function get_next_pickup() {
  * Processes a single item from the Inbox.
  * 
  * @since	1.0
+ * @since	1.4		Added the subscription to all filter params.
+ *
  * @param 	array	$item
  * @return 	void
  */
@@ -91,14 +93,16 @@ function process_item( $item ) {
 				$result,
 				$item[ 'data' ], 
 				$item[ 'raw' ],
-				$theater
+				$theater,
+				$subscription
 			);
 			
 			$result = apply_filters(
 				'jeero/inbox/process/item/'.$action.'/theater='.$theater.'&calendar='.$calendar, 
 				$result, 
 				$item[ 'data' ], 
-				$item[ 'raw' ]
+				$item[ 'raw' ],
+				$subscription
 			);
 			
 		}
@@ -109,7 +113,8 @@ function process_item( $item ) {
 		'jeero/inbox/process/item/'.$action.'/theater='.$theater, 
 		$result,
 		$item[ 'data' ], 
-		$item[ 'raw' ] 
+		$item[ 'raw' ],
+		$subscription
 	);
 
 	$result = apply_filters(
@@ -117,7 +122,8 @@ function process_item( $item ) {
 		$result, 
 		$item[ 'data' ], 
 		$item[ 'raw' ],
-		$theater
+		$theater,
+		$subscription
 	);
 	
 	$result = apply_filters(
@@ -126,7 +132,8 @@ function process_item( $item ) {
 		$item[ 'data' ], 
 		$item[ 'raw' ],
 		$action,
-		$theater
+		$theater,
+		$subscription
 	);
 	
 }

@@ -3,11 +3,18 @@ namespace Jeero\Calendars;
 
 add_action( 'init', __NAMESPACE__.'\add_import_filters' );
 
+/**
+ * Attaches all calendar imports to the corresponding inbox filter.
+ * 
+ * @since	1.?
+ * @since	1.4	Added support for the subscription param.
+ * @return 	void
+ */
 function add_import_filters() {
 	
 	$calendars = get_active_calendars();
 	foreach( $calendars as $calendar ) {		
-		add_filter( 'jeero/inbox/process/item/import/calendar='.$calendar->get( 'slug' ), array( $calendar, 'import' ), 10, 4 );		
+		add_filter( 'jeero/inbox/process/item/import/calendar='.$calendar->get( 'slug' ), array( $calendar, 'import' ), 10, 5 );		
 	}
 	
 }
@@ -86,6 +93,42 @@ function get_calendar( $slug = '' ) {
 	return new Calendar();	
 	
 }
+
+/**
+ * Gets the calendars field.
+ * 
+ * @since	1.4
+ * @return	array
+ */
+function get_calendars_field() {
+
+	$choices = array();
+	
+	foreach( get_active_calendars() as $calendar ) {
+		$choices[ $calendar->get( 'slug' ) ] = $calendar->get( 'name' );
+	}
+	
+	if ( empty( $choices ) ) {
+		$field = array(
+			'name' => 'calendar',
+			'label' => 'Calendar plugin',
+			'type' => 'error',
+			'value' => __( 'Please activate one or more supported calendar plugins.', 'jeero' ),
+		);
+	} else {
+		$field = array(
+			'name' => 'calendar',
+			'label' => 'Calendar plugin',
+			'type' => 'checkbox',
+			'choices' => $choices,
+			'required' => true,
+		);
+	}
+	
+	return $field;
+	
+}
+
 
 /**
  * Determines whether a plugin is active.

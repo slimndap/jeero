@@ -13,40 +13,15 @@ class Calendar {
 	function __construct() {
 		
 	}
-	
-	function get_fields() {
 		
-		$fields = array();
-		
-		$choices = array();
-		
-		foreach( get_active_calendars() as $calendar ) {
-			$choices[ $calendar->get( 'slug' ) ] = $calendar->get( 'name' );
-		}
-		
-		if ( empty( $choices ) ) {
-			$fields = array(
-				array(
-					'name' => 'calendar',
-					'label' => 'Calendar plugin',
-					'type' => 'error',
-					'value' => __( 'Please activate one or more supported calendar plugins.', 'jeero' ),
-				),
-			);
-		} else {
-			$fields = array(
-				array(
-					'name' => 'calendar',
-					'label' => 'Calendar plugin',
-					'type' => 'checkbox',
-					'choices' => $choices,
-					'required' => true,
-				),
-			);
-		}
-		
-		return $fields;
-		
+	/**
+	 * Gets all fields for this calendar.
+	 * 
+	 * @since	1.4
+	 * @return	array
+	 */
+	function get_fields() {		
+		return array();		
 	}
 	
 	function get_ref_key( $theater ) {
@@ -57,11 +32,17 @@ class Calendar {
 		return $this->{ $key };
 	}
 	
-	function import( $result, $data, $raw, $theater ) {
+	/**
+	 * Imports the data from an event in the inbox.
+	 * 
+	 * @since 	1.?
+	 * @since	1.4	Added the subscription param.
+	 */
+	function import( $result, $data, $raw, $theater, $subscription ) {
 		
 		error_log( sprintf( '[%s] Import of %s item started.', $this->get( 'name' ), $theater ) );
 
-		$result = $this->process_data( $result, $data, $raw, $theater );
+		$result = $this->process_data( $result, $data, $raw, $theater, $subscription );
 		
 		if ( \is_wp_error( $result ) ) {
 			error_log( sprintf( '[%s] Import of %s item failed: %s.', $this->get( 'name' ), $theater, $result->get_error_message() ) );
@@ -80,7 +61,13 @@ class Calendar {
 		
 	}
 	
-	function process_data( $result, $data, $raw, $theater ) {
+	/**
+	 * Processes the data from an event in the inbox.
+	 * 
+	 * @since 	1.?
+	 * @since	1.4	Added the subscription param.
+	 */
+	function process_data( $result, $data, $raw, $theater, $subscription ) {
 
 		if ( empty( $data[ 'ref' ] ) ) {			
 			return new \WP_Error( 'jeero/import', 'Ref identifier is missing' );
