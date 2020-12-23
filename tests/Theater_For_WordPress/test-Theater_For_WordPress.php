@@ -105,4 +105,30 @@ class Theater_For_WordPress_Test extends Jeero_Test {
 		
 	}
 
+	/**
+	 * Tests if custom calendar fields are presnt in the subscription form.
+	 * 
+	 * @since	1.4
+	 */
+	function test_edit_form_has_custom_fields() {
+
+		add_filter( 'jeero/mother/get/response/endpoint=subscriptions/a fake ID', array( $this, 'get_mock_response_for_get_subscription' ), 10, 3 );
+
+		$subscription = Subscriptions\get_subscription( 'a fake ID' );
+		$settings = array(
+			'calendar' => array( 'Theater_For_WordPress' ),
+		);
+		$subscription->set( 'settings', $settings );
+		$subscription->save();
+
+		$subscription = Subscriptions\get_subscription( 'a fake ID' );
+
+		$actual = wp_list_pluck( $subscription->get( 'fields' ), 'name' );
+		$expected = 'kkk';
+		
+		$this->assertContains( $expected, $actual, print_r($actual, true ) );
+
+	}
+	
+
 }

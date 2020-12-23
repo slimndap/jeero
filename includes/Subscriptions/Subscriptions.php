@@ -58,6 +58,8 @@ function get_setting_values() {
  * Gets the Subscription info from Mother and loads the settings from the DB.
  * 
  * @since	1.0
+ * @since	1.4		Set a default value for 'interval'.
+ *
  * @param 	int						$subscription_id	The Subscription ID.
  * @return	Subscription|WP_Error	The Subscription. Or an error if something went wrong.
  */
@@ -132,6 +134,7 @@ function get_subscriptions() {
 			'status' => false,
 			'logo' => false,
 			'fields' => array(),
+			'inactive' => null,
 			'interval' => null,
 			'next_delivery' => null,
 			'limit' => null,
