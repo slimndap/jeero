@@ -209,23 +209,21 @@ function get_edit_html( $subscription_id ) {
 	
 	?><div class="wrap">
 		<h1><?php _e( 'Edit Import', 'jeero' ); ?></h1>
-		<form><?php
+		<form class="jeero-form"><?php
 			wp_nonce_field( 'save', 'jeero/nonce', true, true );
 			?><input type="hidden" name="subscription_id" value="<?php echo $subscription_id; ?>">
 			<table class="form-table">
 				<tbody><?php
 					foreach( $subscription->get_fields() as $field ) {
-						?><tr>
-							<th scope="row">
-								<label for="blogname"><?php echo $field->get_label(); ?></label>
-							</th>
+						?><tr class="<?php echo implode( ' ', $field->get_css_classes() ); ?>">
+							<th scope="row"><?php echo $field->get_label_html(); ?></th>
 							<td><?php echo $field->get_control_html(); ?></td>
 						</tr><?php
 					}
 
 				?></tbody>
 			</table>
-			<p class="submit">
+			<p class="jeero-submit">
 				<input type="submit" name="submit" id="submit" class="button button-primary" value="Save Changes">
 				<a href="<?php echo get_admin_page_url(); ?>" class="button"><?php _e( 'Cancel', 'Jeero' ); ?></a>
 			</p>

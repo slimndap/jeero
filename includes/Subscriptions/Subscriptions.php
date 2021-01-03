@@ -86,17 +86,24 @@ function get_subscription( $subscription_id ) {
 	
 	$answer = wp_parse_args( $answer, $defaults );
 	
-	
+	$fields = array(
+		array(
+			'type' => 'Tab',
+			'name' => 'generic',
+			'label' => __( 'General settings', 'jeero' ),
+		),
+	);
 	
 	// Add fields from Calendar.
 	$calendar = Calendars\get_calendar();
-	$fields = $calendar->get_fields();
 
 	// Prepend fields from Mother.
 	if ( !empty( $answer[ 'fields' ] ) ) {
-		$fields = array_merge( $answer[ 'fields' ], $calendar->get_fields() );
+		$fields_general = array_merge( $answer[ 'fields' ], $calendar->get_fields() );
 	}
 	
+	$fields = array_merge( $fields, $fields_general );
+
 	// Add the subscription info to the Subscription.
 	$subscription->set( 'status', $answer[ 'status' ] );
 	$subscription->set( 'logo', $answer[ 'logo' ] );

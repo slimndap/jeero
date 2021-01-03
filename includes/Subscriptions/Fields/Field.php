@@ -47,8 +47,24 @@ class Field {
 		return ob_get_clean();
 	}
 	
-	function get_label() {
-		return $this->label;
+	function get_css_classes() {
+
+		$class = new \ReflectionClass( $this );
+		
+		$classes = array(
+			'jeero-field',
+			'jeero-field-'.sanitize_title( $class->getShortName() ),
+		);
+		return $classes;
+		
+	}
+	
+	function get_label_html() {
+		ob_start();
+
+		?><label><?php echo $this->label; ?></label><?php
+
+		return ob_get_clean();
 	}
 	
 	function get_setting_from_form( ) {
