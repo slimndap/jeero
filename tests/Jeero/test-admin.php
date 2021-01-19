@@ -58,17 +58,29 @@ class Admin_Test extends Jeero_Test {
 
 	}
 	
+
+    /**
+	 * Tests if a subscription is updated after submitting the subscriptions form.
+	 *
+	 * @since	1.?
+	 * @since	1.4	Run in isolation to avoid PHP warnings during test.
+	 *
+	 * Isolate because Admin\Subscriptions\process_form() sebd headers.
+	 * @see: https://github.com/sebastianbergmann/phpunit/issues/720#issuecomment-10421092
+     * @runInSeparateProcess
+     */
 	function test_edit_form_submit_updates_subscription() {
 		
 		add_filter( 'jeero/mother/get/response/endpoint=subscriptions/a fake ID', array( $this, 'get_mock_response_for_get_subscription' ), 10, 3 );
 		
 		$_GET = array(
 			'subscription_id' => 'a fake ID',
+			'theater' => 'veezi',
 			'test_field' => 'an updated value',
 			'jeero/nonce' => wp_create_nonce( 'save' ),	
 		);		
 		
-		Admin\Subscriptions\update_subscription( $_GET );
+		Admin\Subscriptions\process_form( $_GET );
 		
 		$subscription = new Subscriptions\Subscription( 'a fake ID' );
 		
@@ -79,6 +91,16 @@ class Admin_Test extends Jeero_Test {
 		
 	}
 
+    /**
+	 * Tests if the subscriptions form is prefilled with subscription settings.
+	 *
+	 * @since	1.?
+	 * @since	1.4	Run in isolation to avoid PHP warnings during test.
+	 *
+	 * Isolate because Admin\Subscriptions\process_form() sebd headers.
+	 * @see: https://github.com/sebastianbergmann/phpunit/issues/720#issuecomment-10421092
+     * @runInSeparateProcess
+     */
 	function test_edit_form_has_field_values() {
 
 		add_filter( 'jeero/mother/get/response/endpoint=subscriptions/a fake ID', array( $this, 'get_mock_response_for_get_subscription' ), 10, 3 );
@@ -88,7 +110,7 @@ class Admin_Test extends Jeero_Test {
 			'test_field' => 'an updated value',
 			'jeero/nonce' => wp_create_nonce( 'save' ),	
 		);		
-		Admin\Subscriptions\update_subscription( $_GET );
+		Admin\Subscriptions\process_form( $_GET );
 		
 		$_GET = array(
 			'edit' => 'a fake ID',

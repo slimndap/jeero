@@ -9,17 +9,6 @@ use Jeero\Subscriptions;
 
 class Inbox_Test extends Jeero_Test {
 
-	function test_get_inbox() {
-		
-		add_filter( 'jeero/mother/get/response/endpoint=inbox', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
-		
-		$actual = Inbox\pickup_items();
-		$expected = true;
-		
-		$this->assertEquals( $expected, $actual );
-		
-	}
-
 	function test_next_pickup_is_scheduled() {
 
 		add_filter( 'jeero/mother/get/response/endpoint=inbox', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );

@@ -13,39 +13,85 @@ class Calendar {
 	function __construct() {
 		
 	}
+		
+	/**
+	 * Gets all fields for this calendar.
+	 * 
+	 * @since	1.4
+	 * @return	array
+	 */
+	function get_fields() {	
+		return array();
+	}
 	
-	function get_fields() {
+	/**
+	 * Gets (optional) import update setting fields.
+	 * 
+	 * @since	1.4
+	 * @return	array
+	 */
+	function get_import_update_fields() {
 		
 		$fields = array();
+
+		$import_choices = array(
+			'once' => __( 'on first import', 'jeero' ),
+			'always' => __( 'on every import', 'jeero' ),
+		);
 		
-		$choices = array();
+		$import_fields = array(
+			'title' => __( 'event title', 'jeero' ),
+			'description' => __( 'event description', 'jeero' ),
+			'image' => __( 'event image', 'jeero' ),
+		);
 		
-		foreach( get_active_calendars() as $calendar ) {
-			$choices[ $calendar->get( 'slug' ) ] = $calendar->get( 'name' );
-		}
-		
-		if ( empty( $choices ) ) {
-			$fields = array(
-				array(
-					'name' => 'calendar',
-					'label' => 'Calendar plugin',
-					'type' => 'error',
-					'value' => __( 'Please activate one or more supported calendar plugins.', 'jeero' ),
-				),
-			);
-		} else {
-			$fields = array(
-				array(
-					'name' => 'calendar',
-					'label' => 'Calendar plugin',
-					'type' => 'checkbox',
-					'choices' => $choices,
-					'required' => true,
-				),
+		foreach( $import_fields as $name => $label ) {
+			$fields[] = array(
+				'name' => sprintf( '%s/import/update/%s', $this->slug, $name ),
+				'label' => sprintf( __( 'Update %s', 'jeero' ), $label ),
+				'type' => 'select',
+				'choices' => $import_choices,
 			);
 		}
+				
+		return $fields;		
+	}
+	
+	/**
+	 * Gets (optional) import status setting field.
+	 * 
+	 * @since	1.4
+	 * @return	array
+	 */
+	function get_import_status_fields() {
+
+		$fields = array( 
+			array(
+				'name' => sprintf( '%s/import/status', $this->slug ),
+				'label' => __( 'Status for new events', 'jeero' ),
+				'type' => 'select',
+				'choices' => array(
+					'draft' => __( 'Draft' ),
+					'publish' => __( 'Publish' ),
+				),
+			)
+		);
 		
 		return $fields;
+		
+	}
+	
+	function get_setting( $key, $subscription, $default = '' ) {
+		
+		$settings = $subscription->get( 'settings' );
+		
+		$key = sprintf( '%s/%s', $this->slug, $key );
+		
+		if ( empty( $settings[ $key ] ) ) {
+			return $default;
+		}
+		
+		return $settings[ $key ];
 		
 	}
 	
@@ -57,11 +103,17 @@ class Calendar {
 		return $this->{ $key };
 	}
 	
-	function import( $result, $data, $raw, $theater ) {
+	/**
+	 * Imports the data from an event in the inbox.
+	 * 
+	 * @since 	1.?
+	 * @since	1.4	Added the subscription param.
+	 */
+	function import( $result, $data, $raw, $theater, $subscription ) {
 		
 		error_log( sprintf( '[%s] Import of %s item started.', $this->get( 'name' ), $theater ) );
 
-		$result = $this->process_data( $result, $data, $raw, $theater );
+		$result = $this->process_data( $result, $data, $raw, $theater, $subscription );
 		
 		if ( \is_wp_error( $result ) ) {
 			error_log( sprintf( '[%s] Import of %s item failed: %s.', $this->get( 'name' ), $theater, $result->get_error_message() ) );
@@ -80,7 +132,13 @@ class Calendar {
 		
 	}
 	
-	function process_data( $result, $data, $raw, $theater ) {
+	/**
+	 * Processes the data from an event in the inbox.
+	 * 
+	 * @since 	1.?
+	 * @since	1.4	Added the subscription param.
+	 */
+	function process_data( $result, $data, $raw, $theater, $subscription ) {
 
 		if ( empty( $data[ 'ref' ] ) ) {			
 			return new \WP_Error( 'jeero/import', 'Ref identifier is missing' );

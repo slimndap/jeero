@@ -49,9 +49,22 @@ class Very_Simple_Event_List extends Calendar {
 		
 	}
 	
-	function process_data( $result, $data, $raw, $theater ) {
+	/**
+	 * Processes event data from Inbox items.
+	 * 
+	 * @since	1.?
+	 * @since	1.4	Added the subscription param.
+	 *
+	 * @param 	mixed 			$result
+	 * @param 	array			$data		The structured data of the event.
+	 * @param 	array			$raw		The raw data of the event.
+	 * @param	string			$theater		The theater.
+	 * @param	Subscription		$theater		The subscription.
+	 * @return	int|WP_Error
+	 */	 
+	function process_data( $result, $data, $raw, $theater, $subscription ) {
 		
-		$result = parent::process_data( $result, $data, $raw, $theater );
+		$result = parent::process_data( $result, $data, $raw, $theater, $subscription );
 		
 		if ( \is_wp_error( $result ) ) {			
 			return $result;

@@ -88,16 +88,18 @@ class GDLR_Events extends Calendar {
 	 * @since	1.3
 	 * @since	1.3.3	No longer try to localize the event start time since the inbox already returns 
 	 *					a local start time.
+	 * @since	1.4		Added the subscription param.
 	 *
-	 * @param	mixed	$result		The result of any previous processing of this event.
-	 * @param	array	$data		The structured data of the event.
-	 * @param 	mixed	$raw		The raw data of the event coming from the Theater.
-	 * @param 	string	$theater 	The theater.
-	 * @return	WP_Error|int			The post ID of the event or an error if someting went wrong.
+	 * @param	mixed	$		result		The result of any previous processing of this event.
+	 * @param	array			$data		The structured data of the event.
+	 * @param 	mixed			$raw		The raw data of the event coming from the Theater.
+	 * @param 	string			$theater 	The theater.
+	 * @param	Subscription		$theater		The subscription.
+	 * @return	WP_Error|int					The post ID of the event or an error if someting went wrong.
 	 */
-	function process_data( $result, $data, $raw, $theater ) {
+	function process_data( $result, $data, $raw, $theater, $subscription ) {
 		
-		$result = parent::process_data( $result, $data, $raw, $theater );
+		$result = parent::process_data( $result, $data, $raw, $theater, $subscription );
 		
 		if ( \is_wp_error( $result ) ) {			
 			return $result;

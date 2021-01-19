@@ -82,6 +82,17 @@ class Jeero_Test extends WP_UnitTestCase {
 			
 	}
 	
+	/**
+	 * Returns a mock response for the subscriptions endpoint of Mother.
+	 * 
+	 * @since	1.?
+	 * @since	1.4	Added 'theater' to the response.
+	 *
+	 * @param 	array	$response
+	 * @param 	string	$endpoint
+	 * @param 	array	$args
+	 * @return	array
+	 */
 	function get_mock_response_for_get_subscription( $response, $endpoint, $args ) {
 		
 		if ( strpos( $endpoint, 'subscriptions/' !== 0 ) ) {
@@ -108,6 +119,10 @@ class Jeero_Test extends WP_UnitTestCase {
 					'type' => 'text',
 					'label' => 'Test field',
 				)
+			),
+			'theater' => array(
+				'name' => 'veezi',
+				'title' => 'Veezi',				
 			),
 		);	
 		

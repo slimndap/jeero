@@ -58,6 +58,9 @@ function get_setting_values() {
  * Gets the Subscription info from Mother and loads the settings from the DB.
  * 
  * @since	1.0
+ * @since	1.4		Set a default value for 'interval'.
+ * 					Added support for custom calendar fields.
+ *
  * @param 	int						$subscription_id	The Subscription ID.
  * @return	Subscription|WP_Error	The Subscription. Or an error if something went wrong.
  */
@@ -93,16 +96,36 @@ function get_subscription( $subscription_id ) {
 			'label' => __( 'General settings', 'jeero' ),
 		),
 	);
-	
-	// Add fields from Calendar.
-	$calendar = Calendars\get_calendar();
+		
+	// Add calendar checkboxes.
+	$fields[] = Calendars\get_calendars_field();
+
+	// Add custom fields for selected calendars.
+	$calendar_slugs = $subscription->get_setting( 'calendar' );
+
+	if ( !empty( $calendar_slugs ) ) {
+
+		foreach( $calendar_slugs as $calendar_slug ) {
+			$calendar = Calendars\get_calendar( $calendar_slug );
+			$calendar_fields = $calendar->get_fields();
+			if ( !empty( $calendar_fields ) ) {
+				$fields[] =	array(
+					'type' => 'Tab',
+					'name' => $calendar->get( 'slug' ),
+					'label' => $calendar->get( 'name' ),
+				);
+				$fields = array_merge( $fields, $calendar_fields );			
+			}
+		}
+		
+	}
 
 	// Prepend fields from Mother.
 	if ( !empty( $answer[ 'fields' ] ) ) {
-		$fields_general = array_merge( $answer[ 'fields' ], $calendar->get_fields() );
+		$fields = array_merge( $answer[ 'fields' ], $fields );
 	}
 	
-	$fields = array_merge( $fields, $fields_general );
+//	$fields = array_merge( $fields, $fields_general );
 
 	// Add the subscription info to the Subscription.
 	$subscription->set( 'status', $answer[ 'status' ] );
@@ -139,6 +162,7 @@ function get_subscriptions() {
 			'status' => false,
 			'logo' => false,
 			'fields' => array(),
+			'inactive' => null,
 			'interval' => null,
 			'next_delivery' => null,
 			'limit' => null,
