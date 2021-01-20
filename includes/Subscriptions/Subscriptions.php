@@ -97,6 +97,11 @@ function get_subscription( $subscription_id ) {
 		),
 	);
 		
+	// Add fields from Mother.
+	if ( !empty( $answer[ 'fields' ] ) ) {
+		$fields = array_merge( $fields, $answer[ 'fields' ] );
+	}
+	
 	// Add calendar checkboxes.
 	$fields[] = Calendars\get_calendars_field();
 
@@ -120,11 +125,7 @@ function get_subscription( $subscription_id ) {
 		
 	}
 
-	// Prepend fields from Mother.
-	if ( !empty( $answer[ 'fields' ] ) ) {
-		$fields = array_merge( $answer[ 'fields' ], $fields );
-	}
-	
+
 //	$fields = array_merge( $fields, $fields_general );
 
 	// Add the subscription info to the Subscription.
