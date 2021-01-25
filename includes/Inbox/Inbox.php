@@ -23,6 +23,18 @@ const PICKUP_ITEMS_HOOK = 'jeero\inbox\pickup_items';
 add_action( 'init', __NAMESPACE__.'\schedule_next_pickup' );
 add_action( PICKUP_ITEMS_HOOK, __NAMESPACE__.'\pickup_items' );
 
+function apply_filters( $tag, $value ) {
+	
+	if ( \is_wp_error( $value ) ) {
+		return $value;
+	}
+	
+	$args = func_get_args();
+
+	return \apply_filters( ...$args );
+	
+}
+
 /**
  * Picks up items from Inbox and processes them.
  * 
@@ -88,20 +100,20 @@ function process_item( $item ) {
 
 		foreach( $calendars as $calendar ) {
 			
+			$result = apply_filters(
+				'jeero/inbox/process/item/'.$action.'/theater='.$theater.'&calendar='.$calendar, 
+				$result, 
+				$item[ 'data' ], 
+				$item[ 'raw' ],
+				$subscription
+			);
+			
 			$result = apply_filters( 
 				'jeero/inbox/process/item/'.$action.'/calendar='.$calendar, 
 				$result,
 				$item[ 'data' ], 
 				$item[ 'raw' ],
 				$theater,
-				$subscription
-			);
-			
-			$result = apply_filters(
-				'jeero/inbox/process/item/'.$action.'/theater='.$theater.'&calendar='.$calendar, 
-				$result, 
-				$item[ 'data' ], 
-				$item[ 'raw' ],
 				$subscription
 			);
 			
@@ -136,6 +148,8 @@ function process_item( $item ) {
 		$subscription
 	);
 	
+	return $result;
+	
 }
 
 /**
@@ -154,7 +168,12 @@ function process_items( $items ) {
 	$items_processed = array();
 	
 	foreach( $items as $item ) {
-		process_item( $item );
+		$result = process_item( $item );
+		
+		if ( \is_wp_error( $result ) ) {
+			error_log( $result->get_error_message() );
+		}
+		
 		$items_processed[] = $item;
 	}
 	

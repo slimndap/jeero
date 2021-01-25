@@ -173,7 +173,11 @@ class GDLR_Events extends Calendar {
 			$prices = array();
 			
 			foreach( $data[ 'prices' ] as $price ) {
-				$prices[] = $price[ 'title' ].' '.\number_format_i18n( $price[ 'amount' ], 2 );
+				if ( empty( $price[ 'title' ] ) ) {
+					$prices[] = \number_format_i18n( $price[ 'amount' ], 2 );				
+				} else {
+					$prices[] = $price[ 'title' ].' '.\number_format_i18n( $price[ 'amount' ], 2 );									
+				}
 			}
 			
 			$post_option[ 'number' ] = implode( '<br>', $prices );
