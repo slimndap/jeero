@@ -1,7 +1,7 @@
 "use strict";
 
 (function () {
-  var $fields, $form, $nav_tabs, $tab_fields, $tabs, get_fields, get_form, get_nav_tabs, get_tab_fields, get_tabs, show_tab;
+  var $fields, $form, $nav_tabs, $tab_fields, $tabs, get_fields, get_form, get_nav_tabs, get_tab_fields, get_tab_subfields, get_tabs, show_tab;
   $form = null;
   $fields = null;
   $tab_fields = null;
@@ -32,6 +32,10 @@
     return $tab_fields = get_fields().filter('.jeero-field-tab');
   };
 
+  get_tab_subfields = function get_tab_subfields(tab_index) {
+    return get_tab_fields().eq(tab_index).nextUntil('.jeero-field-tab');
+  };
+
   get_nav_tabs = function get_nav_tabs() {
     if ($nav_tabs != null) {
       return $nav_tabs;
@@ -54,7 +58,7 @@
 
     get_tabs().removeClass('nav-tab-active').eq(tab_index).addClass('nav-tab-active'); // Show fields of active tab.
 
-    return get_tab_fields().eq(tab_index).nextUntil('.jeero-field-tab').show();
+    return get_tab_subfields(tab_index).show();
   };
 
   jQuery(function () {
@@ -69,8 +73,18 @@
       get_tabs().click(function () {
         return show_tab(jQuery(this).data('tab_index'));
       });
-      return show_tab(0);
+      show_tab(0);
     }
+
+    return get_fields().find('input').on('invalid', function () {
+      var $input;
+      $input = jQuery(this);
+      return get_tab_fields().each(function (index) {
+        if (get_tab_subfields(index).has($input).length) {
+          return show_tab(index);
+        }
+      });
+    });
   });
 }).call(void 0);
 
