@@ -308,6 +308,61 @@ class Theater_For_WordPress_Test extends Jeero_Test {
 		
 	}
 	
+	/**
+	 * Tests if the import of an event is skipped if a WP_Error is returned in one of the previous steps.
+	 * 
+	 * @since	1.5
+	 */
+	function test_inbox_event_is_not_imported_on_error() {
+		global $wp_theatre;
+		
+		add_filter( 
+			'jeero/mother/get/response/endpoint=subscriptions/a fake ID', 
+			array( $this, 'get_mock_response_for_get_subscription' ), 
+			10, 3 
+		);
+
+		add_filter( 'jeero/mother/get/response/endpoint=inbox', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
+		
+		$subscription = Jeero\Subscriptions\get_subscription( 'a fake ID' );
+		
+		$theater = 'veezi';
+		$calendar = 'Theater_For_WordPress';
+		
+		$settings = array(
+			'theater' => $theater,
+			'calendar' => array( $calendar ),
+		);
+		
+		$subscription->set( 'settings', $settings );
+		$subscription->save();
+
+		$args = array(
+			'status' => array( 'draft' ),
+		);
+		
+		// Test if the regular import still works.
+		Inbox\pickup_items();
+		$actual = $wp_theatre->productions->get( $args );
+		$expected = 1;
+		$this->assertCount( $expected, $actual );
+		
+		// Delete the improted event.
+		wp_delete_post( $actual[ 0 ]->ID, true );
+		
+		// Return a WP_Error just before events are imported.
+		add_filter( 'jeero/inbox/process/item/import/calendar='.$calendar, function() {
+			return new WP_Error( 'error', 'A random error' );
+		}, 9 );
+		
+		// Test if the import is skipped.
+		Inbox\pickup_items();
+		$actual = $wp_theatre->productions->get( $args );
+		$expected = 0;
+		$this->assertCount( $expected, $actual );
+		
+	}
+
 
 
 }
