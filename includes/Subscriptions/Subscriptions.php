@@ -60,6 +60,8 @@ function get_setting_values() {
  * @since	1.0
  * @since	1.4		Set a default value for 'interval'.
  * 					Added support for custom calendar fields.
+ * @since	1.5		Removed calendar activation checkboxes.
+ *					They are now managed by the individual calendars.
  *
  * @param 	int						$subscription_id	The Subscription ID.
  * @return	Subscription|WP_Error	The Subscription. Or an error if something went wrong.
@@ -93,7 +95,7 @@ function get_subscription( $subscription_id ) {
 		array(
 			'type' => 'Tab',
 			'name' => 'generic',
-			'label' => __( 'General settings', 'jeero' ),
+			'label' => __( 'General', 'jeero' ),
 		),
 	);
 		
@@ -102,31 +104,10 @@ function get_subscription( $subscription_id ) {
 		$fields = array_merge( $fields, $answer[ 'fields' ] );
 	}
 	
-	// Add calendar checkboxes.
-	$fields[] = Calendars\get_calendars_field();
-
-	// Add custom fields for selected calendars.
-	$calendar_slugs = $subscription->get_setting( 'calendar' );
-
-	if ( !empty( $calendar_slugs ) ) {
-
-		foreach( $calendar_slugs as $calendar_slug ) {
-			$calendar = Calendars\get_calendar( $calendar_slug );
-			$calendar_fields = $calendar->get_fields();
-			if ( !empty( $calendar_fields ) ) {
-				$fields[] =	array(
-					'type' => 'Tab',
-					'name' => $calendar->get( 'slug' ),
-					'label' => $calendar->get( 'name' ),
-				);
-				$fields = array_merge( $fields, $calendar_fields );			
-			}
-		}
-		
+	// Add fields from calendars.
+	foreach( Calendars\get_active_calendars() as $calendar ) {
+		$fields = array_merge( $fields, $calendar->get_fields() );			
 	}
-
-
-//	$fields = array_merge( $fields, $fields_general );
 
 	// Add the subscription info to the Subscription.
 	$subscription->set( 'status', $answer[ 'status' ] );

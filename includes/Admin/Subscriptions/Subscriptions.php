@@ -31,12 +31,13 @@ namespace Jeero\Admin\Subscriptions;
 use Jeero\Admin;
 use Jeero\Subscriptions;
 use Jeero\Inbox;
+use Jeero\Calendars;
 
 add_action( 'admin_init', __NAMESPACE__.'\add_new_subscription' );
 add_action( 'admin_init', __NAMESPACE__.'\process_activate' );
 add_action( 'admin_init', __NAMESPACE__.'\process_deactivate' );
 add_action( 'admin_init', __NAMESPACE__.'\process_form' );
-
+add_action( 'admin_notices', __NAMESPACE__.'\show_no_active_calendars_warning' );
 
 /**
  * Outputs the Subscription Admin pages.
@@ -345,5 +346,30 @@ function add_new_subscription() {
 
 	wp_safe_redirect( get_admin_edit_url( $subscription_id ) );
 	exit;
+	
+}
+
+/**
+ * Shows an admin notice on Jeero admin scerens if no supported calendar plugins are active.
+ * 
+ * @since	1.5
+ */
+function show_no_active_calendars_warning() {
+
+	$screen = get_current_screen();
+	
+	if ( $screen->id != 'toplevel_page_jeero/imports' ) {
+		return;
+	}
+	
+	$active_calendars = Calendars\get_active_calendars();
+	
+	if ( empty( $active_calendars ) ) {
+		?><div class="notice notice-error">
+			<p><?php
+				_e( 'Please activate at least one supported calendar plugin to start importing events.', 'jeero' );
+			?></p>
+		</div><?php
+	}
 	
 }

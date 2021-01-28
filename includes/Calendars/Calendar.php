@@ -18,10 +18,27 @@ class Calendar {
 	 * Gets all fields for this calendar.
 	 * 
 	 * @since	1.4
+	 * @since	1.5	Added a dedicated tab and activation checbox for each calendar. 
 	 * @return	array
 	 */
 	function get_fields() {	
-		return array();
+		return array(
+			
+			array(
+				'name' => $this->slug,
+				'type' => 'tab',
+				'label' => $this->name,
+			),
+			array(
+				'name' => 'calendar',
+				'label' => __( 'Enable import', 'jeero' ),
+				'type' => 'checkbox',
+				'choices' => array(
+					$this->slug => sprintf( __( 'Enable %s import', 'jeero' ), $this->name ),
+				),
+			),
+			
+		);
 	}
 	
 	/**
