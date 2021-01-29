@@ -127,6 +127,7 @@ function process_deactivate() {
  * 
  * @since	1.0
  * @since	1.0.4	Reload subscription to refresh data from Mother, based on new settings.
+ * @since	1.5		No stays on form page after saving settings.
  * @return	void
  */
 function process_form() {
@@ -186,6 +187,9 @@ function process_form() {
  * Gets the HTML for the Edit Subscription Admin page.
  *
  * Builds a form based on the fields of the Subscription.
+ * 
+ * @since 	1.?
+ * @since	1.5	Restructured HTML to add support for tabs.
  * 
  * @param	int				$subscription_id		The ID of the Subscription.
  * @return 	string|WP_Error						The HTML for the Edit Subscription Admin page.

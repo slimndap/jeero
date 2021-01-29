@@ -6,6 +6,7 @@ namespace Jeero\Admin;
 
 add_action( 'admin_menu', __NAMESPACE__.'\add_menu_item' );
 add_action( 'admin_enqueue_scripts', __NAMESPACE__.'\enqueue_scripts' );
+
 /**
  * Adds the Jeero menu to the admin.
  * 
@@ -27,8 +28,13 @@ function add_menu_item() {
     
 }
 
-function enqueue_scripts( $hook_suffix ) {
-	wp_enqueue_script( 'jeero/admin', \Jeero\PLUGIN_URI . 'assets/js/admin.js', array( 'jquery' ), '1.0' );
-
+/**
+ * Enqueues Jeero admin scripts.
+ * 
+ * @since	1.5
+ * @return 	void
+ */
+function enqueue_scripts( ) {
+	wp_enqueue_script( 'jeero/admin', \Jeero\PLUGIN_URI . 'assets/js/admin.js', array( 'jquery' ), \Jeero\VERSION );
 }
 

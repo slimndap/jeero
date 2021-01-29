@@ -247,6 +247,7 @@ function process_item( $item ) {
  * Processes all items in Inbox and removes processed items from Inbox.
  * 
  * @since	1.0
+ * @since	1.5		Now accounts for process_item() returning a WP_Error.
  * @param 	array	$items
  * @return 	void
  */

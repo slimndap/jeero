@@ -47,6 +47,12 @@ class Field {
 		return ob_get_clean();
 	}
 	
+	/**
+	 * Gets the CSS classes for the field.
+	 * 
+	 * @since	1.5
+	 * @return	string[]		The CSS classes for the field.
+	 */
 	function get_css_classes() {
 
 		$class = new \ReflectionClass( $this );
@@ -59,6 +65,12 @@ class Field {
 		
 	}
 	
+	/**
+	 * Get the label HTML for the field.
+	 * 
+	 * @since	1.5
+	 * @return	string	The label HTML for the field.
+	 */
 	function get_label_html() {
 		ob_start();
 

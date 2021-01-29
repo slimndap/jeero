@@ -89,8 +89,9 @@ class GDLR_Events extends Calendar {
 	 * @since	1.3.3	No longer try to localize the event start time since the inbox already returns 
 	 *					a local start time.
 	 * @since	1.4		Added the subscription param.
+	 * @since	1.5		Fixed a PHP warning for prices without a title.
 	 *
-	 * @param	mixed	$		result		The result of any previous processing of this event.
+	 * @param	mixed			$result		The result of any previous processing of this event.
 	 * @param	array			$data		The structured data of the event.
 	 * @param 	mixed			$raw		The raw data of the event coming from the Theater.
 	 * @param 	string			$theater 	The theater.
