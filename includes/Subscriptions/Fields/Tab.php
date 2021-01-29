@@ -1,16 +1,12 @@
 <?php
 namespace Jeero\Subscriptions\Fields;
 
-class Message extends Field {
+class Tab extends Field {
 		
 	function get_control_html() {
 		ob_start();
-		?><p><?php echo $this->label; ?></p><?php
+		echo $this->value;
 		return ob_get_clean();
-	}
-	
-	function get_label_html() {
-		return;
 	}
 	
 }

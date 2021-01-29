@@ -31,12 +31,13 @@ namespace Jeero\Admin\Subscriptions;
 use Jeero\Admin;
 use Jeero\Subscriptions;
 use Jeero\Inbox;
+use Jeero\Calendars;
 
 add_action( 'admin_init', __NAMESPACE__.'\add_new_subscription' );
 add_action( 'admin_init', __NAMESPACE__.'\process_activate' );
 add_action( 'admin_init', __NAMESPACE__.'\process_deactivate' );
 add_action( 'admin_init', __NAMESPACE__.'\process_form' );
-
+add_action( 'admin_notices', __NAMESPACE__.'\show_no_active_calendars_warning' );
 
 /**
  * Outputs the Subscription Admin pages.
@@ -170,17 +171,12 @@ function process_form() {
 
 	$theater = $subscription->get( 'theater' );
 	
-	if ( \Jeero\Subscriptions\JEERO_SUBSCRIPTIONS_STATUS_SETUP == $subscription->get( 'status' ) ) {
-		
+	if ( \Jeero\Subscriptions\JEERO_SUBSCRIPTIONS_STATUS_SETUP == $subscription->get( 'status' ) ) {		
 		Admin\Notices\add_success( sprintf( __( '%s subscription updated. Please enter any missing settings below.', 'jeero' ), $theater[ 'title' ] ) );
-		\wp_safe_redirect( get_admin_edit_url( $subscription->get( 'ID' ) ) );	
-		
-	} else {
-		
-		Admin\Notices\add_success( sprintf( __( '%s subscription updated.', 'jeero' ), $theater[ 'title' ] ) );			
-		\wp_safe_redirect( get_admin_page_url() );	
-		
+	} else {		
+		Admin\Notices\add_success( sprintf( __( '%s subscription updated.', 'jeero' ), $theater[ 'title' ] ) );					
 	}
+	\wp_safe_redirect( get_admin_edit_url( $subscription->get( 'ID' ) ) );	
 	
 	exit;
 	
@@ -209,23 +205,21 @@ function get_edit_html( $subscription_id ) {
 	
 	?><div class="wrap">
 		<h1><?php _e( 'Edit Import', 'jeero' ); ?></h1>
-		<form><?php
+		<form class="jeero-form"><?php
 			wp_nonce_field( 'save', 'jeero/nonce', true, true );
 			?><input type="hidden" name="subscription_id" value="<?php echo $subscription_id; ?>">
 			<table class="form-table">
 				<tbody><?php
 					foreach( $subscription->get_fields() as $field ) {
-						?><tr>
-							<th scope="row">
-								<label for="blogname"><?php echo $field->get_label(); ?></label>
-							</th>
+						?><tr class="<?php echo implode( ' ', $field->get_css_classes() ); ?>">
+							<th scope="row"><?php echo $field->get_label_html(); ?></th>
 							<td><?php echo $field->get_control_html(); ?></td>
 						</tr><?php
 					}
 
 				?></tbody>
 			</table>
-			<p class="submit">
+			<p class="jeero-submit">
 				<input type="submit" name="submit" id="submit" class="button button-primary" value="Save Changes">
 				<a href="<?php echo get_admin_page_url(); ?>" class="button"><?php _e( 'Cancel', 'Jeero' ); ?></a>
 			</p>
@@ -352,5 +346,30 @@ function add_new_subscription() {
 
 	wp_safe_redirect( get_admin_edit_url( $subscription_id ) );
 	exit;
+	
+}
+
+/**
+ * Shows an admin notice on Jeero admin scerens if no supported calendar plugins are active.
+ * 
+ * @since	1.5
+ */
+function show_no_active_calendars_warning() {
+
+	$screen = get_current_screen();
+	
+	if ( $screen->id != 'toplevel_page_jeero/imports' ) {
+		return;
+	}
+	
+	$active_calendars = Calendars\get_active_calendars();
+	
+	if ( empty( $active_calendars ) ) {
+		?><div class="notice notice-error">
+			<p><?php
+				_e( 'Please activate at least one supported calendar plugin to start importing events.', 'jeero' );
+			?></p>
+		</div><?php
+	}
 	
 }

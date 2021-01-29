@@ -95,42 +95,6 @@ function get_calendar( $slug = '' ) {
 }
 
 /**
- * Gets the calendars field.
- * 
- * @since	1.4
- * @return	array
- */
-function get_calendars_field() {
-
-	$choices = array();
-	
-	foreach( get_active_calendars() as $calendar ) {
-		$choices[ $calendar->get( 'slug' ) ] = $calendar->get( 'name' );
-	}
-	
-	if ( empty( $choices ) ) {
-		$field = array(
-			'name' => 'calendar',
-			'label' => 'Calendar plugin',
-			'type' => 'error',
-			'value' => __( 'Please activate one or more supported calendar plugins.', 'jeero' ),
-		);
-	} else {
-		$field = array(
-			'name' => 'calendar',
-			'label' => 'Calendar plugin',
-			'type' => 'checkbox',
-			'choices' => $choices,
-			'required' => true,
-		);
-	}
-	
-	return $field;
-	
-}
-
-
-/**
  * Determines whether a plugin is active.
  *
  * A copy of the WordPress native 'is_plugin_active()' function, which can only be used when inside the admin.
