@@ -77,6 +77,10 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 
 == Changelog ==
 
+= 1.5 =
+
+* Restructured setting pages.
+
 = 1.4 =
 
 * Added support for custom import settings per calendar plugin.
