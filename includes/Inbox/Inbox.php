@@ -24,6 +24,29 @@ add_action( 'init', __NAMESPACE__.'\schedule_next_pickup' );
 add_action( PICKUP_ITEMS_HOOK, __NAMESPACE__.'\pickup_items' );
 
 /**
+ * Applies WordPress filters.
+ * 
+ * Wrapper for apply_filters() that prevents filters from running if a WP_Error is passed.
+ * This can be used stop the filters from running during process_item().
+ *
+ * @since	1.5
+ * @param 	string	$tag
+ * @param 	mixed	$value
+ * @return	mixed
+ */
+function apply_filters( $tag, $value ) {
+	
+	if ( \is_wp_error( $value ) ) {
+		return $value;
+	}
+	
+	$args = func_get_args();
+
+	return \apply_filters( ...$args );
+	
+}
+
+/**
  * Picks up items from Inbox and processes them.
  * 
  * @since	1.0
@@ -69,6 +92,8 @@ function get_next_pickup() {
  * 
  * @since	1.0
  * @since	1.4		Added the subscription to all filter params.
+ * @since	1.5		Flipped order of the calendar filters. The most specific filter now runs first.
+ *					Now uses the local apply_filters() wrapper function. 
  *
  * @param 	array	$item
  * @return 	void
@@ -80,7 +105,7 @@ function process_item( $item ) {
 
 	$subscription = new Subscriptions\Subscription( $item[ 'subscription_id' ] );
 	
-	$result = false;
+	$result = true;
 	
 	$calendars = $subscription->get_setting( 'calendar' );
 	
@@ -88,6 +113,45 @@ function process_item( $item ) {
 
 		foreach( $calendars as $calendar ) {
 			
+			/**
+			 * Filters the result of a processed inbox item.
+			 * 
+			 * Only runs for specific action/theater/calendar combinations.
+			 * This filter runs before events are processed Calendar importers.
+			 *
+			 * @since 1.0
+			 *
+			 * @param 	bool|WP_Error	$result			The result of a processed inbox item. 
+			 *											Filters will not be applied if $result is a WP_Error.
+			 * @param	array			$data			The structured data of the inbox item.
+			 * @param	mixed			$raw				The raw data of the inbox item.
+			 *											Usually coming from the Theater API.
+			 * @param	Subscription		$subscription	The susbcription.
+			 */
+			$result = apply_filters(
+				'jeero/inbox/process/item/'.$action.'/theater='.$theater.'&calendar='.$calendar, 
+				$result, 
+				$item[ 'data' ], 
+				$item[ 'raw' ],
+				$subscription
+			);
+			
+			/**
+			 * Filters the result of a processed inbox item.
+			 * 
+			 * Only runs for specific action/calendar combinations.
+			 * This filter is used by Calendar importers to process events (with priority 10).
+			 *
+			 * @since 1.0
+			 *
+			 * @param 	bool|WP_Error	$result			The result of a processed inbox item. 
+			 *											Filters will not be applied if $result is a WP_Error.
+			 * @param	array			$data			The structured data of the inbox item.
+			 * @param	mixed			$raw				The raw data of the inbox item.
+			 *											Usually coming from the Theater API.
+			 * @param	string			$theater			The theater.
+			 * @param	Subscription		$subscription	The susbcription.
+			 */
 			$result = apply_filters( 
 				'jeero/inbox/process/item/'.$action.'/calendar='.$calendar, 
 				$result,
@@ -97,18 +161,25 @@ function process_item( $item ) {
 				$subscription
 			);
 			
-			$result = apply_filters(
-				'jeero/inbox/process/item/'.$action.'/theater='.$theater.'&calendar='.$calendar, 
-				$result, 
-				$item[ 'data' ], 
-				$item[ 'raw' ],
-				$subscription
-			);
-			
 		}
 		
 	}
 	
+	/**
+	 * Filters the result of a processed inbox item.
+	 * 
+	 * Only runs for specific action/theater combinations.
+	 * This filter runs after events are processed Calendar importers.
+	 *
+	 * @since 1.0
+	 *
+	 * @param 	bool|WP_Error	$result			The result of a processed inbox item. 
+	 *											Filters will not be applied if $result is a WP_Error.
+	 * @param	array			$data			The structured data of the inbox item.
+	 * @param	mixed			$raw				The raw data of the inbox item.
+	 *											Usually coming from the Theater API.
+	 * @param	Subscription		$subscription	The susbcription.
+	 */
 	$result = apply_filters( 
 		'jeero/inbox/process/item/'.$action.'/theater='.$theater, 
 		$result,
@@ -117,6 +188,22 @@ function process_item( $item ) {
 		$subscription
 	);
 
+	/**
+	 * Filters the result of a processed inbox item.
+	 * 
+	 * Only runs for specific actions.
+	 * This filter runs after events are processed Calendar importers.
+	 *
+	 * @since 1.0
+	 *
+	 * @param 	bool|WP_Error	$result			The result of a processed inbox item. 
+	 *											Filters will not be applied if $result is a WP_Error.
+	 * @param	array			$data			The structured data of the inbox item.
+	 * @param	mixed			$raw			The raw data of the inbox item.
+	 *											Usually coming from the Theater API.
+	 * @param	string			$theater			The theater.
+	 * @param	Subscription		$subscription	The susbcription.
+	 */
 	$result = apply_filters(
 		'jeero/inbox/process/item/'.$action, 
 		$result, 
@@ -126,6 +213,22 @@ function process_item( $item ) {
 		$subscription
 	);
 	
+	/**
+	 * Filters the result of a processed inbox item.
+	 * 
+	 * This filter runs after events are processed Calendar importers.
+	 *
+	 * @since 1.0
+	 *
+	 * @param 	bool|WP_Error	$result			The result of a processed inbox item. 
+	 *											Filters will not be applied if $result is a WP_Error.
+	 * @param	array			$data			The structured data of the inbox item.
+	 * @param	mixed			$raw			The raw data of the inbox item.
+	 *											Usually coming from the Theater API.
+	 * @param	string			$action			The action performed on the inbox item.
+	 * @param	string			$theater			The theater.
+	 * @param	Subscription		$subscription	The susbcription.
+	 */
 	$result = apply_filters(
 		'jeero/inbox/process/item', 
 		$result, 
@@ -135,6 +238,8 @@ function process_item( $item ) {
 		$theater,
 		$subscription
 	);
+	
+	return $result;
 	
 }
 
@@ -154,7 +259,12 @@ function process_items( $items ) {
 	$items_processed = array();
 	
 	foreach( $items as $item ) {
-		process_item( $item );
+		$result = process_item( $item );
+		
+		if ( \is_wp_error( $result ) ) {
+			error_log( $result->get_error_message() );
+		}
+		
 		$items_processed[] = $item;
 	}
 	
