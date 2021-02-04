@@ -42,7 +42,7 @@ class Subscriptions_Test extends Jeero_Test {
 		
 		$subscription = Subscriptions\get_subscription( 'a fake ID' );
 
-		$actual = $subscription->get_fields()[ 0 ]->get( 'name' );
+		$actual = $subscription->get_fields()[ 1 ]->get( 'name' );
 		$expected = 'theater';
 		
 		$this->assertEquals( $expected, $actual );
