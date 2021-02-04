@@ -114,8 +114,7 @@ class Theater_For_WordPress extends Calendar {
 			}
 
 			if ( 'always' == $this->get_setting( 'import/update/categories', $subscription, 'once' ) ) {
-				if ( 	empty( $data[ 'production' ][ 'categories' ] ) 
-				) {
+				if ( empty( $data[ 'production' ][ 'categories' ] ) ) {
 					\wp_set_object_terms( $wpt_production->ID, array(), 'category', false  );			
 				} else {
 					\wp_set_object_terms( $wpt_production->ID, $data[ 'production' ][ 'categories' ], 'category', false  );
@@ -150,9 +149,7 @@ class Theater_For_WordPress extends Calendar {
 				$this->update_image( $wpt_production	, $data[ 'production' ][ 'img' ] );
 			}
 			
-			if ( empty( $data[ 'production' ][ 'categories' ] ) ) {
-				\wp_set_object_terms( $wpt_production->ID, array(), 'category', false  );			
-			} else {
+			if ( !empty( $data[ 'production' ][ 'categories' ] ) ) {
 				\wp_set_object_terms( $wpt_production->ID, $data[ 'production' ][ 'categories' ], 'category', false  );
 			}
 			
