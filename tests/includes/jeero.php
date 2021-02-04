@@ -148,7 +148,11 @@ class Jeero_Test extends WP_UnitTestCase {
 				'data' => array(
 					'production' => array(
 						'title' => 'A test event',
-						'description' => 'A description.',						
+						'description' => 'A description.',
+						'categories' => array(
+							'Category A',
+							'Category B',	
+						),			
 					),
 					'start' => time() + 48 * HOUR_IN_SECONDS,
 					'end' => time() + 90 * MINUTE_IN_SECONDS + 48 * HOUR_IN_SECONDS,

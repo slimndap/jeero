@@ -19,3 +19,10 @@ phpunit --configuration tests/configuration/Theater_For_WordPress.xml
 if [ $? -ne 0 ]; then
         exit 0
 fi
+
+phpunit --configuration tests/configuration/Events_Schedule_Wp_Plugin.xml
+if [ $? -ne 0 ]; then
+        exit 0
+fi
+
+
