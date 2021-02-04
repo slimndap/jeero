@@ -56,6 +56,8 @@ class Theater_For_WordPress extends Calendar {
 	 * @since	1.4		Added support for import settings to decide whether to 
 	 * 					overwrite title/description/image during import.
 	 * 					Added support for post status settings during import.
+	 * @since	1.6		Added support for categories.
+	 *					Added support for city.
 	 *
 	 */
 	function process_data( $result, $data, $raw, $theater, $subscription ) {
@@ -110,6 +112,14 @@ class Theater_For_WordPress extends Calendar {
 			) {
 				$this->update_image( $wpt_production	, $data[ 'production' ][ 'img' ] );
 			}
+
+			if ( 'always' == $this->get_setting( 'import/update/categories', $subscription, 'once' ) ) {
+				if ( empty( $data[ 'production' ][ 'categories' ] ) ) {
+					\wp_set_object_terms( $wpt_production->ID, array(), 'category', false  );			
+				} else {
+					\wp_set_object_terms( $wpt_production->ID, $data[ 'production' ][ 'categories' ], 'category', false  );
+				}
+			}
 			
 		} else {
 
@@ -139,11 +149,18 @@ class Theater_For_WordPress extends Calendar {
 				$this->update_image( $wpt_production	, $data[ 'production' ][ 'img' ] );
 			}
 			
+			if ( !empty( $data[ 'production' ][ 'categories' ] ) ) {
+				\wp_set_object_terms( $wpt_production->ID, $data[ 'production' ][ 'categories' ], 'category', false  );
+			}
+			
 		}
+
+
 		
 		$event_args = array(
 			'production' => $wpt_production->ID,
 			'venue' => $data[ 'venue' ][ 'title' ] ?? '',
+			'city' => $data[ 'venue' ][ 'city' ] ?? '',
 			'event_date' => $data[ 'start' ],
 			'ref' => $data[ 'ref' ],
 			'prices' => array(),

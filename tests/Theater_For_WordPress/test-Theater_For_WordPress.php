@@ -363,6 +363,49 @@ class Theater_For_WordPress_Test extends Jeero_Test {
 		
 	}
 
+	/**
+	 * Tests if the categories are imported as class types.
+	 * 
+	 * @since	1.6
+	 */
+	function test_class_types_are_imported() {
+		
+		global $wp_theatre;
+		
+		add_filter( 
+			'jeero/mother/get/response/endpoint=subscriptions/a fake ID', 
+			array( $this, 'get_mock_response_for_get_subscription' ), 
+			10, 3 
+		);
+
+		add_filter( 'jeero/mother/get/response/endpoint=inbox', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
+		
+		$subscription = Jeero\Subscriptions\get_subscription( 'a fake ID' );
+		
+		$settings = array(
+			'theater' => 'veezi',
+			'calendar' => array( 'Theater_For_WordPress' ),
+		);
+		
+		$subscription->set( 'settings', $settings );
+		$subscription->save();
+
+		Inbox\pickup_items();
+
+		$args = array(
+			'status' => array( 'draft' ),
+		);
+
+		$events = $wp_theatre->productions->get( $args );
+		
+		$actual = $events[ 0 ]->categories();
+		$expected = 2;
+		$this->assertCount( $expected, $actual );
+
+		$actual = $events[ 0 ]->categories( array( 'html' => true ));
+		$expected = 'Category A';
+		$this->assertContains( $expected, $actual );		
+	}
 
 
 }
