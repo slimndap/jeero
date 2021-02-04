@@ -45,6 +45,8 @@ class Calendar {
 	 * Gets (optional) import update setting fields.
 	 * 
 	 * @since	1.4
+	 * @since	1.6	Added category field.
+	 *
 	 * @return	array
 	 */
 	function get_import_update_fields() {
@@ -60,6 +62,7 @@ class Calendar {
 			'title' => __( 'event title', 'jeero' ),
 			'description' => __( 'event description', 'jeero' ),
 			'image' => __( 'event image', 'jeero' ),
+			'categories' => __( 'event categories', 'jeero' ),
 		);
 		
 		foreach( $import_fields as $name => $label ) {
