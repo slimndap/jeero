@@ -77,6 +77,11 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 
 == Changelog ==
 
+= 1.6 =
+
+* [Theater for Wordpress](/plugins/theatre/) import now supports categories and cities.
+* [Events Schedule WordPress Plugin](https://demo.curlythemes.com/timetable-wordpress-plugin/) import now supports venues and categories.
+
 = 1.5 =
 
 * Restructured setting pages.
@@ -114,6 +119,9 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 * Welcome Jeero!
 
 == Upgrade Notice ==
+
+= 1.4 =
+* Improvements to the Theater for WordPress and the Events Schedule WordPress Plugin imports.
 
 = 1.4 =
 * Makes it possible to set if title, description and featured image should be overwritten after each import to the Theater for WordPress plugin.

@@ -73,30 +73,6 @@ class Events_Schedule_Wp_Plugin extends Calendar {
 		
 	}
 
-	function get_venue_id( $title ) {
-		$venue_id = wp_cache_get( $title, 'jeero/venue_id' );
-
-		if ( false === $venue_id ) {
-		
-			$venue_post = get_page_by_title( $title, OBJECT, 'tribe_venue' );
-			
-			if ( !( $venue_post ) ) {
-				$venue_id = tribe_create_venue( 
-					array( 
-						'Venue' => $title,
-					)
-				);
-			} else {
-				$venue_id = $venue_post->ID;
-			}
-			
-			wp_cache_set( $title, $venue_id, 'jeero/venue_id' );
-			
-		}
-		
-		return $venue_id;		
-	}
-	
 	/**
 	 * Processes event data from Inbox items.
 	 * 
