@@ -101,7 +101,12 @@ class Events_Schedule_Wp_Plugin extends Calendar {
 	 * Processes event data from Inbox items.
 	 * 
 	 * @since	1.?
-	 * @since	1.4	Added the subscription param.
+	 * @since	1.4		Added the subscription param.
+	 * @since	1.6		Added support for import settings to decide whether to 
+	 * 					overwrite title/description/image during import.
+	 * 					Added support for post status settings during import.
+	 *					Added support for venues.
+	 *					Added support for categories.
 	 *
 	 * @param 	mixed 			$result
 	 * @param 	array			$data		The structured data of the event.
