@@ -128,6 +128,7 @@ class Events_Schedule_Wp_Plugin extends Calendar {
 			}
 						
 			if ( 
+				!empty( $this->get_setting( 'import/class_types', $subscription ) ) &&
 				( in_array( 'class_types', $this->get_setting( 'import/class_types', $subscription ) ) )  &&
 				( 'always' == $this->get_setting( 'import/update/categories', $subscription, 'once' ) )
 			) {
@@ -153,7 +154,10 @@ class Events_Schedule_Wp_Plugin extends Calendar {
 				$this->update_image( $event_id, $data[ 'production' ][ 'img' ] );
 			}
 
-			if ( in_array( 'class_types', $this->get_setting( 'import/class_types', $subscription ) ) ) {
+			if ( 
+				!empty( $this->get_setting( 'import/class_types', $subscription ) ) &&
+				in_array( 'class_types', $this->get_setting( 'import/class_types', $subscription ) ) 
+			) {
 				if ( !empty( $data[ 'production' ][ 'categories' ] ) ) {
 					\wp_set_object_terms( $event_id, $data[ 'production' ][ 'categories' ], 'wcs-type', false  );
 				}				

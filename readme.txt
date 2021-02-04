@@ -120,7 +120,7 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 
 == Upgrade Notice ==
 
-= 1.4 =
+= 1.6 =
 * Improvements to the Theater for WordPress and the Events Schedule WordPress Plugin imports.
 
 = 1.4 =
