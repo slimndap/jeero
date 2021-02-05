@@ -144,30 +144,38 @@ class GDLR_Events extends Calendar {
 		$post_option[ 'page-title' ] = $data[ 'production' ][ 'title' ];
 		$post_option[ 'date' ] = date( 'Y-m-d', $event_start );
 		$post_option[ 'time' ] = date( 'H:i', $event_start );
-		$post_option[ 'buy-now' ] = $data[ 'tickets_url' ];
 		$post_option[ 'location' ] = $data[ 'venue' ][ 'title' ];
 		
 		// Set status
-		if ( ! empty( $data[ 'status' ] ) ) {
+		if ( !empty( $data[ 'tickets_url' ] ) ) {
+			$post_option[ 'buy-now' ] = $data[ 'tickets_url' ];
 			
-			switch ( $data[ 'status' ] ) {
+			if ( ! empty( $data[ 'status' ] ) ) {
 				
-				case 'cancelled':
-					$status = 'cancelled';
-					break;
+				switch ( $data[ 'status' ] ) {
 					
-				case 'soldout':
-					$status = 'sold-out';
-					break;
+					case 'cancelled':
+						$status = 'cancelled';
+						break;
+						
+					case 'soldout':
+						$status = 'sold-out';
+						break;
+						
+					default:
+						$status = 'buy-now';
 					
-				default:
-					$status = 'buy-now';
+				}
+			
+				$post_option[ 'status' ] = $status;
 				
 			}
-		
-			$post_option[ 'status' ] = $status;
 			
+		} else {
+			$post_option[ 'buy-now' ] = '';
+			$post_option[ 'status' ] = 'custom';			
 		}
+		
 		
 		// Set prices
 		if ( ! empty( $data[ 'prices' ] ) ) {
