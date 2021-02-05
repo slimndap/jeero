@@ -90,6 +90,7 @@ class GDLR_Events extends Calendar {
 	 *					a local start time.
 	 * @since	1.4		Added the subscription param.
 	 * @since	1.5		Fixed a PHP warning for prices without a title.
+	 * @since	1.7		Hide tickets button for events that have no tickets.
 	 *
 	 * @param	mixed			$result		The result of any previous processing of this event.
 	 * @param	array			$data		The structured data of the event.
