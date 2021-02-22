@@ -164,7 +164,7 @@ class Theater_For_WordPress extends Calendar {
 			'event_date' => $data[ 'start' ],
 			'ref' => $data[ 'ref' ],
 			'prices' => array(),
-			'tickets_url' => $data[ 'tickets_url' ],
+			'tickets_url' => $data[ 'tickets_url' ] ?? '',
 		);
 		
 		if ( !empty( $data[ 'prices' ] ) ) {			
