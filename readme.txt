@@ -19,7 +19,8 @@ Supported ticketing solutions:
 
 * [AudienceView Professional](https://jeero.ooo/publish-audienceview-events-on-wordpress/)
 * [Billeto](https://jeero.ooo/publish-billeto-events-on-wordpress/)
-* [Brown Paper Tickets](https://jeero.ooo/publish-brown-paper-tickets-events-on-wordpress/)
+* [Brown Paper Tickets](https://jeero.ooo/publish-ents24-events-on-wordpress/)
+* [Ents24](https://jeero.ooo/publish-brown-paper-tickets-events-on-wordpress/)
 * [Ovatic](https://jeero.ooo/publish-ovatic-events-on-wordpress/)
 * [OvationTix](https://jeero.ooo/publish-ovationtix-events-on-wordpress/)
 * [Place2Book](https://jeero.ooo/publish-place2book-events-on-wordpress/)
@@ -34,6 +35,7 @@ Supported ticketing solutions:
 * [Ticketportal](https://jeero.ooo/publish-ticketportal_cz-events-on-wordpress/)
 * [TicketSource](https://jeero.ooo/publish-ticketsource-events-on-wordpress/)
 * [TicketWeb](https://jeero.ooo/publish-ticketweb-events-on-wordpress/)
+* [Tix](https://jeero.ooo/publish-tix-events-on-wordpress/)
 * [Veezi](https://jeero.ooo/publish-veezi-events-on-wordpress/)
 
 Supported calendar/event plugins:
