@@ -240,14 +240,28 @@ function get_edit_html( $subscription_id ) {
  * 
  * @since	1.0
  * @since	1.1	Renamed 'subscriptions' to 'imports'.
+ * @since	1.7	Autmatically create first subscription and show edit form.
+ *				Replaced 'next pickup' message with 'next import' message.
  * @return	string
  */
 function get_list_table_html() {
 	
-	ob_start();
-	
 	$list_table = new List_Table();	
 	$list_table->prepare_items();
+
+	if ( empty( $list_table->subscriptions ) ) {
+		
+		$subscription_id = Subscriptions\add_subscription();
+
+		if ( \is_wp_error( $subscription_id ) ) {
+			Admin\Notices\add_error( $subscription_id );
+		} else {
+			return get_edit_html( $subscription_id );
+		}
+
+	}
+	
+	ob_start();
 	
 	?><div class="wrap">
 		<h1 class="wp-heading-inline"><?php _e( 'Jeero', 'jeero' ); ?></h1>
@@ -258,12 +272,12 @@ function get_list_table_html() {
 			
 		$list_table->display(); 
 
-		$next_pickup = Inbox\get_next_pickup() + get_option( 'gmt_offset' ) * HOUR_IN_SECONDS;
+		$next_import = get_next_import( $list_table->subscriptions );
 	    
 	    ?><p title="<?php
-		    echo date_i18n( 'd-m-Y H:i:s', $next_pickup ); 
+		    echo date_i18n( 'd-m-Y H:i:s', $next_import + get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ); 
 		?>"><?php 
-		    printf( __( 'Next pickup in %s.', 'jeero' ), human_time_diff( $next_pickup, current_time( 'timestamp' ) ) );
+		    printf( __( 'Next import in %s.', 'jeero' ), human_time_diff( $next_import, time( ) ) );
 		?></p>
 
 	</div><?php
@@ -319,6 +333,45 @@ function get_admin_page_url() {
  */
 function get_new_subscription_url() {	
 	return wp_nonce_url( get_admin_page_url(), 'add', 'jeero/nonce' );
+}
+
+/**
+ * Gets the next import timestamp for a list of subscriptions.
+ * 
+ * @since	1.7
+ * @param 	Subscription[]	$subscriptions
+ * @return 	int				The next import timestamp in UTC.
+ */
+function get_next_import( $subscriptions ) {
+
+	$current_time = time();
+
+	$next_import = $current_time + 5 * MINUTE_IN_SECONDS; // Now + 5 minutes in UTC.
+	
+	foreach ( $subscriptions as $subscription ) {
+
+		$next_delivery = $subscription->get( 'next_delivery' ); // Next delivery in UTC.
+
+		if ( $next_delivery > $next_import )  {
+			continue;
+		}
+
+		$next_import = $next_delivery;
+		
+	}
+
+	$next_pickup = Inbox\get_next_pickup();
+
+	if ( $next_pickup < $next_delivery ) {
+		// Next delivery is later than next pickup.
+		// Find first pickup after next delivery.
+		$minutes_next_pickup_after_next_delivery = ceil( ( $next_delivery - $next_pickup ) / MINUTE_IN_SECONDS );
+		return $next_pickup + $minutes_next_pickup_after_next_delivery * MINUTE_IN_SECONDS;
+		
+	}
+	
+	return $next_pickup;
+	
 }
 
 /**

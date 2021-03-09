@@ -15,10 +15,13 @@ class Admin_Test extends Jeero_Test {
 		parent::setUp();
 	}
 
-	function test_empty_subscriptions_shows_onboarding() {
+	function test_empty_subscriptions_shows_edit_form() {
+
+		add_filter( 'jeero/mother/get/response/endpoint=subscriptions', array( $this, 'get_mock_response_empty_array' ), 10, 3 );
+		add_filter( 'jeero/mother/post/response/endpoint=subscriptions', array( $this, 'get_mock_response_for_add_subscription' ), 10, 3 );		
 
 		$actual = Admin\Subscriptions\get_admin_page_html();
-		$expected = 'class="onboarding"';
+		$expected = '<input type="hidden" name="subscription_id" value="a fake ID">';
 		
 		$this->assertContains( $expected, $actual );
 		

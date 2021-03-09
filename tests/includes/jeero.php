@@ -83,6 +83,28 @@ class Jeero_Test extends WP_UnitTestCase {
 	}
 	
 	/**
+	 * Returns a mock response with an empty array.
+	 * 
+	 * @since	1.7
+	 *
+	 * @param 	array	$response
+	 * @param 	string	$endpoint
+	 * @param 	array	$args
+	 * @return	array
+	 */
+	function get_mock_response_empty_array( $response, $endpoint, $args ) {
+		
+		return array(
+			'body' => '[]',
+			'response' => array(
+				'code' => 200,
+				'message' => 'OK',	
+			),
+		);
+			
+	}
+	
+	/**
 	 * Returns a mock response for the subscriptions endpoint of Mother.
 	 * 
 	 * @since	1.?
