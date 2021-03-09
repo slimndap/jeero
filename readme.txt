@@ -41,7 +41,7 @@ Supported ticketing solutions:
 Supported calendar/event plugins:
 
 * [All In One Event Calendar](/plugins/all-in-one-event-calendar/)
-* All [Goodlayers](https://www.goodlayers.com) themes that user their Event Post Type plugin
+* All [Goodlayers](https://www.goodlayers.com) themes that use their Event Post Type plugin
 * [Events Schedule WordPress Plugin](https://demo.curlythemes.com/timetable-wordpress-plugin/)
 * [Modern Events Calendar](/plugins/modern-events-calendar-lite/)
 * [Theater for Wordpress](/plugins/theatre/)
@@ -78,6 +78,9 @@ I am still working on the subscription engine. Once it ready the possibility to 
 Subscription rates will range from €20 - €30 per month, depending on your total number of events. 
 
 == Changelog ==
+
+= 1.7 = 
+* Simplified onboarding.
 
 = 1.6 =
 
