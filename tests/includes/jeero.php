@@ -82,6 +82,39 @@ class Jeero_Test extends WP_UnitTestCase {
 			
 	}
 	
+	/**
+	 * Returns a mock response with an empty array.
+	 * 
+	 * @since	1.7
+	 *
+	 * @param 	array	$response
+	 * @param 	string	$endpoint
+	 * @param 	array	$args
+	 * @return	array
+	 */
+	function get_mock_response_empty_array( $response, $endpoint, $args ) {
+		
+		return array(
+			'body' => '[]',
+			'response' => array(
+				'code' => 200,
+				'message' => 'OK',	
+			),
+		);
+			
+	}
+	
+	/**
+	 * Returns a mock response for the subscriptions endpoint of Mother.
+	 * 
+	 * @since	1.?
+	 * @since	1.4	Added 'theater' to the response.
+	 *
+	 * @param 	array	$response
+	 * @param 	string	$endpoint
+	 * @param 	array	$args
+	 * @return	array
+	 */
 	function get_mock_response_for_get_subscription( $response, $endpoint, $args ) {
 		
 		if ( strpos( $endpoint, 'subscriptions/' !== 0 ) ) {
@@ -109,6 +142,10 @@ class Jeero_Test extends WP_UnitTestCase {
 					'label' => 'Test field',
 				)
 			),
+			'theater' => array(
+				'name' => 'veezi',
+				'title' => 'Veezi',				
+			),
 		);	
 		
 		return array(
@@ -133,7 +170,11 @@ class Jeero_Test extends WP_UnitTestCase {
 				'data' => array(
 					'production' => array(
 						'title' => 'A test event',
-						'description' => 'A description.',						
+						'description' => 'A description.',
+						'categories' => array(
+							'Category A',
+							'Category B',	
+						),			
 					),
 					'start' => time() + 48 * HOUR_IN_SECONDS,
 					'end' => time() + 90 * MINUTE_IN_SECONDS + 48 * HOUR_IN_SECONDS,

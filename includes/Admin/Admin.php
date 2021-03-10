@@ -28,7 +28,13 @@ function add_menu_item() {
     
 }
 
-function enqueue_scripts() {
-	wp_enqueue_style( 'jeero-admin', \Jeero\PLUGIN_URI.'/assets/css/admin.css', array(), \Jeero\VERSION );
+/**
+ * Enqueues Jeero admin scripts.
+ * 
+ * @since	1.5
+ * @return 	void
+ */
+function enqueue_scripts( ) {
+	wp_enqueue_script( 'jeero/admin', \Jeero\PLUGIN_URI . 'assets/js/admin.js', array( 'jquery' ), \Jeero\VERSION );
 }
 

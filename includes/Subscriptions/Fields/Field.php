@@ -47,8 +47,36 @@ class Field {
 		return ob_get_clean();
 	}
 	
-	function get_label() {
-		return $this->label;
+	/**
+	 * Gets the CSS classes for the field.
+	 * 
+	 * @since	1.5
+	 * @return	string[]		The CSS classes for the field.
+	 */
+	function get_css_classes() {
+
+		$class = new \ReflectionClass( $this );
+		
+		$classes = array(
+			'jeero-field',
+			'jeero-field-'.sanitize_title( $class->getShortName() ),
+		);
+		return $classes;
+		
+	}
+	
+	/**
+	 * Get the label HTML for the field.
+	 * 
+	 * @since	1.5
+	 * @return	string	The label HTML for the field.
+	 */
+	function get_label_html() {
+		ob_start();
+
+		?><label><?php echo $this->label; ?></label><?php
+
+		return ob_get_clean();
 	}
 	
 	function get_setting_from_form( ) {

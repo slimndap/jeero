@@ -31,12 +31,13 @@ namespace Jeero\Admin\Subscriptions;
 use Jeero\Admin;
 use Jeero\Subscriptions;
 use Jeero\Inbox;
+use Jeero\Calendars;
 
 add_action( 'admin_init', __NAMESPACE__.'\add_new_subscription' );
 add_action( 'admin_init', __NAMESPACE__.'\process_activate' );
 add_action( 'admin_init', __NAMESPACE__.'\process_deactivate' );
 add_action( 'admin_init', __NAMESPACE__.'\process_form' );
-
+add_action( 'admin_notices', __NAMESPACE__.'\show_no_active_calendars_warning' );
 
 /**
  * Outputs the Subscription Admin pages.
@@ -126,6 +127,7 @@ function process_deactivate() {
  * 
  * @since	1.0
  * @since	1.0.4	Reload subscription to refresh data from Mother, based on new settings.
+ * @since	1.5		No stays on form page after saving settings.
  * @return	void
  */
 function process_form() {
@@ -170,17 +172,12 @@ function process_form() {
 
 	$theater = $subscription->get( 'theater' );
 	
-	if ( \Jeero\Subscriptions\JEERO_SUBSCRIPTIONS_STATUS_SETUP == $subscription->get( 'status' ) ) {
-		
+	if ( \Jeero\Subscriptions\JEERO_SUBSCRIPTIONS_STATUS_SETUP == $subscription->get( 'status' ) ) {		
 		Admin\Notices\add_success( sprintf( __( '%s subscription updated. Please enter any missing settings below.', 'jeero' ), $theater[ 'title' ] ) );
-		\wp_safe_redirect( get_admin_edit_url( $subscription->get( 'ID' ) ) );	
-		
-	} else {
-		
-		Admin\Notices\add_success( sprintf( __( '%s subscription updated.', 'jeero' ), $theater[ 'title' ] ) );			
-		\wp_safe_redirect( get_admin_page_url() );	
-		
+	} else {		
+		Admin\Notices\add_success( sprintf( __( '%s subscription updated.', 'jeero' ), $theater[ 'title' ] ) );					
 	}
+	\wp_safe_redirect( get_admin_edit_url( $subscription->get( 'ID' ) ) );	
 	
 	exit;
 	
@@ -190,6 +187,9 @@ function process_form() {
  * Gets the HTML for the Edit Subscription Admin page.
  *
  * Builds a form based on the fields of the Subscription.
+ * 
+ * @since 	1.?
+ * @since	1.5	Restructured HTML to add support for tabs.
  * 
  * @param	int				$subscription_id		The ID of the Subscription.
  * @return 	string|WP_Error						The HTML for the Edit Subscription Admin page.
@@ -209,23 +209,21 @@ function get_edit_html( $subscription_id ) {
 	
 	?><div class="wrap">
 		<h1><?php _e( 'Edit Import', 'jeero' ); ?></h1>
-		<form><?php
+		<form class="jeero-form"><?php
 			wp_nonce_field( 'save', 'jeero/nonce', true, true );
 			?><input type="hidden" name="subscription_id" value="<?php echo $subscription_id; ?>">
 			<table class="form-table">
 				<tbody><?php
 					foreach( $subscription->get_fields() as $field ) {
-						?><tr>
-							<th scope="row">
-								<label for="blogname"><?php echo $field->get_label(); ?></label>
-							</th>
+						?><tr class="<?php echo implode( ' ', $field->get_css_classes() ); ?>">
+							<th scope="row"><?php echo $field->get_label_html(); ?></th>
 							<td><?php echo $field->get_control_html(); ?></td>
 						</tr><?php
 					}
 
 				?></tbody>
 			</table>
-			<p class="submit">
+			<p class="jeero-submit">
 				<input type="submit" name="submit" id="submit" class="button button-primary" value="Save Changes">
 				<a href="<?php echo get_admin_page_url(); ?>" class="button"><?php _e( 'Cancel', 'Jeero' ); ?></a>
 			</p>
@@ -242,14 +240,28 @@ function get_edit_html( $subscription_id ) {
  * 
  * @since	1.0
  * @since	1.1	Renamed 'subscriptions' to 'imports'.
+ * @since	1.7	Autmatically create first subscription and show edit form.
+ *				Replaced 'next pickup' message with 'next import' message.
  * @return	string
  */
 function get_list_table_html() {
 	
-	ob_start();
-	
 	$list_table = new List_Table();	
 	$list_table->prepare_items();
+
+	if ( empty( $list_table->subscriptions ) ) {
+		
+		$subscription_id = Subscriptions\add_subscription();
+
+		if ( \is_wp_error( $subscription_id ) ) {
+			Admin\Notices\add_error( $subscription_id );
+		} else {
+			return get_edit_html( $subscription_id );
+		}
+
+	}
+	
+	ob_start();
 	
 	?><div class="wrap">
 		<h1 class="wp-heading-inline"><?php _e( 'Jeero', 'jeero' ); ?></h1>
@@ -260,12 +272,12 @@ function get_list_table_html() {
 			
 		$list_table->display(); 
 
-		$next_pickup = Inbox\get_next_pickup() + get_option( 'gmt_offset' ) * HOUR_IN_SECONDS;
+		$next_import = get_next_import( $list_table->subscriptions );
 	    
 	    ?><p title="<?php
-		    echo date_i18n( 'd-m-Y H:i:s', $next_pickup ); 
+		    echo date_i18n( 'd-m-Y H:i:s', $next_import + get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ); 
 		?>"><?php 
-		    printf( __( 'Next pickup in %s.', 'jeero' ), human_time_diff( $next_pickup, current_time( 'timestamp' ) ) );
+		    printf( __( 'Next import in %s.', 'jeero' ), human_time_diff( $next_import, time( ) ) );
 		?></p>
 
 	</div><?php
@@ -324,6 +336,45 @@ function get_new_subscription_url() {
 }
 
 /**
+ * Gets the next import timestamp for a list of subscriptions.
+ * 
+ * @since	1.7
+ * @param 	Subscription[]	$subscriptions
+ * @return 	int				The next import timestamp in UTC.
+ */
+function get_next_import( $subscriptions ) {
+
+	$current_time = time();
+
+	$next_import = $current_time + 5 * MINUTE_IN_SECONDS; // Now + 5 minutes in UTC.
+	
+	foreach ( $subscriptions as $subscription ) {
+
+		$next_delivery = $subscription->get( 'next_delivery' ); // Next delivery in UTC.
+
+		if ( $next_delivery > $next_import )  {
+			continue;
+		}
+
+		$next_import = $next_delivery;
+		
+	}
+
+	$next_pickup = Inbox\get_next_pickup();
+
+	if ( $next_pickup < $next_delivery ) {
+		// Next delivery is later than next pickup.
+		// Find first pickup after next delivery.
+		$minutes_next_pickup_after_next_delivery = ceil( ( $next_delivery - $next_pickup ) / MINUTE_IN_SECONDS );
+		return $next_pickup + $minutes_next_pickup_after_next_delivery * MINUTE_IN_SECONDS;
+		
+	}
+	
+	return $next_pickup;
+	
+}
+
+/**
  * Handles clicks on the _Add Subscription_ button.
  * 
  * Asks Mother to add a new Subscription.
@@ -352,5 +403,30 @@ function add_new_subscription() {
 
 	wp_safe_redirect( get_admin_edit_url( $subscription_id ) );
 	exit;
+	
+}
+
+/**
+ * Shows an admin notice on Jeero admin scerens if no supported calendar plugins are active.
+ * 
+ * @since	1.5
+ */
+function show_no_active_calendars_warning() {
+
+	$screen = get_current_screen();
+	
+	if ( $screen->id != 'toplevel_page_jeero/imports' ) {
+		return;
+	}
+	
+	$active_calendars = Calendars\get_active_calendars();
+	
+	if ( empty( $active_calendars ) ) {
+		?><div class="notice notice-error">
+			<p><?php
+				_e( 'Please activate at least one supported calendar plugin to start importing events.', 'jeero' );
+			?></p>
+		</div><?php
+	}
 	
 }

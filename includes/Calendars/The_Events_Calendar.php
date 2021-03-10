@@ -67,9 +67,22 @@ class The_Events_Calendar extends Calendar {
 		return $venue_id;		
 	}
 	
-	function process_data( $result, $data, $raw, $theater ) {
+	/**
+	 * Processes event data from Inbox items.
+	 * 
+	 * @since	1.0
+	 * @since	1.4	Added the subscription param.
+	 *
+	 * @param 	mixed 			$result
+	 * @param 	array			$data		The structured data of the event.
+	 * @param 	array			$raw		The raw data of the event.
+	 * @param	string			$theater		The theater.
+	 * @param	Subscription		$theater		The subscription.
+	 * @return	int|WP_Error
+	 */	 
+	function process_data( $result, $data, $raw, $theater, $subscription ) {
 		
-		$result = parent::process_data( $result, $data, $raw, $theater );
+		$result = parent::process_data( $result, $data, $raw, $theater, $subscription );
 		
 		if ( \is_wp_error( $result ) ) {			
 			return $result;
@@ -100,6 +113,10 @@ class The_Events_Calendar extends Calendar {
 			$args[ 'EventCost' ]	 = min( $amounts );
 		}
 		
+		if ( !empty( $data[ 'tickets_url' ] ) ) {
+			$args[ 'EventURL' ] = $data[ 'tickets_url' ];			
+		}
+			
 		if ( $event_id = $this->get_event_by_ref( $ref, $theater ) ) {
 			
 			$event_id = \tribe_update_event( $event_id, $args );
@@ -111,7 +128,6 @@ class The_Events_Calendar extends Calendar {
 			error_log( sprintf( '[%s] Creating event %d.', $this->name, $ref ) );
 
 			$args[ 'post_title' ]= $data[ 'production' ][ 'title' ];
-			$args[ 'EventURL' ] = $data[ 'tickets_url' ];
 			
 			$event_id = \tribe_create_event( $args );
 			
@@ -119,10 +135,12 @@ class The_Events_Calendar extends Calendar {
 
 		}
 
-		$thumbnail_id = Images\update_featured_image_from_url( 
-			$event_id,
-			$data[ 'production' ][ 'img' ]
-		);
+		if ( !empty( $data[ 'production' ][ 'img' ] ) ) {
+			$thumbnail_id = Images\update_featured_image_from_url( 
+				$event_id,
+				$data[ 'production' ][ 'img' ]
+			);
+		}
 		
 		return $event_id;
 		

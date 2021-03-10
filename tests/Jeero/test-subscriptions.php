@@ -41,8 +41,7 @@ class Subscriptions_Test extends Jeero_Test {
 		add_filter( 'jeero/mother/get/response/endpoint=subscriptions', array( $this, 'get_mock_response_for_get_subscriptions' ), 10, 3 );
 		
 		$subscription = Subscriptions\get_subscription( 'a fake ID' );
-
-		$actual = $subscription->get_fields()[ 0 ]->get( 'name' );
+		$actual = $subscription->get_fields()[ 1 ]->get( 'name' );
 		$expected = 'theater';
 		
 		$this->assertEquals( $expected, $actual );
