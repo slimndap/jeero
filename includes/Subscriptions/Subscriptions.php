@@ -8,6 +8,7 @@ namespace Jeero\Subscriptions;
 use Jeero\Db;
 use Jeero\Mother;
 use Jeero\Calendars;
+use Jeero\Plans;
 
 const JEERO_SUBSCRIPTIONS_STATUS_SETUP = 'setup';
 const JEERO_SUBSCRIPTIONS_STATUS_READY = 'ready';
@@ -108,6 +109,8 @@ function get_subscription( $subscription_id ) {
 	foreach( Calendars\get_active_calendars() as $calendar ) {
 		$fields = array_merge( $fields, $calendar->get_fields() );			
 	}
+	
+	$fields = array_merge( $fields, Plans\get_fields() );
 
 	// Add the subscription info to the Subscription.
 	$subscription->set( 'status', $answer[ 'status' ] );
