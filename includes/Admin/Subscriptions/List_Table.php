@@ -204,20 +204,24 @@ class List_Table extends \WP_List_Table {
 	 * Loads all Subscriptions for the List Table.
 	 * 
 	 * @since	1.0
+	 * @since	1.7.1	Improved error handling when retrieving subscriptions.
 	 * @return 	void
 	 */
 	function prepare_items() {
+		
 		$columns = $this->get_columns();
 		$hidden = array();
 		$sortable = array();
 		$this->_column_headers = array($columns, $hidden, $sortable);
 		
-		$this->subscriptions = Subscriptions\get_subscriptions();
-
-		if ( is_wp_error( $this->subscriptions ) ) {
-			Admin\Notices\add_error( $this->subscriptions );
-			$this->items = array();		
+		$subscriptions = Subscriptions\get_subscriptions();
+		if ( is_wp_error( $subscriptions ) ) {
+			Admin\Notices\add_error( $subscriptions );
+			$this->items = array();
+			$this->subscriptions = array();
 			return false;
+		} else {
+			$this->subscriptions = $subscriptions;
 		}
 		
 		$filtered_subscriptions = array();

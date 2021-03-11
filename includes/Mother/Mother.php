@@ -85,6 +85,8 @@ function deactivate_subscription( $subscription_id ) {
  * Gets the contents of the inbox.
  * 
  * @since	1.0
+ * @since	1.7.1	Added a custom error message.
+ *
  * @param 	array			$settings	The setting values of all subscriptions.
  * @return	array|WP_Error
  */
@@ -94,7 +96,13 @@ function get_inbox( $settings ) {
 		'settings' => json_encode( $settings ),
 	);
 	
-	return get( 'inbox', $args );	
+	$answer = get( 'inbox', $args );	
+
+	if ( \is_wp_error( $answer ) ) {
+		return new \WP_Error( 'mother', sprintf( __( 'Failed to import new events: %s.', 'jeero' ), $answer->get_error_message() ) );		
+	}
+	
+	return $answer;
 	
 }
 
@@ -136,6 +144,8 @@ function get_subscription( $subscription_id, $settings ) {
  * Gets all subscriptions.
  * 
  * @since	1.0
+ * @since	1.7.1	Added a custom error message.
+ *
  * @param 	array			$settings	The setting values of all subscriptions.
  * @return	array|WP_Error
  */
@@ -145,9 +155,13 @@ function get_subscriptions( $settings ) {
 		'settings' => urlencode( json_encode( $settings, JSON_FORCE_OBJECT ) ),
 	);
 
-	$subscriptions = get( 'subscriptions', $args );
+	$answer = get( 'subscriptions', $args );
 	
-	return $subscriptions;
+	if ( \is_wp_error( $answer ) ) {
+		return new \WP_Error( 'mother', sprintf( __( 'Failed to retrieve imports: %s.', 'jeero' ), $answer->get_error_message() ) );		
+	}
+	
+	return $answer;
 
 }
 
@@ -155,6 +169,8 @@ function get_subscriptions( $settings ) {
  * Creates a new subscription.
  * 
  * @since	1.0
+ * @since	1.7.1	Renamed 'subscription' to 'import'.
+ *
  * @return	array|WP_Error
  */
 function subscribe_me( ) {
@@ -162,11 +178,11 @@ function subscribe_me( ) {
 	$answer = post( 'subscriptions' );
 
 	if ( \is_wp_error( $answer ) ) {
-		return new \WP_Error( 'mother', sprintf( __( 'Failed to add a new subscription: %s.', 'jeero' ), $answer->get_error_message() ) );
+		return new \WP_Error( 'mother', sprintf( __( 'Failed to add a new import: %s.', 'jeero' ), $answer->get_error_message() ) );
 	}
 	
 	if ( empty( $answer[ 'id' ] ) ) {
-		return new \WP_Error( 'mother', __( 'Failed to add a new subscription: incorrect response.', 'jeero' ) );		
+		return new \WP_Error( 'mother', __( 'Failed to add a new import: incorrect response.', 'jeero' ) );		
 	}
 	
 	return $answer;

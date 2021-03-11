@@ -129,6 +129,9 @@ function get_subscription( $subscription_id ) {
  * Gets all of Jeero's Subscriptions.
  * 
  * Gets the Subscriptions settings from the database and the info from Mother.
+ *
+ * @since 	1.?
+ * @since	1.7.1	Added error handling.
  * 
  * @return	Subscription[]	An array containing all of Jeero's Subscriptions.
  */
@@ -138,6 +141,10 @@ function get_subscriptions() {
 
 	// Ask Mother for a list of up-to-date subscriptions.
 	$answers = Mother\get_subscriptions( $settings );
+	
+	if ( \is_wp_error( $answers ) ) {
+		return $answers;		
+	}
 
 	// Update the Subscriptions in the DB.
 	$subscriptions = array();

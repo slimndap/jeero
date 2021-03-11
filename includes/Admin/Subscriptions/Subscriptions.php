@@ -239,9 +239,10 @@ function get_edit_html( $subscription_id ) {
  * Gets the HTML for the List Table on the Subscriptions Admin page.
  * 
  * @since	1.0
- * @since	1.1	Renamed 'subscriptions' to 'imports'.
- * @since	1.7	Autmatically create first subscription and show edit form.
- *				Replaced 'next pickup' message with 'next import' message.
+ * @since	1.1		Renamed 'subscriptions' to 'imports'.
+ * @since	1.7		Autmatically create first subscription and show edit form.
+ *					Replaced 'next pickup' message with 'next import' message.
+ * @since	1.7.1	Don't show next delivery if there are no subscriptions.
  * @return	string
  */
 function get_list_table_html() {
@@ -271,16 +272,20 @@ function get_list_table_html() {
 		$list_table->views();
 			
 		$list_table->display(); 
+		
+		if ( !empty( $list_table->subscriptions ) ) {
+			
+			$next_import = get_next_import( $list_table->subscriptions );
+		    
+		    ?><p title="<?php
+			    echo date_i18n( 'd-m-Y H:i:s', $next_import + get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ); 
+			?>"><?php 
+			    printf( __( 'Next import in %s.', 'jeero' ), human_time_diff( $next_import, time( ) ) );
+			?></p><?php
+		
+		}
 
-		$next_import = get_next_import( $list_table->subscriptions );
-	    
-	    ?><p title="<?php
-		    echo date_i18n( 'd-m-Y H:i:s', $next_import + get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ); 
-		?>"><?php 
-		    printf( __( 'Next import in %s.', 'jeero' ), human_time_diff( $next_import, time( ) ) );
-		?></p>
-
-	</div><?php
+	?></div><?php
 		
 	return ob_get_clean();
 
