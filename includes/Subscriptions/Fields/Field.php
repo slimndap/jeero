@@ -11,17 +11,17 @@ class Field {
 	
 	protected $required;
 	
-	protected $subscription_id;
+	protected $subscription;
 	
 	protected $value;
 	
-	function __construct( $config, $subscription_id, $value = null ) {
+	function __construct( $config, $subscription, $value = null ) {
 		
 		foreach( $config as $config_key => $config_value ) {
 			$this->{ $config_key } = $config_value;
 		}
 		
-		$this->subscription_id = $subscription_id;
+		$this->subscription = $subscription;
 		
 		if ( !is_null( $value ) ) {
 			$this->value = $value;
@@ -35,6 +35,7 @@ class Field {
 	
 	function get_control_html() {
 		ob_start();
+
 		?><input type="text" name="<?php echo $this->name; ?>" value="<?php echo $this->value; ?>" class="regular-text"<?php
 			if ( $this->required ) {
 				?> required<?php

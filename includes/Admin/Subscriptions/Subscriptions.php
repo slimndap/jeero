@@ -37,6 +37,7 @@ add_action( 'admin_init', __NAMESPACE__.'\add_new_subscription' );
 add_action( 'admin_init', __NAMESPACE__.'\process_activate' );
 add_action( 'admin_init', __NAMESPACE__.'\process_deactivate' );
 add_action( 'admin_init', __NAMESPACE__.'\process_form' );
+add_action( 'admin_init', __NAMESPACE__.'\process_plan' );
 add_action( 'admin_notices', __NAMESPACE__.'\show_no_active_calendars_warning' );
 
 /**
@@ -181,6 +182,22 @@ function process_form() {
 	
 	exit;
 	
+}
+
+function process_plan() {
+	if ( !isset( $_GET[ 'jeero/nonce' ] ) ) {
+		return;
+	}
+	
+	if ( !wp_verify_nonce( $_GET[ 'jeero/nonce' ], 'plan' ) ) {
+		return;
+	}
+	
+	// Add subscription plan.
+	
+	// Redirect
+	
+		
 }
 
 /**

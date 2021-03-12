@@ -122,13 +122,23 @@ function remove_inbox_items( $item_ids ) {
  * @param	array	$settings			The settings for the subscription.
  * @return	array|WP_Error
  */
-function get_subscription( $subscription_id, $settings ) {
+function get_subscription( $subscription_id ) {
+
+	$subscription = new Subscription( $subscription_id );
 
 	$args = array(
-		'settings' => json_encode( $settings, JSON_FORCE_OBJECT ),
+		'settings' => json_encode( $subscription->get( 'settings' ), JSON_FORCE_OBJECT ),
 	);
 
-	return get( 'subscriptions/'.$subscription_id, $args );	
+	$answer = get( 'subscriptions/'.$subscription_id, $args );
+	
+	if ( \is_wp_error( $answer ) ) {
+		return $answer;
+	}
+	
+	$subscription->load_from_mother( $answer );
+	
+	return $subscription;
 
 }
 
@@ -136,16 +146,31 @@ function get_subscription( $subscription_id, $settings ) {
  * Gets all subscriptions.
  * 
  * @since	1.0
- * @param 	array			$settings	The setting values of all subscriptions.
+ * @param 	array			$setting_values	The setting values of all subscriptions.
  * @return	array|WP_Error
  */
-function get_subscriptions( $settings ) {
+function get_subscriptions( $setting_values ) {
 
 	$args = array(
-		'settings' => urlencode( json_encode( $settings, JSON_FORCE_OBJECT ) ),
+		'settings' => urlencode( json_encode( $setting_values, JSON_FORCE_OBJECT ) ),
 	);
 
-	$subscriptions = get( 'subscriptions', $args );
+	$answers = get( 'subscriptions', $args );
+	
+	if ( \is_wp_error( $answers ) ) {
+		return $answers;
+	}
+	
+	$subscriptions = array();
+	
+	foreach( $answers as $answer ) {
+
+		$subscription = new Subscription( $answer[ 'id' ] );
+		$subscription->load_from_mother( $answer );
+		
+		$subscriptions[] = $subscription;
+		
+	}
 	
 	return $subscriptions;
 

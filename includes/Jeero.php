@@ -42,6 +42,7 @@ include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Checkbox.php';
 include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Url.php';
 include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Message.php';
 include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Error.php';
+include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Plan.php';
 include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Tab.php';
 
 include_once PLUGIN_PATH.'includes/Inbox/Inbox.php';
@@ -50,5 +51,5 @@ include_once PLUGIN_PATH.'includes/Mother/Mother.php';
 
 include_once PLUGIN_PATH.'includes/Helpers/Images.php';
 
-include_once PLUGIN_PATH.'includes/Plans/Plans.php';
+include_once PLUGIN_PATH.'includes/Account/Account.php';
 

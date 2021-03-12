@@ -4,6 +4,8 @@ namespace Jeero\Subscriptions;
 use Jeero\Db;
 use Jeero\Admin;
 use Jeero\Mother;
+use Jeero\Calendars;
+use Jeero\Account;
 
 /**
  * Subscription class.
@@ -119,9 +121,9 @@ class Subscription {
 			$setting = null;
 
 			if ( $setting = $this->get_setting( $config[ 'name' ] ) ) {
-				$fields[] = Fields\get_field_from_config( $config, $this->ID, $setting );
+				$fields[] = Fields\get_field_from_config( $config, $this, $setting );
 			} else {
-				$fields[] = Fields\get_field_from_config( $config, $this->ID );				
+				$fields[] = Fields\get_field_from_config( $config, $this );				
 			}
 		}
 		
@@ -185,14 +187,73 @@ class Subscription {
 			return;
 		}
 		
+		$current_user = wp_get_current_user();		
+		
 		$defaults = array(
 			'theater' => false,
+			'account_firstname' => $current_user->user_firstname,
+			'account_lastname' => $current_user->user_lastname,
+			'account_email' => $current_user->user_email,
 		);
+		
+		if ( empty( $defaults[ 'account_firstname' ] ) ) {
+			$defaults[ 'account_firstname' ] = $current_user->nickname;
+		}
+		
+		
+		
 		
 		$settings = wp_parse_args( $data[ 'settings' ], $defaults );
 		
 		$this->settings = $settings;
 
+	}
+	
+	function load_from_mother( $subscription_info ) {
+				
+		$defaults = array(
+			'status' => false,
+			'logo' => false,
+			'fields' => array(),
+			'inactive' => false,
+			'interval' => null,
+			'next_delivery' => null,
+			'theater' => array(),
+			'limit' => null,
+		);
+		
+		$subscription_info = wp_parse_args( $subscription_info, $defaults );
+		
+		$fields = array(
+			array(
+				'type' => 'Tab',
+				'name' => 'generic',
+				'label' => __( 'General', 'jeero' ),
+			),
+		);
+			
+		// Add fields from Mother.
+		if ( !empty( $subscription_info[ 'fields' ] ) ) {
+			$fields = array_merge( $fields, $subscription_info[ 'fields' ] );
+		}
+		
+		// Add fields from calendars.
+		foreach( Calendars\get_active_calendars() as $calendar ) {
+			$fields = array_merge( $fields, $calendar->get_fields() );			
+		}
+		
+		$fields = array_merge( $fields, Account\get_fields() );
+
+		// Add the subscription info to the Subscription.
+		$this->set( 'status', $subscription_info[ 'status' ] );
+		$this->set( 'logo', $subscription_info[ 'logo' ] );
+		$this->set( 'fields', $fields );
+		$this->set( 'inactive', $subscription_info[ 'inactive' ] );
+		$this->set( 'interval', $subscription_info[ 'interval' ] );
+		$this->set( 'next_delivery', $subscription_info[ 'next_delivery' ] );
+		$this->set( 'limit', $subscription_info[ 'limit' ] );
+		$this->set( 'theater', $subscription_info[ 'theater' ] );
+				
 	}
 
 	/**

@@ -8,7 +8,7 @@ namespace Jeero\Subscriptions;
 use Jeero\Db;
 use Jeero\Mother;
 use Jeero\Calendars;
-use Jeero\Plans;
+use Jeero\Account;
 
 const JEERO_SUBSCRIPTIONS_STATUS_SETUP = 'setup';
 const JEERO_SUBSCRIPTIONS_STATUS_READY = 'ready';
@@ -69,60 +69,8 @@ function get_setting_values() {
  */
 function get_subscription( $subscription_id ) {
 
-	// Get the settings from the DB.
-	$subscription = new \Jeero\Subscriptions\Subscription( $subscription_id );
+	return Mother\get_subscription( $subscription_id );
 
-	// Ask Mother for subscription info, based on the current settings.
-	$answer = Mother\get_subscription( $subscription_id, $subscription->get( 'settings' ) );
-
-	if ( is_wp_error( $answer ) ) {
-		return $answer;
-	}
-	
-	$defaults = array(
-		'status' => false,
-		'logo' => false,
-		'fields' => array(),
-		'inactive' => false,
-		'interval' => null,
-		'next_delivery' => null,
-		'theater' => array(),
-		'limit' => null,
-	);
-	
-	$answer = wp_parse_args( $answer, $defaults );
-	
-	$fields = array(
-		array(
-			'type' => 'Tab',
-			'name' => 'generic',
-			'label' => __( 'General', 'jeero' ),
-		),
-	);
-		
-	// Add fields from Mother.
-	if ( !empty( $answer[ 'fields' ] ) ) {
-		$fields = array_merge( $fields, $answer[ 'fields' ] );
-	}
-	
-	// Add fields from calendars.
-	foreach( Calendars\get_active_calendars() as $calendar ) {
-		$fields = array_merge( $fields, $calendar->get_fields() );			
-	}
-	
-	$fields = array_merge( $fields, Plans\get_fields() );
-
-	// Add the subscription info to the Subscription.
-	$subscription->set( 'status', $answer[ 'status' ] );
-	$subscription->set( 'logo', $answer[ 'logo' ] );
-	$subscription->set( 'fields', $fields );
-	$subscription->set( 'inactive', $answer[ 'inactive' ] );
-	$subscription->set( 'interval', $answer[ 'interval' ] );
-	$subscription->set( 'next_delivery', $answer[ 'next_delivery' ] );
-	$subscription->set( 'limit', $answer[ 'limit' ] );
-	$subscription->set( 'theater', $answer[ 'theater' ] );
-
-	return $subscription;
 }
 
 /**
@@ -134,44 +82,8 @@ function get_subscription( $subscription_id ) {
  */
 function get_subscriptions() {
 
-	$settings = get_setting_values();
+	$setting_values = get_setting_values();
 
-	// Ask Mother for a list of up-to-date subscriptions.
-	$answers = Mother\get_subscriptions( $settings );
-
-	// Update the Subscriptions in the DB.
-	$subscriptions = array();
-	foreach( $answers as $answer ) {
-		
-		$defaults = array(
-			'status' => false,
-			'logo' => false,
-			'fields' => array(),
-			'inactive' => null,
-			'interval' => null,
-			'next_delivery' => null,
-			'limit' => null,
-		);
-		
-		$answer = wp_parse_args( $answer, $defaults );
-
-		$subscription = new Subscription( $answer[ 'id' ] );
-		$subscription->set( 'status', $answer[ 'status' ] );
-		$subscription->set( 'logo', $answer[ 'logo' ] );
-		$subscription->set( 'fields', $answer[ 'fields' ] );
-				
-		$subscription->set( 'inactive', $answer[ 'inactive' ] );
-		$subscription->set( 'interval', $answer[ 'interval' ] );
-		$subscription->set( 'next_delivery', $answer[ 'next_delivery' ] );
-		$subscription->set( 'limit', $answer[ 'limit' ] );
-		
-		if ( isset( $answer[ 'theater' ] ) ) {
-			$subscription->set( 'theater', $answer[ 'theater' ] );
-		}
-
-		$subscriptions[ $subscription->get( 'ID' ) ] = $subscription;
-	}
-	
-	return $subscriptions;	
+	return Mother\get_subscriptions( $setting_values );
 		
 }
