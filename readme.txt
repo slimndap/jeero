@@ -79,6 +79,10 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 
 == Changelog ==
 
+= 1.8 =
+
+* Made it possible to set if title, description, categories and featured image should be overwritten after each import to the The Events Calendar plugin.
+
 = 1.7 = 
 * Simplified onboarding.
 
