@@ -43,6 +43,23 @@ class The_Events_Calendar extends Calendar {
 		
 	}
 	
+	/**
+	 * Gets all fields for this calendar.
+	 * 
+	 * @since	1.8
+	 * @return	array
+	 */
+	function get_fields() {
+		
+		$fields = parent::get_fields();
+		
+		$fields = array_merge( $fields, $this->get_import_status_fields() );
+		$fields = array_merge( $fields, $this->get_import_update_fields() );
+		
+		return $fields;
+		
+	}
+
 	function get_venue_id( $title ) {
 		$venue_id = wp_cache_get( $title, 'jeero/venue_id' );
 
@@ -71,7 +88,12 @@ class The_Events_Calendar extends Calendar {
 	 * Processes event data from Inbox items.
 	 * 
 	 * @since	1.0
-	 * @since	1.4	Added the subscription param.
+	 * @since	1.4		Added the subscription param.
+	 * @since	1.8		Added support for import settings to decide whether to 
+	 * 					overwrite title/description/image/categorie during import.
+	 * 					Added support for post status settings during import.
+	 *					Added support for categories.
+	 *					Added support for descriptions.
 	 *
 	 * @param 	mixed 			$result
 	 * @param 	array			$data		The structured data of the event.
@@ -91,17 +113,28 @@ class The_Events_Calendar extends Calendar {
 		$ref = $data[ 'ref' ];
 		
 		$event_start = $this->localize_timestamp( strtotime( $data[ 'start' ] ) );
-		$event_end = $this->localize_timestamp( strtotime( $data[ 'end' ] ) );
 
 		$args = array(
 			'EventStartDate' => date( 'Y-m-d', $event_start ),
 			'EventStartHour' => date( 'H', $event_start ),
 			'EventStartMinute' => date( 'i', $event_start ),
-			'EventEndDate' => date( 'Y-m-d', $event_end ),
-			'EventEndHour' => date( 'H', $event_end ),
-			'EventEndMinute' => date( 'i', $event_end ),
 		);
 		
+		if ( !empty( $data[ 'end' ] ) ) {
+			$event_end = $this->localize_timestamp( strtotime( $data[ 'end' ] ) );
+		} else {
+			$event_end = $event_start;
+		}
+
+		$args = array_merge( 
+			$args, 
+			array(
+				'EventEndDate' => date( 'Y-m-d', $event_end ),
+				'EventEndHour' => date( 'H', $event_end ),
+				'EventEndMinute' => date( 'i', $event_end ),
+			) 
+		);
+
 		if ( !empty( $data[ 'venue' ] ) ) {
 			$args[ 'venue' ] = array(
 				'VenueID' => $this->get_venue_id( $data[ 'venue' ][ 'title' ] ),
@@ -119,7 +152,33 @@ class The_Events_Calendar extends Calendar {
 			
 		if ( $event_id = $this->get_event_by_ref( $ref, $theater ) ) {
 			
+			if ( 'always' == $this->get_setting( 'import/update/title', $subscription, 'once' ) ) {
+				$args[ 'post_title' ] = $data[ 'production' ][ 'title' ];
+			}
+			
+			if ( 'always' == $this->get_setting( 'import/update/description', $subscription, 'once' ) ) {
+				$args[ 'post_content' ] = $data[ 'production' ][ 'description' ];
+			}
+						
 			$event_id = \tribe_update_event( $event_id, $args );
+
+			if ( 
+				'always' == $this->get_setting( 'import/update/image', $subscription, 'once' ) && 
+				!empty( $data[ 'production' ][ 'img' ] )
+			) {
+				$thumbnail_id = Images\update_featured_image_from_url( 
+					$event_id,
+					$data[ 'production' ][ 'img' ]
+				);
+			}
+
+			if ( 'always' == $this->get_setting( 'import/update/categories', $subscription, 'once' ) ) {
+				if ( empty( $data[ 'production' ][ 'categories' ] ) ) {
+					\wp_set_object_terms( $event_id, array(), 'tribe_events_cat', false  );			
+				} else {
+					\wp_set_object_terms( $event_id, $data[ 'production' ][ 'categories' ], 'tribe_events_cat', false  );
+				}
+			}
 
 			error_log( sprintf( '[%s] Updating event %d / %d.', $this->name, $ref, $event_id ) );
 			
@@ -128,18 +187,24 @@ class The_Events_Calendar extends Calendar {
 			error_log( sprintf( '[%s] Creating event %d.', $this->name, $ref ) );
 
 			$args[ 'post_title' ]= $data[ 'production' ][ 'title' ];
+			$args[ 'post_content' ]= $data[ 'production' ][ 'description' ];
+			$args[ 'post_status' ] = $this->get_setting( 'import/status', $subscription, 'draft' );
 			
 			$event_id = \tribe_create_event( $args );
 			
 			\add_post_meta( $event_id, $this->get_ref_key( $theater ), $data[ 'ref' ] );
 
-		}
+			if ( !empty( $data[ 'production' ][ 'img' ] ) ) {
+				$thumbnail_id = Images\update_featured_image_from_url( 
+					$event_id,
+					$data[ 'production' ][ 'img' ]
+				);
+			}
 
-		if ( !empty( $data[ 'production' ][ 'img' ] ) ) {
-			$thumbnail_id = Images\update_featured_image_from_url( 
-				$event_id,
-				$data[ 'production' ][ 'img' ]
-			);
+			if ( !empty( $data[ 'production' ][ 'categories' ] ) ) {
+				\wp_set_object_terms( $event_id, $data[ 'production' ][ 'categories' ], 'tribe_events_cat', false  );
+			}
+			
 		}
 		
 		return $event_id;
