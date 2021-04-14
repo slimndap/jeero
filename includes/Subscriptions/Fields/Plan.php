@@ -41,11 +41,11 @@ class Plan extends Field {
 					<td><?php printf( __( 'up to %d events', 'jeero' ), $plan[ 'limit' ] ); ?></td>
 					<td>
 						<a href="<?php
-							echo add_query_arg( 'billing_cycle', 'monthly', $url ); 
+							echo Account\get_add_plan_url( $this->subscription->ID, $plan[ 'limit' ], 'monthly' );
 						?>" class="button">&euro; <?php echo $plan[ 'monthly' ]; ?>/<?php _e( 'month', 'jeero' );?></a></td>
 					<td>
 						<a href="<?php
-							echo add_query_arg( 'billing_cycle', 'annually', $url ); 
+							echo Account\get_add_plan_url( $this->subscription->ID, $plan[ 'limit' ], 'annually' );
 						?>" class="button">&euro; <?php echo $plan[ 'annually' ]; ?>/<?php _e( 'year', 'jeero' );?></a></td>
 				</tr><?php				
 			}

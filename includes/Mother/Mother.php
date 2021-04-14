@@ -11,6 +11,31 @@ use Jeero\Db;
 const BASE_URL = 'https://ql621w5yfk.execute-api.eu-west-1.amazonaws.com/jeero/v1';
 const SITE_KEY = 'jeero/mother/site_key';
 
+function add_subscription_plan( string $subscription_id, int $limit, string $billing_cycle ) {
+	
+	$subscription = new Subscription( $subscription_id );
+	
+	$args = array(
+		'limit' => $limit,
+		'billing_cycle' => $billing_cycle,
+		'first_name' => $subscription->settings[ 'account_first_name' ],
+		'last_name' => $subscription->settings[ 'account_last_name' ],
+		'email' => $subscription->settings[ 'account_email' ],
+	);
+	
+	$answer = post( sprintf( 'subscriptions/%s/plan', $subscription->ID ), $args );
+	
+	if ( \is_wp_error( $answer ) ) {
+		return new \WP_Error( 'mother', sprintf( __( 'Failed to switch plan for import: %s.', 'jeero' ), $answer->get_error_message() ) );
+	}
+	
+	
+	$subscription->load_from_mother( $answer );
+	
+	return $subscription;
+	
+}
+
 /**
  * Sends a DELETE request to Mother.
  * 

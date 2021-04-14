@@ -108,7 +108,8 @@ function process_deactivate() {
 	$subscription = Subscriptions\get_subscription( sanitize_text_field( $_GET[ 'subscription_id' ] ) );
 	if ( \is_wp_error( $subscription ) ) {
 		Admin\Notices\add_error( $subscription );
-		\wp_safe_redirect( get_admin_page_url( ) );			
+		\wp_safe_redirect( get_admin_page_url( ) );	
+		exit;		
 	}
 	
 	$subscription->deactivate();
@@ -193,10 +194,27 @@ function process_plan() {
 		return;
 	}
 	
+	if ( empty( $_GET[ 'subscription_id' ] ) ) {
+		return;
+	}
+	
+	// Save settings to Subscription.
+	$subscription_id = sanitize_text_field( $_GET[ 'subscription_id' ] );
+	$limit = intval( $_GET[ 'limit' ] );
+	$billing_cycle = sanitize_text_field( $_GET[ 'billing_cycle' ] );
+
 	// Add subscription plan.
+	$subscription = \Jeero\Mother\add_subscription_plan( $subscription_id, $limit, $billing_cycle );
+	if ( \is_wp_error( $subscription ) ) {
+
+		Admin\Notices\add_error( $subscription );
+		\wp_safe_redirect( get_admin_edit_url( $subscription_id ) );		
+		exit;
+	}
 	
 	// Redirect
-	
+	\wp_safe_redirect( get_admin_edit_url( $subscription_id ) );		
+	exit;
 		
 }
 

@@ -1,6 +1,14 @@
 <?php
 namespace Jeero\Account;
 
+function get_add_plan_url( string $subscription_id, int $limit, string $billing_cycle ) {
+	$url = \add_query_arg( 'subscription_id', $subscription_id, \admin_url() );
+	$url = \add_query_arg( 'limit', $limit, $url );
+	$url = \add_query_arg( 'billing_cycle', $billing_cycle, $url ); 
+	$url = \wp_nonce_url( $url, 'plan', 'jeero/nonce' );
+	return $url;
+}
+
 function get_fields() {
 	
 	$fields = array(
@@ -11,12 +19,12 @@ function get_fields() {
 		),
 		array( 
 			'type' => 'text',
-			'name' => 'account_firstname',
+			'name' => 'account_first_name',
 			'label' => __( 'First name', 'jeero' ),
 		),
 		array( 
 			'type' => 'text',
-			'name' => 'account_lastname',
+			'name' => 'account_last_name',
 			'label' => __( 'Last name', 'jeero' ),
 		),
 		array( 

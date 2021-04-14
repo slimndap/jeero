@@ -191,13 +191,13 @@ class Subscription {
 		
 		$defaults = array(
 			'theater' => false,
-			'account_firstname' => $current_user->user_firstname,
-			'account_lastname' => $current_user->user_lastname,
+			'account_first_name' => $current_user->user_firstname,
+			'account_last_name' => $current_user->user_lastname,
 			'account_email' => $current_user->user_email,
 		);
 		
-		if ( empty( $defaults[ 'account_firstname' ] ) ) {
-			$defaults[ 'account_firstname' ] = $current_user->nickname;
+		if ( empty( $defaults[ 'account_first_name' ] ) ) {
+			$defaults[ 'account_first_name' ] = $current_user->nickname;
 		}
 		
 		
