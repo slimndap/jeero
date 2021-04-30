@@ -18,11 +18,13 @@ Tired of manually copying your event data in WordPress from your external ticket
 Supported ticketing solutions:
 
 * [AudienceView Professional](https://jeero.ooo/publish-audienceview-events-on-wordpress/)
-* [Billeto](https://jeero.ooo/publish-billeto-events-on-wordpress/)
+* [Billeto](https://jeero.ooo/publish-bravobase-performances-on-wordpress/)
+* [BravoBase](https://jeero.ooo/publish-bravobase-performances-on-wordpress/)
 * [Brown Paper Tickets](https://jeero.ooo/publish-brown-paper-tickets-events-on-wordpress/)
 * [Ents24](https://jeero.ooo/publish-ents24-events-on-wordpress/)
 * [Ovatic](https://jeero.ooo/publish-ovatic-events-on-wordpress/)
 * [OvationTix](https://jeero.ooo/publish-ovationtix-events-on-wordpress/)
+* [PatronBase](https://jeero.ooo/publish-patronbase-performances-on-wordpress/)
 * [Place2Book](https://jeero.ooo/publish-place2book-events-on-wordpress/)
 * [Reservix](https://jeero.ooo/publish-reservix-events-on-wordpress/)
 * [RTS](https://jeero.ooo/publish-rts-events-on-wordpress/)
