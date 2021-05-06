@@ -85,6 +85,14 @@ function process_activate() {
 	exit;
 }
 
+/**
+ * Processes a click on the 'deactivate subscription' link.
+ * 
+ * @since	1.?
+ * @since	1.9	Fixed redirect when trying to deactivate a non existing subscription.
+ *
+ * @return void
+ */
 function process_deactivate() {
 	
 	if ( ! current_user_can( 'manage_options' ) ) {
@@ -107,7 +115,8 @@ function process_deactivate() {
 	$subscription = Subscriptions\get_subscription( sanitize_text_field( $_GET[ 'subscription_id' ] ) );
 	if ( \is_wp_error( $subscription ) ) {
 		Admin\Notices\add_error( $subscription );
-		\wp_safe_redirect( get_admin_page_url( ) );			
+		\wp_safe_redirect( get_admin_page_url( ) );
+		exit;		
 	}
 	
 	$subscription->deactivate();
@@ -115,7 +124,7 @@ function process_deactivate() {
 	$theater = $subscription->get( 'theater' );
 
 	Admin\Notices\add_success( sprintf( __( '%s subscription deactivated.', 'jeero' ), $theater[ 'title' ] ) );
-	wp_safe_redirect( add_query_arg( 'inactive', true, get_admin_page_url( ) ) );	
+	\wp_safe_redirect( add_query_arg( 'inactive', true, get_admin_page_url( ) ) );	
 	exit;
 }
 
