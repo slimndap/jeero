@@ -81,6 +81,10 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 
 == Changelog ==
 
+= 1.9 =
+
+* Made several improvements to the [Modern Events Calendar](/plugins/modern-events-calendar-lite/) import.
+
 = 1.8 =
 
 * Made it possible to set if title, description, categories and featured image should be overwritten after each import to the The Events Calendar plugin.
@@ -130,6 +134,10 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 * Welcome Jeero!
 
 == Upgrade Notice ==
+
+= 1.9 =
+
+* Improvements to the Modern Events Calendar import.
 
 = 1.6 =
 * Improvements to the Theater for WordPress and the Events Schedule WordPress Plugin imports.
