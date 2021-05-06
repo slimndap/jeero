@@ -8,7 +8,7 @@ use Theaters\Theater;
 use Jeero\Subscriptions\Subscription;
 use Jeero\Db;
 
-const BASE_URL = 'https://ql621w5yfk.execute-api.eu-west-1.amazonaws.com/jeero/v1';
+const BASE_URL = 'https://ql621w5yfk.execute-api.eu-west-1.amazonaws.com/jeero_staging/v1';
 const SITE_KEY = 'jeero/mother/site_key';
 
 /**
@@ -91,7 +91,7 @@ function deactivate_subscription( $subscription_id ) {
 function get_inbox( $settings ) {
 
 	$args = array(
-		'settings' => json_encode( $settings ),
+		'settings' => urlencode( json_encode( $settings ) ),
 	);
 	
 	return get( 'inbox', $args );	
@@ -125,7 +125,7 @@ function remove_inbox_items( $item_ids ) {
 function get_subscription( $subscription_id, $settings ) {
 
 	$args = array(
-		'settings' => json_encode( $settings, JSON_FORCE_OBJECT ),
+		'settings' => urlencode( json_encode( $settings, JSON_FORCE_OBJECT ) ),
 	);
 
 	return get( 'subscriptions/'.$subscription_id, $args );	

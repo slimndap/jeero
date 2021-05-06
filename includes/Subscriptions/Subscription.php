@@ -19,12 +19,18 @@ class Subscription {
 	public $ID;
 	
 	/**
-	 * The fields of this Subscription.
-	 * The fields are provided by Mother, based on the value of $settings.
-	 * @var		array	$fields
+	 * The setting fields of this Subscription.
+	 * @var		Field[]		$fields
 	 * @since	1.0
 	 */
 	public $fields = array();
+	
+	/**
+	 * The custom fields of this Subscription.
+	 * @var		string[]		$custom_fields
+	 * @since	1.9
+	 */
+	public $custom_fields = array();
 	
 	/**
 	 * The maximum number of events that will be imported.

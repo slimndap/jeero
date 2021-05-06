@@ -49,12 +49,13 @@ class The_Events_Calendar extends Calendar {
 	 * @since	1.8
 	 * @return	array
 	 */
-	function get_fields() {
+	function get_fields( $subscription ) {
 		
-		$fields = parent::get_fields();
+		$fields = parent::get_fields( $subscription );
 		
-		$fields = array_merge( $fields, $this->get_import_status_fields() );
-		$fields = array_merge( $fields, $this->get_import_update_fields() );
+		$fields = array_merge( $fields, $this->get_import_status_fields( $subscription ) );
+		$fields = array_merge( $fields, $this->get_import_update_fields( $subscription ) );
+		$fields = array_merge( $fields, $this->get_custom_fields_fields( $subscription ) );
 		
 		return $fields;
 		
@@ -149,15 +150,15 @@ class The_Events_Calendar extends Calendar {
 		if ( !empty( $data[ 'tickets_url' ] ) ) {
 			$args[ 'EventURL' ] = $data[ 'tickets_url' ];			
 		}
-			
+		
 		if ( $event_id = $this->get_event_by_ref( $ref, $theater ) ) {
 			
 			if ( 'always' == $this->get_setting( 'import/update/title', $subscription, 'once' ) ) {
-				$args[ 'post_title' ] = $data[ 'production' ][ 'title' ];
+				$args[ 'post_title' ] = $this->apply_template( 'title', $data, $data[ 'production' ][ 'title' ], $subscription );
 			}
 			
 			if ( 'always' == $this->get_setting( 'import/update/description', $subscription, 'once' ) ) {
-				$args[ 'post_content' ] = $data[ 'production' ][ 'description' ];
+				$args[ 'post_content' ] = $this->apply_template( 'content', $data, $data[ 'production' ][ 'description' ], $subscription );
 			}
 						
 			$event_id = \tribe_update_event( $event_id, $args );
@@ -186,8 +187,8 @@ class The_Events_Calendar extends Calendar {
 			
 			error_log( sprintf( '[%s] Creating event %d.', $this->name, $ref ) );
 
-			$args[ 'post_title' ]= $data[ 'production' ][ 'title' ];
-			$args[ 'post_content' ]= $data[ 'production' ][ 'description' ];
+			$args[ 'post_title' ]= $this->apply_template( 'title', $data, $data[ 'production' ][ 'title' ], $subscription );
+			$args[ 'post_content' ]= $this->apply_template( 'content', $data, $data[ 'production' ][ 'description' ], $subscription );
 			$args[ 'post_status' ] = $this->get_setting( 'import/status', $subscription, 'draft' );
 			
 			$event_id = \tribe_create_event( $args );

@@ -43,9 +43,30 @@ include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Url.php';
 include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Message.php';
 include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Error.php';
 include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Tab.php';
+include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Textarea.php';
 
 include_once PLUGIN_PATH.'includes/Inbox/Inbox.php';
 
 include_once PLUGIN_PATH.'includes/Mother/Mother.php';
 
 include_once PLUGIN_PATH.'includes/Helpers/Images.php';
+
+include_once PLUGIN_PATH.'vendor/Handlebars/Autoloader.php';
+\Handlebars\Autoloader::register();
+
+
+spl_autoload_register(function ($classname) {
+    $dirs = array (
+        PLUGIN_PATH.'vendor/Twig3/Twig' #./path/to/dir_where_src_renamed_to_Twig_is_in
+    );
+
+    foreach ($dirs as $dir) {
+        $filename = $dir . str_replace('\\', '/', $classname) .'.php';
+        if (file_exists($filename)) {
+            require_once $filename;
+            break;
+        }
+    }
+
+});
+

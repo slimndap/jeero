@@ -77,11 +77,12 @@ function get_subscription( $subscription_id ) {
 	if ( is_wp_error( $answer ) ) {
 		return $answer;
 	}
-	
+
 	$defaults = array(
 		'status' => false,
 		'logo' => false,
 		'fields' => array(),
+		'custom_fields' => array(),
 		'inactive' => false,
 		'interval' => null,
 		'next_delivery' => null,
@@ -91,6 +92,15 @@ function get_subscription( $subscription_id ) {
 	
 	$answer = wp_parse_args( $answer, $defaults );
 	
+	// Add the subscription info to the Subscription.
+	$subscription->set( 'status', $answer[ 'status' ] );
+	$subscription->set( 'logo', $answer[ 'logo' ] );
+	$subscription->set( 'inactive', $answer[ 'inactive' ] );
+	$subscription->set( 'interval', $answer[ 'interval' ] );
+	$subscription->set( 'next_delivery', $answer[ 'next_delivery' ] );
+	$subscription->set( 'limit', $answer[ 'limit' ] );
+	$subscription->set( 'theater', $answer[ 'theater' ] );
+
 	$fields = array(
 		array(
 			'type' => 'Tab',
@@ -106,18 +116,10 @@ function get_subscription( $subscription_id ) {
 	
 	// Add fields from calendars.
 	foreach( Calendars\get_active_calendars() as $calendar ) {
-		$fields = array_merge( $fields, $calendar->get_fields() );			
+		$fields = array_merge( $fields, $calendar->get_fields( $subscription ) );			
 	}
 
-	// Add the subscription info to the Subscription.
-	$subscription->set( 'status', $answer[ 'status' ] );
-	$subscription->set( 'logo', $answer[ 'logo' ] );
 	$subscription->set( 'fields', $fields );
-	$subscription->set( 'inactive', $answer[ 'inactive' ] );
-	$subscription->set( 'interval', $answer[ 'interval' ] );
-	$subscription->set( 'next_delivery', $answer[ 'next_delivery' ] );
-	$subscription->set( 'limit', $answer[ 'limit' ] );
-	$subscription->set( 'theater', $answer[ 'theater' ] );
 
 	return $subscription;
 }

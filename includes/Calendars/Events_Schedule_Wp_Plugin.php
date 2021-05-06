@@ -52,11 +52,11 @@ class Events_Schedule_Wp_Plugin extends Calendar {
 	 * @since	1.6
 	 * @return	array
 	 */
-	function get_fields() {
+	function get_fields( $subscription ) {
 		
-		$fields = parent::get_fields();
+		$fields = parent::get_fields( $subscription );
 		
-		$fields = array_merge( $fields, $this->get_import_status_fields() );
+		$fields = array_merge( $fields, $this->get_import_status_fields( $subscription ) );
 		
 		$fields[] = array(
 			'name' => sprintf( '%s/import/class_types', $this->slug ),
@@ -67,7 +67,7 @@ class Events_Schedule_Wp_Plugin extends Calendar {
 			),
 		);
 		
-		$fields = array_merge( $fields, $this->get_import_update_fields() );
+		$fields = array_merge( $fields, $this->get_import_update_fields( $subscription ) );
 		
 		return $fields;
 		

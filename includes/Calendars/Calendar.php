@@ -4,6 +4,9 @@
  */
 namespace Jeero\Calendars;
 
+use \Handlebars\Handlebars;
+use \Twig;
+
 class Calendar {
 	
 	public $slug = 'calendar';
@@ -13,7 +16,43 @@ class Calendar {
 	function __construct() {
 		
 	}
+	
+	function apply_template( $context, $data, $default, $subscription ) {
 		
+		$template = $this->get_setting( 'import/template/'.$context, $subscription );
+		
+		if ( empty( $template ) ) {
+			return $default;
+		}
+				
+		if ( empty( $data[ 'custom' ] ) ) {
+			return $default;
+		}
+		
+		$template_data = array(
+			'title' => $data[ 'production' ]	[ 'title' ],
+			'description' => $data[ 'production' ][ 'description' ],
+		);		
+		$template_data = array_merge( $template_data, $data[ 'custom' ] );
+		
+		$loader = new \Twig\Loader\ArrayLoader([
+			'index' => 'Hello {{ name }}!',
+		]);
+		$twig = new \Twig\Environment($loader);
+		
+		$handlebars = new Handlebars();
+
+		try {
+			$output = $handlebars->render( $template, $template_data );
+		} catch( \LogicException $e ) {
+			error_log( sprintf( '[%s] Rendering template for %s field failed: %s.', $this->get( 'name' ), $context, $e->getMessage() ) );			
+			return $default;
+		}
+		
+		return $output;		
+		
+	}
+	
 	/**
 	 * Gets all fields for this calendar.
 	 * 
@@ -21,7 +60,7 @@ class Calendar {
 	 * @since	1.5	Added a dedicated tab and activation checbox for each calendar. 
 	 * @return	array
 	 */
-	function get_fields() {	
+	function get_fields( $subscription ) {	
 		return array(
 			
 			array(
@@ -99,6 +138,64 @@ class Calendar {
 		
 		return $fields;
 		
+	}
+	
+	function get_template_fields( $subscription ) {
+		
+		$template_fields = array(
+			array(
+				'name' => 'title',
+			),	
+			array(
+				'name' => 'description',
+			),	
+		);
+		
+		$template_fields = array_merge( $template_fields, $subscription->get( 'theater' )[ 'custom_fields' ] );
+		
+		return $template_fields;
+				
+	}
+	
+	function get_custom_fields_fields( $subscription ) {
+		
+		ob_start();
+		
+		?><p>You can use <a href="https://handlebarsjs.com/guide/expressions.html" target="_blank">handlebars</a> templates to customise the content of events.</p>
+		<p>The following expressions are available in your templates:</p>
+		<ul><?php
+		
+		foreach( $this->get_template_fields( $subscription ) as $field ) {
+			?><li><code>{{<?php
+				echo $field[ 'name' ]; 
+			?>}}</code></li><?php
+		}
+		
+		?></li><?php
+		
+		$instructions = ob_get_clean();
+		
+		$fields = array(
+			array(
+				'name' => 'template_instructions',
+				'label' => $instructions,
+				'type' => 'message',
+			),
+			array(
+				'name' => sprintf( '%s/import/template/title', $this->slug ),
+				'label' => __( 'Event title', 'jeero' ),
+				'type' => 'text',
+				'instructions' => __( 'The title of the event.', 'jeero' ),
+			),
+			array(
+				'name' => sprintf( '%s/import/template/content', $this->slug ),
+				'label' => __( 'Event content', 'jeero' ),
+				'type' => 'textarea',
+				'instructions' => __( 'The main content of the event.', 'jeero' ),
+			),
+		);
+		
+		return $fields;
 	}
 	
 	function get_setting( $key, $subscription, $default = '' ) {

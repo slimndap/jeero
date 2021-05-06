@@ -84,7 +84,7 @@ class Field {
 		if ( empty( $_GET[ $this->name ] ) ) {
 			return null;
 		}
-		return sanitize_text_field( $_GET[ $this->name ] );
+		return wp_kses_post( $_GET[ $this->name ] );
 		
 	}
 	
