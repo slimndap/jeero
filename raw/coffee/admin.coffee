@@ -40,7 +40,6 @@ show_tab = ( tab_index ) ->
 	get_tab_subfields( tab_index ).show()
 
 jQuery ->
-
 	$tab_fields = get_tab_fields()
 		
 	if $tab_fields.length

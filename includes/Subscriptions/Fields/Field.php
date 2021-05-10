@@ -79,12 +79,23 @@ class Field {
 		return ob_get_clean();
 	}
 	
+	function get_row_html() {
+		ob_start();
+		?><tr class="<?php echo implode( ' ', $this->get_css_classes() ); ?>">
+			<th scope="row"><?php echo $this->get_label_html(); ?></th>
+			<td><?php echo $this->get_control_html(); ?></td>
+		</tr><?php
+		
+		return ob_get_clean();
+	}
+	
 	function get_setting_from_form( ) {
 		
 		if ( empty( $_GET[ $this->name ] ) ) {
 			return null;
 		}
-		return wp_kses_post( $_GET[ $this->name ] );
+		
+		return sanitize_text_field( stripslashes( $_GET[ $this->name ] ) );
 		
 	}
 	

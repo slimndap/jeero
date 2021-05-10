@@ -18,4 +18,14 @@ class Textarea extends Field {
 		return ob_get_clean();
 	}
 	
+	function get_setting_from_form( ) {
+		
+		if ( empty( $_GET[ $this->name ] ) ) {
+			return null;
+		}
+		
+		return sanitize_textarea_field( stripslashes( $_GET[ $this->name ] ) );
+		
+	}
+	
 }

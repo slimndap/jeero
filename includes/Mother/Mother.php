@@ -94,7 +94,45 @@ function get_inbox( $settings ) {
 		'settings' => urlencode( json_encode( $settings ) ),
 	);
 	
-	return get( 'inbox', $args );	
+	$items = get( 'inbox', $args );	
+	
+	if ( \is_wp_error( $items ) ) {
+		return $items;
+	}
+	
+	$event_defaults = array(
+		'ref' => false,
+		'start' => false,
+		'end' => false,
+		'tickets_url' => false,
+		'prices' => array(),
+		'venue' => false,
+		'status' => 'onsale',
+		'production' => false,
+		'custom' => array(),
+	);
+	
+	$production_defaults = array(
+		'ref' => false,
+		'title' => false,
+		'description' => false,
+		'img' => false,
+		'categories' => array(),				
+	);
+
+	for( $i = 0; $i < count( $items ); $i++ ) {
+		
+		$data = $items[ $i ][ 'data' ];
+		$data = wp_parse_args( $data, $event_defaults );
+		if ( $data[ 'production' ] ) {
+			$data[ 'production' ] = wp_parse_args( $data[ 'production' ], $production_defaults );
+		}
+		
+		$items[ $i ][ 'data' ] = $data;
+
+	}
+	
+	return $items;
 	
 }
 

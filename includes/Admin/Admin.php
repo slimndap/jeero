@@ -35,6 +35,13 @@ function add_menu_item() {
  * @return 	void
  */
 function enqueue_scripts( ) {
+
+	$current_screen = get_current_screen();	
+	if ( 'toplevel_page_jeero/imports' != $current_screen->id ) {
+		return;
+	}
+	
 	wp_enqueue_script( 'jeero/admin', \Jeero\PLUGIN_URI . 'assets/js/admin.js', array( 'jquery' ), \Jeero\VERSION );
+	wp_enqueue_style( 'jeero/admin', \Jeero\PLUGIN_URI . 'assets/css/admin.css', array(), \Jeero\VERSION, 'all' );
 }
 

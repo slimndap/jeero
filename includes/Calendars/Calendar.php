@@ -4,9 +4,6 @@
  */
 namespace Jeero\Calendars;
 
-use \Handlebars\Handlebars;
-use \Twig;
-
 class Calendar {
 	
 	public $slug = 'calendar';
@@ -20,37 +17,54 @@ class Calendar {
 	function apply_template( $context, $data, $default, $subscription ) {
 		
 		$template = $this->get_setting( 'import/template/'.$context, $subscription );
-		
-		if ( empty( $template ) ) {
-			return $default;
+
+		if ( empty( trim( $template ) ) ) {
+			$template = $default;
 		}
 				
-		if ( empty( $data[ 'custom' ] ) ) {
-			return $default;
-		}
-		
 		$template_data = array(
 			'title' => $data[ 'production' ]	[ 'title' ],
 			'description' => $data[ 'production' ][ 'description' ],
-		);		
-		$template_data = array_merge( $template_data, $data[ 'custom' ] );
+			'start' => $data[ 'start' ],
+			'end' => $data[ 'end' ],
+			'venue' => $data[ 'venue' ],
+			'categories' => $data[ 'production' ][ 'categories' ],
+			'tickets_url' => $data[ 'tickets_url' ],
+			'status' => $data[ 'status' ],
+			'prices' => $data[ 'prices' ],
+		);
 		
-		$loader = new \Twig\Loader\ArrayLoader([
-			'index' => 'Hello {{ name }}!',
-		]);
-		$twig = new \Twig\Environment($loader);
-		
-		$handlebars = new Handlebars();
-
-		try {
-			$output = $handlebars->render( $template, $template_data );
-		} catch( \LogicException $e ) {
-			error_log( sprintf( '[%s] Rendering template for %s field failed: %s.', $this->get( 'name' ), $context, $e->getMessage() ) );			
-			return $default;
+		if ( !empty( $data[ 'custom' ] ) ) {
+			$template_data = array_merge( $template_data, $data[ 'custom' ] );
 		}
+		
+		$output = \Jeero\Templates\render( $template, $template_data );
+		
+		if ( \is_wp_error( $output ) ) {
+			
+			error_log( sprintf( '[%s] Rendering template for %s field failed: %s.', $this->get( 'name' ), $context, $output->get_error_message() ) );
+			
+			ob_start();
+?>
+<!-- 
+	<?php printf( __( 'Rendering template for %s field failed.', 'jeero' ), $this->get( 'name' ) ); ?>
+	<?php echo $output->get_error_message(); ?>
+-->
+<?php
+					
+			return ob_get_clean();			
+		} 
 		
 		return $output;		
 		
+	}
+	
+	function get_default_title_template() {
+		return '{{ title }}';
+	}
+	
+	function get_default_content_template() {
+		return '{{ description|raw }}';
 	}
 	
 	/**
@@ -142,16 +156,103 @@ class Calendar {
 	
 	function get_template_fields( $subscription ) {
 		
-		$template_fields = array(
+		$template_field_args = array(
 			array(
 				'name' => 'title',
+				'type' => 'text',
+				'description' => 'Event title',
 			),	
 			array(
 				'name' => 'description',
+				'type' => 'text',
+				'description' => 'Event description',
+			),	
+			array(
+				'name' => 'start',
+				'type' => 'text',
+				'description' => 'Start time',
+			),	
+			array(
+				'name' => 'end',
+				'type' => 'text',
+				'description' => 'End time',
+			),	
+			array(
+				'name' => 'tickets_url',
+				'type' => 'text',
+				'description' => 'Tickets URL',
+			),	
+			array(
+				'name' => 'status',
+				'type' => 'text',
+				'description' => 'Current status of event. Possible values are \'onsale\', \'cancelled\', \'hidden\' and \'soldout\'.',
+			),	
+			array(
+				'name' => 'venue',
+				'type' => 'group',
+				'label' => __( 'Venue', 'jeero' ),
+				'description' => 'Venue',
+				'sub_fields' => array(
+					array(
+						'name' => 'title',
+						'type' => 'text',
+						'label' => __( 'Title', 'jeero' ),
+						'description' => __( 'Venue title', 'jeero' ),
+					),
+					array(
+						'name' => 'city',
+						'type' => 'text',
+						'label' => __( 'City', 'jeero' ),
+						'description' => __( 'Venue city', 'jeero' ),
+					),
+				)
+			),	
+			array(
+				'name' => 'categories',
+				'type' => 'select',
+				'label' => __( 'Categories', 'jeero' ),
+				'description' => __( 'Categories', 'jeero' ),
+				'item' => array(
+					'name' => 'category',
+					'type' => 'text',	
+				),
+			),	
+			array(
+				'name' => 'prices',
+				'type' => 'select',
+				'label' => __( 'Prices', 'jeero' ),
+				'description' => __( 'Prices', 'jeero' ),
+				'item' => array(
+					'name' => 'price',
+					'type' => 'group',
+					'description' => __( 'Price', 'jeero' ),	
+					'label' => __( 'Price', 'jeero' ),	
+					'sub_fields' => array(
+						array(
+							'name' => 'title',
+							'type' => 'text',
+							'label' => __( 'Title', 'jeero' ),
+							'description' => 'Price title',	
+						),
+						array(
+							'name' => 'amount',
+							'type' => 'text',
+							'label' => __( 'Amount', 'jeero' ),
+							'description' => 'Price amount',	
+						),
+					),
+				),
 			),	
 		);
 		
-		$template_fields = array_merge( $template_fields, $subscription->get( 'theater' )[ 'custom_fields' ] );
+		$template_field_args = array_merge( $template_field_args, $subscription->get( 'theater' )[ 'custom_fields' ] );
+
+		$template_fields = array();
+		
+		foreach( $template_field_args as $args ) {
+			$template_fields[] = \Jeero\Templates\Fields\get_field_from_config( $args );
+		}
+		
 		
 		return $template_fields;
 				
@@ -161,17 +262,37 @@ class Calendar {
 		
 		ob_start();
 		
-		?><p>You can use <a href="https://handlebarsjs.com/guide/expressions.html" target="_blank">handlebars</a> templates to customise the content of events.</p>
-		<p>The following expressions are available in your templates:</p>
-		<ul><?php
+		?><h2><?php _e( 'Custom templates', 'jeero' ); ?></h2>
+		<p>You can use <a href="https://twig.symfony.com/doc/3.x/templates.html" target="_blank">Twig</a> templates to customise the content of events.</p>
+		<p>The following variables are available in your templates:</p>
+		<dl><?php
 		
 		foreach( $this->get_template_fields( $subscription ) as $field ) {
-			?><li><code>{{<?php
-				echo $field[ 'name' ]; 
-			?>}}</code></li><?php
+			
+			$variables = $field->get_variables();
+
+			foreach( $variables as $variable ) {
+				?><dt class="<?php echo implode( ' ', $field->get_css_classes() ); ?>">
+					<code>{{ <?php
+						echo $variable[ 'name' ]; 			
+					?> }}</code>
+				</dt>
+				<dd><?php
+					echo $variable[ 'description' ];
+					
+					if ( $variable[ 'example' ] ) {
+						?><div class="jeero-template-example">
+							<h4><?php _e( 'Example usage', 'jeero' ); ?>:</h4>
+							<p><pre><?php
+								echo esc_html( $variable[ 'example' ] );
+							?></pre></p>
+						</div><?php
+					}
+				?></dd><?php				
+			}
 		}
 		
-		?></li><?php
+		?></dl><?php
 		
 		$instructions = ob_get_clean();
 		
@@ -183,15 +304,21 @@ class Calendar {
 			),
 			array(
 				'name' => sprintf( '%s/import/template/title', $this->slug ),
-				'label' => __( 'Event title', 'jeero' ),
-				'type' => 'text',
-				'instructions' => __( 'The title of the event.', 'jeero' ),
+				'label' => __( 'Title of event', 'jeero' ),
+				'type' => 'template',
+				'instructions' => sprintf( 
+					__( 'Leave empty to use the default template: <code>%s</code>.', 'jeero' ),
+					$this->get_default_title_template()
+				),
 			),
 			array(
 				'name' => sprintf( '%s/import/template/content', $this->slug ),
-				'label' => __( 'Event content', 'jeero' ),
-				'type' => 'textarea',
-				'instructions' => __( 'The main content of the event.', 'jeero' ),
+				'label' => __( 'Main content of event', 'jeero' ),
+				'type' => 'template',
+				'instructions' => sprintf( 
+					__( 'Leave empty to use the default template: <code>%s</code>.', 'jeero' ),
+					$this->get_default_content_template()
+				),
 			),
 		);
 		

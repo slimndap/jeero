@@ -52,7 +52,7 @@ class Modern_Events_Calendar extends Calendar {
 	 * @since	1.9
 	 * @return	array
 	 */
-	function get_fields() {
+	function get_fields( $subscription ) {
 		
 		$fields = parent::get_fields();
 		

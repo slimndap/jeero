@@ -154,11 +154,11 @@ class The_Events_Calendar extends Calendar {
 		if ( $event_id = $this->get_event_by_ref( $ref, $theater ) ) {
 			
 			if ( 'always' == $this->get_setting( 'import/update/title', $subscription, 'once' ) ) {
-				$args[ 'post_title' ] = $this->apply_template( 'title', $data, $data[ 'production' ][ 'title' ], $subscription );
+				$args[ 'post_title' ] = $this->apply_template( 'title', $data, $this->get_default_title_template(), $subscription );
 			}
 			
 			if ( 'always' == $this->get_setting( 'import/update/description', $subscription, 'once' ) ) {
-				$args[ 'post_content' ] = $this->apply_template( 'content', $data, $data[ 'production' ][ 'description' ], $subscription );
+				$args[ 'post_content' ] = $this->apply_template( 'content', $data, $this->get_default_content_template(), $subscription );
 			}
 						
 			$event_id = \tribe_update_event( $event_id, $args );
@@ -181,14 +181,14 @@ class The_Events_Calendar extends Calendar {
 				}
 			}
 
-			error_log( sprintf( '[%s] Updating event %d / %d.', $this->name, $ref, $event_id ) );
+			error_log( sprintf( '[%s] Updating %s event %s / %d.', $this->name, $theater, $ref, $event_id ) );
 			
 		} else {
 			
-			error_log( sprintf( '[%s] Creating event %d.', $this->name, $ref ) );
+			error_log( sprintf( '[%s] Creating %s event %s.', $this->name, $theater, $ref ) );
 
-			$args[ 'post_title' ]= $this->apply_template( 'title', $data, $data[ 'production' ][ 'title' ], $subscription );
-			$args[ 'post_content' ]= $this->apply_template( 'content', $data, $data[ 'production' ][ 'description' ], $subscription );
+			$args[ 'post_title' ]= $this->apply_template( 'title', $data, $this->get_default_title_template(), $subscription );
+			$args[ 'post_content' ]= $this->apply_template( 'content', $data, $this->get_default_content_template(), $subscription );
 			$args[ 'post_status' ] = $this->get_setting( 'import/status', $subscription, 'draft' );
 			
 			$event_id = \tribe_create_event( $args );

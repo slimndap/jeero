@@ -19,6 +19,8 @@ include_once PLUGIN_PATH.'includes/Admin/Subscriptions/Subscriptions.php';
 include_once PLUGIN_PATH.'includes/Admin/Subscriptions/List_Table.php';
 include_once PLUGIN_PATH.'includes/Admin/Notices/Notices.php';
 
+include_once PLUGIN_PATH.'includes/Admin/Templates/Templates.php';
+
 include_once PLUGIN_PATH.'includes/Calendars/Calendars.php';
 include_once PLUGIN_PATH.'includes/Calendars/Calendar.php';
 include_once PLUGIN_PATH.'includes/Calendars/All_In_One_Event_Calendar.php';
@@ -44,6 +46,7 @@ include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Message.php';
 include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Error.php';
 include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Tab.php';
 include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Textarea.php';
+include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Template.php';
 
 include_once PLUGIN_PATH.'includes/Inbox/Inbox.php';
 
@@ -51,8 +54,13 @@ include_once PLUGIN_PATH.'includes/Mother/Mother.php';
 
 include_once PLUGIN_PATH.'includes/Helpers/Images.php';
 
-include_once PLUGIN_PATH.'vendor/Handlebars/Autoloader.php';
-\Handlebars\Autoloader::register();
+include_once PLUGIN_PATH.'includes/Templates/Templates.php';
+include_once PLUGIN_PATH.'includes/Templates/Fields/Fields.php';
+include_once PLUGIN_PATH.'includes/Templates/Fields/Field.php';
+include_once PLUGIN_PATH.'includes/Templates/Fields/Group.php';
+include_once PLUGIN_PATH.'includes/Templates/Fields/Select.php';
+
+require_once PLUGIN_PATH.'vendor/autoload.php';
 
 
 spl_autoload_register(function ($classname) {
