@@ -224,7 +224,10 @@ function get_edit_html( $subscription_id ) {
 			<table class="form-table">
 				<tbody><?php
 					foreach( $subscription->get_fields() as $field ) {
-						echo $field->get_row_html();
+						?><tr class="<?php echo implode( ' ', $field->get_css_classes() ); ?>">
+							<th scope="row"><?php echo $field->get_label_html(); ?></th>
+							<td><?php echo $field->get_control_html(); ?></td>
+						</tr><?php
 					}
 
 				?></tbody>

@@ -3,6 +3,12 @@ namespace Jeero\Admin\Templates;
 
 add_action( 'admin_enqueue_scripts', __NAMESPACE__.'\enqueue_scripts', 9 );
 
+/**
+ * Enqueues Codemirror scripts on Jeero admin pages.
+ * 
+ * @since	1.10
+ * @return 	void
+ */
 function enqueue_scripts( ) {
 
 	$current_screen = get_current_screen();	

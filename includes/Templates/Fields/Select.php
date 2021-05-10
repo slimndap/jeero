@@ -1,4 +1,8 @@
 <?php
+/**
+ * Select template field.
+ * @since	1.10
+ */
 namespace Jeero\Templates\Fields;
 
 class Select extends Field {
@@ -19,6 +23,12 @@ class Select extends Field {
 		return $description;
 	}
 	
+	/**
+	 * Gets the default values for the field args.
+	 * 
+	 * @since	1.10
+	 * @return	array
+	 */
 	function get_defaults() {
 		
 		return array(
@@ -30,6 +40,12 @@ class Select extends Field {
 		
 	}
 	
+	/**
+	 * Gets the example template usage of the field.
+	 * 
+	 * @since	1.10
+	 * @return	string
+	 */
 	function get_example( $indent = 0 ) {
 		
 		ob_start();
@@ -52,6 +68,12 @@ class Select extends Field {
 		return $this->indent_example( ob_get_clean(), $indent );
 	}
 
+	/**
+	 * Gets the template variables of the field.
+	 * 
+	 * @since	1.10
+	 * @return	array
+	 */
 	function get_variables( $prefix = '' ) {
 		return array(
 			array(

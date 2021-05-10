@@ -1,4 +1,8 @@
 <?php
+/**
+ * Template settings field.
+ * @since	1.10
+ */
 namespace Jeero\Subscriptions\Fields;
 
 class Template extends Textarea {

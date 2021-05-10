@@ -1,15 +1,39 @@
 <?php
+/**
+ * Base template field.
+ * @since	1.10
+ */
 namespace Jeero\Templates\Fields;
 
 class Field {
 	
+	/**
+	 * The field arguments.
+	 * 
+	 * @since	1.10
+	 */
 	protected $args;
 	
+	/**
+	 * The field name.
+	 * 
+	 * @since	1.10
+	 */
 	protected $name;
 	
-	protected $description;
-	
+	/**
+	 * The field label.
+	 * 
+	 * @since	1.10
+	 */
 	protected $label;
+	
+	/**
+	 * The field description.
+	 * 
+	 * @since	1.10
+	 */
+	protected $description;
 	
 	function __construct( $args ) {
 		
@@ -28,7 +52,7 @@ class Field {
 	/**
 	 * Gets the CSS classes for the field.
 	 * 
-	 * @since	1.5
+	 * @since	1.10
 	 * @return	string[]		The CSS classes for the field.
 	 */
 	function get_css_classes() {
@@ -43,6 +67,12 @@ class Field {
 		
 	}
 	
+	/**
+	 * Gets the default values for the field args.
+	 * 
+	 * @since	1.10
+	 * @return	array
+	 */
 	function get_defaults() {
 		
 		return array(
@@ -53,10 +83,22 @@ class Field {
 		
 	}
 	
+	/**
+	 * Gets the description of the field.
+	 * 
+	 * @since	1.10
+	 * @return	string
+	 */
 	function get_description() {
 		return $this->description;
 	}
 	
+	/**
+	 * Gets the example template usage of the field.
+	 * 
+	 * @since	1.10
+	 * @return	string
+	 */
 	function get_example( $indent = 0 ) {
 		
 		ob_start();
@@ -65,6 +107,12 @@ class Field {
 				
 	}
 	
+	/**
+	 * Gets the template variables of the field.
+	 * 
+	 * @since	1.10
+	 * @return	array
+	 */
 	function get_variables( $prefix = '' ) {
 		return array(
 			array(
@@ -76,6 +124,14 @@ class Field {
 		
 	}
 	
+	/**
+	 * Indents the template example.
+	 * 
+	 * @since	1.10
+	 * @param 	string	$example
+	 * @param	int		$indent
+	 * @return	string
+	 */
 	function indent_example( $example, $indent ) {
 
 		$lines = explode( "\n", $example );

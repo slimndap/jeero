@@ -50,6 +50,7 @@ class Events_Schedule_Wp_Plugin extends Calendar {
 	 * Gets all fields for this calendar.
 	 * 
 	 * @since	1.6
+	 * @since	1.10		Added the $subscription param.
 	 * @return	array
 	 */
 	function get_fields( $subscription ) {

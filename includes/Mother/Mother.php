@@ -85,6 +85,8 @@ function deactivate_subscription( $subscription_id ) {
  * Gets the contents of the inbox.
  * 
  * @since	1.0
+ * @since	1.10	Improved encoding of settings.
+ *					Always return fully parsed items.
  * @param 	array			$settings	The setting values of all subscriptions.
  * @return	array|WP_Error
  */
@@ -156,6 +158,7 @@ function remove_inbox_items( $item_ids ) {
  * Gets a subscription.
  * 
  * @since	1.0
+ * @since	1.10	Improved encoding of settings.
  * @param 	string	$subscription_id
  * @param	array	$settings			The settings for the subscription.
  * @return	array|WP_Error

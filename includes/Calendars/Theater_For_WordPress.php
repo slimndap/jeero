@@ -35,14 +35,15 @@ class Theater_For_WordPress extends Calendar {
 	 * Gets all fields for this calendar.
 	 * 
 	 * @since	1.4
+	 * @since	1.10		Added the $subscription param.
 	 * @return	array
 	 */
 	function get_fields( $subscription ) {
 		
 		$fields = parent::get_fields( $subscription );
 		
-		$fields = array_merge( $fields, $this->get_import_status_fields( $subscription ) );
-		$fields = array_merge( $fields, $this->get_import_update_fields( $subscription ) );
+		$fields = array_merge( $fields, $this->get_import_status_fields() );
+		$fields = array_merge( $fields, $this->get_import_update_fields() );
 		
 		return $fields;
 		

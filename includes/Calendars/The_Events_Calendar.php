@@ -47,14 +47,16 @@ class The_Events_Calendar extends Calendar {
 	 * Gets all fields for this calendar.
 	 * 
 	 * @since	1.8
+	 * @since	1.10		Added the $subscription param.
+	 *					Added support for custom fields.
 	 * @return	array
 	 */
 	function get_fields( $subscription ) {
 		
 		$fields = parent::get_fields( $subscription );
 		
-		$fields = array_merge( $fields, $this->get_import_status_fields( $subscription ) );
-		$fields = array_merge( $fields, $this->get_import_update_fields( $subscription ) );
+		$fields = array_merge( $fields, $this->get_import_status_fields() );
+		$fields = array_merge( $fields, $this->get_import_update_fields() );
 		$fields = array_merge( $fields, $this->get_custom_fields_fields( $subscription ) );
 		
 		return $fields;
@@ -95,6 +97,7 @@ class The_Events_Calendar extends Calendar {
 	 * 					Added support for post status settings during import.
 	 *					Added support for categories.
 	 *					Added support for descriptions.
+	 * @since	1.10		Added supprtt for title and content Twig templates.
 	 *
 	 * @param 	mixed 			$result
 	 * @param 	array			$data		The structured data of the event.
@@ -154,11 +157,11 @@ class The_Events_Calendar extends Calendar {
 		if ( $event_id = $this->get_event_by_ref( $ref, $theater ) ) {
 			
 			if ( 'always' == $this->get_setting( 'import/update/title', $subscription, 'once' ) ) {
-				$args[ 'post_title' ] = $this->apply_template( 'title', $data, $this->get_default_title_template(), $subscription );
+				$args[ 'post_title' ] = $this->get_title_value( $data, $subscription );
 			}
 			
 			if ( 'always' == $this->get_setting( 'import/update/description', $subscription, 'once' ) ) {
-				$args[ 'post_content' ] = $this->apply_template( 'content', $data, $this->get_default_content_template(), $subscription );
+				$args[ 'post_content' ] = $this->get_content_value( $data, $subscription );
 			}
 						
 			$event_id = \tribe_update_event( $event_id, $args );
@@ -187,8 +190,8 @@ class The_Events_Calendar extends Calendar {
 			
 			error_log( sprintf( '[%s] Creating %s event %s.', $this->name, $theater, $ref ) );
 
-			$args[ 'post_title' ]= $this->apply_template( 'title', $data, $this->get_default_title_template(), $subscription );
-			$args[ 'post_content' ]= $this->apply_template( 'content', $data, $this->get_default_content_template(), $subscription );
+			$args[ 'post_title' ]= $this->get_title_value( $data, $subscription );
+			$args[ 'post_content' ]= $this->get_content_value( $data, $subscription );
 			$args[ 'post_status' ] = $this->get_setting( 'import/status', $subscription, 'draft' );
 			
 			$event_id = \tribe_create_event( $args );

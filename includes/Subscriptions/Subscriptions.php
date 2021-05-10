@@ -62,6 +62,7 @@ function get_setting_values() {
  * 					Added support for custom calendar fields.
  * @since	1.5		Removed calendar activation checkboxes.
  *					They are now managed by the individual calendars.
+ * @since	1.10	Set subscription fields after loading fields from calendar
  *
  * @param 	int						$subscription_id	The Subscription ID.
  * @return	Subscription|WP_Error	The Subscription. Or an error if something went wrong.
@@ -77,12 +78,11 @@ function get_subscription( $subscription_id ) {
 	if ( is_wp_error( $answer ) ) {
 		return $answer;
 	}
-
+	
 	$defaults = array(
 		'status' => false,
 		'logo' => false,
 		'fields' => array(),
-		'custom_fields' => array(),
 		'inactive' => false,
 		'interval' => null,
 		'next_delivery' => null,

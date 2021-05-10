@@ -14,14 +14,27 @@ class Calendar {
 		
 	}
 	
+	/**
+	 * Applies a Twig template to a subscription.
+	 * 
+	 * @since 1.10
+	 * @param	string			$context		The name of the template.
+	 * @param	string			$data			The event data.
+	 * @param	string			$default		The default template.
+	 * @param	Subscription		$subscription	The subscription.
+	 * @return void
+	 */
 	function apply_template( $context, $data, $default, $subscription ) {
 		
+		// Try to load template from subscription settings.
 		$template = $this->get_setting( 'import/template/'.$context, $subscription );
 
+		// Use default template if no/empty template found in settings.
 		if ( empty( trim( $template ) ) ) {
 			$template = $default;
 		}
-				
+		
+		// Prepare core template variables.	
 		$template_data = array(
 			'title' => $data[ 'production' ]	[ 'title' ],
 			'description' => $data[ 'production' ][ 'description' ],
@@ -34,10 +47,12 @@ class Calendar {
 			'prices' => $data[ 'prices' ],
 		);
 		
+		// Add custom fields to temlpate variables.
 		if ( !empty( $data[ 'custom' ] ) ) {
 			$template_data = array_merge( $template_data, $data[ 'custom' ] );
 		}
 		
+		// Render template.
 		$output = \Jeero\Templates\render( $template, $template_data );
 		
 		if ( \is_wp_error( $output ) ) {
@@ -59,19 +74,35 @@ class Calendar {
 		
 	}
 	
+	/**
+	 * Gets the default Twig template for the event title field.
+	 * 
+	 * @since	1.10
+	 * @return	string
+	 */
 	function get_default_title_template() {
 		return '{{ title }}';
 	}
 	
+	/**
+	 * Gets the default Twig template for the event content field.
+	 * 
+	 * @since	1.10
+	 * @return	string
+	 */
 	function get_default_content_template() {
 		return '{{ description|raw }}';
 	}
 	
 	/**
-	 * Gets all fields for this calendar.
+	 * Gets all settings fields for this calendar.
 	 * 
 	 * @since	1.4
-	 * @since	1.5	Added a dedicated tab and activation checbox for each calendar. 
+	 * @since	1.5		Added a dedicated tab and activation checbox for each calendar. 
+	 * @since	1.10		Added the $subscription param.
+	 *					Needed for calendar that @uses Calendar::get_custom_fields_fields() to support custom fields.
+	 *
+	 * @param	Subscription		The subscription.
 	 * @return	array
 	 */
 	function get_fields( $subscription ) {	
@@ -154,44 +185,51 @@ class Calendar {
 		
 	}
 	
+	/**
+	 * Gets all template fields for a subscription.
+	 * 
+	 * @since	1.10
+	 * @param	Subscription						$subscription	The subscription.
+	 * @return	\Jeero\Templates\Fields\Field[]					All available core template fields.
+	 */
 	function get_template_fields( $subscription ) {
 		
 		$template_field_args = array(
 			array(
 				'name' => 'title',
 				'type' => 'text',
-				'description' => 'Event title',
+				'description' => __( 'Event title', 'jeero' ),
 			),	
 			array(
 				'name' => 'description',
 				'type' => 'text',
-				'description' => 'Event description',
+				'description' => __( 'Event description', 'jeero' ),
 			),	
 			array(
 				'name' => 'start',
 				'type' => 'text',
-				'description' => 'Start time',
+				'description' => __( 'Start time', 'jeero' ),
 			),	
 			array(
 				'name' => 'end',
 				'type' => 'text',
-				'description' => 'End time',
+				'description' => __( 'End time', 'jeero' ),
 			),	
 			array(
 				'name' => 'tickets_url',
 				'type' => 'text',
-				'description' => 'Tickets URL',
+				'description' => __( 'Tickets URL', 'jeero' ),
 			),	
 			array(
 				'name' => 'status',
 				'type' => 'text',
-				'description' => 'Current status of event. Possible values are \'onsale\', \'cancelled\', \'hidden\' and \'soldout\'.',
+				'description' => __( 'Current status of event. Possible values are \'onsale\', \'cancelled\', \'hidden\' and \'soldout\'.', 'jeero' ),
 			),	
 			array(
 				'name' => 'venue',
 				'type' => 'group',
 				'label' => __( 'Venue', 'jeero' ),
-				'description' => 'Venue',
+				'description' => __( 'Venue', 'jeero' ),
 				'sub_fields' => array(
 					array(
 						'name' => 'title',
@@ -258,13 +296,60 @@ class Calendar {
 				
 	}
 	
+	/**
+	 * Get the rendered title value for an event.
+	 * 
+	 * @since	1.10
+	 * @param 	array			$data	The event data.
+	 * @param	Subscription		$subscription	The subscription.
+	 * @return	string
+	 */
+	function get_title_value( $data, $subscription ) {
+		
+		return $this->apply_template( 
+			'title', 
+			$data, 
+			$this->get_default_title_template(), 
+			$subscription 
+		);
+		
+	}
+	
+	/**
+	 * Get the rendered content for an event.
+	 * 
+	 * @since	1.10
+	 * @param 	array			$data			The event data.
+	 * @param	Subscription		$subscription	The subscription.
+	 * @return	string
+	 */
+	function get_content_value( $data, $subscription ) {
+		
+		return $this->apply_template( 
+			'content', 
+			$data, 
+			$this->get_default_content_template(), 
+			$subscription 
+		);
+		
+	}
+	/**
+	 * Gets all custom field settings fields for a subscription.
+	 * 
+	 * @since	1.10
+	 * @param 	Subscription							$subscription	The subscription
+	 * @return	\Jeero\Subscriptions\Fields\Field[]					All custom field settings fields for a subscription.
+	 */
 	function get_custom_fields_fields( $subscription ) {
 		
 		ob_start();
 		
 		?><h2><?php _e( 'Custom templates', 'jeero' ); ?></h2>
-		<p>You can use <a href="https://twig.symfony.com/doc/3.x/templates.html" target="_blank">Twig</a> templates to customise the content of events.</p>
-		<p>The following variables are available in your templates:</p>
+		<p><?php
+			printf( __( 'You can use <a href="%s" target="_blank">Twig</a> templates to customise the content of events.', 'jeero' ), 'https://twig.symfony.com/doc/3.x/templates.html' ); 
+		?></p>
+		<p><?php
+			_e( 'The following variables are available in your templates', 'jeero' ); ?>:</p>
 		<dl><?php
 		
 		foreach( $this->get_template_fields( $subscription ) as $field ) {
@@ -304,7 +389,7 @@ class Calendar {
 			),
 			array(
 				'name' => sprintf( '%s/import/template/title', $this->slug ),
-				'label' => __( 'Title of event', 'jeero' ),
+				'label' => __( 'Event title template', 'jeero' ),
 				'type' => 'template',
 				'instructions' => sprintf( 
 					__( 'Leave empty to use the default template: <code>%s</code>.', 'jeero' ),
@@ -313,7 +398,7 @@ class Calendar {
 			),
 			array(
 				'name' => sprintf( '%s/import/template/content', $this->slug ),
-				'label' => __( 'Main content of event', 'jeero' ),
+				'label' => __( 'Event content template', 'jeero' ),
 				'type' => 'template',
 				'instructions' => sprintf( 
 					__( 'Leave empty to use the default template: <code>%s</code>.', 'jeero' ),

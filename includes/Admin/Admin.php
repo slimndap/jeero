@@ -29,9 +29,10 @@ function add_menu_item() {
 }
 
 /**
- * Enqueues Jeero admin scripts.
+ * Enqueues Jeero admin scripts and styles.
  * 
  * @since	1.5
+ * @since	1.10	Only enqueue on Jeero admin pages.
  * @return 	void
  */
 function enqueue_scripts( ) {
