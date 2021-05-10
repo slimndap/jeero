@@ -44,6 +44,7 @@ class Theater_For_WordPress extends Calendar {
 		
 		$fields = array_merge( $fields, $this->get_import_status_fields() );
 		$fields = array_merge( $fields, $this->get_import_update_fields() );
+		$fields = array_merge( $fields, $this->get_custom_fields_fields( $subscription ) );
 		
 		return $fields;
 		
@@ -59,6 +60,7 @@ class Theater_For_WordPress extends Calendar {
 	 * 					Added support for post status settings during import.
 	 * @since	1.6		Added support for categories.
 	 *					Added support for city.
+	 * @since	1.10		Added support for title and content Twig templates.
 	 *
 	 */
 	function process_data( $result, $data, $raw, $theater, $subscription ) {
@@ -98,11 +100,11 @@ class Theater_For_WordPress extends Calendar {
 			);
 			
 			if ( 'always' == $this->get_setting( 'import/update/title', $subscription, 'once' ) ) {
-				$post[ 'post_title' ] = $data[ 'production' ][ 'title' ];
+				$post[ 'post_title' ] = $this->get_title_value( $data, $subscription );
 			}
 			
 			if ( 'always' == $this->get_setting( 'import/update/description', $subscription, 'once' ) ) {
-				$post[ 'post_content' ] = $data[ 'production' ][ 'description' ];
+				$post[ 'post_content' ] = $this->get_content_value( $data, $subscription );
 			}
 			
 			\wp_update_post( $post );
@@ -128,8 +130,8 @@ class Theater_For_WordPress extends Calendar {
 			
 			$post = array(
 				'post_type' => \WPT_Production::post_type_name,
-				'post_title' => $data[ 'production' ][ 'title' ],
-				'post_content' => $data[ 'production' ][ 'description' ],
+				'post_title' => $this->get_title_value( $data, $subscription ),
+				'post_content' => $this->get_content_value( $data, $subscription ),
 				'post_status' => $this->get_setting( 'import/status', $subscription, 'draft' ),
 			);
 			

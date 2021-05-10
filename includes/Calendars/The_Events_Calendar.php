@@ -97,7 +97,7 @@ class The_Events_Calendar extends Calendar {
 	 * 					Added support for post status settings during import.
 	 *					Added support for categories.
 	 *					Added support for descriptions.
-	 * @since	1.10		Added supprtt for title and content Twig templates.
+	 * @since	1.10		Added support for title and content Twig templates.
 	 *
 	 * @param 	mixed 			$result
 	 * @param 	array			$data		The structured data of the event.
