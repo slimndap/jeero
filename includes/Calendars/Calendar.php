@@ -283,7 +283,9 @@ class Calendar {
 			),	
 		);
 		
-		$template_field_args = array_merge( $template_field_args, $subscription->get( 'theater' )[ 'custom_fields' ] );
+		if ( !empty( $subscription->get( 'theater' )[ 'custom_fields' ] ) ) {
+			$template_field_args = array_merge( $template_field_args, $subscription->get( 'theater' )[ 'custom_fields' ] );		
+		}
 
 		$template_fields = array();
 		
