@@ -16,6 +16,9 @@ class All_In_One_Event_Calendar_Test extends Jeero_Test {
 	}
 	
 	function test_calendar_in_subscription_edit_form() {
+
+		add_filter( 'jeero/mother/get/response/endpoint=subscriptions/a fake ID', array( $this, 'get_mock_response_for_get_subscription' ), 10, 3 );
+
 		$_GET[ 'edit' ] = 'a fake ID';
 		
 		$actual = Admin\Subscriptions\get_admin_page_html();

@@ -1,6 +1,14 @@
 <?php
 class Jeero_Test extends WP_UnitTestCase {
 	
+	function setUp() {	
+			
+		parent::setUp();
+
+		add_filter( 'jeero\admin\do_redirects', '__return_false' );
+
+	}
+	
 	function get_mock_response_for_add_subscription( $response, $endpoint, $args ) {
 		
 		$body = array(
@@ -144,7 +152,8 @@ class Jeero_Test extends WP_UnitTestCase {
 			),
 			'theater' => array(
 				'name' => 'veezi',
-				'title' => 'Veezi',				
+				'title' => 'Veezi',	
+				'custom_fields' => array(),			
 			),
 		);	
 		

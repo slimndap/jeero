@@ -73,7 +73,7 @@ function process_activate() {
 	$subscription = Subscriptions\get_subscription( sanitize_text_field( $_GET[ 'subscription_id' ] ) );
 	if ( \is_wp_error( $subscription ) ) {
 		Admin\Notices\add_error( $subscription );
-		\wp_safe_redirect( get_admin_page_url( ) );			
+		return Admin\redirect( get_admin_page_url( ) );
 	}
 	
 	$subscription->activate();
@@ -81,8 +81,9 @@ function process_activate() {
 	$theater = $subscription->get( 'theater' );
 
 	Admin\Notices\add_success( sprintf( __( '%s subscription activated.', 'jeero' ), $theater[ 'title' ] ) );
-	wp_safe_redirect( get_admin_page_url( ) );	
-	exit;
+
+	return Admin\redirect( get_admin_page_url( ) );
+
 }
 
 /**
@@ -115,8 +116,7 @@ function process_deactivate() {
 	$subscription = Subscriptions\get_subscription( sanitize_text_field( $_GET[ 'subscription_id' ] ) );
 	if ( \is_wp_error( $subscription ) ) {
 		Admin\Notices\add_error( $subscription );
-		\wp_safe_redirect( get_admin_page_url( ) );
-		exit;		
+		return Admin\redirect( get_admin_page_url( ) );
 	}
 	
 	$subscription->deactivate();
@@ -124,8 +124,9 @@ function process_deactivate() {
 	$theater = $subscription->get( 'theater' );
 
 	Admin\Notices\add_success( sprintf( __( '%s subscription deactivated.', 'jeero' ), $theater[ 'title' ] ) );
-	\wp_safe_redirect( add_query_arg( 'inactive', true, get_admin_page_url( ) ) );	
-	exit;
+
+	return Admin\redirect( add_query_arg( 'inactive', true, get_admin_page_url( ) ) );
+	
 }
 
 /**
@@ -158,8 +159,7 @@ function process_form() {
 
 	if ( \is_wp_error( $subscription ) ) {
 		Admin\Notices\add_error( $subscription );
-		\wp_safe_redirect( get_admin_page_url() );	
-		exit;
+		Admin\redirect( get_admin_page_url() );
 	}
 
 	$settings = array();	
@@ -175,7 +175,7 @@ function process_form() {
 	
 	if ( \is_wp_error( $subscription ) ) {
 		Admin\Notices\add_error( $subscription );
-		\wp_safe_redirect( get_admin_page_url() );	
+		Admin\redirect( get_admin_page_url() );
 		exit;
 	}
 
@@ -186,9 +186,7 @@ function process_form() {
 	} else {		
 		Admin\Notices\add_success( sprintf( __( '%s subscription updated.', 'jeero' ), $theater[ 'title' ] ) );					
 	}
-	\wp_safe_redirect( get_admin_edit_url( $subscription->get( 'ID' ) ) );	
-	
-	exit;
+	Admin\redirect( get_admin_edit_url( $subscription->get( 'ID' ) ) );
 	
 }
 
@@ -205,13 +203,12 @@ function process_form() {
  *												Or an error if there was a problem.
  */
 function get_edit_html( $subscription_id ) {
-	
+
 	$subscription = Subscriptions\get_subscription( $subscription_id );
 
 	if ( is_wp_error( $subscription ) ) {
 		Admin\Notices\add_error( $subscription );
-		wp_redirect( get_admin_page_url() );
-		exit;
+		return Admin\redirect( get_admin_page_url() );
 	}
 	
 	ob_start();
@@ -406,12 +403,10 @@ function add_new_subscription() {
 
 	if ( is_wp_error( $subscription_id ) ) {
 		Admin\Notices\add_error( $subscription_id );
-		wp_safe_redirect( get_admin_page_url() );
-		exit;
+		return Admin\redirect( get_admin_page_url() );
 	}
 
-	wp_safe_redirect( get_admin_edit_url( $subscription_id ) );
-	exit;
+	return Admin\redirect( get_admin_edit_url( $subscription_id ) );
 	
 }
 

@@ -19,6 +19,7 @@ class Admin_Test extends Jeero_Test {
 
 		add_filter( 'jeero/mother/get/response/endpoint=subscriptions', array( $this, 'get_mock_response_empty_array' ), 10, 3 );
 		add_filter( 'jeero/mother/post/response/endpoint=subscriptions', array( $this, 'get_mock_response_for_add_subscription' ), 10, 3 );		
+		add_filter( 'jeero/mother/get/response/endpoint=subscriptions/a fake ID', array( $this, 'get_mock_response_for_get_subscription' ), 10, 3 );
 
 		$actual = Admin\Subscriptions\get_admin_page_html();
 		$expected = '<input type="hidden" name="subscription_id" value="a fake ID">';
@@ -39,6 +40,8 @@ class Admin_Test extends Jeero_Test {
 
 	function test_edit_form() {
 		
+		add_filter( 'jeero/mother/get/response/endpoint=subscriptions/a fake ID', array( $this, 'get_mock_response_for_get_subscription' ), 10, 3 );
+
 		$_GET[ 'edit' ] = 'a fake ID';
 		
 		$actual = Admin\Subscriptions\get_admin_page_html();

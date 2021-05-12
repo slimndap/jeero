@@ -46,3 +46,28 @@ function enqueue_scripts( ) {
 	wp_enqueue_style( 'jeero/admin', \Jeero\PLUGIN_URI . 'assets/css/admin.css', array(), \Jeero\VERSION, 'all' );
 }
 
+
+/**
+ * Redirects admin users.
+ *
+ * @since	1.10
+ * @param	string	$url		The URL for the redirect.
+ * @return	void
+ */
+function redirect( $url ) {
+
+	// Should we do redirects?
+	// Filter is used by unit tests to prevents redirects.
+	$do_redirects = apply_filters( 'jeero\admin\do_redirects', true );
+
+	// Bail if we are not doing redirects.
+	if ( !$do_redirects ) {
+		return $url;
+	}
+
+	// Redirect and exit.
+	\wp_safe_redirect( $url );
+	exit;
+
+}
+

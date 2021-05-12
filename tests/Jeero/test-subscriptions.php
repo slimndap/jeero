@@ -39,6 +39,7 @@ class Subscriptions_Test extends Jeero_Test {
 	function test_subscription_fields_are_saved() {
 		
 		add_filter( 'jeero/mother/get/response/endpoint=subscriptions', array( $this, 'get_mock_response_for_get_subscriptions' ), 10, 3 );
+		add_filter( 'jeero/mother/get/response/endpoint=subscriptions/a fake ID', array( $this, 'get_mock_response_for_get_subscription' ), 10, 3 );
 		
 		$subscription = Subscriptions\get_subscription( 'a fake ID' );
 		$actual = $subscription->get_fields()[ 1 ]->get( 'name' );
