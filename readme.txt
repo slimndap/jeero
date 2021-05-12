@@ -50,7 +50,7 @@ Supported calendar/event plugins:
 * [The Events Calendar](/plugins/the-events-calendar/)
 * [Very Simple Event List](/plugins/very-simple-event-list/)
 
-= Is your ticketings solution missing? =
+= Is your ticketing solution missing? =
 My objective is to offer imports from _any_ ticketing solution to _any_ calendar plugin. [Contact me](mailto:jeroen@slimndap.com), so I can add your solution as well.
 
 = Get started for free =
@@ -80,6 +80,10 @@ I am still working on the subscription engine. Once it ready the possibility to 
 Subscription rates will range from €20 - €30 per month, depending on your total number of events. 
 
 == Changelog ==
+
+= 1.10 =
+
+* Added support for custom templates to the [The Events Calendar](/plugins/the-events-calendar/) and [Theater for Wordpress](/plugins/theatre/) imports. You can now use the power of [Twig](https://twig.symfony.com/doc/3.x/templates.html) templates to customise the contents of your imported events. 
 
 = 1.9 =
 
@@ -134,6 +138,10 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 * Welcome Jeero!
 
 == Upgrade Notice ==
+
+= 1.10 = 
+
+* Adds support for custom templates to the The Events Calendar and Theater for Wordpress imports.
 
 = 1.9 =
 
