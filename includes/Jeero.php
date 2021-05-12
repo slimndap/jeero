@@ -61,20 +61,3 @@ include_once PLUGIN_PATH.'includes/Templates/Fields/Group.php';
 include_once PLUGIN_PATH.'includes/Templates/Fields/Select.php';
 
 require_once PLUGIN_PATH.'vendor/autoload.php';
-
-
-spl_autoload_register(function ($classname) {
-    $dirs = array (
-        PLUGIN_PATH.'vendor/Twig3/Twig' #./path/to/dir_where_src_renamed_to_Twig_is_in
-    );
-
-    foreach ($dirs as $dir) {
-        $filename = $dir . str_replace('\\', '/', $classname) .'.php';
-        if (file_exists($filename)) {
-            require_once $filename;
-            break;
-        }
-    }
-
-});
-
