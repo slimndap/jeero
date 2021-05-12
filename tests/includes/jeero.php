@@ -179,7 +179,7 @@ class Jeero_Test extends WP_UnitTestCase {
 				'data' => array(
 					'production' => array(
 						'title' => 'A test event',
-						'description' => 'A description.',
+						'description' => '<p>A description.</p>',
 						'categories' => array(
 							'Category A',
 							'Category B',	
@@ -202,13 +202,16 @@ class Jeero_Test extends WP_UnitTestCase {
 							'amount' => '20',
 							'currency' => 'EUR',
 						),
-					),	
+					),
+					'custom' => array( 
+						'subtitle' => 'The subtitle',	
+					),
 				
 				),
 				'raw' => 'Raw event data',
 			),
 		);
-		
+
 		return array(
 			'body' => json_encode( $body ),
 			'response' => array(
