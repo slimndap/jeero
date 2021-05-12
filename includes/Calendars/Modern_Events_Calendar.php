@@ -55,7 +55,7 @@ class Modern_Events_Calendar extends Calendar {
 	 */
 	function get_fields( $subscription ) {
 		
-		$fields = parent::get_fields();
+		$fields = parent::get_fields( $subscription );
 		
 		$fields = array_merge( $fields, $this->get_import_status_fields() );
 		$fields = array_merge( $fields, $this->get_import_update_fields() );
