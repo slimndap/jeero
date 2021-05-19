@@ -51,6 +51,7 @@ class Modern_Events_Calendar extends Calendar {
 	 * 
 	 * @since	1.9
 	 * @since	1.10		Added the $subscription param.
+	 * @since	1.11		Added support for custom fields.
 	 * @return	array
 	 */
 	function get_fields( $subscription ) {
@@ -59,6 +60,7 @@ class Modern_Events_Calendar extends Calendar {
 		
 		$fields = array_merge( $fields, $this->get_import_status_fields() );
 		$fields = array_merge( $fields, $this->get_import_update_fields() );
+		$fields = array_merge( $fields, $this->get_custom_fields_fields( $subscription ) );
 		
 		return $fields;
 		
@@ -68,39 +70,50 @@ class Modern_Events_Calendar extends Calendar {
 		return \MEC::getInstance( sprintf( 'app.libraries.%s', $lib ) );		
 	}
 	
-	function get_venue_id( $title ) {
-		$venue_id = wp_cache_get( $title, 'jeero/venue_id' );
-
-		if ( false === $venue_id ) {
+	/**
+	 * Gets the MEC location ID for a venue.
+	 * 
+	 * @since	1.11
+	 * @param	array	$venue
+	 * @return	int
+	 */
+	function get_location_id( $venue ) {
 		
-			$venue_post = get_page_by_title( $title, OBJECT, 'tribe_venue' );
+		$cache_group = sprintf( 'jeero/%/location_id', $this->slug );
+	
+		$location_id = wp_cache_get( $venue[ 'title' ], $cache_group );
+
+		if ( false === $location_id ) {
+		
+			$args = array(
+				'name' => $venue[ 'title' ],
+				'address' => $venue[ 'city' ],
+			);
+		
+			$location_id = $this->get_mec_instance( 'main' )->save_location( $args );
 			
-			if ( !( $venue_post ) ) {
-				$venue_id = tribe_create_venue( 
-					array( 
-						'Venue' => $title,
-					)
-				);
-			} else {
-				$venue_id = $venue_post->ID;
-			}
-			
-			wp_cache_set( $title, $venue_id, 'jeero/venue_id' );
+			wp_cache_set( $venue[ 'title' ], $location_id, $cache_group );
 			
 		}
 		
-		return $venue_id;		
+		return $location_id;		
 	}
 	
 	/**
 	 * Processes event data from Inbox items.
 	 * 
 	 * @since	1.?
-	 * @since	1.4	Added the subscription param.
+	 * @since	1.4		Added the subscription param.
 	 * @since	1.9		Added support for import settings to decide whether to 
 	 * 					overwrite title/description/image/category during import.
 	 * 					Added support for post status settings during import.
 	 *					Added support for categories.
+	 * @since	1.11		Added support for title and content Twig templates.
+	 *					More info link now get a 'Tickets' label.
+	 *					Added support for prices.
+	 *					Added suport for locations.
+	 *					Added suuport for cancelled events.
+	 *					Fixed import of categories.
 	 *
 	 * @param 	mixed 			$result
 	 * @param 	array			$data		The structured data of the event.
@@ -132,6 +145,8 @@ class Modern_Events_Calendar extends Calendar {
 		    'meta' => array (
 		        'mec_source' => $theater,
                 'mec_more_info'=> $data[ 'tickets_url' ],
+                'mec_more_info_title' => __( 'Tickets', 'jeero' ),
+                'mec_more_info_target' => '_self',
 		    )
 		);
 		
@@ -151,7 +166,27 @@ class Modern_Events_Calendar extends Calendar {
 		    'end_time_ampm' => date( 'A', $event_end ),				
 		) );
 			
+		if ( !empty( $data[ 'prices' ] ) ) {
+			$amounts = \wp_list_pluck( $data[ 'prices' ], 'amount' );
+			$args[ 'meta' ][ 'mec_cost' ] = min( $amounts );
+		}
 
+		$event_status = 'EventScheduled';
+		if ( !empty( $data[ 'status' ] ) ) {
+			switch( $data[ 'status' ] ) {
+				case 'cancelled':
+					$event_status = 'EventCancelled';
+					break;
+				default:
+					$event_status = 'EventScheduled';
+			}
+		}
+		$args[ 'meta' ][ 'mec_event_status' ] = $event_status;
+		
+		if ( !empty( $data[ 'venue' ] ) ) {
+			$args[ 'meta' ][ 'mec_location_id' ] = $this->get_location_id( $data[ 'venue' ] );
+		}
+		
 		// Temporarily disable new event notifications.
 		remove_action( 'mec_event_published', array( $this->get_mec_instance( 'notifications' ), 'user_event_publishing'), 10 );
 
@@ -160,11 +195,11 @@ class Modern_Events_Calendar extends Calendar {
 
 			
 			if ( 'always' == $this->get_setting( 'import/update/title', $subscription, 'once' ) ) {
-				$args[ 'title' ] = $data[ 'production' ][ 'title' ];
+				$args[ 'title' ] = $this->get_title_value( $data, $subscription );
 			}
 			
 			if ( 'always' == $this->get_setting( 'import/update/description', $subscription, 'once' ) ) {
-				$args[ 'content' ] = $data[ 'production' ][ 'description' ];
+				$args[ 'content' ] = $this->get_content_value( $data, $subscription );
 			}
 						
 			$this->get_mec_instance( 'main' )->save_event( $args, $event_id );        	
@@ -184,14 +219,14 @@ class Modern_Events_Calendar extends Calendar {
 					\wp_set_object_terms( 
 						$event_id, 
 						array(), 
-						$this->get_mec_instance( 'main' )->get_category_slug(), 
+						'mec_category', 
 						false  
 					);			
 				} else {
 					\wp_set_object_terms( 
 						$event_id, 
 						$data[ 'production' ][ 'categories' ], 
-						$this->get_mec_instance( 'main' )->get_category_slug(), 
+						'mec_category', 
 						false  
 					);
 				}
@@ -200,8 +235,8 @@ class Modern_Events_Calendar extends Calendar {
 		} else {
 			error_log( sprintf( '[%s] Creating event %d.', $this->name, $ref ) );
 
-			$args[ 'title' ]= $data[ 'production' ][ 'title' ];
-			$args[ 'content' ]= $data[ 'production' ][ 'description' ];
+			$args[ 'title' ]= $this->get_title_value( $data, $subscription );
+			$args[ 'content' ]= $this->get_content_value( $data, $subscription );
 			$args[ 'status' ] = $this->get_setting( 'import/status', $subscription, 'draft' );
 			
 			$event_id = $this->get_mec_instance( 'main' )->save_event( $args );        				
