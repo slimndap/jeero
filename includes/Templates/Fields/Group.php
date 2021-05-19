@@ -50,6 +50,7 @@ class Group extends Field {
 	 * Gets the example template usage of the field.
 	 * 
 	 * @since	1.10
+	 * @since	1.11		Fixed a PHP warning if a sub field did not have a 'type' value.
 	 * @return	string
 	 */
 	function get_example( $indent = 0 ) {
@@ -59,7 +60,7 @@ class Group extends Field {
 <h3><?php echo $this->label; ?></h3>
 <?php		
 		foreach( $this->sub_fields as $sub_field_args ) {
-			$sub_field = get_field_from_classname( $sub_field_args[ 'type' ], $sub_field_args );
+			$sub_field = get_field_from_config( $sub_field_args );
 ?>
 <div><?php echo $sub_field->label; ?>: {{ <?php echo $this->name; ?>.<?php echo $sub_field->name; ?> }}</div>
 <?php
