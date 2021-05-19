@@ -81,6 +81,11 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 
 == Changelog ==
 
+= 1.11 =
+
+* Added support for custom templates to the [Modern Events Calendar](/plugins/modern-events-calendar-lite/) import. 
+* Other improvements to the [Modern Events Calendar](/plugins/modern-events-calendar-lite/) import.
+
 = 1.10 =
 
 * Added support for custom templates to the [The Events Calendar](/plugins/the-events-calendar/) and [Theater for Wordpress](/plugins/theatre/) imports. You can now use the power of [Twig](https://twig.symfony.com/doc/3.x/templates.html) templates to customise the contents of your imported events. 
@@ -138,6 +143,10 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 * Welcome Jeero!
 
 == Upgrade Notice ==
+
+= 1.11 = 
+
+* Adds support for custom templates to the Modern Events Calendar import.
 
 = 1.10 = 
 
