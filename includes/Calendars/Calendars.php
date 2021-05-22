@@ -26,6 +26,7 @@ function add_import_filters() {
  * @since	1.2		Added Very_Simple_Event_List.
  * @since	1.1		Added Events_Schedule_Wp_Plugin.
  * @since	1.03	Added Modern_Events_Calendar.
+ * @since	1.12	Added Sugar_Calendar.
  *
  * @return	array	All active calendars.
  */
@@ -60,7 +61,11 @@ function get_active_calendars() {
 	if ( is_plugin_active( 'gdlr-event/gdlr-event.php' ) ) {
 		$slugs[] = 'GDLR_Events';
 	}
-		
+	
+	if ( class_exists( 'Sugar_Calendar_Requirements_Check' ) ) {
+		$slugs[] = 'Sugar_Calendar';
+	}
+	
 	$calendars = array();
 	
 	foreach ( $slugs as $slug ) {

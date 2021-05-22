@@ -339,6 +339,7 @@ class Calendar {
 	 * Gets all custom field settings fields for a subscription.
 	 * 
 	 * @since	1.10
+	 * @since	1.12		Added HTML escaping to template field instructions.
 	 * @param 	Subscription							$subscription	The subscription
 	 * @return	\Jeero\Subscriptions\Fields\Field[]					All custom field settings fields for a subscription.
 	 */
@@ -395,7 +396,7 @@ class Calendar {
 				'type' => 'template',
 				'instructions' => sprintf( 
 					__( 'Leave empty to use the default template: <code>%s</code>.', 'jeero' ),
-					$this->get_default_title_template()
+					esc_html( $this->get_default_title_template() )
 				),
 			),
 			array(
@@ -404,7 +405,7 @@ class Calendar {
 				'type' => 'template',
 				'instructions' => sprintf( 
 					__( 'Leave empty to use the default template: <code>%s</code>.', 'jeero' ),
-					$this->get_default_content_template()
+					esc_html( $this->get_default_content_template() )
 				),
 			),
 		);
