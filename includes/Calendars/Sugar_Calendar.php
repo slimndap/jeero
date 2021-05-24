@@ -195,7 +195,7 @@ class Sugar_Calendar extends Calendar {
 				$event_args[ 'content' ] = $post_args[ 'post_content' ];
 			}
 			
-			wp_update_post( $post_args );
+			$this->insert_post( $post_args );
 
 			if ( 
 				'always' == $this->get_setting( 'import/update/image', $subscription, 'once' ) && 
@@ -219,7 +219,7 @@ class Sugar_Calendar extends Calendar {
 			$event_args[ 'content' ] = $post_args[ 'post_content' ];
 			$event_args[ 'status' ] = $post_args[ 'post_status' ];
 						
-			$post_id = \wp_insert_post( $post_args );
+			$post_id = $this->insert_post( $post_args );
 
 			if ( !empty( $data[ 'production' ][ 'img' ] ) ) {
 				$thumbnail_id = Images\update_featured_image_from_url( 
