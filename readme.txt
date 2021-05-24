@@ -149,6 +149,10 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 
 == Upgrade Notice ==
 
+= 1.12 = 
+
+* Adds support for the Sugar Calendar plugin.
+
 = 1.11 = 
 
 * Adds support for custom templates to the Modern Events Calendar import.
