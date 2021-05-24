@@ -2,7 +2,7 @@
 Contributors: slimndap
 Tags: calendar, tickets, events, veezi, ticketmaster, ticketmatic, stager
 Requires PHP: 7.2
-Tested up to: 5.6
+Tested up to: 5.7
 Requires at least: 4.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -46,6 +46,7 @@ Supported calendar/event plugins:
 * All [Goodlayers](https://www.goodlayers.com) themes that use their Event Post Type plugin
 * [Events Schedule WordPress Plugin](https://demo.curlythemes.com/timetable-wordpress-plugin/)
 * [Modern Events Calendar](/plugins/modern-events-calendar-lite/)
+* [Sugar Calendar](/plugins/sugar-calendar-lite/)
 * [Theater for Wordpress](/plugins/theatre/)
 * [The Events Calendar](/plugins/the-events-calendar/)
 * [Very Simple Event List](/plugins/very-simple-event-list/)
@@ -80,6 +81,10 @@ I am still working on the subscription engine. Once it ready the possibility to 
 Subscription rates will range from €20 - €30 per month, depending on your total number of events. 
 
 == Changelog ==
+
+= 1.12 =
+
+Added support for the [Sugar Calendar](/plugins/sugar-calendar-lite/) plugin.
 
 = 1.11 =
 
