@@ -112,7 +112,7 @@ class Sugar_Calendar_Test extends Jeero_Test {
 		$this->assertEquals( $expected, $actual );	
 		
 		$actual = $events[ 0 ]->post_content;
-		$expected = '<p>A description.</p><div><a href="https://slimndap.com">Tickets</a></div>';
+		$expected = "<p>A description.</p>\n\n<a href=\"https://slimndap.com\">Tickets</a>\n";
 		$this->assertEquals( $expected, $actual );	
 		
 		
