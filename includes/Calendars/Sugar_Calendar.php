@@ -27,7 +27,16 @@ class Sugar_Calendar extends Calendar {
 	 * @return	string
 	 */
 	function get_default_content_template() {
-		return sprintf( '{{ description|raw }}{%% if tickets_url %%}<div><a href="{{ tickets_url }}">%s</a></div>{%% endif %%}', __( 'Tickets', 'jeero' ) );
+		
+		ob_start();
+		
+?>{{ description|raw }}
+{%% if tickets_url %%}
+
+<a href="{{ tickets_url }}">%s</a>
+{%% endif %%}<?php
+
+		return sprintf( ob_get_clean(), __( 'Tickets', 'jeero' ) );
 	}
 	
 	/**
