@@ -500,4 +500,24 @@ class Calendar {
 		return $result;
 	}
 	
+	/**
+	 * Updates a post without sanitizing post content for allowed HTML tags.
+	 * 
+	 * @since	1.12
+	 * @param 	array 			$args	An array of elements that make up a post to update or insert.
+	 * @return	int|WP_Error				The post ID on success. The value 0 or WP_Error on failure.
+	 */
+	function update_post( $args ) {
+		
+		// Temporarily disable sanitizing allowed HTML tags.
+		\remove_filter( 'content_save_pre', 'wp_filter_post_kses' );
+		
+		$result = \wp_update_post( $args );
+		
+		// Re-enable sanitizing allowed HTML tags.
+		\add_filter( 'content_save_pre', 'wp_filter_post_kses' );
+		
+		return $result;		
+	}
+	
 }

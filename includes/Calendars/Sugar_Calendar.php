@@ -204,7 +204,7 @@ class Sugar_Calendar extends Calendar {
 				$event_args[ 'content' ] = $post_args[ 'post_content' ];
 			}
 			
-			$this->insert_post( $post_args );
+			$this->update_post( $post_args );
 
 			if ( 
 				'always' == $this->get_setting( 'import/update/image', $subscription, 'once' ) && 
@@ -227,7 +227,7 @@ class Sugar_Calendar extends Calendar {
 			$event_args[ 'title' ] = $post_args[ 'post_title' ];
 			$event_args[ 'content' ] = $post_args[ 'post_content' ];
 			$event_args[ 'status' ] = $post_args[ 'post_status' ];
-						
+			
 			$post_id = $this->insert_post( $post_args );
 
 			if ( !empty( $data[ 'production' ][ 'img' ] ) ) {
