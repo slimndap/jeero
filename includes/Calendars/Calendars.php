@@ -65,6 +65,10 @@ function get_active_calendars() {
 	if ( class_exists( 'Sugar_Calendar_Requirements_Check' ) ) {
 		$slugs[] = 'Sugar_Calendar';
 	}
+
+	if ( class_exists( 'WP_Event_Manager' ) ) {
+		$slugs[] = 'WP_Event_Manager';
+	}
 	
 	$calendars = array();
 	
