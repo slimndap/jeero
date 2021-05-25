@@ -181,7 +181,7 @@ class Sugar_Calendar extends Calendar {
 
 		if ( !empty( $data[ 'venue' ] ) ) {
 			$event_args[ 'location' ] = $this->apply_template( 
-				'title', 
+				'location', 
 				$data, 
 				$this->get_default_location_template(), 
 				$subscription 
@@ -237,7 +237,7 @@ class Sugar_Calendar extends Calendar {
 				);
 			}
 
-			\add_post_meta( $post_id, $this->get_ref_key( $theater ), $data[ 'ref' ] );
+			\add_post_meta( $post_id, $this->get_ref_key( $theater ), $data[ 'ref' ], true );
 			
 		}	
 				

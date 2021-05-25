@@ -4,8 +4,8 @@ namespace Jeero\Calendars;
 use Jeero\Helpers\Images as Images;
 
 /**
- * Sugar_Calendar class.
- * @since	1.12
+ * WP_Event_Manager class.
+ * @since	1.13
  * 
  * @extends Calendar
  */
@@ -21,28 +21,9 @@ class WP_Event_Manager extends Calendar {
 	}
 	
 	/**
-	 * Gets the default Twig template for the event content field.
-	 * 
-	 * @since	1.12
-	 * @return	string
-	 */
-	function get_default_content_template() {
-		
-		ob_start();
-		
-?>{{ description|raw }}
-{%% if tickets_url %%}
-
-<a href="{{ tickets_url }}">%s</a>
-{%% endif %%}<?php
-
-		return sprintf( ob_get_clean(), __( 'Tickets', 'jeero' ) );
-	}
-	
-	/**
 	 * Gets the default Twig template for the event location field.
 	 * 
-	 * @since	1.12
+	 * @since	1.13
 	 * @return	string
 	 */
 	function get_default_location_template() {
@@ -50,9 +31,9 @@ class WP_Event_Manager extends Calendar {
 	}
 
 	/**
-	 * Gets a Sugar Calendar post ID by Jeero ref.
+	 * Gets a WP_Event_Manager post ID by Jeero ref.
 	 * 
-	 * @since	1.12
+	 * @since	1.13
 	 * @param 	string 	$ref
 	 * @param 	string	$theater
 	 * @return	int
@@ -85,7 +66,7 @@ class WP_Event_Manager extends Calendar {
 	/**
 	 * Gets all fields for this calendar.
 	 * 
-	 * @since	1.12
+	 * @since	1.13
 	 * @return	array
 	 */
 	function get_fields( $subscription ) {
@@ -109,6 +90,15 @@ class WP_Event_Manager extends Calendar {
 		
 	}
 
+	/**
+	 * Gets the WP_Event_Manager venue ID by venue title.
+	 *
+	 * Creates a new venue if no venue is found.
+	 * 
+	 * @since	1.13
+	 * @param 	string	$title
+	 * @return	int
+	 */
 	function get_venue_id( $title ) {
 		$venue_id = wp_cache_get( $title, 'jeero/venue_id' );
 
@@ -157,7 +147,6 @@ class WP_Event_Manager extends Calendar {
 			'post_status' => 'publish',
 			'comment_status' => 'closed',
 		);
-
 
 		if ( $post_id = $this->get_event_by_ref( $ref, $theater ) ) {
 
@@ -243,9 +232,7 @@ class WP_Event_Manager extends Calendar {
 			$event_end = $this->localize_timestamp( strtotime( $data[ 'end' ] ) );			
 			\update_post_meta( $post_id, '_event_end_date', date( 'Y-m-d H:i:s', $event_end ) );
 			\update_post_meta( $post_id, '_event_end_time', date( 'H:i:s', $event_end ) );
-		}
-		
-		
+		}		
 
 	}
 
