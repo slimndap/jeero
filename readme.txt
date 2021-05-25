@@ -50,6 +50,7 @@ Supported calendar/event plugins:
 * [Theater for Wordpress](/plugins/theatre/)
 * [The Events Calendar](/plugins/the-events-calendar/)
 * [Very Simple Event List](/plugins/very-simple-event-list/)
+* [WP Event Manager](/plugins/wp-event-manager/)
 
 = Is your ticketing solution missing? =
 My objective is to offer imports from _any_ ticketing solution to _any_ calendar plugin. [Contact me](mailto:jeroen@slimndap.com), so I can add your solution as well.
@@ -81,6 +82,10 @@ I am still working on the subscription engine. Once it ready the possibility to 
 Subscription rates will range from €20 - €30 per month, depending on your total number of events. 
 
 == Changelog ==
+
+= 1.13 =
+
+Added support for the [WP Event Manager](/plugins/wp-event-manager/) plugin.
 
 = 1.12 =
 
@@ -148,6 +153,10 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 * Welcome Jeero!
 
 == Upgrade Notice ==
+
+= 1.13 = 
+
+* Adds support for the WP Event Manager plugin.
 
 = 1.12 = 
 
