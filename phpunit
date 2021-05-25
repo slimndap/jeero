@@ -30,4 +30,9 @@ if [ $? -ne 0 ]; then
         exit 0
 fi
 
+phpunit --configuration tests/configuration/WP_Event_Manager.xml
+if [ $? -ne 0 ]; then
+        exit 0
+fi
+
 
