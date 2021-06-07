@@ -15,6 +15,12 @@ class Field {
 	
 	protected $value;
 	
+	/**
+	 * Default setting value for this field.
+	 * 
+	 * @var		mixed
+	 * @since	1.14
+	 */
 	protected $default;
 	
 	function __construct( $config, $subscription_id, $value = null ) {
@@ -98,19 +104,22 @@ class Field {
 		
 	}
 	
+	/**
+	 * Gets the setting value for this field.
+	 * 
+	 * @since	1.?
+	 * @since	1.14		Added support for default values.
+	 * @return	mixed
+	 */
 	function get_value() {
 		
 		$value = $this->get( 'value' );
 		
-		if (empty( $value ) ) {
+		if ( empty( $value ) ) {
 			$value = $this->get( 'default' );
 		}
 		
 		return $value;
-	}
-	
-	function save_setting( $setting ) {
-		echo $setting;
 	}
 	
 }

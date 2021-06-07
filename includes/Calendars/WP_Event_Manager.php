@@ -140,6 +140,8 @@ class WP_Event_Manager extends Calendar {
 	 * Processes the data from an event in the inbox.
 	 * 
 	 * @since 	1.13
+	 * @since	1.14		Added support for custom fields.	
+	 *
 	 */
 	function process_data( $result, $data, $raw, $theater, $subscription ) {
 		
@@ -243,22 +245,7 @@ class WP_Event_Manager extends Calendar {
 			\update_post_meta( $post_id, '_event_end_time', date( 'H:i:s', $event_end ) );
 		}
 		
-		$custom_fields = $this->get_setting( 'import/template/custom_fields', $subscription, array() );
-		
-		if ( !empty( $custom_fields ) && is_array( $custom_fields ) ) {
-			
-			foreach( $custom_fields as $custom_field ) {
-				
-				\update_post_meta( $post_id, $custom_field[ 'name' ], $this->apply_template( 
-					$custom_field[ 'name' ], 
-					$data, 
-					$custom_field[ 'template' ], 
-					$subscription 
-				) );
-				
-			}
-			
-		}
+		$this->update_custom_fields( $post_id, $data, $subscription );
 
 	}
 

@@ -98,6 +98,7 @@ class The_Events_Calendar extends Calendar {
 	 *					Added support for categories.
 	 *					Added support for descriptions.
 	 * @since	1.10		Added support for title and content Twig templates.
+	 * @since	1.14		Added support for custom fields.	
 	 *
 	 * @param 	mixed 			$result
 	 * @param 	array			$data		The structured data of the event.
@@ -211,22 +212,7 @@ class The_Events_Calendar extends Calendar {
 			
 		}
 
-		$custom_fields = $this->get_setting( 'import/template/custom_fields', $subscription, array() );
-
-		if ( !empty( $custom_fields ) && is_array( $custom_fields ) ) {
-			
-			foreach( $custom_fields as $custom_field ) {
-				
-				\update_post_meta( $event_id, $custom_field[ 'name' ], $this->apply_template( 
-					$custom_field[ 'name' ], 
-					$data, 
-					$custom_field[ 'template' ], 
-					$subscription 
-				) );
-				
-			}
-			
-		}
+		$this->update_custom_fields( $event_id, $data, $subscription );
 				
 		return $event_id;
 		

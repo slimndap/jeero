@@ -335,11 +335,14 @@ class Calendar {
 		);
 		
 	}
+	
 	/**
 	 * Gets all custom field settings fields for a subscription.
 	 * 
 	 * @since	1.10
 	 * @since	1.12		Added HTML escaping to template field instructions.
+	 * @since	1.14		Added support for custom fields.	
+	 *
 	 * @param 	Subscription							$subscription	The subscription
 	 * @return	\Jeero\Subscriptions\Fields\Field[]					All custom field settings fields for a subscription.
 	 */
@@ -405,7 +408,7 @@ class Calendar {
 			array( 
 				'name' => sprintf( '%s/import/template/custom_fields', $this->slug ),
 				'label' => __( 'Custom fields', 'jeero' ),
-				'type' => 'template_custom_fields'
+				'type' => 'custom_fields'
 			),
 		);
 		
@@ -497,6 +500,36 @@ class Calendar {
 		\add_filter( 'content_save_pre', 'wp_filter_post_kses' );
 		
 		return $result;
+	}
+	
+	/**
+	 * Updates the custom fields of a post.
+	 * 
+	 * @since	1.14
+	 * @param 	int					$post_id			The post ID.
+	 * @param	array				$data			The structured event data.
+	 * @param 	Subscription			$subscription	The subscriptions.
+	 * @return 	void
+	 */
+	function update_custom_fields( $post_id, $data, $subscription ) {
+		
+		$custom_fields = $this->get_setting( 'import/template/custom_fields', $subscription, array() );
+
+		if ( !empty( $custom_fields ) && is_array( $custom_fields ) ) {
+			
+			foreach( $custom_fields as $custom_field ) {
+				
+				\update_post_meta( $post_id, $custom_field[ 'name' ], $this->apply_template( 
+					$custom_field[ 'name' ], 
+					$data, 
+					$custom_field[ 'template' ], 
+					$subscription 
+				) );
+				
+			}
+			
+		}
+				
 	}
 	
 	/**

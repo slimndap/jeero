@@ -7,6 +7,14 @@ namespace Jeero\Subscriptions\Fields;
 
 class Textarea extends Field {
 	
+	/**
+	 * Number of rows in the textarea.
+	 * 
+	 * (default value: 6)
+	 * 
+	 * @var		int
+	 * @since	1.14
+	 */
 	protected $rows = 6;
 	
 	function get_control_html() {

@@ -96,8 +96,6 @@ function get_inbox( $settings ) {
 		'settings' => urlencode( json_encode( $settings ) ),
 	);
 	
-	error_log( print_r( $settings, true ) );
-	
 	$items = get( 'inbox', $args );	
 	
 	if ( \is_wp_error( $items ) ) {

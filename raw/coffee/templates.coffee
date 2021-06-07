@@ -35,24 +35,27 @@ add_custom_field = ( $custom_field_table, name = '', template = '' ) ->
 
 jQuery ->
 
-	$template_fields = jQuery '.jeero-field-template textarea, .jeero-field-template_custom_fields textarea'
+	$template_fields = jQuery '.jeero-field-template textarea, .jeero-field-custom_fields textarea'
 
 	$template_fields.each ->
 	
 		wp.codeEditor.initialize jQuery( @ ), jeero_templates.settings
 
 
-	$field = jQuery '.jeero-field-template_custom_fields'
-	$field_table = $field.find 'table'
-	$field_id = $field_table.attr 'id'
+	$custom_fields_fields = jQuery '.jeero-field-custom_fields'
+	$custom_fields_fields.each ->
 	
-	if jeero_templates.custom_fields[ $field_id ]?
-
-		for custom_field in jeero_templates.custom_fields[ $field_id ]
+		$field = jQuery @
+		$field_table = $field.find 'table'
+		$field_id = $field_table.attr 'id'
 		
-			add_custom_field $field_table, custom_field.name, custom_field.template
+		if jeero_templates.custom_fields[ $field_id ]?
 	
-	$field.find('.add-custom-field').click ->
-	
-		add_custom_field $field_table
+			for custom_field in jeero_templates.custom_fields[ $field_id ]
+			
+				add_custom_field $field_table, custom_field.name, custom_field.template
+		
+		$field.find('.add-custom-field').click ->
+		
+			add_custom_field $field_table
 	

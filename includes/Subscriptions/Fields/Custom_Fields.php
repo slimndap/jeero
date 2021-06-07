@@ -1,11 +1,18 @@
 <?php
 /**
- * Textarea settings field.
- * @since	1.10
+ * Custom Fields settings field.
+ *
+ * @since	1.14
  */
 namespace Jeero\Subscriptions\Fields;
 
-class Template_Custom_Fields extends Field {
+/**
+ * Custom Fields class.
+ * 
+ * @extends Field
+ * @since	1.14
+ */
+class Custom_Fields extends Field {
 	
 
 	function get_row_html( $index, $name='', $template='' ) {

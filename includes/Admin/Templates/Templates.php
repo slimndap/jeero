@@ -4,9 +4,10 @@ namespace Jeero\Admin\Templates;
 add_action( 'admin_enqueue_scripts', __NAMESPACE__.'\enqueue_scripts', 9 );
 
 /**
- * Enqueues Codemirror scripts on Jeero admin pages.
+ * Enqueues templates scripts on Jeero admin pages.
  * 
  * @since	1.10
+ * @since	1.14	Added support for custom fields.	
  * @return 	void
  */
 function enqueue_scripts( ) {
@@ -16,9 +17,9 @@ function enqueue_scripts( ) {
 		return;
 	}
 	
-	\wp_enqueue_script( 'jeero/codemirror', \Jeero\PLUGIN_URI . 'assets/js/templates.js', array( 'jquery', 'wp-theme-plugin-editor' ), \Jeero\VERSION );
+	\wp_enqueue_script( 'jeero/templates', \Jeero\PLUGIN_URI . 'assets/js/templates.js', array( 'jquery', 'wp-theme-plugin-editor' ), \Jeero\VERSION );
 
-	$jeero_codemirror = array(
+	$jeero_templates = array(
 		'settings' => array(
 			'codeEditor' =>	wp_enqueue_code_editor(
 				array(
@@ -34,13 +35,7 @@ function enqueue_scripts( ) {
 		
 	);
 
-	$cm_settings[ 'codeEditor' ] = wp_enqueue_code_editor(
-		array(
-			'type' => 'text/html',
-			'viewportMargin' => 'Infinity',
-		)
-	);
-	\wp_localize_script( 'jeero/codemirror', 'jeero_templates', $jeero_codemirror);
+	\wp_localize_script( 'jeero/templates', 'jeero_templates', $jeero_templates);
 	
 	\wp_enqueue_style( 'wp-codemirror' );
 

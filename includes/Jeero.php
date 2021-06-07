@@ -49,7 +49,7 @@ include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Error.php';
 include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Tab.php';
 include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Textarea.php';
 include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Template.php';
-include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Template_Custom_Fields.php';
+include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Custom_Fields.php';
 
 include_once PLUGIN_PATH.'includes/Inbox/Inbox.php';
 
