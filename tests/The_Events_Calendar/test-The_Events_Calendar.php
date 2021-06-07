@@ -163,7 +163,7 @@ class The_Events_Calendar_Test extends Jeero_Test {
 			
 	}
 		
-	function test_inbox_event_uses_custom_fields() {
+	function test_inbox_event_uses_custom_template_fields() {
 		
 		add_filter( 
 			'jeero/mother/get/response/endpoint=subscriptions/a fake ID', 
@@ -244,5 +244,52 @@ class The_Events_Calendar_Test extends Jeero_Test {
 		$this->assertContains( $expected, $actual );	
 			
 	}
+
+	function test_inbox_event_imports_custom_fields() {
+		
+		add_filter( 
+			'jeero/mother/get/response/endpoint=subscriptions/a fake ID', 
+			array( $this, 'get_mock_response_for_get_subscription' ), 
+			10, 3 
+		);
+
+		add_filter( 'jeero/mother/get/response/endpoint=inbox', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
+		
+		$subscription = Jeero\Subscriptions\get_subscription( 'a fake ID' );
+		
+		$settings = array(
+			'theater' => 'veezi',
+			'calendar' => array( 'The_Events_Calendar' ),
+			'The_Events_Calendar/import/template/custom_fields' => array(
+				array(
+					'name' => 'some custom field',
+					'template' => 'Custom field for {{title}}',
+				),
+			),
+		);
+		
+		$subscription->set( 'settings', $settings );
+		$subscription->save();
+
+		Inbox\pickup_items();
+
+		$args = array(
+			'post_status' => 'any',
+			'meta_query' => array(
+				array(
+					'key' => 'jeero/the_events_calendar/veezi/ref',
+					'value' => 123,					
+				),
+			),
+		);
+		
+		$events = \tribe_get_events( $args );
+
+		$actual = get_post_meta( $events[ 0 ]->ID, 'some custom field', true );
+		$expected = 'Custom field for A test event';
+		$this->assertEquals( $expected, $actual );	
+			
+	}
+
 
 }

@@ -492,7 +492,7 @@ class Theater_For_WordPress_Test extends Jeero_Test {
 			
 	}
 		
-	function test_inbox_event_uses_custom_fields() {
+	function test_inbox_event_uses_custom_template_fields() {
 		
 		global $wp_theatre;
 		
@@ -563,4 +563,47 @@ class Theater_For_WordPress_Test extends Jeero_Test {
 		$this->assertContains( $expected, $actual );	
 			
 	}
+
+	function test_inbox_event_imports_custom_fields() {
+		
+		global $wp_theatre;
+		
+		add_filter( 
+			'jeero/mother/get/response/endpoint=subscriptions/a fake ID', 
+			array( $this, 'get_mock_response_for_get_subscription' ), 
+			10, 3 
+		);
+
+		add_filter( 'jeero/mother/get/response/endpoint=inbox', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
+		
+		$subscription = Jeero\Subscriptions\get_subscription( 'a fake ID' );
+		
+		$settings = array(
+			'theater' => 'veezi',
+			'calendar' => array( 'Theater_For_WordPress' ),
+			'Theater_For_WordPress/import/template/custom_fields' => array(
+				array(
+					'name' => 'some custom field',
+					'template' => 'Custom field for {{title}}',
+				),
+			),
+		);
+		
+		$subscription->set( 'settings', $settings );
+		$subscription->save();
+
+		Inbox\pickup_items();
+
+		$args = array(
+			'status' => array( 'draft' ),
+		);
+		$events = $wp_theatre->productions->get( $args );
+
+		$actual = $events[ 0 ]->custom( 'some custom field' );
+		$expected = 'Custom field for A test event';
+		$this->assertEquals( $expected, $actual );	
+			
+	}
+
+
 }

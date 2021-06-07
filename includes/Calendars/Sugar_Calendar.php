@@ -258,6 +258,24 @@ class Sugar_Calendar extends Calendar {
 			\wp_set_object_terms( $post_id, $calendars, sugar_calendar_get_calendar_taxonomy_id(), false  );
 		}
 
+		$custom_fields = $this->get_setting( 'import/template/custom_fields', $subscription, array() );
+
+		if ( !empty( $custom_fields ) && is_array( $custom_fields ) ) {
+			
+			foreach( $custom_fields as $custom_field ) {
+				
+				\update_post_meta( $post_id, $custom_field[ 'name' ], $this->apply_template( 
+					$custom_field[ 'name' ], 
+					$data, 
+					$custom_field[ 'template' ], 
+					$subscription 
+				) );
+				
+			}
+			
+		}
+
+
 	}
 
 }

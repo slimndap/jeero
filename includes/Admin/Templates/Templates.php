@@ -16,16 +16,33 @@ function enqueue_scripts( ) {
 		return;
 	}
 	
+	\wp_enqueue_script( 'jeero/codemirror', \Jeero\PLUGIN_URI . 'assets/js/templates.js', array( 'jquery', 'wp-theme-plugin-editor' ), \Jeero\VERSION );
+
+	$jeero_codemirror = array(
+		'settings' => array(
+			'codeEditor' =>	wp_enqueue_code_editor(
+				array(
+					'type' => 'text/html',
+					'viewportMargin' => 'Infinity',
+				)
+			),
+		),
+		'translations' => array(
+			'delete' => __( 'Delete' ),
+		),
+		'custom_fields' => array(),
+		
+	);
+
 	$cm_settings[ 'codeEditor' ] = wp_enqueue_code_editor(
 		array(
-			'type' => 'text/html'
+			'type' => 'text/html',
+			'viewportMargin' => 'Infinity',
 		)
 	);
-	wp_localize_script( 'jquery', 'cm_settings', $cm_settings);
+	\wp_localize_script( 'jeero/codemirror', 'jeero_templates', $jeero_codemirror);
 	
-	wp_enqueue_script( 'jeero/codemirror', \Jeero\PLUGIN_URI . 'assets/js/templates.js', array( 'jquery', 'wp-theme-plugin-editor' ), \Jeero\VERSION );
-
-	wp_enqueue_style( 'wp-codemirror' );
+	\wp_enqueue_style( 'wp-codemirror' );
 
 }
 

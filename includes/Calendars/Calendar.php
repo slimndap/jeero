@@ -392,21 +392,20 @@ class Calendar {
 			),
 			array(
 				'name' => sprintf( '%s/import/template/title', $this->slug ),
-				'label' => __( 'Event title template', 'jeero' ),
+				'label' => __( 'Event title', 'jeero' ),
 				'type' => 'template',
-				'instructions' => sprintf( 
-					__( 'Leave empty to use the default template: <code>%s</code>.', 'jeero' ),
-					esc_html( $this->get_default_title_template() )
-				),
+				'default' => $this->get_default_title_template(),
 			),
 			array(
 				'name' => sprintf( '%s/import/template/content', $this->slug ),
-				'label' => __( 'Event content template', 'jeero' ),
+				'label' => __( 'Event content', 'jeero' ),
 				'type' => 'template',
-				'instructions' => sprintf( 
-					__( 'Leave empty to use the default template: <code>%s</code>.', 'jeero' ),
-					esc_html( $this->get_default_content_template() )
-				),
+				'default' => $this->get_default_content_template(),
+			),
+			array( 
+				'name' => sprintf( '%s/import/template/custom_fields', $this->slug ),
+				'label' => __( 'Custom fields', 'jeero' ),
+				'type' => 'template_custom_fields'
 			),
 		);
 		

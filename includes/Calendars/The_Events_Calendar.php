@@ -210,7 +210,24 @@ class The_Events_Calendar extends Calendar {
 			}
 			
 		}
-		
+
+		$custom_fields = $this->get_setting( 'import/template/custom_fields', $subscription, array() );
+
+		if ( !empty( $custom_fields ) && is_array( $custom_fields ) ) {
+			
+			foreach( $custom_fields as $custom_field ) {
+				
+				\update_post_meta( $event_id, $custom_field[ 'name' ], $this->apply_template( 
+					$custom_field[ 'name' ], 
+					$data, 
+					$custom_field[ 'template' ], 
+					$subscription 
+				) );
+				
+			}
+			
+		}
+				
 		return $event_id;
 		
 	}

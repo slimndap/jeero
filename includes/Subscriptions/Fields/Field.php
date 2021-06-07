@@ -15,6 +15,8 @@ class Field {
 	
 	protected $value;
 	
+	protected $default;
+	
 	function __construct( $config, $subscription_id, $value = null ) {
 		
 		foreach( $config as $config_key => $config_value ) {
@@ -97,7 +99,14 @@ class Field {
 	}
 	
 	function get_value() {
-		return $this->value;
+		
+		$value = $this->get( 'value' );
+		
+		if (empty( $value ) ) {
+			$value = $this->get( 'default' );
+		}
+		
+		return $value;
 	}
 	
 	function save_setting( $setting ) {

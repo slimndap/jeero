@@ -6,14 +6,18 @@
 namespace Jeero\Subscriptions\Fields;
 
 class Textarea extends Field {
-		
+	
+	protected $rows = 6;
+	
 	function get_control_html() {
 		ob_start();
 		?><textarea name="<?php echo $this->name; ?>"<?php
 			if ( $this->required ) {
 				?> required<?php
-		}?> class="large-text code" rows="6"><?php 
-			echo esc_html( $this->value ); 
+		}?> class="large-text code" rows="<?php echo $this->get( 'rows' ); ?>"><?php 
+			
+			echo esc_html( $this->get_value() ); 			
+			
 		?></textarea><?php
 			
 		if ( !empty( $this->instructions ) ) {

@@ -76,17 +76,26 @@ class WP_Event_Manager extends Calendar {
 		$fields = array_merge( $fields, $this->get_import_update_fields() );
 		$fields = array_merge( $fields, $this->get_custom_fields_fields( $subscription ) );
 
-		$fields[] = 	array(
-			'name' => sprintf( '%s/import/template/location', $this->slug ),
-			'label' => __( 'Event location template', 'jeero' ),
-			'type' => 'template',
-			'instructions' => sprintf( 
-				__( 'Leave empty to use the default template: <code>%s</code>.', 'jeero' ),
-				esc_html( $this->get_default_location_template() )
-			),
-		);
+		$new_fields = array();
+		
+		foreach( $fields as $field )  {
 
-		return $fields;
+			$new_fields[] = $field;
+			
+			if ( sprintf( '%s/import/template/content', $this->slug ) == $field[ 'name' ] ) {
+
+				$new_fields[] =	array(
+					'name' => sprintf( '%s/import/template/location', $this->slug ),
+					'label' => __( 'Event location', 'jeero' ),
+					'type' => 'template',
+					'default' => $this->get_default_location_template(),
+				);
+				
+			}
+		}
+
+
+		return $new_fields;
 		
 	}
 
@@ -232,7 +241,24 @@ class WP_Event_Manager extends Calendar {
 			$event_end = $this->localize_timestamp( strtotime( $data[ 'end' ] ) );			
 			\update_post_meta( $post_id, '_event_end_date', date( 'Y-m-d H:i:s', $event_end ) );
 			\update_post_meta( $post_id, '_event_end_time', date( 'H:i:s', $event_end ) );
-		}		
+		}
+		
+		$custom_fields = $this->get_setting( 'import/template/custom_fields', $subscription, array() );
+		
+		if ( !empty( $custom_fields ) && is_array( $custom_fields ) ) {
+			
+			foreach( $custom_fields as $custom_field ) {
+				
+				\update_post_meta( $post_id, $custom_field[ 'name' ], $this->apply_template( 
+					$custom_field[ 'name' ], 
+					$data, 
+					$custom_field[ 'template' ], 
+					$subscription 
+				) );
+				
+			}
+			
+		}
 
 	}
 
