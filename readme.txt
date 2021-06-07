@@ -83,6 +83,10 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 
 == Changelog ==
 
+= 1.14 =
+
+You can now define your own custom fields for imported events.
+
 = 1.13 =
 
 Added support for the [WP Event Manager](/plugins/wp-event-manager/) plugin.
@@ -153,6 +157,10 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 * Welcome Jeero!
 
 == Upgrade Notice ==
+
+= 1.14 = 
+
+* You can now define your own custom fields for imported events.
 
 = 1.13 = 
 
