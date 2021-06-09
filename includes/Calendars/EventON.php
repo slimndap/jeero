@@ -192,6 +192,12 @@ class EventON extends Calendar {
 				);
 			}
 
+			$category_taxonomoy = $this->get_setting( 'import/category_taxonomy', $subscription, 'event_type' );
+			
+			if ( !empty( $data[ 'production' ][ 'categories' ] ) ) {
+				\wp_set_object_terms( $event_id, $data[ 'production' ][ 'categories' ], $category_taxonomoy, false  );
+			}
+			
 		}		
 
 		$event_start = $this->localize_timestamp( strtotime( $data[ 'start' ] ) );
