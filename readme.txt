@@ -44,6 +44,7 @@ Supported calendar/event plugins:
 
 * [All In One Event Calendar](/plugins/all-in-one-event-calendar/)
 * All [Goodlayers](https://www.goodlayers.com) themes that use their Event Post Type plugin
+* [EventON](https://www.myeventon.com/)
 * [Events Schedule WordPress Plugin](https://demo.curlythemes.com/timetable-wordpress-plugin/)
 * [Modern Events Calendar](/plugins/modern-events-calendar-lite/)
 * [Sugar Calendar](/plugins/sugar-calendar-lite/)
@@ -82,6 +83,10 @@ I am still working on the subscription engine. Once it ready the possibility to 
 Subscription rates will range from €20 - €30 per month, depending on your total number of events. 
 
 == Changelog ==
+
+= 1.15 =
+
+Added support for the [EventON](https://www.myeventon.com/) plugin.
 
 = 1.14 =
 
@@ -157,6 +162,10 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 * Welcome Jeero!
 
 == Upgrade Notice ==
+
+= 1.13 = 
+
+* Adds support for the EventON plugin.
 
 = 1.14.2 = 
 
