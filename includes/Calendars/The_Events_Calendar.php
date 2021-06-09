@@ -3,6 +3,8 @@ namespace Jeero\Calendars;
 
 use Jeero\Helpers\Images as Images;
 
+register_calendar( __NAMESPACE__.'\\The_Events_Calendar' );
+
 /**
  * The_Events_Calendar class.
  * 
@@ -85,6 +87,10 @@ class The_Events_Calendar extends Calendar {
 		}
 		
 		return $venue_id;		
+	}
+	
+	function is_active() {
+		return class_exists( '\Tribe__Events__Main' );
 	}
 	
 	/**

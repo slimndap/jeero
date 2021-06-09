@@ -3,6 +3,8 @@ namespace Jeero\Calendars;
 
 use Jeero\Helpers\Images as Images;
 
+register_calendar( __NAMESPACE__.'\\Sugar_Calendar' );
+
 /**
  * Sugar_Calendar class.
  * @since	1.12
@@ -147,6 +149,10 @@ class Sugar_Calendar extends Calendar {
 		
 	}
 
+	function is_active() {
+		return class_exists( '\Sugar_Calendar_Requirements_Check' );
+	}
+	
 	/**
 	 * Processes the data from an event in the inbox.
 	 * 

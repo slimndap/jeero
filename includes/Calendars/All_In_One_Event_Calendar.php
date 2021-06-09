@@ -5,6 +5,8 @@ use Jeero\Helpers\Images as Images;
 
 const JEERO_CALENDARS_ALL_IN_ONE_EVENT_CALENDAR_REF_KEY = 'jeero/all_in_one_event_calendar/ref';
 
+register_calendar( __NAMESPACE__.'\\All_In_One_Event_Calendar' );
+
 /**
  * The_Events_Calendar class.
  * 
@@ -66,6 +68,10 @@ class All_In_One_Event_Calendar extends Calendar {
 		}
 		
 		return $venue_id;		
+	}
+	
+	function is_active() {
+		return class_exists( '\Ai1ec_Front_Controller' );
 	}
 	
 	/**

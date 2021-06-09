@@ -5,6 +5,8 @@ use Jeero\Helpers\Images as Images;
 
 const JEERO_CALENDARS_THEATER_FOR_WORDPRESS_REF_KEY = 'jeero/theater_for_wordpress/ref';
 
+register_calendar( __NAMESPACE__.'\\Theater_For_WordPress' );
+
 /**
  * Theater_For_WordPress class.
  * 
@@ -50,6 +52,10 @@ class Theater_For_WordPress extends Calendar {
 		
 	}
 
+	function is_active() {
+		return class_exists( '\WP_Theatre' );
+	}
+	
 	/**
 	 * Processes the data from an event in the inbox.
 	 * 

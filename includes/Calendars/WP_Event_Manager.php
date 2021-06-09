@@ -3,6 +3,8 @@ namespace Jeero\Calendars;
 
 use Jeero\Helpers\Images as Images;
 
+register_calendar( __NAMESPACE__.'\\WP_Event_Manager' );
+
 /**
  * WP_Event_Manager class.
  * @since	1.13
@@ -94,7 +96,6 @@ class WP_Event_Manager extends Calendar {
 			}
 		}
 
-
 		return $new_fields;
 		
 	}
@@ -134,6 +135,10 @@ class WP_Event_Manager extends Calendar {
 		}
 		
 		return $venue_id;		
+	}
+	
+	function is_active() {
+		return class_exists( '\WP_Event_Manager' );
 	}
 	
 	/**

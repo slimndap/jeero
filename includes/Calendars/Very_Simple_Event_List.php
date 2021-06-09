@@ -3,6 +3,8 @@ namespace Jeero\Calendars;
 
 use Jeero\Helpers\Images as Images;
 
+register_calendar( __NAMESPACE__.'\\Very_Simple_Event_List' );
+
 /**
  * Very_Simple_Event_List class.
  *
@@ -47,6 +49,10 @@ class Very_Simple_Event_List extends Calendar {
 		
 		return $events[ 0 ]->ID;
 		
+	}
+	
+	function is_active() {
+		return is_plugin_active( 'very-simple-event-list/vsel.php' );
 	}
 	
 	/**

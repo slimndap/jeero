@@ -1,6 +1,8 @@
 <?php
 namespace Jeero\Calendars;
 
+$_jeero_calendars = array();
+
 add_action( 'init', __NAMESPACE__.'\add_import_filters' );
 
 /**
@@ -31,6 +33,18 @@ function add_import_filters() {
  * @return	array	All active calendars.
  */
 function get_active_calendars() {
+	
+	$active_calendars = array();
+
+	$calendars = get_calendars();
+	
+	foreach( $calendars as $calendar ) {
+		if ( $calendar->is_active() ) {
+			$active_calendars[] = $calendar;
+		}
+	}
+
+	return $active_calendars;
 	
 	$slugs = array();
 	
@@ -82,6 +96,15 @@ function get_active_calendars() {
 	
 }
 
+function get_calendars() {
+	global $_jeero_calendars;	
+	
+	$calendars = apply_filters( 'jeero/calendars', $_jeero_calendars );
+
+	return $calendars;
+		
+}
+
 /**
  * Get as calendar.
  *
@@ -115,6 +138,13 @@ function get_calendar( $slug = '' ) {
  */
 function is_plugin_active( $plugin_path ) {
 	return in_array( $plugin_path, (array) get_option( 'active_plugins', array() ), true );
+}
+
+function register_calendar( $classname ) {
+
+	global $_jeero_calendars;	
+	$_jeero_calendars[] = new $classname();
+
 }
 
 	

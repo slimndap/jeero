@@ -74,6 +74,10 @@ class Calendar {
 		
 	}
 	
+	function is_active() {
+		return false;
+	}
+	
 	/**
 	 * Gets the default Twig template for the event title field.
 	 * 

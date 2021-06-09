@@ -3,6 +3,8 @@ namespace Jeero\Calendars;
 
 use Jeero\Helpers\Images as Images;
 
+register_calendar( __NAMESPACE__.'\\Events_Schedule_Wp_Plugin' );
+
 /**
  * Events_Schedule_Wp_Plugin class.
  *
@@ -74,6 +76,10 @@ class Events_Schedule_Wp_Plugin extends Calendar {
 		
 	}
 
+	function is_active() {
+		return defined( 'WCS_FILE' );
+	}
+	
 	/**
 	 * Processes event data from Inbox items.
 	 * 

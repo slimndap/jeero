@@ -3,6 +3,8 @@ namespace Jeero\Calendars;
 
 use Jeero\Helpers\Images as Images;
 
+register_calendar( __NAMESPACE__.'\\GDLR_Events' );
+
 /**
  * GDLR_Events class.
  *
@@ -58,6 +60,10 @@ class GDLR_Events extends Calendar {
 		
 		return $theme_option[ 'event-slug' ];
 
+	}
+	
+	function is_active() {
+		return is_plugin_active( 'gdlr-event/gdlr-event.php' );
 	}
 	
 	function get_category_slug() {
