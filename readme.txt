@@ -158,7 +158,7 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 
 == Upgrade Notice ==
 
-= 1.14 = 
+= 1.14.2 = 
 
 * You can now define your own custom fields for imported events.
 
