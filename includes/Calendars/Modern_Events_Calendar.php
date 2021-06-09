@@ -3,6 +3,7 @@ namespace Jeero\Calendars;
 
 use Jeero\Helpers\Images as Images;
 
+// Register new calendar.
 register_calendar( __NAMESPACE__.'\\Modern_Events_Calendar' );
 
 /**
@@ -72,6 +73,12 @@ class Modern_Events_Calendar extends Calendar {
 		return \MEC::getInstance( sprintf( 'app.libraries.%s', $lib ) );		
 	}
 	
+	/**
+	 * Checks if this calendar is active.
+	 * 
+	 * @since	1.15
+	 * @return	bool
+	 */
 	function is_active() {
 		return class_exists( '\MECEXEC' );
 	}

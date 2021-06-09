@@ -73,7 +73,13 @@ class Calendar {
 		return $output;		
 		
 	}
-	
+		
+	/**
+	 * Checks if this calendar is active.
+	 * 
+	 * @since	1.15
+	 * @return	bool
+	 */
 	function is_active() {
 		return false;
 	}

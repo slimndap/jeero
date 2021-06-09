@@ -3,6 +3,7 @@ namespace Jeero\Calendars;
 
 use Jeero\Helpers\Images as Images;
 
+// Register new calendar.
 register_calendar( __NAMESPACE__.'\\Events_Schedule_Wp_Plugin' );
 
 /**
@@ -76,6 +77,12 @@ class Events_Schedule_Wp_Plugin extends Calendar {
 		
 	}
 
+	/**
+	 * Checks if this calendar is active.
+	 * 
+	 * @since	1.15
+	 * @return	bool
+	 */
 	function is_active() {
 		return defined( 'WCS_FILE' );
 	}

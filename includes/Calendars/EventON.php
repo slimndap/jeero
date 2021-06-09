@@ -3,10 +3,12 @@ namespace Jeero\Calendars;
 
 use Jeero\Helpers\Images as Images;
 
+// Register new calendar.
 register_calendar( __NAMESPACE__.'\\EventON' );
 
 /**
- * Theater_For_WordPress class.
+ * EventON class.
+ * @since	1.15
  * 
  * @extends Calendar
  */
@@ -21,10 +23,24 @@ class EventON extends Calendar {
 
 	}
 	
+	/**
+	 * Checks if this calendar is active.
+	 * 
+	 * @since	1.15
+	 * @return	bool
+	 */
 	function is_active() {
 		return class_exists( '\EventON' );
 	}
 
+	/**
+	 * Gets an EventON post ID by Jeero ref.
+	 * 
+	 * @since	1.15
+	 * @param 	string 	$ref
+	 * @param 	string	$theater
+	 * @return	int
+	 */
 	function get_event_by_ref( $ref, $theater ) {
 		
 		error_log( sprintf( '[%s] Looking for existing %s item %s.', $this->get( 'name' ), $theater, $ref ) );
@@ -50,6 +66,12 @@ class EventON extends Calendar {
 		
 	}
 
+	/**
+	 * Gets all fields for this calendar.
+	 * 
+	 * @since	1.15
+	 * @return	array
+	 */
 	function get_fields( $subscription ) {
 		
 		$fields = parent::get_fields( $subscription );
@@ -93,6 +115,15 @@ class EventON extends Calendar {
 		
 	}
 	
+	/**
+	 * Gets the EventON location ID by location title.
+	 *
+	 * Creates a new location if no location is found.
+	 * 
+	 * @since	1.15
+	 * @param 	string	$title
+	 * @return	int
+	 */
 	function get_location_id( $title ) {
 		$location_id = wp_cache_get( $title, 'jeero/location_id' );
 
@@ -117,6 +148,12 @@ class EventON extends Calendar {
 		return $location_id;		
 	}
 	
+	/**
+	 * Processes the data from an event in the inbox.
+	 * 
+	 * @since 	1.15
+	 * @return	int|WP_Error		Teh event ID or a WP_Error is there was a problem.
+	 */
 	function process_data( $result, $data, $raw, $theater, $subscription ) {
 		
 		$result = parent::process_data( $result, $data, $raw, $theater, $subscription );

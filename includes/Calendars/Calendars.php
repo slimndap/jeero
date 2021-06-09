@@ -1,6 +1,13 @@
 <?php
 namespace Jeero\Calendars;
 
+
+/**
+ * Global variable that tracks all active calendars in Jeero.
+ * 
+ * @since	1.15
+ * @var		array
+ */
 $_jeero_calendars = array();
 
 add_action( 'init', __NAMESPACE__.'\add_import_filters' );
@@ -29,6 +36,7 @@ function add_import_filters() {
  * @since	1.1		Added Events_Schedule_Wp_Plugin.
  * @since	1.03	Added Modern_Events_Calendar.
  * @since	1.12	Added Sugar_Calendar.
+ * @since	1.15	Now @uses Jeero\Calendars::get_calendars() to get all available calendars.
  *
  * @return	array	All active calendars.
  */
@@ -46,63 +54,17 @@ function get_active_calendars() {
 
 	return $active_calendars;
 	
-	$slugs = array();
-	
-	if ( class_exists( 'WP_Theatre' ) ) {
-		$slugs[] = 'Theater_For_WordPress';
-	}
-	
-	if ( class_exists( 'Tribe__Events__Main' ) ) {
-		$slugs[] = 'The_Events_Calendar';
-	}
-	
-	if ( class_exists( 'Ai1ec_Front_Controller' ) ) {
-		$slugs[] = 'All_In_One_Event_Calendar';
-	}
-		
-	if ( defined( 'MECEXEC' ) ) {
-		$slugs[] = 'Modern_Events_Calendar';
-	}
-	
-	if ( defined( 'WCS_FILE' ) ) {
-		$slugs[] = 'Events_Schedule_Wp_Plugin';
-	}
-	
-	if ( is_plugin_active( 'very-simple-event-list/vsel.php' ) ) {
-		$slugs[] = 'Very_Simple_Event_List';
-	}
-		
-	if ( is_plugin_active( 'gdlr-event/gdlr-event.php' ) ) {
-		$slugs[] = 'GDLR_Events';
-	}
-	
-	if ( class_exists( 'Sugar_Calendar_Requirements_Check' ) ) {
-		$slugs[] = 'Sugar_Calendar';
-	}
-
-	if ( class_exists( 'WP_Event_Manager' ) ) {
-		$slugs[] = 'WP_Event_Manager';
-	}
-	
-	$calendars = array();
-	
-	foreach ( $slugs as $slug ) {
-		
-		$calendars[] = get_calendar( $slug );
-		
-	}
-	
-	return $calendars;
-	
 }
 
+/**
+ * Gets all available calendars.
+ * 
+ * @since	1.15
+ * @return	array()
+ */
 function get_calendars() {
-	global $_jeero_calendars;	
-	
-	$calendars = apply_filters( 'jeero/calendars', $_jeero_calendars );
-
-	return $calendars;
-		
+	global $_jeero_calendars;		
+	return $_jeero_calendars;		
 }
 
 /**
@@ -140,6 +102,13 @@ function is_plugin_active( $plugin_path ) {
 	return in_array( $plugin_path, (array) get_option( 'active_plugins', array() ), true );
 }
 
+/**
+ * Registers a new Calendar.
+ * 
+ * @since	1.15
+ * @param 	string	$classname	The full class name of the Calendar (including namespace).
+ * @return 	void
+ */
 function register_calendar( $classname ) {
 
 	global $_jeero_calendars;	

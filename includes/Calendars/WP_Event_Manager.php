@@ -3,6 +3,7 @@ namespace Jeero\Calendars;
 
 use Jeero\Helpers\Images as Images;
 
+// Register new calendar.
 register_calendar( __NAMESPACE__.'\\WP_Event_Manager' );
 
 /**

@@ -3,6 +3,7 @@ namespace Jeero\Calendars;
 
 use Jeero\Helpers\Images as Images;
 
+// Register new calendar.
 register_calendar( __NAMESPACE__.'\\GDLR_Events' );
 
 /**
@@ -62,6 +63,12 @@ class GDLR_Events extends Calendar {
 
 	}
 	
+	/**
+	 * Checks if this calendar is active.
+	 * 
+	 * @since	1.15
+	 * @return	bool
+	 */
 	function is_active() {
 		return is_plugin_active( 'gdlr-event/gdlr-event.php' );
 	}
