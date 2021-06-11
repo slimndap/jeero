@@ -3,7 +3,7 @@ Contributors: slimndap
 Tags: calendar, tickets, events, veezi, ticketmaster, ticketmatic, stager
 Requires PHP: 7.2
 Tested up to: 5.7
-Requires at least: 4.6
+Requires at least: 4.9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -163,7 +163,11 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 
 == Upgrade Notice ==
 
-= 1.13 = 
+= 1.15.1. =
+
+Fixes a problem with event status import to the WordPress for Theater plugin.
+
+= 1.15 = 
 
 * Adds support for the EventON plugin.
 
