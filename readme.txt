@@ -17,6 +17,7 @@ Tired of manually copying your event data in WordPress from your external ticket
 
 Supported ticketing solutions:
 
+* [ActiveTickets](https://jeero.ooo/publish-activetickets-events-on-wordpress/)
 * [AudienceView Professional](https://jeero.ooo/publish-audienceview-events-on-wordpress/)
 * [Billeto](https://jeero.ooo/publish-bravobase-performances-on-wordpress/)
 * [BravoBase](https://jeero.ooo/publish-bravobase-performances-on-wordpress/)
