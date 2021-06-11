@@ -69,6 +69,14 @@ class Custom_Fields extends Field {
 		return ob_get_clean();
 	}
 	
+	/**
+	 * Gets the setting value from the custom fields form field.
+	 * 
+	 * @since	1.14
+	 * @since	1.15.1	Fix: Templates with quotes were corrupted by slashes being added by WordPress.
+	 *
+	 * @return void
+	 */
 	function get_setting_from_form( ) {
 		
 		$field_name = sanitize_title( $this->name );
@@ -84,6 +92,9 @@ class Custom_Fields extends Field {
 			if ( empty( $custom_field[ 'template' ] ) ) {
 				continue;
 			}
+			
+			// Remove slashes from template that were added by WordPress if template had quotes.
+			$custom_field[ 'template' ] = stripslashes( $custom_field[ 'template' ] );
 			
 			$custom_fields[] = $custom_field;
 		}
