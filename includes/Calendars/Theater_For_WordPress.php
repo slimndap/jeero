@@ -75,6 +75,7 @@ class Theater_For_WordPress extends Calendar {
 	 *					Added support for city.
 	 * @since	1.10		Added support for title and content Twig templates.
 	 * @since	1.14		Added support for custom fields.	
+	 * @since	1.15.1	Fix: event status was not set properly.
 	 *
 	 */
 	function process_data( $result, $data, $raw, $theater, $subscription ) {
