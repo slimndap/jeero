@@ -215,7 +215,7 @@ class Theater_For_WordPress extends Calendar {
 			}
 		}
 
-		update_post_meta( $wpt_production->ID, 'tickets_status', $tickets_status );
+		update_post_meta( $wpt_event->ID, 'tickets_status', $tickets_status );
 
 		$this->update_custom_fields( $wpt_production->ID, $data, $subscription );
 
