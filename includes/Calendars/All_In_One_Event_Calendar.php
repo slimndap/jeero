@@ -19,6 +19,7 @@ class All_In_One_Event_Calendar extends Post_Based_Calendar {
 		
 		$this->slug = 'All_In_One_Event_Calendar';
 		$this->name = __( 'All In One Event Calendar', 'jeero' );
+		$this->categories_taxonomy = 'events_categories';
 		
 		parent::__construct();
 		
@@ -85,12 +86,19 @@ class All_In_One_Event_Calendar extends Post_Based_Calendar {
 				$amounts = \wp_list_pluck( $data[ 'prices' ], 'amount' );
 				$args[ 'cost' ]	 = min( $amounts );
 			}
-		
+
 			$Ai1ec_Event = $ai1ec_front_controller->return_registry( true )->get( 'model.event', $args );		
 
 			$Ai1ec_Event->set( 'post_id', $post_id );
 			$Ai1ec_Event->set( 'post', get_post( $post_id ) );
-			$Ai1ec_Event->save( true );
+			
+			// Update event data.
+			$success = $Ai1ec_Event->save( true );
+			
+			// Insert event data if update failed.
+            if ( false === $success ) {
+				$success = $Ai1ec_Event->save( false );
+			}
 			
 		}
 

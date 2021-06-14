@@ -1,8 +1,6 @@
 <?php
 namespace Jeero\Calendars;
 
-use Jeero\Helpers\Images as Images;
-
 // Register new calendar.
 register_calendar( __NAMESPACE__.'\\Modern_Events_Calendar' );
 
@@ -13,64 +11,24 @@ register_calendar( __NAMESPACE__.'\\Modern_Events_Calendar' );
  * 
  * @extends Calendar
  */
-class Modern_Events_Calendar extends Calendar {
+class Modern_Events_Calendar extends Post_Based_Calendar {
 
 	function __construct() {
 		
 		$this->slug = 'Modern_Events_Calendar';
 		$this->name = __( 'Modern Events Calendar', 'jeero' );
-		
+		$this->categories_taxonomy = 'mec_category';
+
 		parent::__construct();
 		
 	}
 	
-	function get_event_by_ref( $ref, $theater ) {
-		
-		error_log( sprintf( '[%s] Looking for existing %s item %s.', $this->get( 'name' ), $theater, $ref ) );
-		
-		$args = array(
-			'post_type' => $this->get_mec_instance( 'main' )->get_main_post_type(),
-			'post_status' => 'any',
-			'meta_query' => array(
-				array(
-					'key' => $this->get_ref_key( $theater ),
-					'value' => $ref,					
-				),
-			),
-		);
-		
-		$events = \get_posts( $args );
-		
-		if ( empty( $events ) ) {
-			return false;
-		}
-		
-		return $events[ 0 ]->ID;
-		
-	}
-
-	/**
-	 * Gets all fields for this calendar.
-	 * 
-	 * @since	1.9
-	 * @since	1.10		Added the $subscription param.
-	 * @since	1.11		Added support for custom fields.
-	 * @return	array
-	 */
-	function get_fields( $subscription ) {
-		
-		$fields = parent::get_fields( $subscription );
-		
-		$fields = array_merge( $fields, $this->get_import_status_fields() );
-		$fields = array_merge( $fields, $this->get_import_update_fields() );
-		$fields = array_merge( $fields, $this->get_custom_fields_fields( $subscription ) );
-		
-		return $fields;
-		
-	}
-
 	function get_mec_instance( $lib ) {
 		return \MEC::getInstance( sprintf( 'app.libraries.%s', $lib ) );		
+	}
+	
+	function get_post_type() {
+		return $this->get_mec_instance( 'main' )->get_main_post_type();
 	}
 	
 	/**
@@ -80,7 +38,7 @@ class Modern_Events_Calendar extends Calendar {
 	 * @return	bool
 	 */
 	function is_active() {
-		return class_exists( '\MECEXEC' );
+		return defined( 'MECEXEC' );
 	}
 	
 	/**
@@ -100,8 +58,11 @@ class Modern_Events_Calendar extends Calendar {
 		
 			$args = array(
 				'name' => $venue[ 'title' ],
-				'address' => $venue[ 'city' ],
 			);
+			
+			if ( !empty( $venue[ 'city' ] ) ) {
+				$args[ 'address' ] = $venue[ 'city' ];
+			}
 		
 			$location_id = $this->get_mec_instance( 'main' )->save_location( $args );
 			
@@ -143,138 +104,80 @@ class Modern_Events_Calendar extends Calendar {
 			return $result;
 		}
 		
-		$ref = $data[ 'ref' ];
-
-		$event_start = strtotime( $data[ 'start' ] );
-
-		$args = array (
-		    'start'=> date( 'Y-m-d', $event_start ),
-		    'start_time_hour' => date( 'g', $event_start ),
-		    'start_time_minutes'=> date( 'i', $event_start ),
-		    'start_time_ampm' => date( 'A', $event_start ),
-		    'interval' => NULL,
-		    'repeat_type' => '',
-		    'repeat_status' => 0,
-		    'meta' => array (
-		        'mec_source' => $theater,
-                'mec_more_info'=> $data[ 'tickets_url' ],
-                'mec_more_info_title' => __( 'Tickets', 'jeero' ),
-                'mec_more_info_target' => '_self',
-		    )
-		);
-		
-		if ( !empty( $data[ 'end' ] ) ) {
-			$event_end = strtotime( $data[ 'end' ] );
-		} else {
-			$event_end = $event_start;			
-			$args[ 'date' ] = array(
-				'hide_end_time' => 1,
-			);
-		}
-
-		$args = array_merge( $args, array(
-		    'end' => date( 'Y-m-d', $event_end ),
-		    'end_time_hour' => date( 'g', $event_end ),
-		    'end_time_minutes' => date( 'i', $event_end ),
-		    'end_time_ampm' => date( 'A', $event_end ),				
-		) );
-			
-		if ( !empty( $data[ 'prices' ] ) ) {
-			$amounts = \wp_list_pluck( $data[ 'prices' ], 'amount' );
-			$args[ 'meta' ][ 'mec_cost' ] = min( $amounts );
-		}
-
-		$event_status = 'EventScheduled';
-		if ( !empty( $data[ 'status' ] ) ) {
-			switch( $data[ 'status' ] ) {
-				case 'cancelled':
-					$event_status = 'EventCancelled';
-					break;
-				default:
-					$event_status = 'EventScheduled';
-			}
-		}
-		$args[ 'meta' ][ 'mec_event_status' ] = $event_status;
-		
-		if ( !empty( $data[ 'venue' ] ) ) {
-			$args[ 'meta' ][ 'mec_location_id' ] = $this->get_location_id( $data[ 'venue' ] );
-		}
-		
 		// Temporarily disable new event notifications.
 		remove_action( 'mec_event_published', array( $this->get_mec_instance( 'notifications' ), 'user_event_publishing'), 10 );
 
-		if ( $event_id = $this->get_event_by_ref( $ref, $theater ) ) {
-			error_log( sprintf( '[%s] Updating event %d / %d.', $this->name, $ref, $event_id ) );
+		$ref = $this->get_post_ref( $data );
 
-			
-			if ( 'always' == $this->get_setting( 'import/update/title', $subscription, 'once' ) ) {
-				$args[ 'title' ] = $this->get_title_value( $data, $subscription );
-			}
-			
-			if ( 'always' == $this->get_setting( 'import/update/description', $subscription, 'once' ) ) {
-				$args[ 'content' ] = $this->get_content_value( $data, $subscription );
-			}
-						
-			$this->get_mec_instance( 'main' )->save_event( $args, $event_id );        	
+		if ( $post_id = $this->get_event_by_ref( $ref, $theater ) ) {
 
-			if ( 
-				'always' == $this->get_setting( 'import/update/image', $subscription, 'once' ) && 
-				!empty( $data[ 'production' ][ 'img' ] )
-			) {
-				$thumbnail_id = Images\update_featured_image_from_url( 
-					$event_id,
-					$data[ 'production' ][ 'img' ]
+			$post = \get_post( $post_id );
+
+			$event_start = strtotime( $data[ 'start' ] );
+
+			$args = array (
+				'title' => $post->post_title,
+				'content' => $post->post_content,
+			    'start'=> date( 'Y-m-d', $event_start ),
+			    'start_time_hour' => date( 'g', $event_start ),
+			    'start_time_minutes'=> date( 'i', $event_start ),
+			    'start_time_ampm' => date( 'A', $event_start ),
+			    'interval' => NULL,
+			    'repeat_type' => '',
+			    'repeat_status' => 0,
+			    'meta' => array (
+			        'mec_source' => $theater,
+	                'mec_more_info'=> $data[ 'tickets_url' ],
+	                'mec_more_info_title' => __( 'Tickets', 'jeero' ),
+	                'mec_more_info_target' => '_self',
+			    )
+			);
+			
+			if ( !empty( $data[ 'end' ] ) ) {
+				$event_end = strtotime( $data[ 'end' ] );
+			} else {
+				$event_end = $event_start;			
+				$args[ 'date' ] = array(
+					'hide_end_time' => 1,
 				);
 			}
 
-			if ( 'always' == $this->get_setting( 'import/update/categories', $subscription, 'once' ) ) {
-				if ( empty( $data[ 'production' ][ 'categories' ] ) ) {
-					\wp_set_object_terms( 
-						$event_id, 
-						array(), 
-						'mec_category', 
-						false  
-					);			
-				} else {
-					\wp_set_object_terms( 
-						$event_id, 
-						$data[ 'production' ][ 'categories' ], 
-						'mec_category', 
-						false  
-					);
+			$args = array_merge( $args, array(
+			    'end' => date( 'Y-m-d', $event_end ),
+			    'end_time_hour' => date( 'g', $event_end ),
+			    'end_time_minutes' => date( 'i', $event_end ),
+			    'end_time_ampm' => date( 'A', $event_end ),				
+			) );
+				
+			if ( !empty( $data[ 'prices' ] ) ) {
+				$amounts = \wp_list_pluck( $data[ 'prices' ], 'amount' );
+				$args[ 'meta' ][ 'mec_cost' ] = min( $amounts );
+			}
+
+			$event_status = 'EventScheduled';
+			if ( !empty( $data[ 'status' ] ) ) {
+				switch( $data[ 'status' ] ) {
+					case 'cancelled':
+						$event_status = 'EventCancelled';
+						break;
+					default:
+						$event_status = 'EventScheduled';
 				}
 			}
-
-		} else {
-			error_log( sprintf( '[%s] Creating event %d.', $this->name, $ref ) );
-
-			$args[ 'title' ]= $this->get_title_value( $data, $subscription );
-			$args[ 'content' ]= $this->get_content_value( $data, $subscription );
-			$args[ 'status' ] = $this->get_setting( 'import/status', $subscription, 'draft' );
-			
-			$event_id = $this->get_mec_instance( 'main' )->save_event( $args );        				
-
-			$thumbnail_id = Images\update_featured_image_from_url( 
-				$event_id,
-				$data[ 'production' ][ 'img' ]
-			);
-
-			if ( !empty( $data[ 'production' ][ 'categories' ] ) ) {
-				\wp_set_object_terms( 
-					$event_id, 
-					$data[ 'production' ][ 'categories' ], 
-					$this->get_mec_instance( 'main' )->get_category_slug(), 
-					false  
-				);
-			}
+			$args[ 'meta' ][ 'mec_event_status' ] = $event_status;
 		
-			\add_post_meta( $event_id, $this->get_ref_key( $theater ), $data[ 'ref' ] );
-		}		
+			if ( !empty( $data[ 'venue' ] ) ) {
+				$args[ 'meta' ][ 'mec_location_id' ] = $this->get_location_id( $data[ 'venue' ] );
+			}
 
+			$this->get_mec_instance( 'main' )->save_event( $args, $post_id );        	
+
+		}
+		
 		// Re-enable new event notifications.
 		add_action( 'mec_event_published', array( $this->get_mec_instance( 'notifications' ), 'user_event_publishing'), 10, 3 );
 
-		return $event_id;
+		return $post_id;
 		
 	}
 	

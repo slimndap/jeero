@@ -513,7 +513,7 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 		Jeero\Inbox\pickup_items();
 
 		$args = array(
-			'status' => array( 'draft' ),
+			'post_status' => array( 'draft' ),
 		);
 		
 		$events = $this->get_events( $args );
