@@ -4,7 +4,15 @@ use Jeero\Subscriptions\Subscription;
 use Jeero\Admin;
 use Jeero\Inbox;
 
-class Sugar_Calendar_Test extends Jeero_Test {
+class Sugar_Calendar_Test extends Post_Based_Calendar_Test {
+	
+	function __construct() {
+		
+		parent::__construct();
+		
+		$this->calendar = 'Sugar_Calendar';
+		
+	}
 	
 	function test_plugin_activated() {
 		
@@ -244,7 +252,7 @@ class Sugar_Calendar_Test extends Jeero_Test {
 		$events = \get_posts( $args );
 
 		$actual = $events[ 0 ]->post_title;
-		$expected = 'Rendering template for Sugar Calendar field failed.';
+		$expected = 'Rendering title template failed:';
 		$this->assertContains( $expected, $actual );	
 			
 	}

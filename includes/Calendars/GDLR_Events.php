@@ -1,8 +1,6 @@
 <?php
 namespace Jeero\Calendars;
 
-use Jeero\Helpers\Images as Images;
-
 // Register new calendar.
 register_calendar( __NAMESPACE__.'\\GDLR_Events' );
 
@@ -15,7 +13,7 @@ register_calendar( __NAMESPACE__.'\\GDLR_Events' );
  * 
  * @extends Calendar
  */
-class GDLR_Events extends Calendar {
+class GDLR_Events extends Post_Based_Calendar {
 
 	function __construct() {
 		
@@ -70,10 +68,10 @@ class GDLR_Events extends Calendar {
 	 * @return	bool
 	 */
 	function is_active() {
-		return is_plugin_active( 'gdlr-event/gdlr-event.php' );
+		return function_exists( '\gdlr_event_init' );
 	}
 	
-	function get_category_slug() {
+	function get_category_taxonomy() {
 
 		global $theme_option;
 	
@@ -119,104 +117,63 @@ class GDLR_Events extends Calendar {
 			return $result;
 		}
 		
-		$ref = $data[ 'ref' ];
+		$ref = $this->get_post_ref( $data );
 
-		$event_start = strtotime( $data[ 'start' ] );
-
-		$post_content = '';
-		if ( !empty( $data[ 'production' ][ 'description' ] ) ) {
-			$post_content = $data[ 'production' ][ 'description' ];
-		}
-		
-		$args = array(
-			'post_type' => $this->get_post_type(),
-			'post_title' => $data[ 'production' ][ 'title' ],
-			'post_content' => $post_content,
-		);
 
 		if ( $event_id = $this->get_event_by_ref( $ref, $theater ) ) {
-			error_log( sprintf( '[%s] Updating event %s / %d.', $this->name, $ref, $event_id ) );
+
+			$event_start = strtotime( $data[ 'start' ] );
+
+			$post_option = $this->get_post_option( $event_id );
 			
-			$args[ 'ID' ] = $event_id;
-
-			wp_update_post( $args );
+			$post_option[ 'page-title' ] = $data[ 'production' ][ 'title' ];
+			$post_option[ 'date' ] = date( 'Y-m-d', $event_start );
+			$post_option[ 'time' ] = date( 'H:i', $event_start );
+			$post_option[ 'buy-now' ] = $data[ 'tickets_url' ];
+			$post_option[ 'location' ] = $data[ 'venue' ][ 'title' ];
 			
-		} else {
-			error_log( sprintf( '[%s] Creating event %s.', $this->name, $ref ) );
-
-			$args[ 'post_status' ] = 'draft';
-
-			$event_id = wp_insert_post( $args );
-
-			\add_post_meta( $event_id, $this->get_ref_key( $theater ), $data[ 'ref' ] );
-
-		}
-		
-		$post_option = $this->get_post_option( $event_id );
-		
-		$post_option[ 'page-title' ] = $data[ 'production' ][ 'title' ];
-		$post_option[ 'date' ] = date( 'Y-m-d', $event_start );
-		$post_option[ 'time' ] = date( 'H:i', $event_start );
-		$post_option[ 'buy-now' ] = $data[ 'tickets_url' ];
-		$post_option[ 'location' ] = $data[ 'venue' ][ 'title' ];
-		
-		// Set status
-		if ( ! empty( $data[ 'status' ] ) ) {
-			
-			switch ( $data[ 'status' ] ) {
+			// Set status
+			if ( ! empty( $data[ 'status' ] ) ) {
 				
-				case 'cancelled':
-					$status = 'cancelled';
-					break;
+				switch ( $data[ 'status' ] ) {
 					
-				case 'soldout':
-					$status = 'sold-out';
-					break;
+					case 'cancelled':
+						$status = 'cancelled';
+						break;
+						
+					case 'soldout':
+						$status = 'sold-out';
+						break;
+						
+					default:
+						$status = 'buy-now';
 					
-				default:
-					$status = 'buy-now';
-				
-			}
-		
-			$post_option[ 'status' ] = $status;
-			
-		}
-		
-		// Set prices
-		if ( ! empty( $data[ 'prices' ] ) ) {
-			$prices = array();
-			
-			foreach( $data[ 'prices' ] as $price ) {
-				if ( empty( $price[ 'title' ] ) ) {
-					$prices[] = \number_format_i18n( $price[ 'amount' ], 2 );				
-				} else {
-					$prices[] = $price[ 'title' ].' '.\number_format_i18n( $price[ 'amount' ], 2 );									
 				}
+			
+				$post_option[ 'status' ] = $status;
+				
 			}
 			
-			$post_option[ 'number' ] = implode( '<br>', $prices );
-		}			
-		
-		\update_post_meta( $event_id, 'post-option', json_encode( $post_option ) );
-		\update_post_meta( $event_id, 'gdlr-event-date', date( 'Y-m-d H:i', $event_start ) );
-
-		if ( !empty( $data[ 'production' ][ 'img' ] ) ) {
+			// Set prices
+			if ( ! empty( $data[ 'prices' ] ) ) {
+				$prices = array();
+				
+				foreach( $data[ 'prices' ] as $price ) {
+					if ( empty( $price[ 'title' ] ) ) {
+						$prices[] = \number_format_i18n( $price[ 'amount' ], 2 );				
+					} else {
+						$prices[] = $price[ 'title' ].' '.\number_format_i18n( $price[ 'amount' ], 2 );									
+					}
+				}
+				
+				$post_option[ 'number' ] = implode( '<br>', $prices );
+			}			
 			
-			$thumbnail_id = Images\add_image_to_library( 
-				$data[ 'production' ][ 'img' ],
-				$event_id
-			);
-			
-			if ( ! \is_wp_error( $thumbnail_id ) ) {
-				\update_post_meta( $event_id, '_thumbnail_id', $thumbnail_id );					
-			}
+			\update_post_meta( $event_id, 'post-option', json_encode( $post_option ) );
+			\update_post_meta( $event_id, 'gdlr-event-date', date( 'Y-m-d H:i', $event_start ) );
 
 		}
 		
-		if ( ! empty( $data[ 'production' ][ 'categories' ] ) ) {
-			\wp_set_object_terms( $event_id, $data[ 'production' ][ 'categories' ], $this->get_category_slug(), false );
-		}
-
 		return $event_id;		
 		
 	}

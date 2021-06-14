@@ -116,7 +116,7 @@ function get_subscription( $subscription_id ) {
 	
 	// Add fields from calendars.
 	foreach( Calendars\get_active_calendars() as $calendar ) {
-		$fields = array_merge( $fields, $calendar->get_fields( $subscription ) );			
+		$fields = array_merge( $fields, $calendar->get_setting_fields( $subscription ) );			
 	}
 
 	$subscription->set( 'fields', $fields );

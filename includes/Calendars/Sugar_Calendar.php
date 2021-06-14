@@ -1,8 +1,6 @@
 <?php
 namespace Jeero\Calendars;
 
-use Jeero\Helpers\Images as Images;
-
 // Register new calendar.
 register_calendar( __NAMESPACE__.'\\Sugar_Calendar' );
 
@@ -12,13 +10,12 @@ register_calendar( __NAMESPACE__.'\\Sugar_Calendar' );
  * 
  * @extends Calendar
  */
-class Sugar_Calendar extends Calendar {
+class Sugar_Calendar extends Post_Based_Calendar {
 
 	function __construct() {
 		
 		$this->slug = 'Sugar_Calendar';
 		$this->name = __( 'Sugar Calendar', 'jeero' );
-		
 		parent::__construct();
 		
 	}
@@ -52,39 +49,6 @@ class Sugar_Calendar extends Calendar {
 		return '{{ venue.title }}{% if venue.city %}, {{ venue.city }}{% endif %}';
 	}
 
-	/**
-	 * Gets a Sugar Calendar post ID by Jeero ref.
-	 * 
-	 * @since	1.12
-	 * @param 	string 	$ref
-	 * @param 	string	$theater
-	 * @return	int
-	 */
-	function get_event_by_ref( $ref, $theater ) {
-		
-		error_log( sprintf( '[%s] Looking for existing %s item %s.', $this->get( 'name' ), $theater, $ref ) );
-		
-		$args = array(
-			'post_type' => \sugar_calendar_get_event_post_type_id(),
-			'post_status' => 'any',
-			'meta_query' => array(
-				array(
-					'key' => $this->get_ref_key( $theater ),
-					'value' => $ref,					
-				),
-			),
-		);
-		
-		$events = \get_posts( $args );
-
-		if ( empty( $events ) ) {
-			return false;
-		}
-		
-		return $events[ 0 ]->ID;
-		
-	}
-	
 	/**
 	 * Gets all fields for this calendar.
 	 * 
@@ -149,6 +113,27 @@ class Sugar_Calendar extends Calendar {
 		return $filtered_fields;
 		
 	}
+	
+	function get_post_fields() {
+		$post_fields = parent::get_post_fields();
+		
+		$new_post_fields = array();
+		
+		foreach( $post_fields as $post_field ) {
+			
+			if ( 'content' == $post_field[ 'name' ] ) {
+				$post_field[ 'template' ] = $this->get_default_content_template();
+			}
+			
+			$new_post_fields[] = $post_field;
+		}
+		
+		return $new_post_fields;
+	}
+	
+	function get_post_type() {
+		return \sugar_calendar_get_event_post_type_id();
+	}
 
 	function is_active() {
 		return class_exists( '\Sugar_Calendar_Requirements_Check' );
@@ -171,103 +156,56 @@ class Sugar_Calendar extends Calendar {
 		
 		$ref = $data[ 'ref' ];
 
-		$post_args = array(
-			'post_type' => \sugar_calendar_get_event_post_type_id(),
-		);
-
-		$event_start = $this->localize_timestamp( strtotime( $data[ 'start' ] ) );
-
-		$event_args = array(
-			'object_type' => 'post',
-			'object_subtype' => \sugar_calendar_get_event_post_type_id(),
-			'start' => date( 'Y-m-d H:i', $event_start ),
-		);
-
-		if ( !empty( $data[ 'end' ] ) ) {
-			$event_end = $this->localize_timestamp( strtotime( $data[ 'end' ] ) );			
-			$event_args[ 'end' ] = date( 'Y-m-d H:i', $event_end );
-		}
-
-		if ( !empty( $data[ 'venue' ] ) ) {
-			$event_args[ 'location' ] = $this->apply_template( 
-				'location', 
-				$data, 
-				$this->get_default_location_template(), 
-				$subscription 
-			);
-		}
-
 		if ( $post_id = $this->get_event_by_ref( $ref, $theater ) ) {
+			
+			$post = \get_post( $post_id );
 
-			error_log( sprintf( '[%s] Updating %s event %s / %d.', $this->name, $theater, $ref, $post_id ) );
-
-			$post_args[ 'ID' ] = $post_id;
-
-			if ( 'always' == $this->get_setting( 'import/update/title', $subscription, 'once' ) ) {
-				$post_args[ 'post_title' ] = $this->get_title_value( $data, $subscription );
-				$event_args[ 'title' ] = $post_args[ 'post_title' ];
+			$event_start = $this->localize_timestamp( strtotime( $data[ 'start' ] ) );
+	
+			$event_args = array(
+				'object_type' => 'post',
+				'object_subtype' => \sugar_calendar_get_event_post_type_id(),
+				'start' => date( 'Y-m-d H:i', $event_start ),
+			);
+	
+			if ( !empty( $data[ 'end' ] ) ) {
+				$event_end = $this->localize_timestamp( strtotime( $data[ 'end' ] ) );			
+				$event_args[ 'end' ] = date( 'Y-m-d H:i', $event_end );
 			}
-			
-			if ( 'always' == $this->get_setting( 'import/update/description', $subscription, 'once' ) ) {
-				$post_args[ 'post_content' ] = $this->get_content_value( $data, $subscription );
-				$event_args[ 'content' ] = $post_args[ 'post_content' ];
-			}
-			
-			$this->update_post( $post_args );
-
-			if ( 
-				'always' == $this->get_setting( 'import/update/image', $subscription, 'once' ) && 
-				!empty( $data[ 'production' ][ 'img' ] )
-			) {
-				$thumbnail_id = Images\update_featured_image_from_url( 
-					$post_id,
-					$data[ 'production' ][ 'img' ]
-				);
-			}
-			
-		} else {
-
-			error_log( sprintf( '[%s] Creating %s event %s.', $this->name, $theater, $ref ) );	
-
-			$post_args[ 'post_title' ] = $this->get_title_value( $data, $subscription );
-			$post_args[ 'post_content' ] = $this->get_content_value( $data, $subscription );
-			$post_args[ 'post_status' ] = $this->get_setting( 'import/status', $subscription, 'draft' );
-
-			$event_args[ 'title' ] = $post_args[ 'post_title' ];
-			$event_args[ 'content' ] = $post_args[ 'post_content' ];
-			$event_args[ 'status' ] = $post_args[ 'post_status' ];
-			
-			$post_id = $this->insert_post( $post_args );
-
-			if ( !empty( $data[ 'production' ][ 'img' ] ) ) {
-				$thumbnail_id = Images\update_featured_image_from_url( 
-					$post_id,
-					$data[ 'production' ][ 'img' ]
+	
+			if ( !empty( $data[ 'venue' ] ) ) {
+				$event_args[ 'location' ] = $this->apply_template( 
+					'location', 
+					$data, 
+					$this->get_default_location_template(), 
+					$subscription 
 				);
 			}
 
-			\add_post_meta( $post_id, $this->get_ref_key( $theater ), $data[ 'ref' ], true );
+			$event_args[ 'title' ] = $post->post_title;
+			$event_args[ 'content' ] = $post->post_content;
+			$event_args[ 'status' ] = $post->post_status;
 			
+			$event_args[ 'object_id' ] = $post_id;		
+			$event = \sugar_calendar_get_event_by_object( $post_id );
+	
+			if ( !empty( $event->id )) {
+				\sugar_calendar_update_event( $event->id, $event_args );
+			} else {
+				\sugar_calendar_add_event( $event_args );
+			}
+
+			$calendars = $this->get_setting( 'import/sc_calendar', $subscription, false );
+	
+			if ( !$calendars ) {
+				\wp_set_object_terms( $post_id, array(), sugar_calendar_get_calendar_taxonomy_id(), false  );			
+			} else {
+				\wp_set_object_terms( $post_id, $calendars, sugar_calendar_get_calendar_taxonomy_id(), false  );
+			}
+
 		}	
 				
-		$event_args[ 'object_id' ] = $post_id;		
-		$event = \sugar_calendar_get_event_by_object( $post_id );
 
-		if ( !empty( $event->id )) {
-			\sugar_calendar_update_event( $event->id, $event_args );
-		} else {
-			\sugar_calendar_add_event( $event_args );
-		}
-
-		$calendars = $this->get_setting( 'import/sc_calendar', $subscription, false );
-
-		if ( !$calendars ) {
-			\wp_set_object_terms( $post_id, array(), sugar_calendar_get_calendar_taxonomy_id(), false  );			
-		} else {
-			\wp_set_object_terms( $post_id, $calendars, sugar_calendar_get_calendar_taxonomy_id(), false  );
-		}
-
-		$this->update_custom_fields( $post_id, $data, $subscription );
 
 	}
 

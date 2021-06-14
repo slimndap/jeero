@@ -35,7 +35,7 @@ add_custom_field = ( $custom_field_table, name = '', template = '' ) ->
 
 jQuery ->
 
-	$template_fields = jQuery '.jeero-field-template textarea, .jeero-field-custom_fields textarea'
+	$template_fields = jQuery '.jeero-field-template textarea, .jeero-field-post_fields textarea, .jeero-field-custom_fields textarea'
 
 	$template_fields.each ->
 	

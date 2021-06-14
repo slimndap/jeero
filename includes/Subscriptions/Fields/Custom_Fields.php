@@ -45,8 +45,8 @@ class Custom_Fields extends Field {
 		?><table id="<?php echo sanitize_title( $this->name ); ?>">
 			<thead>
 				<tr>
-					<th class="name">Name</th>
-					<th class="template">Template</th>
+					<th class="name"><?php _e( 'Name', 'jeero' ); ?></th>
+					<th class="template"><?php _e( 'Template', 'jeero' ); ?></th>
 					<th class="actions"></th>
 				</tr>
 			</thead><?php

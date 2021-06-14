@@ -1,8 +1,6 @@
 <?php
 namespace Jeero\Calendars;
 
-use Jeero\Helpers\Images as Images;
-
 // Register new calendar.
 register_calendar( __NAMESPACE__.'\\The_Events_Calendar' );
 
@@ -11,12 +9,14 @@ register_calendar( __NAMESPACE__.'\\The_Events_Calendar' );
  * 
  * @extends Calendar
  */
-class The_Events_Calendar extends Calendar {
+class The_Events_Calendar extends Post_Based_Calendar {
 
 	function __construct() {
 		
 		$this->slug = 'The_Events_Calendar';
 		$this->name = __( 'The Events Calendar', 'jeero' );
+		$this->post_type = 'tribe_events';
+		$this->categories_taxonomy = 'tribe_events_cat';
 		
 		parent::__construct();
 		
@@ -27,69 +27,26 @@ class The_Events_Calendar extends Calendar {
 		error_log( sprintf( '[%s] Looking for existing %s item %s.', $this->get( 'name' ), $theater, $ref ) );
 		
 		$args = array(
-			'post_status' => 'any',
+			'status' => array( 'draft' ),
 			'meta_query' => array(
 				array(
 					'key' => $this->get_ref_key( $theater ),
 					'value' => $ref,					
 				),
 			),
+			'cache_buster' => wp_generate_uuid4( ),
 		);
-		
-		$events = \tribe_get_events( $args );
-		
-		if ( empty( $events ) ) {
+
+		$posts = \tribe_get_events( $args );
+
+		if ( empty( $posts ) ) {
 			return false;
 		}
 		
-		return $events[ 0 ]->ID;
-		
-	}
-	
-	/**
-	 * Gets all fields for this calendar.
-	 * 
-	 * @since	1.8
-	 * @since	1.10		Added the $subscription param.
-	 *					Added support for custom fields.
-	 * @return	array
-	 */
-	function get_fields( $subscription ) {
-		
-		$fields = parent::get_fields( $subscription );
-		
-		$fields = array_merge( $fields, $this->get_import_status_fields() );
-		$fields = array_merge( $fields, $this->get_import_update_fields() );
-		$fields = array_merge( $fields, $this->get_custom_fields_fields( $subscription ) );
-		
-		return $fields;
+		return $posts[ 0 ]->ID;
 		
 	}
 
-	function get_venue_id( $title ) {
-		$venue_id = wp_cache_get( $title, 'jeero/venue_id' );
-
-		if ( false === $venue_id ) {
-		
-			$venue_post = get_page_by_title( $title, OBJECT, 'tribe_venue' );
-			
-			if ( !( $venue_post ) ) {
-				$venue_id = tribe_create_venue( 
-					array( 
-						'Venue' => $title,
-					)
-				);
-			} else {
-				$venue_id = $venue_post->ID;
-			}
-			
-			wp_cache_set( $title, $venue_id, 'jeero/venue_id' );
-			
-		}
-		
-		return $venue_id;		
-	}
-	
 	/**
 	 * Checks if this calendar is active.
 	 * 
@@ -130,104 +87,42 @@ class The_Events_Calendar extends Calendar {
 		
 		$ref = $data[ 'ref' ];
 		
-		$event_start = $this->localize_timestamp( strtotime( $data[ 'start' ] ) );
-
-		$args = array(
-			'EventStartDate' => date( 'Y-m-d', $event_start ),
-			'EventStartHour' => date( 'H', $event_start ),
-			'EventStartMinute' => date( 'i', $event_start ),
-		);
-		
-		if ( !empty( $data[ 'end' ] ) ) {
-			$event_end = $this->localize_timestamp( strtotime( $data[ 'end' ] ) );
-		} else {
-			$event_end = $event_start;
-		}
-
-		$args = array_merge( 
-			$args, 
-			array(
-				'EventEndDate' => date( 'Y-m-d', $event_end ),
-				'EventEndHour' => date( 'H', $event_end ),
-				'EventEndMinute' => date( 'i', $event_end ),
-			) 
-		);
-
-		if ( !empty( $data[ 'venue' ] ) ) {
-			$args[ 'venue' ] = array(
-				'VenueID' => $this->get_venue_id( $data[ 'venue' ][ 'title' ] ),
-			);
-		}
-		
-		if ( !empty( $data[ 'prices' ] ) ) {
-			$amounts = \wp_list_pluck( $data[ 'prices' ], 'amount' );
-			$args[ 'EventCost' ]	 = min( $amounts );
-		}
-		
-		if ( !empty( $data[ 'tickets_url' ] ) ) {
-			$args[ 'EventURL' ] = $data[ 'tickets_url' ];			
-		}
-		
-		if ( $event_id = $this->get_event_by_ref( $ref, $theater ) ) {
+		if ( $post_id = $this->get_event_by_ref( $ref, $theater ) ) {
 			
-			if ( 'always' == $this->get_setting( 'import/update/title', $subscription, 'once' ) ) {
-				$args[ 'post_title' ] = $this->get_title_value( $data, $subscription );
-			}
-			
-			if ( 'always' == $this->get_setting( 'import/update/description', $subscription, 'once' ) ) {
-				$args[ 'post_content' ] = $this->get_content_value( $data, $subscription );
-			}
-						
-			$event_id = \tribe_update_event( $event_id, $args );
-
-			if ( 
-				'always' == $this->get_setting( 'import/update/image', $subscription, 'once' ) && 
-				!empty( $data[ 'production' ][ 'img' ] )
-			) {
-				$thumbnail_id = Images\update_featured_image_from_url( 
-					$event_id,
-					$data[ 'production' ][ 'img' ]
-				);
-			}
-
-			if ( 'always' == $this->get_setting( 'import/update/categories', $subscription, 'once' ) ) {
-				if ( empty( $data[ 'production' ][ 'categories' ] ) ) {
-					\wp_set_object_terms( $event_id, array(), 'tribe_events_cat', false  );			
-				} else {
-					\wp_set_object_terms( $event_id, $data[ 'production' ][ 'categories' ], 'tribe_events_cat', false  );
-				}
-			}
-
-			error_log( sprintf( '[%s] Updating %s event %s / %d.', $this->name, $theater, $ref, $event_id ) );
-			
-		} else {
-			
-			error_log( sprintf( '[%s] Creating %s event %s.', $this->name, $theater, $ref ) );
-
-			$args[ 'post_title' ]= $this->get_title_value( $data, $subscription );
-			$args[ 'post_content' ]= $this->get_content_value( $data, $subscription );
-			$args[ 'post_status' ] = $this->get_setting( 'import/status', $subscription, 'draft' );
-			
-			$event_id = \tribe_create_event( $args );
-			
-			\add_post_meta( $event_id, $this->get_ref_key( $theater ), $data[ 'ref' ] );
-
-			if ( !empty( $data[ 'production' ][ 'img' ] ) ) {
-				$thumbnail_id = Images\update_featured_image_from_url( 
-					$event_id,
-					$data[ 'production' ][ 'img' ]
-				);
-			}
-
-			if ( !empty( $data[ 'production' ][ 'categories' ] ) ) {
-				\wp_set_object_terms( $event_id, $data[ 'production' ][ 'categories' ], 'tribe_events_cat', false  );
-			}
-			
-		}
-
-		$this->update_custom_fields( $event_id, $data, $subscription );
+			$event_start = $this->localize_timestamp( strtotime( $data[ 'start' ] ) );
 				
-		return $event_id;
+			$args = array(
+				'EventStartDate' => date( 'Y-m-d', $event_start ),
+				'EventStartHour' => date( 'H', $event_start ),
+				'EventStartMinute' => date( 'i', $event_start ),
+			);
+			
+			if ( !empty( $data[ 'end' ] ) ) {
+				$event_end = $this->localize_timestamp( strtotime( $data[ 'end' ] ) );
+			} else {
+				$event_end = $event_start;
+			}
+
+			if ( !empty( $data[ 'venue' ] ) ) {
+				$args[ 'venue' ] = array(
+					'VenueID' => $this->get_post_id_by_title( $data[ 'venue' ][ 'title' ], 'tribe_venue' ),
+				);
+			}
+		
+			if ( !empty( $data[ 'prices' ] ) ) {
+				$amounts = \wp_list_pluck( $data[ 'prices' ], 'amount' );
+				$args[ 'EventCost' ]	 = min( $amounts );
+			}
+			
+			if ( !empty( $data[ 'tickets_url' ] ) ) {
+				$args[ 'EventURL' ] = $data[ 'tickets_url' ];			
+			}
+		
+			$post_id = \tribe_update_event( $post_id, $args );
+			
+		}
+
+		return $post_id;
 		
 	}
 	

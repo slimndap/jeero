@@ -1,33 +1,28 @@
 <?php
-use Jeero\Subscriptions;
-use Jeero\Subscriptions\Subscription;
-use Jeero\Admin;
-use Jeero\Inbox;
-
-class The_Events_Calendar_Test extends Jeero_Test {
+class The_Events_Calendar_Test extends Post_Based_Calendar_Test {
 	
-	function test_plugin_activated() {
+	function __construct() {
 		
-		$actual = class_exists( 'Tribe__Events__Main' );
-		$expected = true;
+		parent::__construct();
 		
-		$this->assertEquals( $expected, $actual );
+		$this->calendar = 'The_Events_Calendar';
 		
 	}
 	
-	function test_calendar_in_subscription_edit_form() {
-		add_filter( 'jeero/mother/get/response/endpoint=subscriptions/a fake ID', array( $this, 'get_mock_response_for_get_subscription' ), 10, 3 );
+	function get_events( $args = array() ) {
 
-		$_GET[ 'edit' ] = 'a fake ID';
+		$defaults = array(
+			'cache_buster' => wp_generate_uuid4( ),
+		);
 		
-		$actual = Admin\Subscriptions\get_admin_page_html();
-		$expected = '<input name="calendar[]" type="checkbox" value="The_Events_Calendar">';
+		$args = wp_parse_args( $args, $defaults );
 		
-		$this->assertContains( $expected, $actual );
+		return \tribe_get_events( $args );
 		
 	}
 	
-	function test_inbox_event_is_imported() {
+	function test_inbox_event_is_updated_after_second_import() {
+		global $wp_theatre;
 		
 		add_filter( 
 			'jeero/mother/get/response/endpoint=subscriptions/a fake ID', 
@@ -41,26 +36,22 @@ class The_Events_Calendar_Test extends Jeero_Test {
 		
 		$settings = array(
 			'theater' => 'veezi',
-			'calendar' => array( 'The_Events_Calendar' ),
+			'calendar' => array( $this->calendar ),
 		);
 		
 		$subscription->set( 'settings', $settings );
 		$subscription->save();
 
-		Inbox\pickup_items();
+		// Start import twice.
+		Jeero\Inbox\pickup_items();
+		Jeero\Inbox\pickup_items();
 
 		$args = array(
-			'post_status' => 'any',
-			'meta_query' => array(
-				array(
-					'key' => 'jeero/the_events_calendar/veezi/ref',
-					'value' => 123,					
-				),
-			),
+			'status' => array( 'draft' ),
 		);
 		
-		$events = \tribe_get_events( $args );
-
+		$events = $this->get_events( $args );
+		
 		$actual = count( $events );
 		$expected = 1;
 		$this->assertEquals( $expected, $actual );
@@ -69,226 +60,6 @@ class The_Events_Calendar_Test extends Jeero_Test {
 		$expected = 'A test event';
 		$this->assertEquals( $expected, $actual );
 		
-	}
-	
-	function test_inbox_event_uses_default_templates() {
-		
-		add_filter( 
-			'jeero/mother/get/response/endpoint=subscriptions/a fake ID', 
-			array( $this, 'get_mock_response_for_get_subscription' ), 
-			10, 3 
-		);
-
-		add_filter( 'jeero/mother/get/response/endpoint=inbox', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
-		
-		$subscription = Jeero\Subscriptions\get_subscription( 'a fake ID' );
-		
-		$settings = array(
-			'theater' => 'veezi',
-			'calendar' => array( 'The_Events_Calendar' ),
-		);
-		
-		$subscription->set( 'settings', $settings );
-		$subscription->save();
-
-		Inbox\pickup_items();
-
-		$args = array(
-			'post_status' => 'any',
-			'meta_query' => array(
-				array(
-					'key' => 'jeero/the_events_calendar/veezi/ref',
-					'value' => 123,					
-				),
-			),
-		);
-		
-		$events = \tribe_get_events( $args );
-
-		$actual = $events[ 0 ]->post_title;
-		$expected = 'A test event';
-		$this->assertEquals( $expected, $actual );	
-		
-		$actual = $events[ 0 ]->post_content;
-		$expected = '<p>A description.</p>';
-		$this->assertEquals( $expected, $actual );	
-		
-		
-			
-	}
-
-	function test_inbox_event_uses_custom_templates() {
-		
-		add_filter( 
-			'jeero/mother/get/response/endpoint=subscriptions/a fake ID', 
-			array( $this, 'get_mock_response_for_get_subscription' ), 
-			10, 3 
-		);
-
-		add_filter( 'jeero/mother/get/response/endpoint=inbox', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
-		
-		$subscription = Jeero\Subscriptions\get_subscription( 'a fake ID' );
-		
-		$settings = array(
-			'theater' => 'veezi',
-			'calendar' => array( 'The_Events_Calendar' ),
-			'The_Events_Calendar/import/template/title' => '{{title}} with custom template',
-			'The_Events_Calendar/import/template/content' => '{{description|raw}}{% if tickets_url %}<h3>Tickets</h3>{{tickets_url}}{% endif %}',
-		);
-		
-		$subscription->set( 'settings', $settings );
-		$subscription->save();
-
-		Inbox\pickup_items();
-
-		$args = array(
-			'post_status' => 'any',
-			'meta_query' => array(
-				array(
-					'key' => 'jeero/the_events_calendar/veezi/ref',
-					'value' => 123,					
-				),
-			),
-		);
-		
-		$events = \tribe_get_events( $args );
-
-		$actual = $events[ 0 ]->post_title;
-		$expected = 'A test event with custom template';
-		$this->assertEquals( $expected, $actual );	
-		
-		$actual = $events[ 0 ]->post_content;
-		$expected = '<p>A description.</p><h3>Tickets</h3>https://slimndap.com';
-		$this->assertEquals( $expected, $actual );	
-			
-	}
-		
-	function test_inbox_event_uses_custom_template_fields() {
-		
-		add_filter( 
-			'jeero/mother/get/response/endpoint=subscriptions/a fake ID', 
-			array( $this, 'get_mock_response_for_get_subscription' ), 
-			10, 3 
-		);
-
-		add_filter( 'jeero/mother/get/response/endpoint=inbox', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
-		
-		$subscription = Jeero\Subscriptions\get_subscription( 'a fake ID' );
-		
-		$settings = array(
-			'theater' => 'veezi',
-			'calendar' => array( 'The_Events_Calendar' ),
-			'The_Events_Calendar/import/template/content' => '<h3>{{ subtitle }}</h3>{{description|raw}}',
-		);
-		
-		$subscription->set( 'settings', $settings );
-		$subscription->save();
-
-		Inbox\pickup_items();
-
-		$args = array(
-			'post_status' => 'any',
-			'meta_query' => array(
-				array(
-					'key' => 'jeero/the_events_calendar/veezi/ref',
-					'value' => 123,					
-				),
-			),
-		);
-		
-		$events = \tribe_get_events( $args );
-
-		$actual = $events[ 0 ]->post_content;
-		$expected = '<h3>The subtitle</h3><p>A description.</p>';
-		$this->assertEquals( $expected, $actual );	
-			
-	}
-	
-	function test_inbox_event_silently_fails_incorrect_templates() {
-		
-		add_filter( 
-			'jeero/mother/get/response/endpoint=subscriptions/a fake ID', 
-			array( $this, 'get_mock_response_for_get_subscription' ), 
-			10, 3 
-		);
-
-		add_filter( 'jeero/mother/get/response/endpoint=inbox', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
-		
-		$subscription = Jeero\Subscriptions\get_subscription( 'a fake ID' );
-		
-		$settings = array(
-			'theater' => 'veezi',
-			'calendar' => array( 'The_Events_Calendar' ),
-			'The_Events_Calendar/import/template/title' => '{% if xxx}{{ title }}',
-		);
-		
-		$subscription->set( 'settings', $settings );
-		$subscription->save();
-
-		Inbox\pickup_items();
-
-		$args = array(
-			'post_status' => 'any',
-			'meta_query' => array(
-				array(
-					'key' => 'jeero/the_events_calendar/veezi/ref',
-					'value' => 123,					
-				),
-			),
-		);
-		
-		$events = \tribe_get_events( $args );
-
-		$actual = $events[ 0 ]->post_title;
-		$expected = 'Rendering template for The Events Calendar field failed.';
-		$this->assertContains( $expected, $actual );	
-			
-	}
-
-	function test_inbox_event_imports_custom_fields() {
-		
-		add_filter( 
-			'jeero/mother/get/response/endpoint=subscriptions/a fake ID', 
-			array( $this, 'get_mock_response_for_get_subscription' ), 
-			10, 3 
-		);
-
-		add_filter( 'jeero/mother/get/response/endpoint=inbox', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
-		
-		$subscription = Jeero\Subscriptions\get_subscription( 'a fake ID' );
-		
-		$settings = array(
-			'theater' => 'veezi',
-			'calendar' => array( 'The_Events_Calendar' ),
-			'The_Events_Calendar/import/template/custom_fields' => array(
-				array(
-					'name' => 'some custom field',
-					'template' => 'Custom field for {{title}}',
-				),
-			),
-		);
-		
-		$subscription->set( 'settings', $settings );
-		$subscription->save();
-
-		Inbox\pickup_items();
-
-		$args = array(
-			'post_status' => 'any',
-			'meta_query' => array(
-				array(
-					'key' => 'jeero/the_events_calendar/veezi/ref',
-					'value' => 123,					
-				),
-			),
-		);
-		
-		$events = \tribe_get_events( $args );
-
-		$actual = get_post_meta( $events[ 0 ]->ID, 'some custom field', true );
-		$expected = 'Custom field for A test event';
-		$this->assertEquals( $expected, $actual );	
-			
 	}
 
 

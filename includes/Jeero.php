@@ -23,6 +23,7 @@ include_once PLUGIN_PATH.'includes/Admin/Templates/Templates.php';
 
 include_once PLUGIN_PATH.'includes/Calendars/Calendars.php';
 include_once PLUGIN_PATH.'includes/Calendars/Calendar.php';
+include_once PLUGIN_PATH.'includes/Calendars/Post_Based_Calendar.php';
 include_once PLUGIN_PATH.'includes/Calendars/All_In_One_Event_Calendar.php';
 include_once PLUGIN_PATH.'includes/Calendars/GDLR_Events.php';
 include_once PLUGIN_PATH.'includes/Calendars/EventON.php';
@@ -42,15 +43,16 @@ include_once PLUGIN_PATH.'includes/Subscriptions/Subscriptions.php';
 include_once PLUGIN_PATH.'includes/Subscriptions/Subscription.php';
 include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Fields.php';
 include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Field.php';
+include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Custom_Fields.php';
 include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Select.php';
 include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Checkbox.php';
 include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Url.php';
 include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Message.php';
 include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Error.php';
+include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Post_Fields.php';
 include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Tab.php';
 include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Textarea.php';
 include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Template.php';
-include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Custom_Fields.php';
 
 include_once PLUGIN_PATH.'includes/Inbox/Inbox.php';
 
