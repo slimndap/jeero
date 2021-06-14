@@ -164,7 +164,11 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 
 == Upgrade Notice ==
 
-= 1.15.1. =
+= 1.15.2 =
+
+Fixes a problem with the Modern Events Calendar plugin.
+
+= 1.15.1 =
 
 Fixes a problem with event status import to the WordPress for Theater plugin.
 
