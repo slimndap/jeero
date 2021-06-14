@@ -19,7 +19,7 @@ class Very_Simple_Event_List extends Post_Based_Calendar {
 	function __construct() {
 		
 		$this->slug = 'Very_Simple_Event_List';
-		$this->name = __( 'Very Simple Event List', 'jeero' );
+		$this->name = 'Very Simple Event List';
 		$this->post_type = 'event';
 		$this->categories_taxonomy = 'event_cat';
 		

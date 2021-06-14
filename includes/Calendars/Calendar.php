@@ -89,13 +89,16 @@ class Calendar {
 	
 	function get_rendered_template( $template_name, $data, $subscription ) {
 		
+		$template = $this->get_default_template( $template_name );
+		
+		$post_fields = $this->get_setting( 'import/post_fields', $subscription );
+		if ( !empty( $post_fields[ $template_name ] ) && !empty( $post_fields[ $template_name ][ 'template' ] ) ) {
+			$template = $post_fields[ $template_name ][ 'template' ];
+		}
+		
 		$rendered_template = $this->apply_template(
 			
-			$this->get_setting( 
-				'import/template/'.$template_name, 
-				$subscription, 
-				$this->get_default_template( $template_name ) 
-			),
+			$template,
 			$data, 
 			$subscription 
 			

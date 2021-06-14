@@ -144,8 +144,17 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 		$settings = array(
 			'theater' => 'veezi',
 			'calendar' => array( $this->calendar ),
-			$this->calendar.'/import/template/title' => '{{title}} with custom template',
-			$this->calendar.'/import/template/content' => '{{description|raw}}{% if tickets_url %}<h3>Tickets</h3>{{tickets_url}}{% endif %}',
+			$this->calendar.'/import/post_fields' => array(
+				'title' => array(
+					'template' => '{{title}} with custom template',
+				),
+				'content' => array(
+					'template' => '{{description|raw}}{% if tickets_url %}<h3>Tickets</h3>{{tickets_url}}{% endif %}',
+				),
+				'excerpt' => array(
+					'template' => '{{ description|striptags|slice(0, 5) ~ \'...\'}}',
+				),
+			),
 		);
 		
 		$subscription->set( 'settings', $settings );
@@ -167,6 +176,10 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 		$expected = '<p>A description.</p><h3>Tickets</h3>https://slimndap.com';
 		$this->assertEquals( $expected, $actual );	
 			
+		$actual = $events[ 0 ]->post_excerpt;
+		$expected = 'A des...';
+		$this->assertEquals( $expected, $actual );	
+			
 	}
 		
 	function test_inbox_event_uses_custom_template_fields() {
@@ -184,7 +197,11 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 		$settings = array(
 			'theater' => 'veezi',
 			'calendar' => array( $this->calendar ),
-			$this->calendar.'/import/template/content' => '<h3>{{ subtitle }}</h3>{{description|raw}}',
+			$this->calendar.'/import/post_fields' => array(
+				'content' => array(
+					'template' => '<h3>{{ subtitle }}</h3>{{description|raw}}',
+				),
+			),
 		);
 		
 		$subscription->set( 'settings', $settings );
@@ -219,7 +236,11 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 		$settings = array(
 			'theater' => 'veezi',
 			'calendar' => array( $this->calendar ),
-			$this->calendar.'/import/template/title' => '{% if xxx}{{ title }}',
+			$this->calendar.'/import/post_fields' => array(
+				'title' => array(
+					'template' => '{% if xxx}{{ title }}',
+				),
+			),
 		);
 		
 		$subscription->set( 'settings', $settings );
@@ -358,7 +379,11 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 		$settings = array(
 			'theater' => 'veezi',
 			'calendar' => array( $this->calendar ),
-			$this->calendar.'/import/update/title' => 'always',
+			$this->calendar.'/import/post_fields' => array(
+				'title' => array(
+					'update' => 'always',
+				),
+			),
 		);
 		
 		$subscription->set( 'settings', $settings );
@@ -393,6 +418,116 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 		
 	}
 	
+	function test_excerpt_is_updated_after_second_import() {
+		global $wp_theatre;
+		
+		add_filter( 
+			'jeero/mother/get/response/endpoint=subscriptions/a fake ID', 
+			array( $this, 'get_mock_response_for_get_subscription' ), 
+			10, 3 
+		);
+
+		add_filter( 'jeero/mother/get/response/endpoint=inbox', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
+		
+		$subscription = Jeero\Subscriptions\get_subscription( 'a fake ID' );
+		
+		$settings = array(
+			'theater' => 'veezi',
+			'calendar' => array( $this->calendar ),
+			$this->calendar.'/import/post_fields' => array(
+				'excerpt' => array(
+					'update' => 'always',
+					'template' => '{{ description|striptags|slice(0, 5) ~ \'...\'}}',
+				),
+			),
+		);
+		
+		$subscription->set( 'settings', $settings );
+		$subscription->save();
+
+		// Start first import.
+		Jeero\Inbox\pickup_items();
+
+		// Update title of first event.
+		$args = array(
+			'post_status' => array( 'draft' ),
+		);		
+		$events = $this->get_events( $args );
+		
+		$actual = $events[ 0 ]->post_excerpt;
+		$expected = 'A des...';
+		$this->assertEquals( $expected, $actual );
+
+		$args = array(
+			'ID' => $events[ 0 ]->ID,
+			'post_excerpt' => 'A nice excerpt',
+		);
+		wp_update_post( $args );
+
+		$args = array(
+			'post_status' => array( 'draft' ),
+		);		
+		$events = $this->get_events( $args );
+		
+		$actual = $events[ 0 ]->post_excerpt;
+		$expected = 'A nice excerpt';
+		$this->assertEquals( $expected, $actual );
+
+		// Start second import.
+		Jeero\Inbox\pickup_items();
+
+		$args = array(
+			'post_status' => array( 'draft' ),
+		);
+		$events = $this->get_events( $args );
+		
+		$actual = $events[ 0 ]->post_excerpt;
+		$expected = 'A des...';
+		$this->assertEquals( $expected, $actual );
+		
+	}
+	
+	function test_inbox_event_is_updated_after_second_import() {
+		global $wp_theatre;
+		
+		add_filter( 
+			'jeero/mother/get/response/endpoint=subscriptions/a fake ID', 
+			array( $this, 'get_mock_response_for_get_subscription' ), 
+			10, 3 
+		);
+
+		add_filter( 'jeero/mother/get/response/endpoint=inbox', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
+		
+		$subscription = Jeero\Subscriptions\get_subscription( 'a fake ID' );
+		
+		$settings = array(
+			'theater' => 'veezi',
+			'calendar' => array( $this->calendar ),
+		);
+		
+		$subscription->set( 'settings', $settings );
+		$subscription->save();
+
+		// Start import twice.
+		Jeero\Inbox\pickup_items();
+		Jeero\Inbox\pickup_items();
+
+		$args = array(
+			'status' => array( 'draft' ),
+		);
+		
+		$events = $this->get_events( $args );
+		
+		$actual = count( $events );
+		$expected = 1;
+		$this->assertEquals( $expected, $actual );
+		
+		$actual = $events[ 0 ]->post_title;
+		$expected = 'A test event';
+		$this->assertEquals( $expected, $actual );
+		
+	}
+
 	/**
 	 * Tests if title is not overwritten after import.
 	 * 

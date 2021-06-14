@@ -85,10 +85,10 @@ class The_Events_Calendar extends Post_Based_Calendar {
 			return $result;
 		}
 		
-		$ref = $data[ 'ref' ];
+		$ref = $this->get_post_ref( $data );
 		
 		if ( $post_id = $this->get_event_by_ref( $ref, $theater ) ) {
-			
+
 			$event_start = $this->localize_timestamp( strtotime( $data[ 'start' ] ) );
 				
 			$args = array(
@@ -102,6 +102,15 @@ class The_Events_Calendar extends Post_Based_Calendar {
 			} else {
 				$event_end = $event_start;
 			}
+
+			$args = array_merge( 
+				$args, 
+				array(
+					'EventEndDate' => date( 'Y-m-d', $event_end ),
+					'EventEndHour' => date( 'H', $event_end ),
+					'EventEndMinute' => date( 'i', $event_end ),
+				) 
+			);
 
 			if ( !empty( $data[ 'venue' ] ) ) {
 				$args[ 'venue' ] = array(
@@ -117,7 +126,7 @@ class The_Events_Calendar extends Post_Based_Calendar {
 			if ( !empty( $data[ 'tickets_url' ] ) ) {
 				$args[ 'EventURL' ] = $data[ 'tickets_url' ];			
 			}
-		
+			
 			$post_id = \tribe_update_event( $post_id, $args );
 			
 		}

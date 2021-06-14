@@ -291,17 +291,18 @@ abstract class Post_Based_Calendar extends Calendar {
 
 			$post_args[ 'ID' ] = $post_id;
 
-			if ( 'always' == $this->get_setting( 'import/update/title', $subscription, 'once' ) ) {
+			$post_fields = $this->get_setting( 'import/post_fields', $subscription );
 
-				$post_args[ 'post_title' ] = $this->get_rendered_template( 'title', $data, $subscription );
-			}
-			
-			if ( 'always' == $this->get_setting( 'import/update/description', $subscription, 'once' ) ) {
-				$post_args[ 'post_content' ] = $this->get_rendered_template( 'content', $data, $subscription );
-			}
-			
-			if ( 'always' == $this->get_setting( 'import/update/excerpt', $subscription, 'once' ) ) {
-				$post_args[ 'post_excerpt' ] = $this->get_rendered_template( 'excerpt', $data, $subscription );
+			foreach ( array( 'title', 'content', 'excerpt' ) as $post_field ) {
+
+				if ( 
+					!empty( $post_fields[ $post_field ] ) &&
+					!empty( $post_fields[ $post_field ][ 'update' ] ) &&
+					'always' == $post_fields[ $post_field ][ 'update' ]
+				) {
+					$post_args[ 'post_'.$post_field ] = $this->get_rendered_template( $post_field, $data, $subscription );
+				}
+				
 			}
 			
 			$this->update_post( $post_args );

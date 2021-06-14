@@ -21,8 +21,7 @@ class The_Events_Calendar_Test extends Post_Based_Calendar_Test {
 		
 	}
 	
-	function test_inbox_event_is_updated_after_second_import() {
-		global $wp_theatre;
+	function test_event_has_startdate() {
 		
 		add_filter( 
 			'jeero/mother/get/response/endpoint=subscriptions/a fake ID', 
@@ -33,6 +32,7 @@ class The_Events_Calendar_Test extends Post_Based_Calendar_Test {
 		add_filter( 'jeero/mother/get/response/endpoint=inbox', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
 		
 		$subscription = Jeero\Subscriptions\get_subscription( 'a fake ID' );
+		$calendar = Jeero\Calendars\get_calendar( $this->calendar );
 		
 		$settings = array(
 			'theater' => 'veezi',
@@ -42,23 +42,18 @@ class The_Events_Calendar_Test extends Post_Based_Calendar_Test {
 		$subscription->set( 'settings', $settings );
 		$subscription->save();
 
-		// Start import twice.
-		Jeero\Inbox\pickup_items();
 		Jeero\Inbox\pickup_items();
 
 		$args = array(
-			'status' => array( 'draft' ),
-		);
+			'post_status' => 'any',
+		);		
+		$events = tribe_get_events( $args );	
 		
-		$events = $this->get_events( $args );
+		$expected = date( 'Ymd', time() + 48 * HOUR_IN_SECONDS );
+		$actual = tribe_get_start_date( $events[0]->ID, true, 'Ymd' );
 		
-		$actual = count( $events );
-		$expected = 1;
 		$this->assertEquals( $expected, $actual );
-		
-		$actual = $events[ 0 ]->post_title;
-		$expected = 'A test event';
-		$this->assertEquals( $expected, $actual );
+			
 		
 	}
 
