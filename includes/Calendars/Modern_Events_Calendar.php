@@ -80,7 +80,7 @@ class Modern_Events_Calendar extends Calendar {
 	 * @return	bool
 	 */
 	function is_active() {
-		return class_exists( '\MECEXEC' );
+		return defined('MECEXEC');
 	}
 	
 	/**
