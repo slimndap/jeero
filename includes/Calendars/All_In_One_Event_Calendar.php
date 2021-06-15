@@ -21,6 +21,25 @@ class All_In_One_Event_Calendar extends Post_Based_Calendar {
 		
 	}
 	
+	function get_post_fields() {
+		$post_fields = parent::get_post_fields();
+		
+		$new_post_fields = array();
+		
+		foreach( $post_fields as $post_field ) {
+			
+			// All_In_One_Event_Calendar does not support excerpts.
+			if ( 'excerpt' == $post_field[ 'name' ] ) {
+				continue;
+			}
+			
+			$new_post_fields[] = $post_field;
+			
+		}
+		
+		return $new_post_fields;
+		
+	}
 	function get_post_type( ) {
 		return \AI1EC_POST_TYPE;
 	}
