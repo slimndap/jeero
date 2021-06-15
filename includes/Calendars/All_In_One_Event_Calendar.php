@@ -1,10 +1,6 @@
 <?php
 namespace Jeero\Calendars;
 
-use Jeero\Helpers\Images as Images;
-
-const JEERO_CALENDARS_ALL_IN_ONE_EVENT_CALENDAR_REF_KEY = 'jeero/all_in_one_event_calendar/ref';
-
 // Register new calendar.
 register_calendar( __NAMESPACE__.'\\All_In_One_Event_Calendar' );
 
@@ -66,40 +62,41 @@ class All_In_One_Event_Calendar extends Post_Based_Calendar {
 
 		if ( $post_id = $this->get_event_by_ref( $ref, $theater ) ) {
 
-	        $args = array(
-		        'start' => strtotime( $data[ 'start' ] ),
-	            'ticket_url' => $data[ 'tickets_url' ],
-	        );
-        
+			$Ai1ec_Event = $ai1ec_front_controller->return_registry( true )->get( 'model.event' );
+
+			// Try to load existing event data from 	custom Ai1 table.
+			try {
+				$Ai1ec_Event->initialize_from_id( $post_id );
+			} catch( \Ai1ec_Event_Not_Found_Exception $e ) {
+				// No event data found. Create an empty row.
+				$Ai1ec_Event->set( 'post_id', $post_id );
+				$Ai1ec_Event->save( false );
+			}
+			
+			$Ai1ec_Event->set( 'start', strtotime( $data[ 'start' ] ) );
+			$Ai1ec_Event->set( 'ticket_url', $data[ 'tickets_url' ] );
+			
 	        if ( empty( $data[ 'end' ] ) ) {
-				$args[ 'instant_event' ] =  true;
-				$args[ 'end' ] = strtotime( $data[ 'start' ] ) + 15 * MINUTE_IN_SECONDS;	        
+				$Ai1ec_Event->set( 'instant_event', true );
+				$Ai1ec_Event->set( 'end', strtotime( $data[ 'start' ] ) + 15 * MINUTE_IN_SECONDS );
 		    } else {
-				$args[ 'end' ] = strtotime( $data[ 'end' ] );	        
+				$Ai1ec_Event->set( 'end', strtotime( $data[ 'end' ] ) );
 	        }
         
 			if ( !empty( $data[ 'venue' ] ) ) {
-				$args[ 'venue' ] = $data[ 'venue' ][ 'title' ];
+				$Ai1ec_Event->set( 'venue', $data[ 'venue' ][ 'title' ] );
 			}
 		
 			if ( !empty( $data[ 'prices' ] ) ) {
 				$amounts = \wp_list_pluck( $data[ 'prices' ], 'amount' );
-				$args[ 'cost' ]	 = min( $amounts );
+				$Ai1ec_Event->set( 'cost', min( $amounts ) );
 			}
 
-			$Ai1ec_Event = $ai1ec_front_controller->return_registry( true )->get( 'model.event', $args );		
-
-			$Ai1ec_Event->set( 'post_id', $post_id );
 			$Ai1ec_Event->set( 'post', get_post( $post_id ) );
 			
 			// Update event data.
 			$success = $Ai1ec_Event->save( true );
-			
-			// Insert event data if update failed.
-            if ( false === $success ) {
-				$success = $Ai1ec_Event->save( false );
-			}
-			
+						
 		}
 
 		return $post_id;

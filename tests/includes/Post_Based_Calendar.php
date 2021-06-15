@@ -31,6 +31,34 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 		
 	}
 	
+	function import_event( $settings = array() ) {
+		
+		$defaults = array(
+			'theater' => 'veezi',
+			'calendar' => array( $this->calendar ),			
+		);
+		
+		$settings = wp_parse_args( $settings, $defaults );
+		
+		add_filter( 
+			'jeero/mother/get/response/endpoint=subscriptions/a fake ID', 
+			array( $this, 'get_mock_response_for_get_subscription' ), 
+			10, 3 
+		);
+
+		add_filter( 'jeero/mother/get/response/endpoint=inbox', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
+		
+		$subscription = Jeero\Subscriptions\get_subscription( 'a fake ID' );
+		$calendar = Jeero\Calendars\get_calendar( $this->calendar );
+		
+		$subscription->set( 'settings', $settings );
+		$subscription->save();
+
+		Jeero\Inbox\pickup_items();
+		
+		
+	}
+	
 
 	function test_plugin_activated() {
 		
@@ -55,6 +83,9 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 		
 	function test_inbox_event_is_imported() {
 		
+		$this->import_event();
+		
+		/*
 		add_filter( 
 			'jeero/mother/get/response/endpoint=subscriptions/a fake ID', 
 			array( $this, 'get_mock_response_for_get_subscription' ), 
@@ -75,7 +106,7 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 		$subscription->save();
 
 		Jeero\Inbox\pickup_items();
-
+		*/
 		$args = array(
 			'post_status' => 'any',
 		);		

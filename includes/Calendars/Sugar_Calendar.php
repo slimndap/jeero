@@ -154,7 +154,7 @@ class Sugar_Calendar extends Post_Based_Calendar {
 			return $result;
 		}
 		
-		$ref = $data[ 'ref' ];
+		$ref = $this->get_post_ref( $data );
 
 		if ( $post_id = $this->get_event_by_ref( $ref, $theater ) ) {
 			
