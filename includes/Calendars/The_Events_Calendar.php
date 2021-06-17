@@ -112,6 +112,8 @@ class The_Events_Calendar extends Calendar {
 	 *					Added support for descriptions.
 	 * @since	1.10		Added support for title and content Twig templates.
 	 * @since	1.14		Added support for custom fields.	
+	 * @since	1.15.3	Fix: start and end times were incorreclty localized, resulting in
+	 *					the start and end times being off.
 	 *
 	 * @param 	mixed 			$result
 	 * @param 	array			$data		The structured data of the event.
@@ -130,7 +132,7 @@ class The_Events_Calendar extends Calendar {
 		
 		$ref = $data[ 'ref' ];
 		
-		$event_start = $this->localize_timestamp( strtotime( $data[ 'start' ] ) );
+		$event_start = strtotime( $data[ 'start' ] );
 
 		$args = array(
 			'EventStartDate' => date( 'Y-m-d', $event_start ),
@@ -139,7 +141,7 @@ class The_Events_Calendar extends Calendar {
 		);
 		
 		if ( !empty( $data[ 'end' ] ) ) {
-			$event_end = $this->localize_timestamp( strtotime( $data[ 'end' ] ) );
+			$event_end = strtotime( $data[ 'end' ] );
 		} else {
 			$event_end = $event_start;
 		}

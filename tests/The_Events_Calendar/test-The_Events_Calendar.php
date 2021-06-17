@@ -340,7 +340,7 @@ class The_Events_Calendar_Test extends Jeero_Test {
 		$this->assertEquals( $expected, $actual );
 		
 		$actual = tribe_get_end_time( $events[ 0 ]->ID, 'H:i' );
-		$expected = date( 'H:i', current_time( 'timestamp' ) + 48 * HOUR_IN_SECONDS );
+		$expected = date( 'H:i', current_time( 'timestamp' ) + 90 * MINUTE_IN_SECONDS + 48 * HOUR_IN_SECONDS );
 		$this->assertEquals( $expected, $actual );
 		
 	}
