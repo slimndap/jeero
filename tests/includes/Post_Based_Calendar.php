@@ -85,28 +85,6 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 		
 		$this->import_event();
 		
-		/*
-		add_filter( 
-			'jeero/mother/get/response/endpoint=subscriptions/a fake ID', 
-			array( $this, 'get_mock_response_for_get_subscription' ), 
-			10, 3 
-		);
-
-		add_filter( 'jeero/mother/get/response/endpoint=inbox', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
-		
-		$subscription = Jeero\Subscriptions\get_subscription( 'a fake ID' );
-		$calendar = Jeero\Calendars\get_calendar( $this->calendar );
-		
-		$settings = array(
-			'theater' => 'veezi',
-			'calendar' => array( $this->calendar ),
-		);
-		
-		$subscription->set( 'settings', $settings );
-		$subscription->save();
-
-		Jeero\Inbox\pickup_items();
-		*/
 		$args = array(
 			'post_status' => 'any',
 		);		

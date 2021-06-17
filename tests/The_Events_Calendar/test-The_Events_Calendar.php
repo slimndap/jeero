@@ -23,26 +23,7 @@ class The_Events_Calendar_Test extends Post_Based_Calendar_Test {
 	
 	function test_event_has_startdate() {
 		
-		add_filter( 
-			'jeero/mother/get/response/endpoint=subscriptions/a fake ID', 
-			array( $this, 'get_mock_response_for_get_subscription' ), 
-			10, 3 
-		);
-
-		add_filter( 'jeero/mother/get/response/endpoint=inbox', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
-		
-		$subscription = Jeero\Subscriptions\get_subscription( 'a fake ID' );
-		$calendar = Jeero\Calendars\get_calendar( $this->calendar );
-		
-		$settings = array(
-			'theater' => 'veezi',
-			'calendar' => array( $this->calendar ),
-		);
-		
-		$subscription->set( 'settings', $settings );
-		$subscription->save();
-
-		Jeero\Inbox\pickup_items();
+		$this->import_event();
 
 		$args = array(
 			'post_status' => 'any',
@@ -54,6 +35,42 @@ class The_Events_Calendar_Test extends Post_Based_Calendar_Test {
 		
 		$this->assertEquals( $expected, $actual );
 			
+		
+	}
+
+	/**
+	 * Tests if The Events Calendar imports the correct start and end times.
+	 *
+	 * Until 0.15.2 Jeero was incorrectly localizing start and end times.
+	 *
+	 * @since	0.15.3
+	 */
+	function test_has_correct_times() {
+		
+		// Set website time zone to non-UTC.
+		update_option( 'gmt_offset', +2 );
+		
+		$this->import_event();
+
+		$args = array(
+			'post_status' => 'any',
+			'meta_query' => array(
+				array(
+					'key' => 'jeero/the_events_calendar/veezi/ref',
+					'value' => 123,					
+				),
+			),
+		);
+		
+		$events = \tribe_get_events( $args );
+
+		$actual = tribe_get_start_time( $events[ 0 ]->ID, 'H:i' );
+		$expected = date( 'H:i', current_time( 'timestamp' ) + 48 * HOUR_IN_SECONDS );
+		$this->assertEquals( $expected, $actual );
+		
+		$actual = tribe_get_end_time( $events[ 0 ]->ID, 'H:i' );
+		$expected = date( 'H:i', current_time( 'timestamp' ) + 90 * MINUTE_IN_SECONDS + 48 * HOUR_IN_SECONDS );
+		$this->assertEquals( $expected, $actual );
 		
 	}
 

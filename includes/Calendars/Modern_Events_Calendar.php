@@ -35,6 +35,7 @@ class Modern_Events_Calendar extends Post_Based_Calendar {
 	 * Checks if this calendar is active.
 	 * 
 	 * @since	1.15
+	 * @since	1.15.2	Fix: Modern Events Calendar was not being detected any more.
 	 * @return	bool
 	 */
 	function is_active() {
