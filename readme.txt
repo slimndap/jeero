@@ -23,6 +23,7 @@ Supported ticketing solutions:
 * [BravoBase](https://jeero.ooo/publish-bravobase-performances-on-wordpress/)
 * [Brown Paper Tickets](https://jeero.ooo/publish-brown-paper-tickets-events-on-wordpress/)
 * [Ents24](https://jeero.ooo/publish-ents24-events-on-wordpress/)
+* [Eventive](https://jeero.ooo/publish-eventive-films-on-wordpress/)
 * [Ovatic](https://jeero.ooo/publish-ovatic-events-on-wordpress/)
 * [OvationTix](https://jeero.ooo/publish-ovationtix-events-on-wordpress/)
 * [PatronBase](https://jeero.ooo/publish-patronbase-performances-on-wordpress/)
