@@ -177,17 +177,26 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 		
 		$events = $this->get_events( $args );
 
-		$actual = $events[ 0 ]->post_title;
-		$expected = 'A test event with custom template';
-		$this->assertEquals( $expected, $actual );	
+		$calendar = Jeero\Calendars\get_calendar( $this->calendar );
+		$post_field_names = wp_list_pluck( $calendar->get_post_fields(), 'name' );
 		
-		$actual = $events[ 0 ]->post_content;
-		$expected = '<p>A description.</p><h3>Tickets</h3>https://slimndap.com';
-		$this->assertEquals( $expected, $actual );	
+		if ( in_array( 'title', $post_field_names ) ) {
+			$actual = $events[ 0 ]->post_title;
+			$expected = 'A test event with custom template';
+			$this->assertEquals( $expected, $actual );			
+		}
+		
+		if ( in_array( 'content', $post_field_names ) ) {
+			$actual = $events[ 0 ]->post_content;
+			$expected = '<p>A description.</p><h3>Tickets</h3>https://slimndap.com';
+			$this->assertEquals( $expected, $actual );	
+		}
 			
-		$actual = $events[ 0 ]->post_excerpt;
-		$expected = 'A des...';
-		$this->assertEquals( $expected, $actual );	
+		if ( in_array( 'excerpt', $post_field_names ) ) {
+			$actual = $events[ 0 ]->post_excerpt;
+			$expected = 'A des...';
+			$this->assertEquals( $expected, $actual );	
+		}
 			
 	}
 		
@@ -373,18 +382,7 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 	 * @since	1.4
 	 */
 	function test_title_is_updated_after_second_import() {
-		global $wp_theatre;
-		
-		add_filter( 
-			'jeero/mother/get/response/endpoint=subscriptions/a fake ID', 
-			array( $this, 'get_mock_response_for_get_subscription' ), 
-			10, 3 
-		);
 
-		add_filter( 'jeero/mother/get/response/endpoint=inbox', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
-		
-		$subscription = Jeero\Subscriptions\get_subscription( 'a fake ID' );
-		
 		$settings = array(
 			'theater' => 'veezi',
 			'calendar' => array( $this->calendar ),
@@ -393,20 +391,17 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 					'update' => 'always',
 				),
 			),
-		);
-		
-		$subscription->set( 'settings', $settings );
-		$subscription->save();
+		);		
 
 		// Start first import.
-		Jeero\Inbox\pickup_items();
+		$this->import_event( $settings );
 
 		// Update title of first event.
 		$args = array(
 			'post_status' => array( 'draft' ),
 		);		
 		$events = $this->get_events( $args );
-		
+
 		$args = array(
 			'ID' => $events[ 0 ]->ID,
 			'post_title' => 'A test event with a new title',
@@ -428,17 +423,6 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 	}
 	
 	function test_excerpt_is_updated_after_second_import() {
-		global $wp_theatre;
-		
-		add_filter( 
-			'jeero/mother/get/response/endpoint=subscriptions/a fake ID', 
-			array( $this, 'get_mock_response_for_get_subscription' ), 
-			10, 3 
-		);
-
-		add_filter( 'jeero/mother/get/response/endpoint=inbox', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
-		
-		$subscription = Jeero\Subscriptions\get_subscription( 'a fake ID' );
 		
 		$settings = array(
 			'theater' => 'veezi',
@@ -451,11 +435,8 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 			),
 		);
 		
-		$subscription->set( 'settings', $settings );
-		$subscription->save();
-
 		// Start first import.
-		Jeero\Inbox\pickup_items();
+		$this->import_event( $settings );
 
 		// Update title of first event.
 		$args = array(
@@ -497,28 +478,10 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 	}
 	
 	function test_inbox_event_is_updated_after_second_import() {
-		global $wp_theatre;
 		
-		add_filter( 
-			'jeero/mother/get/response/endpoint=subscriptions/a fake ID', 
-			array( $this, 'get_mock_response_for_get_subscription' ), 
-			10, 3 
-		);
-
-		add_filter( 'jeero/mother/get/response/endpoint=inbox', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
-		
-		$subscription = Jeero\Subscriptions\get_subscription( 'a fake ID' );
-		
-		$settings = array(
-			'theater' => 'veezi',
-			'calendar' => array( $this->calendar ),
-		);
-		
-		$subscription->set( 'settings', $settings );
-		$subscription->save();
+		$this->import_event( );
 
 		// Start import twice.
-		Jeero\Inbox\pickup_items();
 		Jeero\Inbox\pickup_items();
 
 		$args = array(
@@ -543,29 +506,9 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 	 * @since	1.4
 	 */
 	function test_title_is_not_updated_after_second_import() {
-		global $wp_theatre;
-		
-		add_filter( 
-			'jeero/mother/get/response/endpoint=subscriptions/a fake ID', 
-			array( $this, 'get_mock_response_for_get_subscription' ), 
-			10, 3 
-		);
-
-		add_filter( 'jeero/mother/get/response/endpoint=inbox', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
-		
-		$subscription = Jeero\Subscriptions\get_subscription( 'a fake ID' );
-		$calendar = Jeero\Calendars\get_calendar( $this->calendar );
-		
-		$settings = array(
-			'theater' => 'veezi',
-			'calendar' => array( $this->calendar ),
-		);
-		
-		$subscription->set( 'settings', $settings );
-		$subscription->save();
 
 		// Start first import.
-		Jeero\Inbox\pickup_items();
+		$this->import_event( );
 
 		// Update title of first event.
 		$args = array(
@@ -612,29 +555,14 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 	 * @since	1.4
 	 */
 	function test_inbox_event_is_published() {
-		global $wp_theatre;
-		
-		add_filter( 
-			'jeero/mother/get/response/endpoint=subscriptions/a fake ID', 
-			array( $this, 'get_mock_response_for_get_subscription' ), 
-			10, 3 
-		);
 
-		add_filter( 'jeero/mother/get/response/endpoint=inbox', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
-		
-		$subscription = Jeero\Subscriptions\get_subscription( 'a fake ID' );
-		
 		$settings = array(
 			'theater' => 'veezi',
 			'calendar' => array( $this->calendar ),
 			$this->calendar.'/import/status' => 'publish',
 		);
 		
-		$subscription->set( 'settings', $settings );
-		$subscription->save();
-
-		// Start import.
-		Jeero\Inbox\pickup_items();
+		$this->import_event( $settings );
 
 		$events = $this->get_events();
 		
@@ -650,34 +578,13 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 	 * @since	1.5
 	 */
 	function test_inbox_event_is_not_imported_on_error() {
-		global $wp_theatre;
-		
-		add_filter( 
-			'jeero/mother/get/response/endpoint=subscriptions/a fake ID', 
-			array( $this, 'get_mock_response_for_get_subscription' ), 
-			10, 3 
-		);
 
-		add_filter( 'jeero/mother/get/response/endpoint=inbox', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
+		$this->import_event( );
 		
-		$subscription = Jeero\Subscriptions\get_subscription( 'a fake ID' );
-		
-		$theater = 'veezi';
-		
-		$settings = array(
-			'theater' => $theater,
-			'calendar' => array( $this->calendar ),
-		);
-		
-		$subscription->set( 'settings', $settings );
-		$subscription->save();
-
+		// Test if the regular import still works.
 		$args = array(
 			'post_status' => array( 'draft' ),
 		);
-		
-		// Test if the regular import still works.
-		Jeero\Inbox\pickup_items();
 		$actual = $this->get_events( $args );
 		$expected = 1;
 		$this->assertCount( $expected, $actual );
@@ -705,38 +612,16 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 	 */
 	function test_categories_are_imported() {
 		
-		global $wp_theatre;
-		
-		add_filter( 
-			'jeero/mother/get/response/endpoint=subscriptions/a fake ID', 
-			array( $this, 'get_mock_response_for_get_subscription' ), 
-			10, 3 
-		);
-
-		add_filter( 'jeero/mother/get/response/endpoint=inbox', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
-		
-		$subscription = Jeero\Subscriptions\get_subscription( 'a fake ID' );
-		$calendar = Jeero\Calendars\get_calendar( $this->calendar );
-		
-		if ( empty( $calendar->get_categories_taxonomy( $subscription ) ) ) {
-			return;
-		}
-		
-		$settings = array(
-			'theater' => 'veezi',
-			'calendar' => array( $this->calendar ),
-		);
-		
-		$subscription->set( 'settings', $settings );
-		$subscription->save();
-
-		jeero\Inbox\pickup_items();
+		$this->import_event( );
 
 		$args = array(
 			'post_status' => array( 'draft' ),
 		);
 
 		$events = $this->get_events( $args );
+
+		$calendar = Jeero\Calendars\get_calendar( $this->calendar );
+		$subscription = Jeero\Subscriptions\get_subscription( 'a fake ID' );
 
 		$actual = wp_get_post_terms( $events[ 0 ]->ID, $calendar->get_categories_taxonomy( $subscription ) );
 

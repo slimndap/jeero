@@ -27,6 +27,24 @@ class Modern_Events_Calendar extends Post_Based_Calendar {
 		return \MEC::getInstance( sprintf( 'app.libraries.%s', $lib ) );		
 	}
 	
+	function get_post_fields() {
+		
+		$post_fields = parent::get_post_fields();
+		
+		$new_post_fields = array();
+		
+		foreach( $post_fields as $post_field ) {
+			
+			if ( 'excerpt' == $post_field[ 'name' ] ) {
+				continue;
+			}
+			$new_post_fields[] = $post_field;
+		}
+		
+		return $new_post_fields;
+		
+	}
+
 	function get_post_type() {
 		return $this->get_mec_instance( 'main' )->get_main_post_type();
 	}
@@ -119,6 +137,7 @@ class Modern_Events_Calendar extends Post_Based_Calendar {
 			$args = array (
 				'title' => $post->post_title,
 				'content' => $post->post_content,
+				'status' => $post->post_status,
 			    'start'=> date( 'Y-m-d', $event_start ),
 			    'start_time_hour' => date( 'g', $event_start ),
 			    'start_time_minutes'=> date( 'i', $event_start ),

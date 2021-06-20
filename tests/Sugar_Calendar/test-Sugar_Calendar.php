@@ -16,7 +16,7 @@ class Sugar_Calendar_Test extends Post_Based_Calendar_Test {
 	
 	
 	function test_inbox_event_uses_default_templates() {
-		
+
 		add_filter( 
 			'jeero/mother/get/response/endpoint=subscriptions/a fake ID', 
 			array( $this, 'get_mock_response_for_get_subscription' ), 

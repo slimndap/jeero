@@ -55,59 +55,52 @@ class Sugar_Calendar extends Post_Based_Calendar {
 	 * @since	1.12
 	 * @return	array
 	 */
-	function get_fields( $subscription ) {
+	function get_setting_fields( $subscription ) {
 		
-		$fields = parent::get_fields( $subscription );
-		
-		$fields = array_merge( $fields, $this->get_import_status_fields() );
+		$fields = parent::get_setting_fields( $subscription );
 		
 		// Add a SC Calendars field. 
 		$calendars = get_terms( array(
-			'taxonomy' => sugar_calendar_get_calendar_taxonomy_id(),
+			'taxonomy' => \sugar_calendar_get_calendar_taxonomy_id(),
 			'hide_empty' => false,
 		) );
 		
-		if ( !empty( $calendars ) ) {
 			
-			$choices = array();
-			foreach( $calendars as $calendar ) {
-				$choices[ $calendar->slug ] = $calendar->name;
-			}
-			
-			$fields[] = array(
-				'name' => sprintf( '%s/import/sc_calendar', $this->slug ),
-				'label' => __( 'Add to calendar', 'jeero' ),
-				'type' => 'checkbox',
-				'choices' => $choices,
-			);
-			
-		}
-			
-		$fields = array_merge( $fields, $this->get_import_update_fields() );
-		$fields = array_merge( $fields, $this->get_custom_fields_fields( $subscription ) );
-		
-		$fields[] = 	array(
-			'name' => sprintf( '%s/import/template/location', $this->slug ),
-			'label' => __( 'Event location template', 'jeero' ),
-			'type' => 'template',
-			'instructions' => sprintf( 
-				__( 'Leave empty to use the default template: <code>%s</code>.', 'jeero' ),
-				esc_html( $this->get_default_location_template() )
-			),
-		);
-
-		/**
-		 * Removed categories field.
-		 * Sugar Calendar does not support categories.
-		 */
 		$filtered_fields = array();
 
 		foreach( $fields as $field ) {
+			
+
+			/**
+			 * Removed categories field.
+			 * Sugar Calendar does not support categories.
+			 */
 			if ( $field[ 'name' ] == sprintf( '%s/import/update/categories', $this->slug ) ) {
 				continue;
 			}
 			
 			$filtered_fields[] = $field;
+
+			if ( 'calendar' == $field[ 'name' ] ) {
+
+				if ( !empty( $calendars ) ) {
+					
+					$choices = array();
+					foreach( $calendars as $calendar ) {
+						$choices[ $calendar->slug ] = $calendar->name;
+					}
+					
+					$filtered_fields[] = array(
+						'name' => sprintf( '%s/import/sc_calendar', $this->slug ),
+						'label' => __( 'Add to calendar', 'jeero' ),
+						'type' => 'checkbox',
+						'choices' => $choices,
+					);
+					
+				}
+				
+			}
+
 		}
 
 		return $filtered_fields;
@@ -128,6 +121,12 @@ class Sugar_Calendar extends Post_Based_Calendar {
 			$new_post_fields[] = $post_field;
 		}
 		
+		$new_post_fields[] = array(
+			'name' => 'location',
+			'title' => __( 'Event location', 'jeero' ),
+			'template' => '{{ venue.title }}{% if venue.city %}, {{ venue.city }}{% endif %}',
+		);
+		
 		return $new_post_fields;
 	}
 	
@@ -136,7 +135,7 @@ class Sugar_Calendar extends Post_Based_Calendar {
 	}
 
 	function is_active() {
-		return class_exists( '\Sugar_Calendar_Requirements_Check' );
+		return class_exists( '\Sugar_Calendar\\Requirements_Check' );
 	}
 	
 	/**

@@ -84,17 +84,6 @@ class EventON extends Post_Based_Calendar {
 
 		$fields = array_merge( $fields, $this->get_import_update_fields() );
 
-		$fields[] = array(
-			'name' => sprintf( '%s/import/category_taxonomy', $this->slug ),
-			'label' => __( 'Import categories as ', 'jeero' ),
-			'type' => 'select',
-			'choices' => array(
-				'post_tag' => __( 'Tags' ),
-				'event_type' => __( 'Event Type', 'jeero' ),
-				'event_type_2' => __( 'Event Type 2', 'jeero' ),
-			),
-		);
-
 		$fields = array_merge( $fields, $this->get_custom_fields_fields( $subscription ) );
 		
 		$new_fields = array();
@@ -103,19 +92,37 @@ class EventON extends Post_Based_Calendar {
 
 			$new_fields[] = $field;
 			
-			if ( sprintf( '%s/import/template/content', $this->slug ) == $field[ 'name' ] ) {
+			if ( 'calendar' == $field[ 'name' ] ) {
 
-				$new_fields[] =	array(
-					'name' => sprintf( '%s/import/template/subtitle', $this->slug ),
-					'label' => __( 'Event subtitle', 'jeero' ),
-					'type' => 'template',
+				$new_fields[] = array(
+					'name' => sprintf( '%s/import/category_taxonomy', $this->slug ),
+					'label' => __( 'Import categories as ', 'jeero' ),
+					'type' => 'select',
+					'choices' => array(
+						'post_tag' => __( 'Tags' ),
+						'event_type' => __( 'Event Type', 'jeero' ),
+						'event_type_2' => __( 'Event Type 2', 'jeero' ),
+					),
 				);
 				
 			}
+			
 		}
 
 		return $new_fields;		
 		
+	}
+	
+	function get_post_fields() {
+		$post_fields = parent::get_post_fields();
+		
+		$post_fields[] = array(
+			'name' => 'subtitle',
+			'title' => __( 'Event subtitle', 'jeero' ),
+			'template' => '',
+		);
+		
+		return $post_fields;
 	}
 	
 	/**

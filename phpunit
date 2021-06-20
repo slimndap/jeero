@@ -50,3 +50,10 @@ if [ $? -ne 0 ]; then
         exit 0
 fi
 
+phpunit --configuration tests/configuration/Modern_Events_Calendar.xml
+if [ $? -ne 0 ]; then
+        exit 0
+fi
+
+
+

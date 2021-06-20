@@ -230,8 +230,8 @@ function get_edit_html( $subscription_id ) {
 				?></tbody>
 			</table>
 			<p class="jeero-submit">
-				<input type="submit" name="submit" id="submit" class="button button-primary" value="Save Changes">
-				<a href="<?php echo get_admin_page_url(); ?>" class="button"><?php _e( 'Cancel', 'Jeero' ); ?></a>
+				<input type="submit" name="submit" id="submit" class="button button-primary" value="<?php _e( 'Save Changes', 'jeero' ); ?>">
+				<a href="<?php echo get_admin_page_url(); ?>" class="button"><?php _e( 'Cancel', 'jeero' ); ?></a>
 			</p>
 		</form>
 			

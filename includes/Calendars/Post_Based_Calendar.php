@@ -19,7 +19,7 @@ abstract class Post_Based_Calendar extends Calendar {
 		
 		$fields = array( 
 			array(
-				'name' => sprintf( '%s/import/category', $this->slug ),
+				'name' => sprintf( '%s/import/update/categories', $this->slug ),
 				'label' => __( 'Update event categories', 'jeero' ),
 				'type' => 'select',
 				'choices' => array(
@@ -108,6 +108,22 @@ abstract class Post_Based_Calendar extends Calendar {
 		return $fields;
 	}
 	
+	function get_setting_field_image() {
+		
+		$fields = array( 
+			array(
+				'name' => sprintf( '%s/import/update/image', $this->slug ),
+				'label' => __( 'Update event image', 'jeero' ),
+				'type' => 'select',
+				'choices' => array(
+					'once' => __( 'on first import', 'jeero' ),
+					'always' => __( 'on every import', 'jeero' ),
+				),
+			)
+		);
+		
+		return $fields;		
+	}
 	
 	function get_categories_taxonomy( $subscription ) {
 		return $this->categories_taxonomy;
@@ -144,6 +160,7 @@ abstract class Post_Based_Calendar extends Calendar {
 		
 		$fields = array_merge( $fields, $this->get_setting_field_import_status() );
 		$fields = array_merge( $fields, $this->get_setting_field_categories() );
+		$fields = array_merge( $fields, $this->get_setting_field_image() );
 		$fields = array_merge( $fields, $this->get_setting_field_custom_fields( $subscription ) );
 		
 		return $fields;
@@ -333,7 +350,7 @@ abstract class Post_Based_Calendar extends Calendar {
 			$post_args[ 'post_content' ] = $this->get_rendered_template( 'content', $data, $subscription );
 			$post_args[ 'post_excerpt' ] = $this->get_rendered_template( 'excerpt', $data, $subscription );
 			$post_args[ 'post_status' ] = $this->get_setting( 'import/status', $subscription, 'draft' );
-			
+
 			$post_id = $this->insert_post( $post_args );
 
 			if ( !empty( $data[ 'production' ][ 'img' ] ) ) {
