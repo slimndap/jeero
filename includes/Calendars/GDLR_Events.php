@@ -71,7 +71,7 @@ class GDLR_Events extends Post_Based_Calendar {
 		return function_exists( '\gdlr_event_init' );
 	}
 	
-	function get_category_taxonomy() {
+	function get_categories_taxonomy( $subscription ) {
 
 		global $theme_option;
 	

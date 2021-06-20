@@ -69,11 +69,8 @@ class Admin_Test extends Jeero_Test {
 	 * Tests if a subscription is updated after submitting the subscriptions form.
 	 *
 	 * @since	1.?
-	 * @since	1.4	Run in isolation to avoid PHP warnings during test.
-	 *
-	 * Isolate because Admin\Subscriptions\process_form() sebd headers.
-	 * @see: https://github.com/sebastianbergmann/phpunit/issues/720#issuecomment-10421092
-     * @runInSeparateProcess
+	 *					@see: https://github.com/sebastianbergmann/phpunit/issues/720#issuecomment-10421092
+	 * @since	1.20		Dont run in isolation. No longer neccesary in WordPress 5.7.
      */
 	function test_edit_form_submit_updates_subscription() {
 		
@@ -101,11 +98,9 @@ class Admin_Test extends Jeero_Test {
 	 * Tests if the subscriptions form is prefilled with subscription settings.
 	 *
 	 * @since	1.?
-	 * @since	1.4	Run in isolation to avoid PHP warnings during test.
-	 *
-	 * Isolate because Admin\Subscriptions\process_form() sebd headers.
-	 * @see: https://github.com/sebastianbergmann/phpunit/issues/720#issuecomment-10421092
-     * @runInSeparateProcess
+	 * @since	1.4		Run in isolation to avoid PHP warnings during test.
+	 *					@see: https://github.com/sebastianbergmann/phpunit/issues/720#issuecomment-10421092
+	 * @since	1.20		Dont run in isolation. No longer neccesary in WordPress 5.7.
      */
 	function test_edit_form_has_field_values() {
 

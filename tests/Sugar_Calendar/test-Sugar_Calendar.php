@@ -58,8 +58,12 @@ class Sugar_Calendar_Test extends Post_Based_Calendar_Test {
 		$expected = "<p>A description.</p>\n\n<a href=\"https://slimndap.com\">Tickets</a>\n";
 		$this->assertEquals( $expected, $actual );	
 		
+	}
+	
+	function test_categories_are_imported() {
 		
-			
+		// Skip test, Sugar Calendar does not support categories.
+		
 	}
 
 }
