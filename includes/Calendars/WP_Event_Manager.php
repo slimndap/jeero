@@ -25,80 +25,22 @@ class WP_Event_Manager extends Post_Based_Calendar {
 	}
 	
 	/**
-	 * Gets the default Twig template for the event location field.
-	 * 
-	 * @since	1.13
-	 * @return	string
-	 */
-	function get_default_location_template() {
-		return '{{ venue.title }}{% if venue.city %}, {{ venue.city }}{% endif %}';
-	}
-
-	/**
-	 * Gets a WP_Event_Manager post ID by Jeero ref.
-	 * 
-	 * @since	1.13
-	 * @param 	string 	$ref
-	 * @param 	string	$theater
-	 * @return	int
-	 */
-	function get_event_by_ref( $ref, $theater ) {
-		
-		error_log( sprintf( '[%s] Looking for existing %s item %s.', $this->get( 'name' ), $theater, $ref ) );
-		
-		$args = array(
-			'post_type' => 'event_listing',
-			'post_status' => 'any',
-			'meta_query' => array(
-				array(
-					'key' => $this->get_ref_key( $theater ),
-					'value' => $ref,					
-				),
-			),
-		);
-		
-		$events = \get_posts( $args );
-
-		if ( empty( $events ) ) {
-			return false;
-		}
-		
-		return $events[ 0 ]->ID;
-		
-	}
-	
-	/**
 	 * Gets all fields for this calendar.
 	 * 
 	 * @since	1.13
 	 * @return	array
 	 */
-	function get_fields( $subscription ) {
+	function get_post_fields( ) {
 		
-		$fields = parent::get_fields( $subscription );
+		$fields = parent::get_post_fields( );
 		
-		$fields = array_merge( $fields, $this->get_import_update_fields() );
-		$fields = array_merge( $fields, $this->get_custom_fields_fields( $subscription ) );
+		$fields[] =	array(
+			'name' => 'location',
+			'title' => __( 'Event location', 'jeero' ),
+			'template' => '{{ venue.title }}{% if venue.city %}, {{ venue.city }}{% endif %}',
+		);
 
-		$new_fields = array();
-		
-		foreach( $fields as $field )  {
-
-			$new_fields[] = $field;
-			
-			if ( sprintf( '%s/import/template/content', $this->slug ) == $field[ 'name' ] ) {
-
-				$new_fields[] =	array(
-					'name' => sprintf( '%s/import/template/location', $this->slug ),
-					'label' => __( 'Event location', 'jeero' ),
-					'type' => 'template',
-					'default' => $this->get_default_location_template(),
-				);
-				
-			}
-		}
-
-		return $new_fields;
+		return $fields;
 		
 	}
 
@@ -128,15 +70,21 @@ class WP_Event_Manager extends Post_Based_Calendar {
 			\update_post_meta( $post_id, '_registration', $data[ 'tickets_url' ] );
 			
 			if ( !empty( $data[ 'venue' ] ) ) {
-				\update_post_meta( $post_id, '_event_venue_ids', $this->get_post_id_by_title( $data[ 'venue' ][ 'title' ], 'event_venue' ) );
+				\update_post_meta( 
+					$post_id, 
+					'_event_venue_ids', 
+					$this->get_post_id_by_title( $data[ 'venue' ][ 'title' ], 'event_venue' ) 
+				);
 
-				if ( !empty( $data[ 'venue' ][ 'city' ] ) ) {
-					\update_post_meta( $post_id, '_event_location', $this->get_rendered_template( 
+				\update_post_meta( 
+					$post_id, 
+					'_event_location', 
+					$this->get_rendered_template( 
 						'location', 
 						$data, 
 						$subscription 
-					) );
-				}
+					) 
+				);
 				
 			}
 	
