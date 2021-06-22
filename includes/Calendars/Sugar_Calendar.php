@@ -40,16 +40,6 @@ class Sugar_Calendar extends Post_Based_Calendar {
 	}
 	
 	/**
-	 * Gets the default Twig template for the event location field.
-	 * 
-	 * @since	1.12
-	 * @return	string
-	 */
-	function get_default_location_template() {
-		return '{{ venue.title }}{% if venue.city %}, {{ venue.city }}{% endif %}';
-	}
-
-	/**
 	 * Gets all fields for this calendar.
 	 * 
 	 * @since	1.12
@@ -159,39 +149,32 @@ class Sugar_Calendar extends Post_Based_Calendar {
 			
 			$post = \get_post( $post_id );
 
-			$event_start = $this->localize_timestamp( strtotime( $data[ 'start' ] ) );
+			$event_start = strtotime( $data[ 'start' ] );
 	
 			$event_args = array(
 				'object_type' => 'post',
 				'object_subtype' => \sugar_calendar_get_event_post_type_id(),
 				'start' => date( 'Y-m-d H:i', $event_start ),
+				'title' => $post->post_title,
+				'content' => $post->post_content,
+				'status' => $post->post_status,
+				'object_id' => $post_id,
 			);
 	
 			if ( !empty( $data[ 'end' ] ) ) {
-				$event_end = $this->localize_timestamp( strtotime( $data[ 'end' ] ) );			
+				$event_end = strtotime( $data[ 'end' ] );			
 				$event_args[ 'end' ] = date( 'Y-m-d H:i', $event_end );
 			}
 	
 			if ( !empty( $data[ 'venue' ] ) ) {
-				$event_args[ 'location' ] = $this->apply_template( 
-					'location', 
-					$data, 
-					$this->get_default_location_template(), 
-					$subscription 
-				);
+				$event_args[ 'location' ] = $this->get_rendered_template( 'location', $data, $subscription );				
 			}
 
-			$event_args[ 'title' ] = $post->post_title;
-			$event_args[ 'content' ] = $post->post_content;
-			$event_args[ 'status' ] = $post->post_status;
-			
-			$event_args[ 'object_id' ] = $post_id;		
 			$event = \sugar_calendar_get_event_by_object( $post_id );
-	
 			if ( !empty( $event->id )) {
 				\sugar_calendar_update_event( $event->id, $event_args );
 			} else {
-				\sugar_calendar_add_event( $event_args );
+				$sc_event_id = \sugar_calendar_add_event( $event_args );
 			}
 
 			$calendars = $this->get_setting( 'import/sc_calendar', $subscription, false );
@@ -204,7 +187,7 @@ class Sugar_Calendar extends Post_Based_Calendar {
 
 		}	
 				
-
+		return $post_id;
 
 	}
 

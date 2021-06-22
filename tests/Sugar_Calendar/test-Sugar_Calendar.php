@@ -14,7 +14,11 @@ class Sugar_Calendar_Test extends Post_Based_Calendar_Test {
 		
 	}
 	
-	
+	function setUp() {
+		parent::setUp();
+		sugar_calendar_register_meta_data();
+	}
+		
 	function test_inbox_event_uses_default_templates() {
 
 		add_filter( 
@@ -63,6 +67,66 @@ class Sugar_Calendar_Test extends Post_Based_Calendar_Test {
 	function test_categories_are_imported() {
 		
 		// Skip test, Sugar Calendar does not support categories.
+		
+	}
+
+	function test_has_correct_times() {
+		
+		// Set website time zone to non-UTC.
+		update_option( 'gmt_offset', +2 );
+		
+		$this->import_event();
+
+		$args = array(
+			'post_status' => 'draft',
+		);
+		$events = $this->get_events( $args );
+
+		$actual = date( 'H:i', strtotime( sugar_calendar_get_event_by_object( $events[ 0 ]->ID, 'post' )->start ) );
+		$expected = date( 'H:i', current_time( 'timestamp' ) + 48 * HOUR_IN_SECONDS );
+		$this->assertEquals( $expected, $actual );
+		
+		$actual = date( 'H:i', strtotime( sugar_calendar_get_event_by_object( $events[ 0 ]->ID, 'post' )->end ) );
+		$expected = date( 'H:i', current_time( 'timestamp' ) + 90 * MINUTE_IN_SECONDS + 48 * HOUR_IN_SECONDS );
+		$this->assertEquals( $expected, $actual );
+		
+	}
+	
+	function test_has_location() {
+
+		$this->import_event( );
+
+		$args = array(
+			'post_status' => 'draft',
+		);
+		$events = $this->get_events( $args );
+
+		$event = sugar_calendar_get_event_by_object( $events[ 0 ]->ID, 'post' );
+
+		$actual = get_event_meta( $event->id, 'location', true );
+		$expected = 'Paard, Den Haag';
+		$this->assertEquals( $expected, $actual );
+		
+	}
+
+	function test_in_calendar() {
+
+		wp_create_term( 'Jeero Calendar', \sugar_calendar_get_calendar_taxonomy_id() );
+
+		$settings = array(
+			$this->calendar.'/import/sc_calendar' => array( 'jeero-calendar' ),
+		);
+
+		$this->import_event( $settings );
+
+		$args = array(
+			'post_status' => 'draft',
+		);
+		$events = $this->get_events( $args );
+		
+		$actual = \wp_list_pluck( \wp_get_object_terms( $events[ 0 ]->ID, \sugar_calendar_get_calendar_taxonomy_id() ), 'name' );
+		$expected = 'Jeero Calendar';
+		$this->assertContains( $expected, $actual );
 		
 	}
 

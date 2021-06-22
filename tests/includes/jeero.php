@@ -192,9 +192,7 @@ class Jeero_Test extends WP_UnitTestCase {
 					'tickets_url' => 'https://slimndap.com',
 					'venue' => array(
 						'title' => 'Paard',
-						'address' => array(
-							
-						),
+						'city' => 'Den Haag',
 					),
 					'prices' => array(
 						array(
