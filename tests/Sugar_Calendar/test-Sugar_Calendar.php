@@ -8,7 +8,7 @@ class Sugar_Calendar_Test extends Jeero_Test {
 	
 	function test_plugin_activated() {
 		
-		$actual = class_exists( 'Sugar_Calendar_Requirements_Check' );
+		$actual = class_exists( '\Sugar_Calendar\\Requirements_Check' );
 		$expected = true;
 		
 		$this->assertEquals( $expected, $actual );
