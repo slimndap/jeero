@@ -97,12 +97,18 @@ class Field {
 	 * Gets the example template usage of the field.
 	 * 
 	 * @since	1.10
+	 * @since	1.15.4	Added support for prefix.
+	 *
 	 * @return	string
 	 */
-	function get_example( $indent = 0 ) {
-		
+	function get_example( $prefix = array(), $indent = 0 ) {
+
 		ob_start();
-?>{{ <?php echo $this->name; ?> }}<?php
+?>{{ <?php 
+		if ( !empty( $prefix ) ) {
+			echo implode( '.', $prefix); ?>.<?php
+		}
+		echo $this->name; ?> }}<?php
 		return $this->indent_example( ob_get_clean(), $indent );
 				
 	}
@@ -113,10 +119,10 @@ class Field {
 	 * @since	1.10
 	 * @return	array
 	 */
-	function get_variables( $prefix = '' ) {
+	function get_variables( $prefix = array() ) {
 		return array(
 			array(
-				'name' => $prefix.$this->name,
+				'name' => $this->name,
 				'description' => $this->get_description(),
 				'example' => false,
 			),
