@@ -14,6 +14,26 @@ class Theater_For_WordPress_Test extends Post_Based_Calendar_Test {
 		
 	}
 	
+	function get_events( $args = array() ) {
+		
+		$calendar = Jeero\Calendars\get_calendar( $this->calendar );
+		
+		$defaults = array(
+			'post_type' => $calendar->get_post_type(),
+			'meta_query' => array(
+				array(
+					'key' => 'jeero/'.$this->calendar.'/veezi/ref',
+					'value' => 'e123',					
+				),
+			),
+		);
+		
+		$args = wp_parse_args( $args, $defaults );
+
+		return get_posts( $args );
+		
+	}
+	
 	function test_inbox_event_is_soldout() {
 
 		global $wp_theatre;
@@ -33,7 +53,7 @@ class Theater_For_WordPress_Test extends Post_Based_Calendar_Test {
 			$body = json_decode( $inbox[ 'body' ] );
 			$body[ 0 ]->data->status = 'soldout';
 			$inbox[ 'body' ] = json_encode( $body );
-			
+
 			return $inbox;
 			
 		}, 10, 3 );
@@ -42,19 +62,16 @@ class Theater_For_WordPress_Test extends Post_Based_Calendar_Test {
 		
 		$settings = array(
 			'theater' => 'veezi',
-			'calendar' => array( 'Theater_For_WordPress' ),
-			'Theater_For_WordPress/import/template/custom_fields' => array(
-				array(
-					'name' => 'some custom field',
-					'template' => 'Custom field for {{title}}',
-				),
-			),
+			'calendar' => array( $this->calendar ),
 		);
 		
 		$subscription->set( 'settings', $settings );
 		$subscription->save();
 
-		Inbox\pickup_items();
+		Jeero\Inbox\pickup_items();
+		Jeero\Inbox\pickup_items();
+
+
 
 		$args = array(
 			'status' => array( 'draft' ),
@@ -74,27 +91,10 @@ class Theater_For_WordPress_Test extends Post_Based_Calendar_Test {
 	 * @since	0.15.4
 	 */
 	function test_prices_dont_disappear() {
+
 		global $wp_theatre;
 		
-		add_filter( 
-			'jeero/mother/get/response/endpoint=subscriptions/a fake ID', 
-			array( $this, 'get_mock_response_for_get_subscription' ), 
-			10, 3 
-		);
-
-		add_filter( 'jeero/mother/get/response/endpoint=inbox', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
-		
-		$subscription = Jeero\Subscriptions\get_subscription( 'a fake ID' );
-		
-		$settings = array(
-			'theater' => 'veezi',
-			'calendar' => array( 'Theater_For_WordPress' ),
-		);
-		
-		$subscription->set( 'settings', $settings );
-		$subscription->save();
-
-		Inbox\pickup_items();
+		$this->import_event();
 
 		$args = array(
 			'status' => array( 'draft' ),

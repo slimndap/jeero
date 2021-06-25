@@ -33,6 +33,37 @@ class Theater_For_WordPress extends Post_Based_Calendar {
 		return class_exists( '\WP_Theatre' );
 	}
 	
+	function get_event_by_ref( $ref, $theater ) {
+		
+		// Find event by Jeero ref key.
+		$event_id = parent::get_event_by_ref( $ref, $theater );		
+		if ( $event_id ) {
+			return $event_id;
+		}
+		
+		// Find event that was previously imported by a WPT_Importer.
+		$importer = new \WPT_Importer();
+		$importer->set( 'slug', $theater );
+		if ( $event = $importer->get_production_by_ref( $ref ) ) {
+			return $event->ID;	
+		}
+		
+		return false;
+		
+	}
+	
+	function get_post_ref( $data ) {
+
+		if ( !empty( $data[ 'production' ][ 'ref' ] ) ) {
+			$ref = $data[ 'production' ][ 'ref' ];
+		} else {
+			$ref = 'e'.$data[ 'ref' ];		
+		}
+
+		return $ref;
+				
+	}
+	
 	function get_post_type() {
 		return \WPT_Production::post_type_name;
 	}
@@ -73,16 +104,12 @@ class Theater_For_WordPress extends Post_Based_Calendar {
 		$ref = $this->get_post_ref( $data );
 
 		if ( $post_id = $this->get_event_by_ref( $ref, $theater ) ) {
-			
+
 			\update_post_meta( $post_id, '_wpt_source', $theater );
 			\update_post_meta( $post_id, '_wpt_source_ref', $ref );
-			
-		}
-
-		if ( $wpt_production = $importer->get_production_by_ref( $ref ) ) {
-			
+						
 			$event_args = array(
-				'production' => $wpt_production->ID,
+				'production' => $post_id,
 				'venue' => $data[ 'venue' ][ 'title' ] ?? '',
 				'city' => $data[ 'venue' ][ 'city' ] ?? '',
 				'event_date' => $data[ 'start' ],
@@ -126,7 +153,7 @@ class Theater_For_WordPress extends Post_Based_Calendar {
 			
 		}
 		
-		return $wpt_production->ID;
+		return $post_id;
 	}
 	
 }
