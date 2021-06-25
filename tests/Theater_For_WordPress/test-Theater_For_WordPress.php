@@ -656,5 +656,62 @@ class Theater_For_WordPress_Test extends Jeero_Test {
 		$expected = '_soldout';
 		$this->assertEquals( $expected, $actual );			
 	}
+	
+	
+	/**
+	 * Test if prices with a title and trailing zeros don't disappear after every other import.
+	 * @see https://github.com/slimndap/jeero/issues/6
+	 * 
+	 * @since	0.15.4
+	 */
+	function test_prices_dont_disappear() {
+		global $wp_theatre;
+		
+		add_filter( 
+			'jeero/mother/get/response/endpoint=subscriptions/a fake ID', 
+			array( $this, 'get_mock_response_for_get_subscription' ), 
+			10, 3 
+		);
+
+		add_filter( 'jeero/mother/get/response/endpoint=inbox', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
+		
+		$subscription = Jeero\Subscriptions\get_subscription( 'a fake ID' );
+		
+		$settings = array(
+			'theater' => 'veezi',
+			'calendar' => array( 'Theater_For_WordPress' ),
+		);
+		
+		$subscription->set( 'settings', $settings );
+		$subscription->save();
+
+		Inbox\pickup_items();
+
+		$args = array(
+			'status' => array( 'draft' ),
+		);
+		$events = $wp_theatre->events->get( $args );
+		
+		$actual = $events[ 0 ]->prices();
+		$expected = 2;
+		$this->assertCount( $expected, $actual );
+		
+		Inbox\pickup_items();
+
+		$args = array(
+			'status' => array( 'draft' ),
+		);
+		
+		$args = array(
+			'status' => array( 'draft' ),
+		);
+		$events = $wp_theatre->events->get( $args );
+		
+		$actual = $events[ 0 ]->prices();
+		$expected = 2;
+		$this->assertCount( $expected, $actual );
+		
+			
+	}
 
 }
