@@ -190,7 +190,13 @@ class Modern_Events_Calendar extends Post_Based_Calendar {
 				$args[ 'meta' ][ 'mec_location_id' ] = $this->get_location_id( $data[ 'venue' ] );
 			}
 
+			// Temporarily disable sanitizing allowed HTML tags.
+			\remove_filter( 'content_save_pre', 'wp_filter_post_kses' );
+
 			$this->get_mec_instance( 'main' )->save_event( $args, $post_id );        	
+
+			// Re-enable sanitizing allowed HTML tags.
+			\add_filter( 'content_save_pre', 'wp_filter_post_kses' );
 
 		}
 		

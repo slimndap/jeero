@@ -44,12 +44,14 @@ class Select extends Field {
 	 * Gets the example template usage of the field.
 	 * 
 	 * @since	1.10
+	 * @since	1.15.4	Added support for prefix.
+	 *
 	 * @return	string
 	 */
-	function get_example( $indent = 0 ) {
+	function get_example( $prefix = array(), $indent = 0 ) {
 		
 		ob_start();
-		
+
 ?>{% if <?php echo $this->name; ?> %}
 <h3><?php echo $this->label; ?></h3>
 <ul>
@@ -57,7 +59,7 @@ class Select extends Field {
 		<li>
 <?php
 	$field = get_field_from_config( $this->item );
-	echo $field->get_example( $indent + 3 );
+	echo $field->get_example( $prefix, $indent + 3 );
 ?>
 
 		</li>
@@ -74,12 +76,12 @@ class Select extends Field {
 	 * @since	1.10
 	 * @return	array
 	 */
-	function get_variables( $prefix = '' ) {
+	function get_variables( $prefix = array() ) {
 		return array(
 			array(
-				'name' => $prefix.$this->name,
+				'name' => $this->name,
 				'description' => $this->get_description(),
-				'example' => $this->get_example(),
+				'example' => $this->get_example( $prefix ),
 			),
 		);
 		

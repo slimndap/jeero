@@ -629,5 +629,31 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 		$this->assertCount( $expected, $actual );
 
 	}
+
+	function test_inbox_event_uses_unsanitized_custom_template_fields() {
+		
+		$settings = array(
+			'theater' => 'veezi',
+			'calendar' => array( $this->calendar ),
+			$this->calendar.'/import/post_fields' => array(
+				'content' => array(
+					'template' => '<h3>{{ subtitle }}</h3>{{description|raw}}<iframe src="https://slimndap.com"></iframe>',
+				),
+			),
+		);
+		
+		$this->import_event($settings);
+
+		$args = array(
+			'post_status' => 'any',
+		);
+		
+		$events = $this->get_events( $args );
+
+		$actual = $events[ 0 ]->post_content;
+		$expected = '<h3>The subtitle</h3><p>A description.</p><iframe src="https://slimndap.com"></iframe>';
+		$this->assertEquals( $expected, $actual );	
+			
+	}
 			
 }

@@ -50,6 +50,9 @@ class Theater_For_WordPress extends Post_Based_Calendar {
 	 * @since	1.10		Added support for title and content Twig templates.
 	 * @since	1.14		Added support for custom fields.	
 	 * @since	1.15.1	Fix: event status was not set properly.
+	 * @since	1.15.4	Fix: force floats for events prices to make them match the 
+	 *					sanitazion happening inside the Theater for WordPress plugin.
+	 *					@see https://github.com/slimndap/jeero/issues/6 
 	 *
 	 */
 	function process_data( $result, $data, $raw, $theater, $subscription ) {
@@ -91,9 +94,9 @@ class Theater_For_WordPress extends Post_Based_Calendar {
 			if ( !empty( $data[ 'prices' ] ) ) {			
 				foreach( $data[ 'prices' ] as $price ) {
 					if ( empty( $price[ 'title' ] ) ) {
-						$event_args[ 'prices' ][] = $price[ 'amount' ];					
+						$event_args[ 'prices' ][] = (float) $price[ 'amount' ];					
 					} else {
-						$event_args[ 'prices' ][] = sprintf( '%s|%s', $price[ 'amount' ], $price[ 'title' ] );
+						$event_args[ 'prices' ][] = sprintf( '%s|%s', (float) $price[ 'amount' ], $price[ 'title' ] );
 					}
 				}
 			}

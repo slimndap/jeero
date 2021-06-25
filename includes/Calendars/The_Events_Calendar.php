@@ -129,7 +129,14 @@ class The_Events_Calendar extends Post_Based_Calendar {
 				$args[ 'EventURL' ] = $data[ 'tickets_url' ];			
 			}
 			
+			// Temporarily disable sanitizing allowed HTML tags.
+			\remove_filter( 'content_save_pre', 'wp_filter_post_kses' );
+	
 			$post_id = \tribe_update_event( $post_id, $args );
+
+			// Re-enable sanitizing allowed HTML tags.
+			\add_filter( 'content_save_pre', 'wp_filter_post_kses' );
+
 			
 		}
 
