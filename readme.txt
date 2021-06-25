@@ -89,9 +89,12 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 = 1.15 =
 
 * Added support for the [EventON](https://www.myeventon.com/) plugin.
-* Fixed a problem with event status import to the WordPress for Theater plugin (0.15.1).
-* Fixed a problem with the Modern Events Calendar plugin (0.15.2).
-* Fixed a problem with incorrect start and end times in The Event Calendar (0.15.3).
+* Fixed a problem with event status import to the WordPress for Theater plugin (1.15.1).
+* Fixed a problem with the Modern Events Calendar plugin (1.15.2).
+* Fixed a problem with incorrect start and end times in The Event Calendar (1.15.3).
+* Fixed a problem with missing prices in the Theater for WordPress plugin (1.15.4).
+* Improvements to Twig example code for templates (1.15.4).
+* Fixed support for the latest version of the Sugar Calendar plugin (1.15.4).
 
 = 1.14 =
 
@@ -167,6 +170,9 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 * Welcome Jeero!
 
 == Upgrade Notice ==
+
+= 1.15.4 =
+Fixes a problem with missing prices in the Theater for WordPress plugin 
 
 = 1.15.3 =
 
