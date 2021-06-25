@@ -150,8 +150,15 @@ class Sugar_Calendar extends Calendar {
 		
 	}
 
+	/**
+	 * Detect if Sugar Calendar plugin is activated.
+	 * 
+	 * @since	1.12
+	 * @since	1.15.4	Fixed detection for Sugar Calendar 2.2.
+	 * @return	bool
+	 */
 	function is_active() {
-		return class_exists( '\Sugar_Calendar_Requirements_Check' );
+		return class_exists( '\Sugar_Calendar\\Requirements_Check' );
 	}
 	
 	/**
