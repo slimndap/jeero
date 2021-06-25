@@ -198,8 +198,12 @@ class Jeero_Test extends WP_UnitTestCase {
 					),
 					'prices' => array(
 						array(
-							'title' => 'Regular',
-							'amount' => '20',
+							'title' => 'Ticket (voorverkoop)',
+							'amount' => '15.50',
+							'currency' => 'EUR',
+						),
+						array(
+							'amount' => '15.00',
 							'currency' => 'EUR',
 						),
 					),
