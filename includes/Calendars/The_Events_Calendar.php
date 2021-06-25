@@ -114,6 +114,8 @@ class The_Events_Calendar extends Calendar {
 	 * @since	1.14		Added support for custom fields.	
 	 * @since	1.15.3	Fix: start and end times were incorreclty localized, resulting in
 	 *					the start and end times being off.
+	 * @since	1.15.4	Fix: don't let internal post content sanitation of WordPress remove 
+	 *					HTML elements.
 	 *
 	 * @param 	mixed 			$result
 	 * @param 	array			$data		The structured data of the event.
@@ -169,6 +171,9 @@ class The_Events_Calendar extends Calendar {
 		if ( !empty( $data[ 'tickets_url' ] ) ) {
 			$args[ 'EventURL' ] = $data[ 'tickets_url' ];			
 		}
+		
+		// Temporarily disable sanitizing allowed HTML tags.
+		\remove_filter( 'content_save_pre', 'wp_filter_post_kses' );
 		
 		if ( $event_id = $this->get_event_by_ref( $ref, $theater ) ) {
 			
@@ -226,6 +231,9 @@ class The_Events_Calendar extends Calendar {
 			}
 			
 		}
+
+		// Re-enable sanitizing allowed HTML tags.
+		\add_filter( 'content_save_pre', 'wp_filter_post_kses' );
 
 		$this->update_custom_fields( $event_id, $data, $subscription );
 				
