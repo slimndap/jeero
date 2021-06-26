@@ -27,7 +27,7 @@ class The_Events_Calendar extends Post_Based_Calendar {
 		error_log( sprintf( '[%s] Looking for existing %s item %s.', $this->get( 'name' ), $theater, $ref ) );
 		
 		$args = array(
-			'status' => array( 'draft' ),
+			'status' => array( 'any' ),
 			'meta_query' => array(
 				array(
 					'key' => $this->get_ref_key( $theater ),
