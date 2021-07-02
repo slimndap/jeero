@@ -74,5 +74,21 @@ class The_Events_Calendar_Test extends Post_Based_Calendar_Test {
 		
 	}
 
+	function test_has_venue() {
 
+		$settings = array(
+		);
+
+		$this->import_event( $settings );
+
+		$args = array(
+			'post_status' => 'draft',
+		);
+		$events = $this->get_events( $args );
+
+		$actual = tribe_get_venue( $events[ 0 ]->ID );
+		$expected = 'Paard';
+		$this->assertEquals( $expected, $actual );
+		
+	}	
 }

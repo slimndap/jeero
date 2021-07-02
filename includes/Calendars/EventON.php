@@ -204,12 +204,12 @@ class EventON extends Post_Based_Calendar {
 			}
 			\update_post_meta( $event_id, '_status', $tickets_status );
 			
-			\update_post_meta( $event_id, 'evcal_subtitle', $this->apply_template( 
+			\update_post_meta( $event_id, 'evcal_subtitle', $this->get_rendered_template( 
 				'subtitle', 
 				$data, 
-				'', 
 				$subscription 
 			) );
+					
 
 		}
 						
