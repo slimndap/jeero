@@ -196,7 +196,8 @@ function process_form() {
  * Builds a form based on the fields of the Subscription.
  * 
  * @since 	1.?
- * @since	1.5	Restructured HTML to add support for tabs.
+ * @since	1.5		Restructured HTML to add support for tabs.
+ * @since	1.16	Save changes button is now translatable. 
  * 
  * @param	int				$subscription_id		The ID of the Subscription.
  * @return 	string|WP_Error						The HTML for the Edit Subscription Admin page.

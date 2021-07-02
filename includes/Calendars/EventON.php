@@ -7,8 +7,9 @@ register_calendar( __NAMESPACE__.'\\EventON' );
 /**
  * EventON class.
  * @since	1.15
+ * @since	1.16	Now extends Post_Based_Calendar.
  * 
- * @extends Calendar
+ * @extends Post_Based_Calendar
  */
 class EventON extends Post_Based_Calendar {
 
@@ -32,6 +33,13 @@ class EventON extends Post_Based_Calendar {
 		return class_exists( '\EventON' );
 	}
 
+	/**
+	 * Gets the category taxonomy slug for events.
+	 * 
+	 * @sicne	1.16
+	 * @param 	Jeero\Subscription	$subscription
+	 * @return	string				The category taxonomy slug for events.
+	 */
 	function get_categories_taxonomy( $subscription ) {
 		return $this->get_setting( 'import/category_taxonomy', $subscription, 'event_type' );
 	}
@@ -113,6 +121,12 @@ class EventON extends Post_Based_Calendar {
 		
 	}
 	
+	/**
+	 * Gets all post fields for events.
+	 * 
+	 * @since	1.16
+	 * @return	string[]		All post fields for events.
+	 */
 	function get_post_fields() {
 		$post_fields = parent::get_post_fields();
 		
@@ -162,7 +176,9 @@ class EventON extends Post_Based_Calendar {
 	 * Processes the data from an event in the inbox.
 	 * 
 	 * @since 	1.15
-	 * @return	int|WP_Error		Teh event ID or a WP_Error is there was a problem.
+	 * @since	1.16		Rewrite to match the new Post_Based_Calendar::process_data().
+	 *
+	 * @return	int|WP_Error		The event ID or a WP_Error is there was a problem.
 	 */
 	function process_data( $result, $data, $raw, $theater, $subscription ) {
 		
@@ -174,44 +190,41 @@ class EventON extends Post_Based_Calendar {
 		
 		$ref = $this->get_post_ref( $data );
 
-		if ( $event_id = $this->get_event_by_ref( $ref, $theater ) ) {
+		$event_id = $this->get_event_by_ref( $ref, $theater );
 
-			$event_start = $this->localize_timestamp( strtotime( $data[ 'start' ] ) );
-			\update_post_meta( $event_id, '_start_hour', date( 'g', $event_start ) );
-			\update_post_meta( $event_id, '_start_minute', date( 'I', $event_start ) );
-			\update_post_meta( $event_id, '_start_ampm', date( 'a', $event_start ) );
-			\update_post_meta( $event_id, 'evcal_srow', $event_start );
-					
-			if ( !empty( $data[ 'end' ] ) ) {
-				$event_end = $this->localize_timestamp( strtotime( $data[ 'end' ] ) );
-				\update_post_meta( $event_id, '_end_hour', date( 'g', $event_end ) );
-				\update_post_meta( $event_id, '_end_minute', date( 'I', $event_end ) );
-				\update_post_meta( $event_id, '_end_ampm', date( 'a', $event_end ) );
-				\update_post_meta( $event_id, 'evcal_erow', $event_end );
-			}
-	
-			if ( !empty( $data[ 'tickets_url' ] ) ) {
-				\update_post_meta( $event_id, 'evcal_lmlink', $data[ 'tickets_url' ] );
-			}
-			
-			if ( !empty( $data[ 'venue' ] ) ) {
-				\wp_set_object_terms( $event_id, $data[ 'venue' ][ 'title' ], 'event_location', false  );
-			}
-			
-			$tickets_status = 'scheduled';
-			if ( !empty( $data[ 'status' ] ) and 'cancelled' == $data[ 'status' ] ) {
-				$tickets_status = 'cancelled';
-			}
-			\update_post_meta( $event_id, '_status', $tickets_status );
-			
-			\update_post_meta( $event_id, 'evcal_subtitle', $this->get_rendered_template( 
-				'subtitle', 
-				$data, 
-				$subscription 
-			) );
-					
-
+		$event_start = $this->localize_timestamp( strtotime( $data[ 'start' ] ) );
+		\update_post_meta( $event_id, '_start_hour', date( 'g', $event_start ) );
+		\update_post_meta( $event_id, '_start_minute', date( 'I', $event_start ) );
+		\update_post_meta( $event_id, '_start_ampm', date( 'a', $event_start ) );
+		\update_post_meta( $event_id, 'evcal_srow', $event_start );
+				
+		if ( !empty( $data[ 'end' ] ) ) {
+			$event_end = $this->localize_timestamp( strtotime( $data[ 'end' ] ) );
+			\update_post_meta( $event_id, '_end_hour', date( 'g', $event_end ) );
+			\update_post_meta( $event_id, '_end_minute', date( 'I', $event_end ) );
+			\update_post_meta( $event_id, '_end_ampm', date( 'a', $event_end ) );
+			\update_post_meta( $event_id, 'evcal_erow', $event_end );
 		}
+
+		if ( !empty( $data[ 'tickets_url' ] ) ) {
+			\update_post_meta( $event_id, 'evcal_lmlink', $data[ 'tickets_url' ] );
+		}
+		
+		if ( !empty( $data[ 'venue' ] ) ) {
+			\wp_set_object_terms( $event_id, $data[ 'venue' ][ 'title' ], 'event_location', false  );
+		}
+		
+		$tickets_status = 'scheduled';
+		if ( !empty( $data[ 'status' ] ) and 'cancelled' == $data[ 'status' ] ) {
+			$tickets_status = 'cancelled';
+		}
+		\update_post_meta( $event_id, '_status', $tickets_status );
+		
+		\update_post_meta( $event_id, 'evcal_subtitle', $this->get_rendered_template( 
+			'subtitle', 
+			$data, 
+			$subscription 
+		) );
 						
 		return $event_id;
 
