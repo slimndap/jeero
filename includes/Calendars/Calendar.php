@@ -92,8 +92,13 @@ class Calendar {
 		$template = $this->get_default_template( $template_name );
 		
 		$post_fields = $this->get_setting( 'import/post_fields', $subscription );
+		
+		// Check for custom template in settings.
 		if ( !empty( $post_fields[ $template_name ] ) && !empty( $post_fields[ $template_name ][ 'template' ] ) ) {
+			
+			// Use custom template from settings. 
 			$template = $post_fields[ $template_name ][ 'template' ];
+			
 		}
 		
 		$rendered_template = $this->apply_template(
