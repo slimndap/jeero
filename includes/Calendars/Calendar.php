@@ -17,12 +17,13 @@ class Calendar {
 	/**
 	 * Applies a Twig template to a subscription.
 	 * 
-	 * @since 1.10
-	 * @param	string			$context		The name of the template.
+	 * @since 	1.10
+	 * @since	1.16		Simplified function to just render a template.
+	 *
+	 * @param	string			$template		The Twig template.
 	 * @param	string			$data			The event data.
-	 * @param	string			$default		The default template.
 	 * @param	Subscription		$subscription	The subscription.
-	 * @return void
+	 * @return	string
 	 */
 	function apply_template( $template, $data, $subscription ) {
 				
@@ -39,7 +40,7 @@ class Calendar {
 			'prices' => $data[ 'prices' ],
 		);
 		
-		// Add custom fields to temlpate variables.
+		// Add custom fields to template variables.
 		if ( !empty( $data[ 'custom' ] ) ) {
 			$template_data = array_merge( $template_data, $data[ 'custom' ] );
 		}
@@ -65,6 +66,13 @@ class Calendar {
 		return $this->{ $key };
 	}
 	
+	/**
+	 * Gets the default template for a field in this calendar.
+	 * 
+	 * @since	1.16
+	 * @param 	string	$field	The field.
+	 * @return	string
+	 */
 	function get_default_template( $field ) {
 		
 		$template_fields = $this->get_template_fields();
@@ -87,17 +95,27 @@ class Calendar {
 		return sprintf( 'jeero/%s/%s/ref', $this->get( 'slug' ), $theater );
 	}
 	
-	function get_rendered_template( $template_name, $data, $subscription ) {
+	/**
+	 * Gets a fully rendered Twig template for a field.
+	 * 
+	 * @since	1.16
+	 *
+	 * @param 	string 				$field			The field.
+	 * @param 	array				$data			The event data.
+	 * @param 	Jeero/Subscription	$subscription	The subscription.
+	 * @return	string
+	 */
+	function get_rendered_template( $field, $data, $subscription ) {
 		
-		$template = $this->get_default_template( $template_name );
+		$template = $this->get_default_template( $field );
 		
 		$post_fields = $this->get_setting( 'import/post_fields', $subscription );
 		
 		// Check for custom template in settings.
-		if ( !empty( $post_fields[ $template_name ] ) && !empty( $post_fields[ $template_name ][ 'template' ] ) ) {
+		if ( !empty( $post_fields[ $field ] ) && !empty( $post_fields[ $field ][ 'template' ] ) ) {
 			
 			// Use custom template from settings. 
-			$template = $post_fields[ $template_name ][ 'template' ];
+			$template = $post_fields[ $field ][ 'template' ];
 			
 		}
 		
@@ -111,12 +129,12 @@ class Calendar {
 
 		if ( \is_wp_error( $rendered_template ) ) {
 			
-			error_log( sprintf( '[%s] Rendering %s template failed: %s.', $this->get( 'name' ), $template_name, $rendered_template->get_error_message() ) );
+			error_log( sprintf( '[%s] Rendering %s template failed: %s.', $this->get( 'name' ), $field, $rendered_template->get_error_message() ) );
 			
 			ob_start();
 ?>
 <!-- 
-	<?php printf( __( 'Rendering %s template failed:', 'jeero' ), $template_name ); ?>
+	<?php printf( __( 'Rendering %s template failed:', 'jeero' ), $field ); ?>
 	<?php echo $rendered_template->get_error_message(); ?>
 -->
 <?php
@@ -173,16 +191,22 @@ class Calendar {
 		);
 	}
 	
+	/**
+	 * Gets all fields that use templates for this calendar.
+	 * 
+	 * @since	1.16
+	 * @return	array[]
+	 */
 	function get_template_fields() {
 		return array();
 	}
 
 	/**
-	 * Gets all template fields for a subscription.
+	 * Gets all template tags for a subscription.
 	 * 
 	 * @since	1.10
 	 * @param	Subscription						$subscription	The subscription.
-	 * @return	\Jeero\Templates\Fields\Field[]					All available core template fields.
+	 * @return	\Jeero\Templates\Fields\Field[]					All available template tags.
 	 */
 	function get_template_tags( $subscription ) {
 		
