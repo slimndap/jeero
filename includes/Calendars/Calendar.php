@@ -10,9 +10,7 @@ class Calendar {
 	
 	public $name = 'Calendar';
 	
-	function __construct() {
-		
-	}
+	function __construct() {}
 	
 	/**
 	 * Applies a Twig template to a subscription.
@@ -56,10 +54,11 @@ class Calendar {
 	 * Checks if this calendar is active.
 	 * 
 	 * @since	1.15
+	 * @since	1.16		Now returns <true> by default.
 	 * @return	bool
 	 */
 	function is_active() {
-		return false;
+		return true;
 	}
 	
 	function get( $key ) {
@@ -91,6 +90,13 @@ class Calendar {
 		
 	}
 
+	/**
+	 * Gets the ref key for a calendar/theater combination.
+	 * 
+	 * @since	1.?
+	 * @param 	string	$theater
+	 * @return	string
+	 */
 	function get_ref_key( $theater ) {
 		return sprintf( 'jeero/%s/%s/ref', $this->get( 'slug' ), $theater );
 	}
@@ -110,7 +116,7 @@ class Calendar {
 		$template = $this->get_default_template( $field );
 		
 		$post_fields = $this->get_setting( 'import/post_fields', $subscription );
-		
+
 		// Check for custom template in settings.
 		if ( !empty( $post_fields[ $field ] ) && !empty( $post_fields[ $field ][ 'template' ] ) ) {
 			
@@ -148,15 +154,15 @@ class Calendar {
 	
 	function get_setting( $key, $subscription, $default = '' ) {
 		
-		$settings = $subscription->get( 'settings' );
-		
 		$key = sprintf( '%s/%s', $this->slug, $key );
 		
-		if ( empty( $settings[ $key ] ) ) {
+		$setting = $subscription->get_setting( $key );
+		
+		if ( empty( $setting ) ) {
 			return $default;
 		}
 		
-		return $settings[ $key ];
+		return $setting;
 		
 	}
 	

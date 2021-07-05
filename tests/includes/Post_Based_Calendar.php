@@ -637,5 +637,61 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 		$this->assertEquals( $expected, $actual );	
 			
 	}
+	
+	function test_inbox_event_uses_old_custom_template() {
+		
+		$settings = array(
+			$this->calendar.'/import/template/title' => '{{title}} with custom template',
+			$this->calendar.'/import/template/content' => '{{description|raw}}{% if tickets_url %}<h3>Tickets</h3>{{tickets_url}}{% endif %}',
+		);
+		
+		$this->import_event( $settings );
+		
+		$args = array(
+			'post_status' => 'any',
+		);		
+		$events = $this->get_events( $args );
+
+		$calendar = Jeero\Calendars\get_calendar( $this->calendar );
+		$post_field_names = wp_list_pluck( $calendar->get_post_fields(), 'name' );
+
+		if ( in_array( 'title', $post_field_names ) ) {
+			$actual = $events[ 0 ]->post_title;
+			$expected = 'A test event with custom template';
+			$this->assertEquals( $expected, $actual );			
+		}
+		
+		if ( in_array( 'content', $post_field_names ) ) {
+			$actual = $events[ 0 ]->post_content;
+			$expected = '<p>A description.</p><h3>Tickets</h3>https://slimndap.com';
+			$this->assertEquals( $expected, $actual );	
+		}
 			
+	}
+	
+	function test_edit_form_has_old_custom_template() {
+
+		add_filter( 'jeero/mother/get/response/endpoint=subscriptions/a fake ID', array( $this, 'get_mock_response_for_get_subscription' ), 10, 3 );
+
+		$subscription = Jeero\Subscriptions\get_subscription( 'a fake ID' );
+		$settings = array(
+			'calendar' => array( $this->calendar ),
+			$this->calendar.'/import/template/title' => '{{title}} with custom template',
+			$this->calendar.'/import/template/content' => '{{description}} with custom template',
+		);
+		$subscription->set( 'settings', $settings );
+		$subscription->save();
+				
+		$_GET = array(
+			'edit' => 'a fake ID',
+		);
+		$actual = Jeero\Admin\Subscriptions\get_admin_page_html();
+
+		$expected = '{{title}} with custom template';		
+		$this->assertContains( $expected, $actual, print_r($actual, true ) );
+
+		$expected = '{{description}} with custom template';		
+		$this->assertContains( $expected, $actual, print_r($actual, true ) );
+
+	}			
 }

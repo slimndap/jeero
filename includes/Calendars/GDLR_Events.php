@@ -24,31 +24,6 @@ class GDLR_Events extends Post_Based_Calendar {
 		
 	}
 	
-	function get_event_by_ref( $ref, $theater ) {
-		
-		error_log( sprintf( '[%s] Looking for existing %s item %s.', $this->get( 'name' ), $theater, $ref ) );
-		
-		$args = array(
-			'post_type' => $this->get_post_type(),
-			'post_status' => 'any',
-			'meta_query' => array(
-				array(
-					'key' => $this->get_ref_key( $theater ),
-					'value' => $ref,					
-				),
-			),
-		);
-		
-		$events = \get_posts( $args );
-		
-		if ( empty( $events ) ) {
-			return false;
-		}
-		
-		return $events[ 0 ]->ID;
-		
-	}
-	
 	function get_post_type() {
 		
 		global $theme_option;

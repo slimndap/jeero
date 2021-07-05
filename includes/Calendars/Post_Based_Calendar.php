@@ -3,18 +3,33 @@ namespace Jeero\Calendars;
 
 use Jeero\Helpers\Images as Images;
 
+/**
+ * Abstract Post_Based_Calendar class.
+ * 
+ * @abstract
+ * @since	1.16
+ * @extends Jeero\Calendars\Calendar
+ */
 abstract class Post_Based_Calendar extends Calendar {
 
+	/**
+	 * The post type slug.
+	 * @since	1.16
+	 */
 	protected $post_type = false;
 	
+	/**
+	 * The category taxonomy slug.
+	 * @since	1.16
+	 */
 	protected $categories_taxonomy = false;
 
-	function __construct() {
-		
-		parent::__construct();
-
-	}
-
+	/**
+	 * Gets the categories setting field.
+	 * 
+	 * @since	1.16
+	 * @return	array()
+	 */
 	function get_setting_field_categories() {
 		
 		$fields = array( 
@@ -108,6 +123,12 @@ abstract class Post_Based_Calendar extends Calendar {
 		return $fields;
 	}
 	
+	/**
+	 * Gets the image setting field.
+	 * 
+	 * @since	1.16
+	 * @return	array()
+	 */
 	function get_setting_field_image() {
 		
 		$fields = array( 
@@ -125,10 +146,24 @@ abstract class Post_Based_Calendar extends Calendar {
 		return $fields;		
 	}
 	
+	/**
+	 * Gets the categories taxonomy.
+	 * 
+	 * @since	1.16
+	 * @return	string
+	 */
 	function get_categories_taxonomy( $subscription ) {
 		return $this->categories_taxonomy;
 	}
 	
+	/**
+	 * Gets an event post by its ref and theater values.
+	 * 
+	 * @since	1.?
+	 * @param 	string			$ref
+	 * @param 	string 			$theater
+	 * @return 	WP_POST|bool					The event post or <false> if not found.
+	 */
 	function get_event_by_ref( $ref, $theater ) {
 		
 		error_log( sprintf( '[%s] Looking for existing %s item %s.', $this->get( 'name' ), $theater, $ref ) );
@@ -154,6 +189,13 @@ abstract class Post_Based_Calendar extends Calendar {
 		
 	}
 	
+	/**
+	 * Gets all setting fields for a subscription.
+	 * 
+	 * @since	1.16
+	 * @param 	Jeero\Subscription	$subscription
+	 * @return	array
+	 */
 	function get_setting_fields( $subscription ) {
 		
 		$fields = parent::get_setting_fields( $subscription );
@@ -167,6 +209,12 @@ abstract class Post_Based_Calendar extends Calendar {
 		
 	}
 
+	/**
+	 * Gets all fields that use templates for this calendar.
+	 * 
+	 * @since	1.16
+	 * @return	array[]
+	 */
 	function get_template_fields() {
 		
 		$template_fields = parent::get_template_fields();
@@ -178,7 +226,7 @@ abstract class Post_Based_Calendar extends Calendar {
 	}
 
 	/**
-	 * Gets (optional) import status setting field.
+	 * Gets import status setting field.
 	 * 
 	 * @since	1.4
 	 * @return	array
@@ -201,6 +249,16 @@ abstract class Post_Based_Calendar extends Calendar {
 		
 	}
 		
+	/**
+	 * Gets a post ID by a title.
+	 *
+	 * Creates a new post if no post is found.
+	 * 
+	 * @since	1.16
+	 * @param 	string	$title
+	 * @param 	string	$post_type
+	 * @return	int
+	 */
 	function get_post_id_by_title( $title, $post_type ) {
 		
 		$post_id = \wp_cache_get( $title, 'jeero/'.$post_type );
@@ -233,14 +291,33 @@ abstract class Post_Based_Calendar extends Calendar {
 		return $post_id;			
 	}
 	
+	/**
+	 * Gets the ref value for an event.
+	 * 
+	 * @since	1.16
+	 * @param	array	$data	The event data.
+	 * @return	string
+	 */
 	function get_post_ref( $data ) {
 		return $data[ 'ref' ];
 	}
 	
+	/**
+	 * Gets the post type for this calendar.
+	 * 
+	 * @since	1.16
+	 * @return	string
+	 */
 	function get_post_type() {
 		return $this->post_type;
 	}
 	
+	/**
+	 * Gets all post fields for this calendar.
+	 * 
+	 * @since	1.16
+	 * @return	array
+	 */
 	function get_post_fields() {
 		
 		$post_fields = array();
@@ -288,6 +365,11 @@ abstract class Post_Based_Calendar extends Calendar {
 		return $result;
 	}
 	
+	/**
+	 * Processes the data from an event in the inbox.
+	 * 
+	 * @since 	1.16
+	 */
 	function process_data( $result, $data, $raw, $theater, $subscription ) {
 
 		$result = parent::process_data( $result, $data, $raw, $theater, $subscription );
@@ -405,6 +487,16 @@ abstract class Post_Based_Calendar extends Calendar {
 				
 	}
 	
+	/**
+	 * Updates the featured image of a post.
+	 * 
+	 * @since	1.16
+	 * @param 	int					$post_id	The post ID.
+	 * @param	array				$data		The event data.
+	 * @return	int|bool|WP_Error				The featured image ID.
+	 *											WP_Error if there is a problem.
+	 *											<false> if no the event has no image.
+	 */
 	function update_featured_image( $post_id, $data ) {
 
 		if ( empty( $data[ 'production' ][ 'img' ] ) ) {

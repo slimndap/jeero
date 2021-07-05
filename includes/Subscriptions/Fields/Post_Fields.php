@@ -1,16 +1,16 @@
 <?php
 /**
- * Custom Fields settings field.
+ * Post Fields settings field.
  *
- * @since	1.14
+ * @since	1.16
  */
 namespace Jeero\Subscriptions\Fields;
 
 /**
- * Custom Fields class.
+ * Post Fields class.
  * 
  * @extends Field
- * @since	1.14
+ * @since	1.16
  */
 class Post_Fields extends Field {
 	
@@ -71,12 +71,10 @@ class Post_Fields extends Field {
 	}
 	
 	/**
-	 * Gets the setting value from the custom fields form field.
+	 * Gets the setting value from the post fields form field.
 	 * 
-	 * @since	1.14
-	 * @since	1.15.1	Fix: Templates with quotes were corrupted by slashes being added by WordPress.
-	 *
-	 * @return void
+	 * @since	1.16
+	 * @return	array	The setting value.
 	 */
 	function get_setting_from_form( ) {
 		
