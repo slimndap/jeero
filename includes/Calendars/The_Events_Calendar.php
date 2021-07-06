@@ -46,6 +46,55 @@ class The_Events_Calendar extends Post_Based_Calendar {
 		return $posts[ 0 ]->ID;
 		
 	}
+	
+	/**
+	 * Gets all post fields for this calendar.
+	 * 
+	 * @since	1.17
+	 * @return	array
+	 */
+	function get_post_fields() {
+		
+		$post_fields = parent::get_post_fields();
+		
+		$post_fields[] = array(
+			'name' => 'venue_title',
+			'title' => __( 'Location title', 'jeero' ),
+			'template' => '{{ venue.title }}',
+		);
+
+		$post_fields[] = array(
+			'name' => 'venue_Address',
+			'title' => __( 'Location address', 'jeero' ),
+			'template' => '',
+		);
+
+		$post_fields[] = array(
+			'name' => 'venue_City',
+			'title' => __( 'Location city', 'jeero' ),
+			'template' => '{{ venue.city }}',
+		);
+
+		$post_fields[] = array(
+			'name' => 'venue_Zip',
+			'title' => __( 'Location postal code', 'jeero' ),
+			'template' => '',
+		);
+
+		$post_fields[] = array(
+			'name' => 'venue_Phone',
+			'title' => __( 'Location phone', 'jeero' ),
+			'template' => '',
+		);
+
+		$post_fields[] = array(
+			'name' => 'venue_Website',
+			'title' => __( 'Location website', 'jeero' ),
+			'template' => '',
+		);
+
+		return $post_fields;		
+	}
 
 	/**
 	 * Checks if this calendar is active.
@@ -71,6 +120,8 @@ class The_Events_Calendar extends Post_Based_Calendar {
 	 * @since	1.14		Added support for custom fields.	
 	 * @since	1.15.3	Fix: start and end times were incorreclty localized, resulting in
 	 *					the start and end times being off.
+	 * @since	1.17		Added support for custom venue title template.
+	 *					Added support for venue meta fields.
 	 *
 	 * @param 	mixed 			$result
 	 * @param 	array			$data		The structured data of the event.
@@ -114,10 +165,41 @@ class The_Events_Calendar extends Post_Based_Calendar {
 				) 
 			);
 
-			if ( !empty( $data[ 'venue' ] ) ) {
-				$args[ 'venue' ] = array(
-					'VenueID' => $this->get_post_id_by_title( $data[ 'venue' ][ 'title' ], 'tribe_venue' ),
+			$venue_title = $this->get_rendered_template( 'venue_title', $data, $subscription );
+			
+			if ( !empty( $venue_title ) ) {
+				
+				$venue_id = $this->get_post_id_by_title( $venue_title, 	'tribe_venue' );
+				
+				$venue = \tribe_get_venue_object( $venue_id );
+				$venue_args = array();
+
+				foreach ( array( 'Address', 'City', 'Zip', 'Phone', 'Website' ) as $meta_field ) {
+
+					$post_field = 'venue_'.$meta_field;
+					
+					if ( empty( $venue->{ $meta_field } ) ) {
+						$venue_args[ $meta_field ] = $this->get_rendered_template( $post_field, $data, $subscription );
+						continue;
+					}
+					
+					if ( 
+						!empty( $post_fields[ $post_field ] ) &&
+						!empty( $post_fields[ $post_field ][ 'update' ] ) &&
+						'always' == $post_fields[ $post_field ][ 'update' ]
+					) {
+						$venue_args[ $meta_field ] = $this->get_rendered_template( $post_field, $data, $subscription );
+					}
+					
+				}
+				if ( !empty( $venue_args )) {
+					tribe_update_venue( $venue_id, $venue_args );
+				}
+				
+				$args[ 'venue' ] = array( 
+					'VenueID' => $venue_id,
 				);
+				
 			}
 		
 			if ( !empty( $data[ 'prices' ] ) ) {
