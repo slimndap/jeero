@@ -85,16 +85,56 @@ function deactivate_subscription( $subscription_id ) {
  * Gets the contents of the inbox.
  * 
  * @since	1.0
+ * @since	1.10	Improved encoding of settings.
+ *					Always return fully parsed items.
  * @param 	array			$settings	The setting values of all subscriptions.
  * @return	array|WP_Error
  */
 function get_inbox( $settings ) {
 
 	$args = array(
-		'settings' => json_encode( $settings ),
+		'settings' => urlencode( json_encode( $settings ) ),
 	);
 	
-	return get( 'inbox', $args );	
+	$items = get( 'inbox', $args );	
+	
+	if ( \is_wp_error( $items ) ) {
+		return $items;
+	}
+	
+	$event_defaults = array(
+		'ref' => false,
+		'start' => false,
+		'end' => false,
+		'tickets_url' => false,
+		'prices' => array(),
+		'venue' => false,
+		'status' => 'onsale',
+		'production' => false,
+		'custom' => array(),
+	);
+	
+	$production_defaults = array(
+		'ref' => false,
+		'title' => false,
+		'description' => false,
+		'img' => false,
+		'categories' => array(),				
+	);
+
+	for( $i = 0; $i < count( $items ); $i++ ) {
+		
+		$data = $items[ $i ][ 'data' ];
+		$data = wp_parse_args( $data, $event_defaults );
+		if ( $data[ 'production' ] ) {
+			$data[ 'production' ] = wp_parse_args( $data[ 'production' ], $production_defaults );
+		}
+		
+		$items[ $i ][ 'data' ] = $data;
+
+	}
+	
+	return $items;
 	
 }
 
@@ -118,6 +158,7 @@ function remove_inbox_items( $item_ids ) {
  * Gets a subscription.
  * 
  * @since	1.0
+ * @since	1.10	Improved encoding of settings.
  * @param 	string	$subscription_id
  * @param	array	$settings			The settings for the subscription.
  * @return	array|WP_Error
@@ -125,7 +166,7 @@ function remove_inbox_items( $item_ids ) {
 function get_subscription( $subscription_id, $settings ) {
 
 	$args = array(
-		'settings' => json_encode( $settings, JSON_FORCE_OBJECT ),
+		'settings' => urlencode( json_encode( $settings, JSON_FORCE_OBJECT ) ),
 	);
 
 	return get( 'subscriptions/'.$subscription_id, $args );	

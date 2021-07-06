@@ -1,158 +1,139 @@
 <?php
 namespace Jeero\Calendars;
 
-use Jeero\Helpers\Images as Images;
-
-const JEERO_CALENDARS_ALL_IN_ONE_EVENT_CALENDAR_REF_KEY = 'jeero/all_in_one_event_calendar/ref';
+// Register new calendar.
+register_calendar( __NAMESPACE__.'\\All_In_One_Event_Calendar' );
 
 /**
- * The_Events_Calendar class.
+ * All_In_One_Event_Calendar class.
+ *
+ * @since	1.0
+ * @since	1.16	Now extends Post_Based_Calendar.
  * 
- * @extends Calendar
+ * @extends Post_Based_Calendar
  */
-class All_In_One_Event_Calendar extends Calendar {
+class All_In_One_Event_Calendar extends Post_Based_Calendar {
 
 	function __construct() {
 		
 		$this->slug = 'All_In_One_Event_Calendar';
 		$this->name = __( 'All In One Event Calendar', 'jeero' );
+		$this->categories_taxonomy = 'events_categories';
 		
 		parent::__construct();
 		
 	}
 	
-	function get_event_by_ref( $ref ) {
+	/**
+	 * Gets all post fields for events.
+	 * 
+	 * @since	1.16
+	 * @return	string[]		All post fields for events.
+	 */
+	function get_post_fields() {
+		$post_fields = parent::get_post_fields();
 		
-		$args = array(
-			'post_type' => \AI1EC_POST_TYPE,
-			'post_status' => 'any',
-			'meta_query' => array(
-				array(
-					'key' => JEERO_CALENDARS_ALL_IN_ONE_EVENT_CALENDAR_REF_KEY,
-					'value' => $ref,					
-				),
-			),
-		);
+		$new_post_fields = array();
 		
-		$events = get_posts( $args );
-		
-		if ( empty( $events ) ) {
-			return false;
+		foreach( $post_fields as $post_field ) {
+			
+			// All_In_One_Event_Calendar does not support excerpts.
+			if ( 'excerpt' == $post_field[ 'name' ] ) {
+				continue;
+			}
+			
+			$new_post_fields[] = $post_field;
+			
 		}
 		
-		return $events[ 0 ]->ID;
+		return $new_post_fields;
 		
 	}
 	
-	function get_venue_id( $title ) {
-		$venue_id = wp_cache_get( $title, 'jeero/venue_id' );
-
-		if ( false === $venue_id ) {
-		
-			$venue_post = get_page_by_title( $title, OBJECT, 'tribe_venue' );
-			
-			if ( !( $venue_post ) ) {
-				$venue_id = tribe_create_venue( 
-					array( 
-						'Venue' => $title,
-					)
-				);
-			} else {
-				$venue_id = $venue_post->ID;
-			}
-			
-			wp_cache_set( $title, $venue_id, 'jeero/venue_id' );
-			
-		}
-		
-		return $venue_id;		
+	/**
+	 * Gets the post type slug for events.
+	 * 
+	 * @since	1.16
+	 * @return	string	The post type slug for events.
+	 */
+	function get_post_type( ) {
+		return \AI1EC_POST_TYPE;
+	}
+	
+	/**
+	 * Checks if this calendar is active.
+	 * 
+	 * @since	1.15
+	 * @return	bool
+	 */
+	function is_active() {
+		return class_exists( '\Ai1ec_Front_Controller' );
 	}
 	
 	/**
 	 * Processes event data from Inbox items.
 	 * 
 	 * @since	1.0
-	 * @param 	mixed $result
-	 * @param 	array	$data		The strcutured data of the event.
-	 * @param 	array	$raw		The raw data of the event.
-	 * @param	string	$theater	The theater.
+	 * @since	1.4		Added the subscription param.
+	 * @since	1.16		Rewrite to match the new Post_Based_Calendar::process_data().
+	 *
+	 * @param 	mixed 			$result
+	 * @param 	array			$data		The structured data of the event.
+	 * @param 	array			$raw		The raw data of the event.
+	 * @param	string			$theater		The theater.
+	 * @param	Subscription		$theater		The subscription.
 	 * @return 	Ai1ec_Event|WP_Error
 	 */
-	function process_data( $result, $data, $raw, $theater ) {
+	function process_data( $result, $data, $raw, $theater, $subscription ) {
 		
 		global $ai1ec_front_controller;
 		
-		$result = parent::process_data( $result, $data, $raw, $theater );
+		$result = parent::process_data( $result, $data, $raw, $theater, $subscription);
 		
 		if ( \is_wp_error( $result ) ) {			
 			return $result;
 		}
-		
-		$ref = $data[ 'ref' ];
 
-        $args = array(
-	        'start' => strtotime( $data[ 'start' ] ),
-            'ticket_url' => $data[ 'tickets_url' ],
-            'post' => array(
-				'post_status' => 'draft',
-				'post_type' => \AI1EC_POST_TYPE,
-				'post_title' => $data[ 'production' ][ 'title' ],
-				'post_content' => empty( $data[ 'production' ][ 'description' ] ) ? '' : $data[ 'production' ][ 'description' ],
-            ),
-        );
-        
-        if ( empty( $data[ 'end' ] ) ) {
-			$args[ 'instant_event' ] =  true;
-			$args[ 'end' ] = strtotime( $data[ 'start' ] ) + 15 * MINUTE_IN_SECONDS;	        
-	    } else {
-			$args[ 'end' ] = strtotime( $data[ 'end' ] );	        
-        }
-        
-		if ( !empty( $data[ 'venue' ] ) ) {
-			$args[ 'venue' ] = $data[ 'venue' ][ 'title' ];
+		$ref = $this->get_post_ref( $data );
+
+		$post_id = $this->get_event_by_ref( $ref, $theater );
+
+		$Ai1ec_Event = $ai1ec_front_controller->return_registry( true )->get( 'model.event' );
+
+		// Try to load existing event data from 	custom Ai1 table.
+		try {
+			$Ai1ec_Event->initialize_from_id( $post_id );
+		} catch( \Ai1ec_Event_Not_Found_Exception $e ) {
+			// No event data found. Create an empty row.
+			$Ai1ec_Event->set( 'post_id', $post_id );
+			$Ai1ec_Event->save( false );
 		}
 		
+		$Ai1ec_Event->set( 'start', strtotime( $data[ 'start' ] ) );
+		$Ai1ec_Event->set( 'ticket_url', $data[ 'tickets_url' ] );
+		
+        if ( empty( $data[ 'end' ] ) ) {
+			$Ai1ec_Event->set( 'instant_event', true );
+			$Ai1ec_Event->set( 'end', strtotime( $data[ 'start' ] ) + 15 * MINUTE_IN_SECONDS );
+	    } else {
+			$Ai1ec_Event->set( 'end', strtotime( $data[ 'end' ] ) );
+        }
+    
+		if ( !empty( $data[ 'venue' ] ) ) {
+			$Ai1ec_Event->set( 'venue', $data[ 'venue' ][ 'title' ] );
+		}
+	
 		if ( !empty( $data[ 'prices' ] ) ) {
 			$amounts = \wp_list_pluck( $data[ 'prices' ], 'amount' );
-			$args[ 'cost' ]	 = min( $amounts );
-		}
-		
-		$Ai1ec_Event = $ai1ec_front_controller->return_registry( true )->get( 'model.event', $args );		
-
-		if ( $event_id = $this->get_event_by_ref( $ref ) ) {
-						
-			$Ai1ec_Event->set( 'post_id', $event_id );
-			$Ai1ec_Event->set( 'post', get_post( $event_id ) );
-			$Ai1ec_Event->save( true );
-
-			error_log( sprintf( '[%s] Updating event %d / %d.', $this->name, $ref, $event_id ) );
-			
-			
-		} else {
-			
-			error_log( sprintf( '[%s] Creating event %d.', $this->name, $ref ) );
-			
-			$event_id = $Ai1ec_Event->save();
-			
-			if ( !$event_id ) {
-				return new \WP_Error( $this->slug, sprintf( 'could not save event %d.', $ref ) );
-			}
-			
-			\add_post_meta( $event_id, JEERO_CALENDARS_ALL_IN_ONE_EVENT_CALENDAR_REF_KEY, $data[ 'ref' ] );
-		}
-		
-		$thumbnail_id = Images\update_featured_image_from_url( 
-			$event_id,
-			$data[ 'production' ][ 'img' ]
-		);
-
-		if ( \is_wp_error( $thumbnail_id ) ) {
-			error_log( sprintf( 'Updating thumbnail for event failed %s / %d.', $date[ 'production' ][ 'title' ], $event_id ) );
+			$Ai1ec_Event->set( 'cost', min( $amounts ) );
 		}
 
-
+		$Ai1ec_Event->set( 'post', get_post( $post_id ) );
 		
-		return $Ai1ec_Event;
+		// Update event data.
+		$success = $Ai1ec_Event->save( true );
+					
+		return $post_id;
 		
 	}
 	

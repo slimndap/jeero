@@ -66,15 +66,16 @@ class List_Table extends \WP_List_Table {
 	 * Gets the columns for the List Table.
 	 * 
 	 * @since	1.0
-	 * @since	1.1		Removed Interval column.
+	 * @since	1.1		Removed interval column.
+	 * @since	1.7		Removed next_sync column. 
+	 *					Renamed subscription and calendar columns.
 	 * @return	array	The columns for the List Table.
 	 */
 	function get_columns() {
 		$columns = array(
-			'subscription' => 'Source',
-			'calendar' => 'Destination',
-			'next_sync' => 'Next sync',
-			'limit' => 'Limit',
+			'subscription' => __( 'Ticketing solution', 'jeero' ),
+			'calendar' => __( 'Calendar plugin', 'jeero' ),
+			'limit' => __( 'Limit', 'jeero' ),
 		);
 		return $columns;
 	}
@@ -118,37 +119,12 @@ class List_Table extends \WP_List_Table {
 	    
 	    return sprintf( _n( '%d event', '%d events', $limit, 'jeero' ), $limit );
     }
-    
-	/**
-	 * Outputs the content for the Next Sync column.
-	 * 
-	 * @since	1.0
-	 * @return	void
-	 */
-    function column_next_sync( $subscription ) {
-		
-		$next_delivery = $subscription->get( 'next_delivery' ) + get_option( 'gmt_offset' ) * HOUR_IN_SECONDS;
-
-	    if ( empty( $next_delivery ) ) {
-		    return;
-	    }
-	    
-	    ob_start();
-	    
-	    ?><span title="<?php
-		    echo date_i18n( 'd-m-Y H:i:s', $next_delivery ); 
-		?>"><?php 
-		    echo human_time_diff( $next_delivery, current_time( 'timestamp' ) );
-		?></span><?php
-			
-		return ob_get_clean();
-	}
-    
-    
+        
 	/**
 	 * Outputs the content for the Subscription column.
 	 * 
 	 * @since	1.0
+	 * @since	1.7	Show '-' if subscription doesn't have a theater.
 	 * @return	void
 	 */
     function column_subscription( $subscription ) {
@@ -180,7 +156,11 @@ class List_Table extends \WP_List_Table {
 						?><img src="<?php echo $subscription->get( 'theater' )[ 'logo' ]; ?>" alt="<?php printf( __( '%s logo', 'jeero' ), $settings[ 'theater' ] ); ?>" style="max-height: 1.5em; max-width: 1.5em; height: auto; width: auto; margin-right: 0.5em;"><?php						
 					}
 
-					echo $subscription->get( 'theater' )[ 'title' ];
+					if ( 'theater' == $subscription->get( 'theater' )[ 'name' ] ) {
+						?>&mdash;<?php
+					} else {
+						echo $subscription->get( 'theater' )[ 'title' ];
+					}
 				} elseif ( !empty( $settings[ 'theater' ] ) ) {
 					echo ucwords( $settings[ 'theater' ] );
 				} else {
@@ -199,19 +179,25 @@ class List_Table extends \WP_List_Table {
 	 * Outputs the content for a empty List Table.
 	 * 
 	 * @since	1.0
+	 * @since	1.7	Removed onboarding.
 	 * @return	void
 	 */
     function no_items() {
-		?><div class="onboarding">
-			<p><?php 
-				_e( 'Jeero synchronizes your ticketing solution with your favourite calendar plugin.', 'jeero' );
-			?></p>
-			<p>
-				<a href="<?php echo get_new_subscription_url(); ?>" class="button button-primary"><?php
-					_e( 'Connect your ticketing solution', 'jeero' ); 
-				?></a>
-			</p>
-		</div><?php
+	    
+	    if ( empty( $this->subscriptions ) ) {
+			_e( 'No imports found.', 'jeero' );
+			return;
+		}
+
+		$inactive = !empty( $_GET[ 'inactive' ] );
+		if ( $inactive ) {
+			_e( 'No inactive imports found.', 'jeero' );
+			return;
+		}
+		
+		_e( 'No active imports found.', 'jeero' );
+
+		
 	}
 
 	/**

@@ -19,12 +19,18 @@ class Subscription {
 	public $ID;
 	
 	/**
-	 * The fields of this Subscription.
-	 * The fields are provided by Mother, based on the value of $settings.
-	 * @var		array	$fields
+	 * The setting fields of this Subscription.
+	 * @var		Field[]		$fields
 	 * @since	1.0
 	 */
 	public $fields = array();
+	
+	/**
+	 * The custom fields of this Subscription.
+	 * @var		string[]		$custom_fields
+	 * @since	1.9
+	 */
+	public $custom_fields = array();
 	
 	/**
 	 * The maximum number of events that will be imported.
@@ -117,7 +123,7 @@ class Subscription {
 
 		foreach( $this->fields as $config ) {
 			$setting = null;
-
+			
 			if ( $setting = $this->get_setting( $config[ 'name' ] ) ) {
 				$fields[] = Fields\get_field_from_config( $config, $this->ID, $setting );
 			} else {
@@ -133,12 +139,42 @@ class Subscription {
 	 * Gets a setting of this Subscription.
 	 * 
 	 * @since	1.0
+	 * @since	1.16		Added migration code to support title and content field settings from
+	 *					before 1.16.
+	 *					Remove once everybody updated to 1.16.
 	 * @return 	mixed
 	 */
 	function get_setting( $name ) {
 		
 		$settings = $this->get( 'settings' );
-		
+
+		// Check if there is a pre-1.16 value.
+		if ( strpos( $name, '/import/post_fields' ) !== false ) {
+			$pre_1_16_fields = array( 'title', 'content' );
+			
+			foreach( $pre_1_16_fields as $pre_1_16_field ) {
+
+				$calendar = substr( $name, 0, strpos( $name, '/import/post_fields' ) );
+
+				$pre_1_16_field_name = $calendar.'/import/template/'.$pre_1_16_field;
+
+				if ( !empty( $settings[ $pre_1_16_field_name ] ) ) {
+					
+					$settings[ $name ][ $pre_1_16_field ] = array(
+						'template' => $settings[ $pre_1_16_field_name ],	
+					);
+					
+					$pre_1_16_field_update_name = $calendar.'/import/update/'.$pre_1_16_field;
+					if ( !empty( $settings[ $pre_1_16_field_update_name ] ) ) {
+						$settings[ $name ][ $pre_1_16_field ][ 'update' ] = $settings[ $pre_1_16_field_update_name ];
+					}
+					
+				}
+
+			}
+			
+		}		
+								
 		if ( isset( $settings[ $name ] ) ) {
 			return $settings[ $name ];
 		}

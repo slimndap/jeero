@@ -1,7 +1,8 @@
 <?php
 namespace Jeero\Calendars;
 
-use Jeero\Helpers\Images as Images;
+// Register new calendar.
+register_calendar( __NAMESPACE__.'\\Events_Schedule_Wp_Plugin' );
 
 /**
  * Events_Schedule_Wp_Plugin class.
@@ -10,12 +11,14 @@ use Jeero\Helpers\Images as Images;
  * 
  * @extends Calendar
  */
-class Events_Schedule_Wp_Plugin extends Calendar {
+class Events_Schedule_Wp_Plugin extends Post_Based_Calendar {
 
 	function __construct() {
 		
 		$this->slug = 'Events_Schedule_Wp_Plugin';
 		$this->name = __( 'Events Schedule WP Plugin', 'jeero' );
+		$this->post_type = 'class';
+		$this->categories_taxonomy = 'wcs-type';
 		
 		parent::__construct();
 		
@@ -39,58 +42,36 @@ class Events_Schedule_Wp_Plugin extends Calendar {
 
 	}
 	
-	function get_event_by_ref( $ref, $theater ) {
-		
-		error_log( sprintf( '[%s] Looking for existing %s item %s.', $this->get( 'name' ), $theater, $ref ) );
-		
-		$args = array(
-			'post_type' => 'class',
-			'post_status' => 'any',
-			'meta_query' => array(
-				array(
-					'key' => $this->get_ref_key( $theater ),
-					'value' => $ref,					
-				),
-			),
-		);
-		
-		$events = \get_posts( $args );
-		
-		if ( empty( $events ) ) {
-			return false;
-		}
-		
-		return $events[ 0 ]->ID;
-		
+	/**
+	 * Checks if this calendar is active.
+	 * 
+	 * @since	1.15
+	 * @return	bool
+	 */
+	function is_active() {
+		return defined( 'WCS_FILE' );
 	}
 	
-	function get_venue_id( $title ) {
-		$venue_id = wp_cache_get( $title, 'jeero/venue_id' );
-
-		if ( false === $venue_id ) {
+	/**
+	 * Processes event data from Inbox items.
+	 * 
+	 * @since	1.?
+	 * @since	1.4		Added the subscription param.
+	 * @since	1.6		Added support for import settings to decide whether to 
+	 * 					overwrite title/description/image during import.
+	 * 					Added support for post status settings during import.
+	 *					Added support for venues.
+	 *					Added support for categories.
+	 *
+	 * @param 	mixed 			$result
+	 * @param 	array			$data		The structured data of the event.
+	 * @param 	array			$raw		The raw data of the event.
+	 * @param	string			$theater		The theater.
+	 * @param	Subscription		$theater		The subscription.
+	 */
+	function process_data( $result, $data, $raw, $theater, $subscription ) {
 		
-			$venue_post = get_page_by_title( $title, OBJECT, 'tribe_venue' );
-			
-			if ( !( $venue_post ) ) {
-				$venue_id = tribe_create_venue( 
-					array( 
-						'Venue' => $title,
-					)
-				);
-			} else {
-				$venue_id = $venue_post->ID;
-			}
-			
-			wp_cache_set( $title, $venue_id, 'jeero/venue_id' );
-			
-		}
-		
-		return $venue_id;		
-	}
-	
-	function process_data( $result, $data, $raw, $theater ) {
-		
-		$result = parent::process_data( $result, $data, $raw, $theater );
+		$result = parent::process_data( $result, $data, $raw, $theater, $subscription );
 		
 		if ( \is_wp_error( $result ) ) {			
 			return $result;
@@ -100,75 +81,52 @@ class Events_Schedule_Wp_Plugin extends Calendar {
 
 		$event_start = $this->localize_timestamp( strtotime( $data[ 'start' ] ) );
 
-		$post_content = '';
-		if ( !empty( $data[ 'production' ][ 'description' ] ) ) {
-			$post_content = $data[ 'production' ][ 'description' ];
-		}
-		/*
-		if ( !empty( $data[ 'production' ][ 'description' ] ) ) {
-			$block = array(
-				'blockName' => 'core/paragraph',
-				'innerHTML' => 	$data[ 'production' ][ 'description' ],
-				'innerContent' => array( $data[ 'production' ][ 'description' ] ),
-				'attrs' => array(),
-			);
-			$post_content = \serialize_block( $block );
-		}
-		*/
-		
-		$args = array(
-			'post_type' => 'class',
-			'post_title' => $data[ 'production' ][ 'title' ],
-			'post_content' => $post_content,
-		);
-
 		if ( $event_id = $this->get_event_by_ref( $ref, $theater ) ) {
-			error_log( sprintf( '[%s] Updating event %s / %d.', $this->name, $ref, $event_id ) );
-			
-			$args[ 'ID' ] = $event_id;
-
-			wp_update_post( $args );
-			
-		} else {
-			error_log( sprintf( '[%s] Creating event %s.', $this->name, $ref ) );
-
-			$args[ 'post_status' ] = 'draft';
-
-			$event_id = wp_insert_post( $args );
-
-			\add_post_meta( $event_id, $this->get_ref_key( $theater ), $data[ 'ref' ] );
-
-			
-		}
 		
-		\update_post_meta( $event_id, '_wcs_timestamp', $event_start );
-		\update_post_meta( $event_id, '_wcs_action_label', __( 'Tickets', 'jeero' ) );
-		\update_post_meta( $event_id, '_wcs_action_call', 1 );
-		\update_post_meta( $event_id, '_wcs_action_custom', $data[ 'tickets_url' ] );
-		\update_post_meta( $event_id, '_wcs_interval', 0 );
-
-		if ( !empty( $data[ 'end' ] ) ) {
-			$event_end = $this->localize_timestamp( strtotime( $data[ 'end' ] ) );	
-			\update_post_meta( $event_id, '_wcs_duration', ( $event_end - $event_start ) / MINUTE_IN_SECONDS );
-		}
-		
-		if ( !empty( $data[ 'production' ][ 'img' ] ) ) {
+			\update_post_meta( $event_id, '_wcs_timestamp', $event_start );
 			
-			$thumbnail_id = Images\add_image_to_library( 
-				$data[ 'production' ][ 'img' ],
-				$event_id
-			);
-			
-			if ( \is_wp_error( $thumbnail_id ) ) {
-				
+			if ( empty( $data[ 'tickets_url' ] ) ) {
+				\delete_post_meta( $event_id, '_wcs_action_label' );
+				\delete_post_meta( $event_id, '_wcs_action_call' );
+				\delete_post_meta( $event_id, '_wcs_action_custom' );
+				\delete_post_meta( $event_id, '_wcs_interval' );
 			} else {
-				if ( $image_src = wp_get_attachment_image_src( $thumbnail_id, 'full' ) ) {
-					\update_post_meta( $event_id, '_wcs_image', $image_src[ 0 ] );					
+				\update_post_meta( $event_id, '_wcs_action_label', __( 'Tickets', 'jeero' ) );
+				\update_post_meta( $event_id, '_wcs_action_call', 1 );
+				\update_post_meta( $event_id, '_wcs_action_custom', $data[ 'tickets_url' ] );
+				\update_post_meta( $event_id, '_wcs_interval', 0 );			
+			}
+	
+			if ( !empty( $data[ 'end' ] ) ) {
+				$event_end = $this->localize_timestamp( strtotime( $data[ 'end' ] ) );	
+				\update_post_meta( $event_id, '_wcs_duration', ( $event_end - $event_start ) / MINUTE_IN_SECONDS );
+			}
+			
+			if ( !empty( $data[ 'production' ][ 'img' ] ) ) {
+				
+				$thumbnail_id = Images\add_image_to_library( 
+					$data[ 'production' ][ 'img' ],
+					$event_id
+				);
+				
+				if ( \is_wp_error( $thumbnail_id ) ) {
+					
+				} else {
+					if ( $image_src = wp_get_attachment_image_src( $thumbnail_id, 'full' ) ) {
+						\update_post_meta( $event_id, '_wcs_image', $image_src[ 0 ] );					
+					}
 				}
+	
+			}
+			
+			if ( empty( $data[ 'venue' ] ) && !empty( $data[ 'venue' ][ 'title' ] ) ) {
+				\wp_set_object_terms( $event_id, array(), 'wcs-room', false  );			
+			} else {
+				\wp_set_object_terms( $event_id, $data[ 'venue' ][ 'title' ], 'wcs-room', false  );
 			}
 
 		}
-
+		
 		return $event_id;
 		
 	}

@@ -58,6 +58,12 @@ function get_setting_values() {
  * Gets the Subscription info from Mother and loads the settings from the DB.
  * 
  * @since	1.0
+ * @since	1.4		Set a default value for 'interval'.
+ * 					Added support for custom calendar fields.
+ * @since	1.5		Removed calendar activation checkboxes.
+ *					They are now managed by the individual calendars.
+ * @since	1.10	Set subscription fields after loading fields from calendar
+ *
  * @param 	int						$subscription_id	The Subscription ID.
  * @return	Subscription|WP_Error	The Subscription. Or an error if something went wrong.
  */
@@ -86,26 +92,34 @@ function get_subscription( $subscription_id ) {
 	
 	$answer = wp_parse_args( $answer, $defaults );
 	
-	
-	
-	// Add fields from Calendar.
-	$calendar = Calendars\get_calendar();
-	$fields = $calendar->get_fields();
-
-	// Prepend fields from Mother.
-	if ( !empty( $answer[ 'fields' ] ) ) {
-		$fields = array_merge( $answer[ 'fields' ], $calendar->get_fields() );
-	}
-	
 	// Add the subscription info to the Subscription.
 	$subscription->set( 'status', $answer[ 'status' ] );
 	$subscription->set( 'logo', $answer[ 'logo' ] );
-	$subscription->set( 'fields', $fields );
 	$subscription->set( 'inactive', $answer[ 'inactive' ] );
 	$subscription->set( 'interval', $answer[ 'interval' ] );
 	$subscription->set( 'next_delivery', $answer[ 'next_delivery' ] );
 	$subscription->set( 'limit', $answer[ 'limit' ] );
 	$subscription->set( 'theater', $answer[ 'theater' ] );
+
+	$fields = array(
+		array(
+			'type' => 'Tab',
+			'name' => 'generic',
+			'label' => __( 'General', 'jeero' ),
+		),
+	);
+		
+	// Add fields from Mother.
+	if ( !empty( $answer[ 'fields' ] ) ) {
+		$fields = array_merge( $fields, $answer[ 'fields' ] );
+	}
+	
+	// Add fields from calendars.
+	foreach( Calendars\get_active_calendars() as $calendar ) {
+		$fields = array_merge( $fields, $calendar->get_setting_fields( $subscription ) );			
+	}
+
+	$subscription->set( 'fields', $fields );
 
 	return $subscription;
 }
@@ -132,6 +146,7 @@ function get_subscriptions() {
 			'status' => false,
 			'logo' => false,
 			'fields' => array(),
+			'inactive' => null,
 			'interval' => null,
 			'next_delivery' => null,
 			'limit' => null,

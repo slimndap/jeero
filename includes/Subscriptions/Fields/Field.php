@@ -15,6 +15,14 @@ class Field {
 	
 	protected $value;
 	
+	/**
+	 * Default setting value for this field.
+	 * 
+	 * @var		mixed
+	 * @since	1.14
+	 */
+	protected $default;
+	
 	function __construct( $config, $subscription_id, $value = null ) {
 		
 		foreach( $config as $config_key => $config_value ) {
@@ -47,25 +55,71 @@ class Field {
 		return ob_get_clean();
 	}
 	
-	function get_label() {
-		return $this->label;
+	/**
+	 * Gets the CSS classes for the field.
+	 * 
+	 * @since	1.5
+	 * @return	string[]		The CSS classes for the field.
+	 */
+	function get_css_classes() {
+
+		$class = new \ReflectionClass( $this );
+		
+		$classes = array(
+			'jeero-field',
+			'jeero-field-'.sanitize_title( $class->getShortName() ),
+		);
+		return $classes;
+		
 	}
 	
+	/**
+	 * Get the label HTML for the field.
+	 * 
+	 * @since	1.5
+	 * @return	string	The label HTML for the field.
+	 */
+	function get_label_html() {
+		ob_start();
+
+		?><label><?php echo $this->label; ?></label><?php
+
+		return ob_get_clean();
+	}
+	
+	/**
+	 * Get a setting value from the Jeero admin form data.
+	 * 
+	 * @since	1.?
+	 * @since	1.10		Strip slashes from form data values.
+	 * @return	string
+	 */
 	function get_setting_from_form( ) {
 		
 		if ( empty( $_GET[ $this->name ] ) ) {
 			return null;
 		}
-		return sanitize_text_field( $_GET[ $this->name ] );
+		
+		return sanitize_text_field( stripslashes( $_GET[ $this->name ] ) );
 		
 	}
 	
+	/**
+	 * Gets the setting value for this field.
+	 * 
+	 * @since	1.?
+	 * @since	1.14		Added support for default values.
+	 * @return	mixed
+	 */
 	function get_value() {
-		return $this->value;
-	}
-	
-	function save_setting( $setting ) {
-		echo $setting;
+		
+		$value = $this->get( 'value' );
+		
+		if ( empty( $value ) ) {
+			$value = $this->get( 'default' );
+		}
+		
+		return $value;
 	}
 	
 }

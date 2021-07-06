@@ -9,7 +9,13 @@ class Message extends Field {
 		return ob_get_clean();
 	}
 	
-	function get_label() {
+	/**
+	 * Get the label HTML for message fields.
+	 * 
+	 * @since	1.5
+	 * @return	string	The label HTML for message fields.
+	 */
+	function get_label_html() {
 		return;
 	}
 	

@@ -15,10 +15,14 @@ class Admin_Test extends Jeero_Test {
 		parent::setUp();
 	}
 
-	function test_empty_subscriptions_shows_onboarding() {
+	function test_empty_subscriptions_shows_edit_form() {
+
+		add_filter( 'jeero/mother/get/response/endpoint=subscriptions', array( $this, 'get_mock_response_empty_array' ), 10, 3 );
+		add_filter( 'jeero/mother/post/response/endpoint=subscriptions', array( $this, 'get_mock_response_for_add_subscription' ), 10, 3 );		
+		add_filter( 'jeero/mother/get/response/endpoint=subscriptions/a fake ID', array( $this, 'get_mock_response_for_get_subscription' ), 10, 3 );
 
 		$actual = Admin\Subscriptions\get_admin_page_html();
-		$expected = 'class="onboarding"';
+		$expected = '<input type="hidden" name="subscription_id" value="a fake ID">';
 		
 		$this->assertContains( $expected, $actual );
 		
@@ -36,6 +40,8 @@ class Admin_Test extends Jeero_Test {
 
 	function test_edit_form() {
 		
+		add_filter( 'jeero/mother/get/response/endpoint=subscriptions/a fake ID', array( $this, 'get_mock_response_for_get_subscription' ), 10, 3 );
+
 		$_GET[ 'edit' ] = 'a fake ID';
 		
 		$actual = Admin\Subscriptions\get_admin_page_html();
@@ -58,17 +64,27 @@ class Admin_Test extends Jeero_Test {
 
 	}
 	
+
+    /**
+	 * Tests if a subscription is updated after submitting the subscriptions form.
+	 *
+	 * @since	1.?
+	 * @since	1.4		Run in isolation to avoid PHP warnings during test.
+	 *					@see: https://github.com/sebastianbergmann/phpunit/issues/720#issuecomment-10421092
+	 * @since	1.15.4	Dont run in isolation. No longer neccesary in WordPress 5.7.
+     */
 	function test_edit_form_submit_updates_subscription() {
 		
 		add_filter( 'jeero/mother/get/response/endpoint=subscriptions/a fake ID', array( $this, 'get_mock_response_for_get_subscription' ), 10, 3 );
 		
 		$_GET = array(
 			'subscription_id' => 'a fake ID',
+			'theater' => 'veezi',
 			'test_field' => 'an updated value',
 			'jeero/nonce' => wp_create_nonce( 'save' ),	
 		);		
 		
-		Admin\Subscriptions\update_subscription( $_GET );
+		Admin\Subscriptions\process_form( $_GET );
 		
 		$subscription = new Subscriptions\Subscription( 'a fake ID' );
 		
@@ -79,6 +95,14 @@ class Admin_Test extends Jeero_Test {
 		
 	}
 
+    /**
+	 * Tests if the subscriptions form is prefilled with subscription settings.
+	 *
+	 * @since	1.?
+	 * @since	1.4		Run in isolation to avoid PHP warnings during test.
+	 *					@see: https://github.com/sebastianbergmann/phpunit/issues/720#issuecomment-10421092
+	 * @since	1.15.4	Dont run in isolation. No longer neccesary in WordPress 5.7.
+     */
 	function test_edit_form_has_field_values() {
 
 		add_filter( 'jeero/mother/get/response/endpoint=subscriptions/a fake ID', array( $this, 'get_mock_response_for_get_subscription' ), 10, 3 );
@@ -88,7 +112,7 @@ class Admin_Test extends Jeero_Test {
 			'test_field' => 'an updated value',
 			'jeero/nonce' => wp_create_nonce( 'save' ),	
 		);		
-		Admin\Subscriptions\update_subscription( $_GET );
+		Admin\Subscriptions\process_form( $_GET );
 		
 		$_GET = array(
 			'edit' => 'a fake ID',
