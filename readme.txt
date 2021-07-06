@@ -86,6 +86,11 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 
 == Changelog ==
 
+= 1.16 =
+
+* Improved support for custom templates.
+* Internal improvements to accommodate future support for more calendar/slider/narrow-casting plugins!
+
 = 1.15 =
 
 * Added support for the [EventON](https://www.myeventon.com/) plugin.
@@ -170,6 +175,10 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 * Welcome Jeero!
 
 == Upgrade Notice ==
+
+= 1.16 =
+
+Improves support for custom templates.
 
 = 1.15.4 =
 Fixes a problem with missing prices in the Theater for WordPress plugin 
