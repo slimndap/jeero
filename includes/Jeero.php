@@ -66,4 +66,7 @@ include_once PLUGIN_PATH.'includes/Templates/Fields/Field.php';
 include_once PLUGIN_PATH.'includes/Templates/Fields/Group.php';
 include_once PLUGIN_PATH.'includes/Templates/Fields/Select.php';
 
+include_once PLUGIN_PATH.'includes/Footprint/Footprint.php';
+
+
 require_once PLUGIN_PATH.'vendor/autoload.php';

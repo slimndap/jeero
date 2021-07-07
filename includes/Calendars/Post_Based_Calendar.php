@@ -190,6 +190,25 @@ abstract class Post_Based_Calendar extends Calendar {
 	}
 	
 	/**
+	 * Gets the last update timestamp of an imported post.
+	 * 
+	 * @since	1.17
+	 * @param	int	$post_id
+	 * @return	int
+	 */
+	function get_last_update( $post_id ) {
+		
+		$last_update = get_post_meta( $post_id, 'jeero/import/post/last_update', true );
+		
+		if ( empty( $last_update ) ) {
+			return false;			
+		}
+		
+		return $last_update;
+		
+	}
+	
+	/**
 	 * Gets all setting fields for a subscription.
 	 * 
 	 * @since	1.16
@@ -365,6 +384,34 @@ abstract class Post_Based_Calendar extends Calendar {
 		return $result;
 	}
 	
+	
+	/**
+	 * Checks if a post is single post from this calendar.
+	 * 
+	 * @since	1.17
+	 * @param 	int 	$post_id (default: false)
+	 * @return	bool
+	 */
+	function is_singular( $post_id = false ) {
+		
+		if ( !$post_id ) {
+			$post_id = get_the_id();
+		}
+		
+		if ( !is_singular( $this->get_post_type() ) ) {
+			return false;
+		}
+		
+		$last_update = $this->get_last_update( $post_id );
+		
+		if ( empty( $last_update ) ) {
+			return false;
+		}
+		
+		return true;
+		
+	}
+	
 	/**
 	 * Processes the data from an event in the inbox.
 	 * 
@@ -424,6 +471,8 @@ abstract class Post_Based_Calendar extends Calendar {
 				);
 			}
 			
+			\update_post_meta( $post_id, 'jeero/import/post/last_update', current_time( 'timestamp' ) );
+		
 		} else {
 
 			error_log( sprintf( '[%s] Creating %s event %s.', $this->name, $theater, $ref ) );	
@@ -447,12 +496,12 @@ abstract class Post_Based_Calendar extends Calendar {
 			}
 
 			\add_post_meta( $post_id, $this->get_ref_key( $theater ), $ref, true );
-			
+
 		}
 
 		$this->update_custom_fields( $post_id, $data, $subscription );
-
-		\update_post_meta( $post_id, 'jeero/import/post/last_update', current_time( 'timestamp' ) );
+		
+		\update_post_meta( $post_id, 'jeero/import/post/subscription', $subscription->ID );
 		
 		return $post_id;
 		

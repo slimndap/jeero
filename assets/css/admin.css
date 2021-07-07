@@ -57,4 +57,35 @@ body.toplevel_page_jeero-imports .jeero-field-custom_fields table tr td.actions 
   width: 100px;
   padding-right: 0;
 }
+#jeero_footprint .inside {
+  margin: 0;
+  padding: 6px 0 0 0;
+}
+#jeero_footprint .inside .created,
+#jeero_footprint .inside .last_update {
+  padding: 6px 10px 8px;
+}
+#jeero_footprint .inside .created:before,
+#jeero_footprint .inside .last_update:before {
+  font: normal 20px/1 dashicons;
+  speak: never;
+  display: inline-block;
+  margin-left: -1px;
+  padding-right: 3px;
+  vertical-align: top;
+  -webkit-font-smoothing: antialiased;
+  color: #8c8f94;
+}
+#jeero_footprint .inside .created:before {
+  content: "\f344";
+}
+#jeero_footprint .inside .last_update:before {
+  content: "\f321";
+}
+#jeero_footprint .inside .actions {
+  padding: 10px;
+  clear: both;
+  border-top: 1px solid #dcdcde;
+  background: #f6f7f7;
+}
 /*# sourceMappingURL=admin.css.map */
