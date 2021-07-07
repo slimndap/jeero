@@ -33,17 +33,15 @@ function add_menu_item() {
  * 
  * @since	1.5
  * @since	1.10	Only enqueue on Jeero admin pages.
+ * @since	1.17	Enqueue on all pages Jeero now leaves footprints all over the place.
+ *					Eg. meta boxes on all event admin pages.
  * @return 	void
  */
 function enqueue_scripts( ) {
-
-	$current_screen = get_current_screen();	
-	if ( 'toplevel_page_jeero/imports' != $current_screen->id ) {
-		return;
-	}
 	
 	wp_enqueue_script( 'jeero/admin', \Jeero\PLUGIN_URI . 'assets/js/admin.js', array( 'jquery' ), \Jeero\VERSION );
 	wp_enqueue_style( 'jeero/admin', \Jeero\PLUGIN_URI . 'assets/css/admin.css', array(), \Jeero\VERSION, 'all' );
+
 }
 
 

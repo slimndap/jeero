@@ -23,6 +23,24 @@ class Events_Schedule_Wp_Plugin extends Post_Based_Calendar {
 		parent::__construct();
 		
 	}
+
+	function do_footprint() {
+		
+		if ( !is_singular( 'class' ) ) {
+			return;
+		}
+		
+		$last_modified = get_the_modified_time();
+		
+		?>
+<!--
+	Event imported by Jeero. Learn more: https://jeero.ooo
+	Last sync: <?php echo get_the_modified_date(); ?> <?php echo get_the_modified_time(); ?>
+	
+-->
+		<?php
+
+	}
 	
 	/**
 	 * Checks if this calendar is active.
