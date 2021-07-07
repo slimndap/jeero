@@ -91,4 +91,56 @@ class The_Events_Calendar_Test extends Post_Based_Calendar_Test {
 		$this->assertEquals( $expected, $actual );
 		
 	}	
+
+	function test_venue_uses_defaul_templates() {
+
+		$this->import_event( );
+
+		$args = array(
+			'post_status' => 'draft',
+		);
+		$events = $this->get_events( $args );
+
+		$actual = tribe_get_venue( $events[ 0 ]->ID );
+		$expected = 'Paard';
+		$this->assertEquals( $expected, $actual );
+
+		$actual = tribe_get_venue_object( tribe_get_venue_id( $events[ 0 ]->ID ) )->city;
+		$expected = 'Den Haag';
+		$this->assertEquals( $expected, $actual );
+		
+	}	
+
+
+	function test_venue_uses_custom_templates() {
+
+		$settings = array(
+			$this->calendar.'/import/post_fields' => array(
+				'venue_Title' => array(
+					'template' => '{{venue.title}} with custom template',
+				),
+				'venue_Address' => array(
+					'template' => 'The address for {{venue.title}}',
+				),
+			),
+		);
+
+		$this->import_event( $settings );
+
+		$args = array(
+			'post_status' => 'draft',
+		);
+		$events = $this->get_events( $args );
+
+		$actual = tribe_get_venue( $events[ 0 ]->ID );
+		$expected = 'Paard with custom template';
+		$this->assertEquals( $expected, $actual );
+
+		$actual = tribe_get_venue_object( tribe_get_venue_id( $events[ 0 ]->ID ) )->address;
+		$expected = 'The address for Paard';
+		$this->assertEquals( $expected, $actual );
+		
+	}	
+
+
 }

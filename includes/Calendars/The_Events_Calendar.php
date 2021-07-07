@@ -58,7 +58,7 @@ class The_Events_Calendar extends Post_Based_Calendar {
 		$post_fields = parent::get_post_fields();
 		
 		$post_fields[] = array(
-			'name' => 'venue_title',
+			'name' => 'venue_Title',
 			'title' => __( 'Location title', 'jeero' ),
 			'template' => '{{ venue.title }}',
 		);
@@ -165,7 +165,7 @@ class The_Events_Calendar extends Post_Based_Calendar {
 				) 
 			);
 
-			$venue_title = $this->get_rendered_template( 'venue_title', $data, $subscription );
+			$venue_title = $this->get_rendered_template( 'venue_Title', $data, $subscription );
 			
 			if ( !empty( $venue_title ) ) {
 				
