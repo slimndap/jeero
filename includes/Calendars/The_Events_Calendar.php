@@ -122,6 +122,8 @@ class The_Events_Calendar extends Post_Based_Calendar {
 	 *					the start and end times being off.
 	 * @since	1.17		Added support for custom venue title template.
 	 *					Added support for venue meta fields.
+	 * @since	1.17.1	Now uses local number format for event prices.
+	 *					Now remembers map settings.
 	 *
 	 * @param 	mixed 			$result
 	 * @param 	array			$data		The structured data of the event.
@@ -198,18 +200,22 @@ class The_Events_Calendar extends Post_Based_Calendar {
 				
 				$args[ 'venue' ] = array( 
 					'VenueID' => $venue_id,
+					// Copy map settings that may have been manually entered previously through the admin interface,
+					'EventShowMap' => tribe_embed_google_map( $post_id ),
+					'EventShowMapLink' => get_post_meta( $post_id, '_EventShowMapLink', true ),
 				);
 				
 			}
 		
 			if ( !empty( $data[ 'prices' ] ) ) {
 				$amounts = \wp_list_pluck( $data[ 'prices' ], 'amount' );
-				$args[ 'EventCost' ]	 = min( $amounts );
+				$args[ 'EventCost' ] = number_format_i18n( min( $amounts ), 2 );
 			}
 			
 			if ( !empty( $data[ 'tickets_url' ] ) ) {
 				$args[ 'EventURL' ] = $data[ 'tickets_url' ];			
 			}
+			
 			
 			// Temporarily disable sanitizing allowed HTML tags.
 			\remove_filter( 'content_save_pre', 'wp_filter_post_kses' );

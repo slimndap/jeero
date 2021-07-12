@@ -384,11 +384,26 @@ abstract class Post_Based_Calendar extends Calendar {
 		return $result;
 	}
 	
+	/**
+	 * Checks if a post is imported by Jeero.
+	 * 
+	 * @since	1.17.1
+	 * @param	int $post_id	The post ID.
+	 * @return	bool
+	 */
+	function is_imported_post( $post_id ) {
+
+		$last_update = $this->get_last_update( $post_id );
+		return !empty( $last_update );
+		
+	}
 	
 	/**
 	 * Checks if a post is single post from this calendar.
 	 * 
 	 * @since	1.17
+	 * @since	1.17.1	Now @uses Jeero\Calendars::is_imported_post().
+	 *
 	 * @param 	int 	$post_id (default: false)
 	 * @return	bool
 	 */
@@ -402,13 +417,7 @@ abstract class Post_Based_Calendar extends Calendar {
 			return false;
 		}
 		
-		$last_update = $this->get_last_update( $post_id );
-		
-		if ( empty( $last_update ) ) {
-			return false;
-		}
-		
-		return true;
+		return $this->is_imported_post( $post_id );
 		
 	}
 	

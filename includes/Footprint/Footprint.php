@@ -10,20 +10,26 @@ namespace Jeero\Footprint;
 // If YOAST can use priority 1 then so can we!
 add_action( 'wp_head', __NAMESPACE__.'\leave_singular_footprint', 1 );
 
-add_action( 'add_meta_boxes', __NAMESPACE__.'\add_meta_box' );
+add_action( 'add_meta_boxes', __NAMESPACE__.'\add_meta_box', 10, 2 );
 
 
 /**
  * Adds a Jeero meta box to all event admin screens.
  * 
  * @since	1.17
+ * @since	1.17.1	Only add metabox if post was actually imported by Jeero.
+ *
  * @return	void
  */
-function add_meta_box() {
+function add_meta_box( $post_type, $post ) {
 	
 	$active_calendars = \Jeero\Calendars\get_active_calendars();
 
 	foreach( $active_calendars as $calendar ) {
+
+		if ( !$calendar->is_imported_post( $post->ID ) ) {
+			continue;
+		}		
 
 		\add_meta_box( 
 			'jeero_footprint', 
