@@ -221,7 +221,11 @@ abstract class Post_Based_Calendar extends Calendar {
 		
 		$fields = array_merge( $fields, $this->get_setting_field_import_status() );
 		$fields = array_merge( $fields, $this->get_setting_field_categories() );
-		$fields = array_merge( $fields, $this->get_setting_field_image() );
+		
+		if ( post_type_supports( $this->get_post_type(), 'thumbnail' ) ) {
+			$fields = array_merge( $fields, $this->get_setting_field_image() );
+		}
+		
 		$fields = array_merge( $fields, $this->get_setting_field_custom_fields( $subscription ) );
 		
 		return $fields;
@@ -462,6 +466,7 @@ abstract class Post_Based_Calendar extends Calendar {
 			}
 
 			if ( 
+				post_type_supports( $this->get_post_type(), 'thumbnail' ) && 
 				'always' == $this->get_setting( 'import/update/image', $subscription, 'once' ) && 
 				!empty( $data[ 'production' ][ 'img' ] )
 			) {
@@ -484,7 +489,10 @@ abstract class Post_Based_Calendar extends Calendar {
 
 			$post_id = $this->insert_post( $post_args );
 
-			if ( !empty( $data[ 'production' ][ 'img' ] ) ) {
+			if ( 
+				post_type_supports( $this->get_post_type(), 'thumbnail' ) && 
+				!empty( $data[ 'production' ][ 'img' ] ) 
+			) {
 				$thumbnail_id = Images\update_featured_image_from_url( 
 					$post_id,
 					$data[ 'production' ][ 'img' ]

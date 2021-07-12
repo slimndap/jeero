@@ -65,7 +65,7 @@ function get_image_by_url( $url ) {
  * @return	int|WP_Error
  */
 function add_image_to_library( $url, $post_id ) {
-	
+
 	// Check if image isn't already in media library.
 	if ( $thumbnail_id = get_image_by_url( $url ) ) {
 		return $thumbnail_id;
@@ -101,8 +101,14 @@ function add_image_to_library( $url, $post_id ) {
 		return $thumbnail_id;
 	}
 	
+	error_log( 7 );
+
 	// Store original URL with image.
 	\update_post_meta( $thumbnail_id, JEERO_IMG_URL_FIELD, $url );
+
+	error_log( 8 );
+
+
 	
 	return $thumbnail_id;
 
