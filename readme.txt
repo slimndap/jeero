@@ -88,7 +88,9 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 
 = 1.17 =
 
-* Adds support for additional venue details in imported events of The Event Calendar plugin.
+* Adds support for additional venue details to imported events of The Event Calendar plugin.
+* Fixed number formatting of prices of imported events of The Event Calendar plugin (1.17.1).
+* Fixed not retaining map setting after each import of events of The Event Calendar plugin (1.17.1).
 
 = 1.16 =
 
@@ -180,9 +182,14 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 
 == Upgrade Notice ==
 
+= 1.17.1 =
+
+Fixes number formatting of prices of imported events of The Event Calendar plugin.
+
+
 = 1.17 =
 
-* Adds support for additional venue details in imported events of The Event Calendar plugin.
+Adds support for additional venue details in imported events of The Event Calendar plugin.
 
 = 1.16 =
 
