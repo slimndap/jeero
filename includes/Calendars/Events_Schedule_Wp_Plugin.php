@@ -44,6 +44,7 @@ class Events_Schedule_Wp_Plugin extends Post_Based_Calendar {
 	 * 					Added support for post status settings during import.
 	 *					Added support for venues.
 	 *					Added support for categories.
+	 * @since	1.17.2	Don't upload images again, since they are already uploaded in parent::process_data().
 	 *
 	 * @param 	mixed 			$result
 	 * @param 	array			$data		The structured data of the event.
@@ -86,18 +87,7 @@ class Events_Schedule_Wp_Plugin extends Post_Based_Calendar {
 			
 			if ( !empty( $data[ 'production' ][ 'img' ] ) ) {
 				
-				$thumbnail_id = Images\add_image_to_library( 
-					$data[ 'production' ][ 'img' ],
-					$event_id
-				);
-				
-				if ( \is_wp_error( $thumbnail_id ) ) {
-					
-				} else {
-					if ( $image_src = wp_get_attachment_image_src( $thumbnail_id, 'full' ) ) {
-						\update_post_meta( $event_id, '_wcs_image', $image_src[ 0 ] );					
-					}
-				}
+				\update_post_meta( $event_id, '_wcs_image', \get_the_post_thumbnail_url( $event_id ) );					
 	
 			}
 			
