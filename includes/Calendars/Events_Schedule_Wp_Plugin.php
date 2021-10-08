@@ -45,6 +45,7 @@ class Events_Schedule_Wp_Plugin extends Post_Based_Calendar {
 	 *					Added support for venues.
 	 *					Added support for categories.
 	 * @since	1.17.2	Don't upload images again, since they are already uploaded in parent::process_data().
+	 * @since	1.17.3	Fix incorrect start times.
 	 *
 	 * @param 	mixed 			$result
 	 * @param 	array			$data		The structured data of the event.
@@ -62,7 +63,7 @@ class Events_Schedule_Wp_Plugin extends Post_Based_Calendar {
 		
 		$ref = $data[ 'ref' ];
 
-		$event_start = $this->localize_timestamp( strtotime( $data[ 'start' ] ) );
+		$event_start = strtotime( $data[ 'start' ] );
 
 		if ( $event_id = $this->get_event_by_ref( $ref, $theater ) ) {
 		
