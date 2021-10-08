@@ -92,6 +92,7 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 * Fixed number formatting of prices of imported events of The Event Calendar plugin (1.17.1).
 * Fixed not retaining map setting after each import of events of The Event Calendar plugin (1.17.1).
 * Fixed a problem with images of imported events of the Events Schedule WP Plugin (1.17.2).
+* Fixed a problem with incorrect start times of imported events of the Events Schedule WP Plugin (1.17.3).
 
 = 1.16 =
 
@@ -182,6 +183,10 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 * Welcome Jeero!
 
 == Upgrade Notice ==
+
+= 1.17.3 =
+
+* Fixes a problem with incorrect start times of imported events of the Events Schedule WP Plugin.
 
 = 1.17.2 =
 
