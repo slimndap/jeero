@@ -425,6 +425,7 @@ abstract class Post_Based_Calendar extends Calendar {
 	 * Processes the data from an event in the inbox.
 	 * 
 	 * @since 	1.16
+	 * @since	1.17		Add image upload errors to log.
 	 */
 	function process_data( $result, $data, $raw, $theater, $subscription ) {
 
@@ -474,10 +475,16 @@ abstract class Post_Based_Calendar extends Calendar {
 				'always' == $this->get_setting( 'import/update/image', $subscription, 'once' ) && 
 				!empty( $data[ 'production' ][ 'img' ] )
 			) {
+				
 				$thumbnail_id = Images\update_featured_image_from_url( 
 					$post_id,
 					$data[ 'production' ][ 'img' ]
 				);
+				
+				if ( \is_wp_error( $thumbnail_id ) ) {
+					error_log( sprintf( '[%s] Failed adding image to the media library: %s', $this->name, $thumbnail_id->get_error_message() ) );	
+				}
+				
 			}
 			
 			\update_post_meta( $post_id, 'jeero/import/post/last_update', current_time( 'timestamp' ) );
@@ -494,10 +501,16 @@ abstract class Post_Based_Calendar extends Calendar {
 			$post_id = $this->insert_post( $post_args );
 
 			if ( !empty( $data[ 'production' ][ 'img' ] ) ) {
+
 				$thumbnail_id = Images\update_featured_image_from_url( 
 					$post_id,
 					$data[ 'production' ][ 'img' ]
 				);
+
+				if ( \is_wp_error( $thumbnail_id ) ) {
+					error_log( sprintf( '[%s] Failed adding image to the media library: %s', $this->name, $thumbnail_id->get_error_message() ) );	
+				}
+
 			}
 
 			if ( !empty( $data[ 'production' ][ 'categories' ] ) ) {

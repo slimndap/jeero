@@ -59,6 +59,9 @@ function get_image_by_url( $url ) {
  * Adds an external image to the media library.
  * 
  * @since	1.1
+ * @since	1.?	Avoid uploading images that are too big ( max. 4000 pixels wide ).
+ *				Cleanup temporary file before returning errors. 
+ *
  * @param 	string			$url
  * @param	int				$post_id
  * @param 	string			$name
@@ -80,10 +83,24 @@ function add_image_to_library( $url, $post_id ) {
 		return $tmp;	
 	}
 
+	// Determine image dimensions. Requires WP 5.7.
+	$imagesize = \wp_getimagesize( $tmp );
+	
+	if ( !$imagesize ) {
+		@unlink( $tmp );
+		return new \WP_Error( 'jeero\images', sprintf( 'Unable to determine image size of %s.', $url ) );		
+	}
+	
+	if ( 4000 < $imagesize[ 0 ] ) {
+		@unlink( $tmp );
+		return new \WP_Error( 'jeero\images', sprintf( 'Image size of %s too big: %dx%d.', $url, $imagesize[ 0 ], $imagesize[ 1 ] ) );
+	}
+
 	$extension = get_extension( $tmp );
 	
 	if ( empty( $extension ) ) {
-		return new \WP_Error( 'jeero\images', sprintf( 'Failed adding image to the media library. Unable to determine extension of %s.', $url ) );
+		@unlink( $tmp );
+		return new \WP_Error( 'jeero\images', sprintf( 'Unable to determine extension of %s.', $url ) );
 	}
 
 	$path = parse_url( $url, PHP_URL_PATH );
