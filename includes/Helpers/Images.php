@@ -7,6 +7,52 @@
 namespace Jeero\Helpers\Images;
 
 const JEERO_IMG_URL_FIELD = 'jeero/img/url';
+const MAX_IMAGE_DIMENSIONS = 4000 * 3000;
+
+/**
+ * Gets the size of an image.
+ *
+ * Wrapper function for wp_getimagesize() which was introduced in WP 5.7.
+ * Falls back to getimagesize() in earlier WP versions.
+ * 
+ * @since	1.18
+ * @param 	string		$filename	The file path.
+ * @return	array|bool				Array of image information or <false> on failure.
+ */
+function get_imagesize( $filename ) {
+	
+	if ( function_exists( '\wp_getimagesize' ) ) {
+		return \wp_getimagesize( $filename );
+	}
+	
+	return @getimagesize( $filename );
+	
+}
+
+/**
+ * Checks if imagesize is allowed.
+ *
+ * Checks if image dimensions are within the allowed images dimensions.
+ * 
+ * @since	1.18
+ * @param 	array	$imagesize	Array of image information as returned by getimagesize().
+ * @return 	bool
+ */
+function is_imagesize_allowed( $imagesize ) {
+	
+	if ( empty( $imagesize[ 0 ] ) ) {
+		return false;
+	}
+	
+	if ( empty( $imagesize[ 1 ] ) ) {
+		return false;
+	}
+	
+	$dimensions = $imagesize[ 0 ] * $imagesize[ 1 ];
+	
+	return $dimensions <= MAX_IMAGE_DIMENSIONS;
+	
+}
 
 /**
  * Updates the post thumbnail from an external image URL.
@@ -59,8 +105,8 @@ function get_image_by_url( $url ) {
  * Adds an external image to the media library.
  * 
  * @since	1.1
- * @since	1.?	Avoid uploading images that are too big ( max. 4000 pixels wide ).
- *				Cleanup temporary file before returning errors. 
+ * @since	1.18	Avoid uploading images that are too big ( max. 4000 pixels wide ).
+ *					Cleanup temporary file before returning errors. 
  *
  * @param 	string			$url
  * @param	int				$post_id
@@ -79,21 +125,21 @@ function add_image_to_library( $url, $post_id ) {
 	require_once( ABSPATH . 'wp-admin/includes/image.php' );
 
 	$tmp = \download_url( $url );
-	if ( \is_wp_error( $tmp ) ) {
-		return $tmp;	
+	if ( \is_wp_error( $tmp ) ) {		
+		return new \WP_Error( 'jeero\images', sprintf( 'Unable to download image: %s', $tmp->get_error_message() ) );
 	}
 
-	// Determine image dimensions. Requires WP 5.7.
-	$imagesize = \wp_getimagesize( $tmp );
+	// Determine image dimensions.
+	$imagesize = get_imagesize( $tmp );
 	
 	if ( !$imagesize ) {
 		@unlink( $tmp );
-		return new \WP_Error( 'jeero\images', sprintf( 'Unable to determine image size of %s.', $url ) );		
+		return new \WP_Error( 'jeero\images', sprintf( 'Unable to determine image dimensions of %s.', $url ) );		
 	}
 	
-	if ( 4000 < $imagesize[ 0 ] ) {
+	if ( !is_imagesize_allowed( $imagesize ) ) {
 		@unlink( $tmp );
-		return new \WP_Error( 'jeero\images', sprintf( 'Image size of %s too big: %dx%d.', $url, $imagesize[ 0 ], $imagesize[ 1 ] ) );
+		return new \WP_Error( 'jeero\images', sprintf( 'Image dimensions of %s not allowed: %dx%d pixels.', $url, $imagesize[ 0 ], $imagesize[ 1 ] ) );
 	}
 
 	$extension = get_extension( $tmp );
