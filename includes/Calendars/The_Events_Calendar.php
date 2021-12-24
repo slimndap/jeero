@@ -22,9 +22,19 @@ class The_Events_Calendar extends Post_Based_Calendar {
 		
 	}
 	
+	/**
+	 * Gets an event post by its ref and theater values.
+	 * 
+	 * @since	1.?
+	 * @since	1.18		@uses \Jeero\Calendars\Calendar::log().
+	 *
+	 * @param 	string			$ref
+	 * @param 	string 			$theater
+	 * @return 	WP_POST|bool					The event post or <false> if not found.
+	 */
 	function get_event_by_ref( $ref, $theater ) {
 		
-		error_log( sprintf( '[%s] Looking for existing %s item %s.', $this->get( 'name' ), $theater, $ref ) );
+		$this->log( sprintf( 'Looking for existing %s item %s.', $theater, $ref ) );
 		
 		$args = array(
 			'status' => array( 'any' ),

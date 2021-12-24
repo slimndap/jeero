@@ -17,6 +17,7 @@ use Jeero\Mother;
 use Jeero\Admin;
 use Jeero\Db;
 use Jeero\Subscriptions;
+use Jeero\Logs;
 
 const PICKUP_ITEMS_HOOK = 'jeero\inbox\pickup_items';
 
@@ -50,11 +51,12 @@ function apply_filters( $tag, $value ) {
  * Picks up items from Inbox and processes them.
  * 
  * @since	1.0
+ * @since	1.18	@uses \Jeero\Logs\log().
  * @return 	void
  */
 function pickup_items() {
 
-	error_log( 'Pick up items from inbox.' );
+	Logs\Log( 'Pick up items from inbox.' );
 
 	$settings = Subscriptions\get_setting_values();
 
@@ -66,9 +68,9 @@ function pickup_items() {
 	}
 	
 	if ( empty( $items ) ) {
-		error_log( 'No items found in inbox.' );		
+		Logs\Log( 'No items found in inbox.' );		
 	} else {
-		error_log( sprintf( '%d items found in inbox.', count( $items ) ) );
+		Logs\Log( sprintf( '%d items found in inbox.', count( $items ) ) );
 	}
 		
 	process_items( $items );
@@ -248,6 +250,8 @@ function process_item( $item ) {
  * 
  * @since	1.0
  * @since	1.5		Now accounts for process_item() returning a WP_Error.
+ * @since	1.18	@uses \Jeero\Logs\log().
+ *
  * @param 	array	$items
  * @return 	void
  */
@@ -263,13 +267,13 @@ function process_items( $items ) {
 		$result = process_item( $item );
 		
 		if ( \is_wp_error( $result ) ) {
-			error_log( $result->get_error_message() );
+			Logs\Log( $result->get_error_message() );
 		}
 		
 		$items_processed[] = $item;
 	}
 	
-	error_log( sprintf( '%d items processed.', count( $items_processed ) ) );
+	Logs\Log( sprintf( '%d items processed.', count( $items_processed ) ) );
 	
 	remove_items( $items_processed );
 }
@@ -278,12 +282,14 @@ function process_items( $items ) {
  * Removes items from the Inbox.
  * 
  * @since	1.0
+ * @since	1.18	@uses \Jeero\Logs\log().
+ *
  * @param 	array $items
  * @return	array|WP_Error
  */
 function remove_items( array $items ) {
 	
-	error_log( sprintf( 'Removing %d items from Inbox.', count( $items ) ) );
+	Logs\Log( sprintf( 'Removing %d items from Inbox.', count( $items ) ) );
 
 	$item_ids = wp_list_pluck( $items, 'ID' );
 	return Mother\remove_inbox_items( $item_ids );

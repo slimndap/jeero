@@ -48,13 +48,15 @@ class EventON extends Post_Based_Calendar {
 	 * Gets an EventON post ID by Jeero ref.
 	 * 
 	 * @since	1.15
-	 * @param 	string 	$ref
-	 * @param 	string	$theater
-	 * @return	int
+	 * @since	1.18		@uses \Jeero\Calendars\Calendar::log().
+	 *
+	 * @param 	string			$ref
+	 * @param 	string 			$theater
+	 * @return	int|bool						The event post ID or <false> if not found.
 	 */
 	function get_event_by_ref( $ref, $theater ) {
 		
-		error_log( sprintf( '[%s] Looking for existing %s item %s.', $this->get( 'name' ), $theater, $ref ) );
+		$this->log( sprintf( 'Looking for existing %s item %s.', $theater, $ref ) );
 		
 		$args = array(
 			'post_type' => 'ajde_events',

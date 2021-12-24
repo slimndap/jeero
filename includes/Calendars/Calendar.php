@@ -105,6 +105,7 @@ class Calendar {
 	 * Gets a fully rendered Twig template for a field.
 	 * 
 	 * @since	1.16
+	 * @since	1.18		@uses \Jeero\Calendars\Calendar::log().
 	 *
 	 * @param 	string 				$field			The field.
 	 * @param 	array				$data			The event data.
@@ -135,7 +136,7 @@ class Calendar {
 
 		if ( \is_wp_error( $rendered_template ) ) {
 			
-			error_log( sprintf( '[%s] Rendering %s template failed: %s.', $this->get( 'name' ), $field, $rendered_template->get_error_message() ) );
+			$this->log( sprintf( 'Rendering %s template failed: %s.', $field, $rendered_template->get_error_message() ) );
 			
 			ob_start();
 ?>
@@ -327,20 +328,21 @@ class Calendar {
 	 * Imports the data from an event in the inbox.
 	 * 
 	 * @since 	1.?
-	 * @since	1.4	Added the subscription param.
+	 * @since	1.4		Added the subscription param.
+	 * @since	1.18		@uses \Jeero\Calendars\Calendar::log().
 	 */
 	function import( $result, $data, $raw, $theater, $subscription ) {
 		
-		error_log( sprintf( '[%s] Import of %s item started.', $this->get( 'name' ), $theater ) );
+		$this->log( sprintf( 'Import of %s item started.', $theater ) );
 
 		$result = $this->process_data( $result, $data, $raw, $theater, $subscription );
 		
 		if ( \is_wp_error( $result ) ) {
-			error_log( sprintf( '[%s] Import of %s item failed: %s.', $this->get( 'name' ), $theater, $result->get_error_message() ) );
+			$this->log( sprintf( 'Import of %s item failed: %s.', $theater, $result->get_error_message() ) );
 			return;
 		}
 		
-		error_log( sprintf( '[%s] Import of %s item successful.', $this->get( 'name' ), $theater ) );
+		$this->log( sprintf( 'Import of %s item successful.', $theater ) );
 
 		return $result;
 		
@@ -349,6 +351,20 @@ class Calendar {
 	function localize_timestamp( $timestamp ) {
 		
 		return $timestamp + get_option( 'gmt_offset' ) * HOUR_IN_SECONDS;
+		
+	}
+	
+	/**
+	 * Logs a message for this Calendar to the Jeero log.
+	 * 
+	 * @since	1.18
+	 * @param 	string	$message
+	 * @return 	void
+	 */
+	function log( $message ) {
+		
+		$message = sprintf( '[%s] %s', $this->get( 'name' ), $message );
+		\Jeero\Logs\log( $message );
 		
 	}
 	

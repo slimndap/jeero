@@ -166,7 +166,7 @@ abstract class Post_Based_Calendar extends Calendar {
 	 */
 	function get_event_by_ref( $ref, $theater ) {
 		
-		error_log( sprintf( '[%s] Looking for existing %s item %s.', $this->get( 'name' ), $theater, $ref ) );
+		$this->log( sprintf( 'Looking for existing %s item %s.', $theater, $ref ) );
 		
 		$args = array(
 			'post_type' => $this->get_post_type(),
@@ -442,7 +442,7 @@ abstract class Post_Based_Calendar extends Calendar {
 
 		if ( $post_id = $this->get_event_by_ref( $ref, $theater ) ) {
 
-			error_log( sprintf( '[%s] Updating %s event %s / %d.', $this->name, $theater, $ref, $post_id ) );
+			$this->log( sprintf( 'Updating %s event %s / %d.', $theater, $ref, $post_id ) );
 
 			$post_args[ 'ID' ] = $post_id;
 
@@ -484,7 +484,7 @@ abstract class Post_Based_Calendar extends Calendar {
 		
 		} else {
 
-			error_log( sprintf( '[%s] Creating %s event %s.', $this->name, $theater, $ref ) );	
+			$this->log( sprintf( 'Creating %s event %s.', $theater, $ref ) );	
 
 			$post_args[ 'post_title' ] = $this->get_rendered_template( 'title', $data, $subscription );
 			$post_args[ 'post_content' ] = $this->get_rendered_template( 'content', $data, $subscription );
@@ -567,7 +567,7 @@ abstract class Post_Based_Calendar extends Calendar {
 		);
 		
 		if ( \is_wp_error( $thumbnail_id ) ) {
-			error_log( sprintf( 'Updating thumbnail for event %d failed: %s', $post_id, $thumbnail_id->get_error_message() ) );
+			$this->log( sprintf( 'Updating thumbnail for event %d failed: %s', $post_id, $thumbnail_id->get_error_message() ) );
 		}		
 
 		return $thumbnail_id;

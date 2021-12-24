@@ -11,7 +11,8 @@ add_action( 'admin_enqueue_scripts', __NAMESPACE__.'\enqueue_scripts' );
  * Adds the Jeero menu to the admin.
  * 
  * @since	1.0
- * @since	1.1	Renamed 'subscriptions' to 'imports'.
+ * @since	1.1		Renamed 'subscriptions' to 'imports'.
+ * @since	1.18	Added a logs admin page.
  * @return 	void
  */
 function add_menu_item() {
@@ -24,6 +25,15 @@ function add_menu_item() {
         __NAMESPACE__.'\Subscriptions\do_admin_page',
         'dashicons-tickets-alt',
         90
+    );
+    
+	add_submenu_page(
+		'',
+        __( 'Jeero Logs', 'jeero' ),
+        __( 'Jeero Logs', 'jeero' ),
+        'manage_options',
+        'jeero/logs',
+        __NAMESPACE__.'\Logs\do_admin_page',
     );
     
 }

@@ -15,6 +15,7 @@ namespace Jeero;
 include_once PLUGIN_PATH.'includes/Db/Subscriptions.php';
 
 include_once PLUGIN_PATH.'includes/Admin/Admin.php';
+include_once PLUGIN_PATH.'includes/Admin/Logs/Logs.php';
 include_once PLUGIN_PATH.'includes/Admin/Subscriptions/Subscriptions.php';
 include_once PLUGIN_PATH.'includes/Admin/Subscriptions/List_Table.php';
 include_once PLUGIN_PATH.'includes/Admin/Notices/Notices.php';
@@ -55,6 +56,8 @@ include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Textarea.php';
 include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Template.php';
 
 include_once PLUGIN_PATH.'includes/Inbox/Inbox.php';
+
+include_once PLUGIN_PATH.'includes/Logs/Logs.php';
 
 include_once PLUGIN_PATH.'includes/Mother/Mother.php';
 
