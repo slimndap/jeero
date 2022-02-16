@@ -19,7 +19,7 @@ const LOG_UID_KEY = 'jeero_log_uid_key';
 function create_upload_dir() {
 
 	$wp_upload_dir = \wp_upload_dir();
-	$upload_dir_path sprintf( '%s/jeero/logs/', $wp_upload_dir['basedir'] );
+	$upload_dir_path = sprintf( '%s/jeero/logs/', $wp_upload_dir['basedir'] );
 
 	if ( is_dir( $upload_dir_path ) ) {
 		return $upload_dir_path;
