@@ -8,7 +8,7 @@
 	convertWarningsToExceptions="true"
 	>
 	<testsuites>
-		<testsuite>
+		<testsuite name="WP Event Manager">
 			<directory prefix="test-" suffix=".php">../WP_Event_Manager/</directory>
 		</testsuite>
 	</testsuites>

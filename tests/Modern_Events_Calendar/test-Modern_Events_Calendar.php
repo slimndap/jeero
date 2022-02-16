@@ -10,7 +10,10 @@ class Modern_Events_Calendar_Test extends Post_Based_Calendar_Test {
 	}
 
 	function test_excerpt_is_updated_after_second_import() {
+
 		// Skip this test. Modern Events Calendar does not support excerpts.
+		$this->assertTrue( true );
+
 	}
 	
 	function test_has_venue() {

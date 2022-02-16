@@ -8,7 +8,7 @@
 	convertWarningsToExceptions="true"
 	>
 	<testsuites>
-		<testsuite>
+		<testsuite name="EventON">
 			<directory prefix="test-" suffix=".php">../EventON/</directory>
 		</testsuite>
 	</testsuites>

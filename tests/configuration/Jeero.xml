@@ -8,7 +8,7 @@
 	convertWarningsToExceptions="true"
 	>
 	<testsuites>
-		<testsuite>
+		<testsuite name="Jeero">
 			<directory prefix="test-" suffix=".php">../Jeero/</directory>
 		</testsuite>
 	</testsuites>

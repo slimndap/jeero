@@ -8,7 +8,7 @@
 	convertWarningsToExceptions="true"
 	>
 	<testsuites>
-		<testsuite>
+		<testsuite name="Goodlayers Event Post Type">
 			<directory prefix="test-" suffix=".php">../GDLR_Events/</directory>
 		</testsuite>
 	</testsuites>
