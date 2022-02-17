@@ -26,6 +26,11 @@ class Select extends Field {
 				?><option value="<?php echo $value; ?>"<?php selected( $this->value, $value, true ); ?>><?php echo $label; ?></option><?php
 			}
 		?></select><?php
+
+		if ( !empty( $this->instructions ) ) {
+			?><p class="description"><?php echo $this->instructions; ?></p><?php
+		}
+
 		return ob_get_clean();
 		
 	}
