@@ -28,6 +28,10 @@ class Checkbox extends Field {
 
 		}
 
+		if ( !empty( $this->instructions ) ) {
+			?><p class="description"><?php echo $this->instructions; ?></p><?php
+		}
+
 		return ob_get_clean();
 		
 	}
