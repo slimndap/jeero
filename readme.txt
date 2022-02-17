@@ -25,6 +25,7 @@ Supported ticketing solutions:
 * [Ciné Office](https://jeero.ooo/publish-cine-office-shows-on-wordpress/)
 * [Ents24](https://jeero.ooo/publish-ents24-events-on-wordpress/)
 * [Eventive](https://jeero.ooo/publish-eventive-films-on-wordpress/)
+* [KinoTickets Online](https://jeero.ooo/publish-kinotickets-online-films-on-wordpress/)
 * [Ovatic](https://jeero.ooo/publish-ovatic-events-on-wordpress/)
 * [OvationTix](https://jeero.ooo/publish-ovationtix-events-on-wordpress/)
 * [PatronBase](https://jeero.ooo/publish-patronbase-performances-on-wordpress/)
@@ -94,6 +95,7 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 * Fixed not retaining map setting after each import of events of The Event Calendar plugin (1.17.1).
 * Fixed a problem with images of imported events of the Events Schedule WP Plugin (1.17.2).
 * Fixed a problem with incorrect start times of imported events of the Events Schedule WP Plugin (1.17.3).
+* Updated Twig to 3.3.8 (1.17.4).
 
 = 1.16 =
 
@@ -184,6 +186,10 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 * Welcome Jeero!
 
 == Upgrade Notice ==
+
+= 1.17.4 =
+
+* Updates Twig to version 3.3.8, fixing a potential security hazard.
 
 = 1.17.3 =
 
