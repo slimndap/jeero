@@ -8,7 +8,7 @@
 	convertWarningsToExceptions="true"
 	>
 	<testsuites>
-		<testsuite>
+		<testsuite name="Sugar Calendar">
 			<directory prefix="test-" suffix=".php">../Sugar_Calendar/</directory>
 		</testsuite>
 	</testsuites>

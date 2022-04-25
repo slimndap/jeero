@@ -8,7 +8,7 @@
 	convertWarningsToExceptions="true"
 	>
 	<testsuites>
-		<testsuite>
+		<testsuite name="All In One Event Calendar">
 			<directory prefix="test-" suffix=".php">../All_In_One_Event_Calendar/</directory>
 		</testsuite>
 	</testsuites>

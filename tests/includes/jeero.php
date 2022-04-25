@@ -125,7 +125,7 @@ class Jeero_Test extends WP_UnitTestCase {
 	 */
 	function get_mock_response_for_get_subscription( $response, $endpoint, $args ) {
 		
-		if ( strpos( $endpoint, 'subscriptions/' !== 0 ) ) {
+		if ( strpos( $endpoint, 'subscriptions/' ) !== 0 ) {
 			return $response;
 		}
 		

@@ -67,6 +67,7 @@ class Sugar_Calendar_Test extends Post_Based_Calendar_Test {
 	function test_categories_are_imported() {
 		
 		// Skip test, Sugar Calendar does not support categories.
+		$this->assertTrue( true );
 		
 	}
 

@@ -8,7 +8,7 @@
 	convertWarningsToExceptions="true"
 	>
 	<testsuites>
-		<testsuite>
+		<testsuite name="Theater for WordPress">
 			<directory prefix="test-" suffix=".php">../Theater_For_WordPress/</directory>
 		</testsuite>
 	</testsuites>
