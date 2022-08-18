@@ -64,13 +64,15 @@ class Modern_Events_Calendar extends Post_Based_Calendar {
 	 * Gets the MEC location ID for a venue.
 	 * 
 	 * @since	1.11
+	 * @since	1.17.5	Fixed a PHP error caused by incorrect syntax in $cache_group format specifier.
+	 *					@see: https://github.com/slimndap/jeero/issues/9
 	 * @param	array	$venue
 	 * @return	int
 	 */
 	function get_location_id( $venue ) {
 		
-		$cache_group = sprintf( 'jeero/%/location_id', $this->slug );
-	
+		$cache_group = sprintf( 'jeero/%s/location_id', $this->slug );
+
 		$location_id = wp_cache_get( $venue[ 'title' ], $cache_group );
 
 		if ( false === $location_id ) {

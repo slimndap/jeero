@@ -1,6 +1,6 @@
 === Jeero ===
 Contributors: slimndap
-Tags: calendar, tickets, events, veezi, ticketmaster, ticketmatic, stager
+Tags: calendar, tickets, events, veezi, ticketmaster, audienceview, stager
 Requires PHP: 7.2
 Tested up to: 5.9
 Requires at least: 4.9
@@ -22,9 +22,11 @@ Supported ticketing solutions:
 * [Billeto](https://jeero.ooo/publish-bravobase-performances-on-wordpress/)
 * [BravoBase](https://jeero.ooo/publish-bravobase-performances-on-wordpress/)
 * [Brown Paper Tickets](https://jeero.ooo/publish-brown-paper-tickets-events-on-wordpress/)
+* [Chaplin](https://jeero.ooo/publish-chaplin-films-on-wordpress/)
 * [Ciné Office](https://jeero.ooo/publish-cine-office-shows-on-wordpress/)
 * [Ents24](https://jeero.ooo/publish-ents24-events-on-wordpress/)
 * [Eventive](https://jeero.ooo/publish-eventive-films-on-wordpress/)
+* [Fienta](https://jeero.ooo/publish-fienta-events-on-wordpress/)
 * [KinoTickets Online](https://jeero.ooo/publish-kinotickets-online-films-on-wordpress/)
 * [Ovatic](https://jeero.ooo/publish-ovatic-events-on-wordpress/)
 * [OvationTix](https://jeero.ooo/publish-ovationtix-events-on-wordpress/)
@@ -39,6 +41,7 @@ Supported ticketing solutions:
 * [Ticketmaster](https://jeero.ooo/publish-ticketmaster-events-on-wordpress/)
 * [Ticketmatic](https://jeero.ooo/publish-ticketmatic-events-on-wordpress/)
 * [Ticketportal](https://jeero.ooo/publish-ticketportal_cz-events-on-wordpress/)
+* [TicketSolve](https://jeero.ooo/publish-ticketsolve-events-on-wordpress/)
 * [TicketSource](https://jeero.ooo/publish-ticketsource-events-on-wordpress/)
 * [TicketWeb](https://jeero.ooo/publish-ticketweb-events-on-wordpress/)
 * [Tix](https://jeero.ooo/publish-tix-events-on-wordpress/)
@@ -96,6 +99,7 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 * Fixed a problem with images of imported events of the Events Schedule WP Plugin (1.17.2).
 * Fixed a problem with incorrect start times of imported events of the Events Schedule WP Plugin (1.17.3).
 * Updated Twig to 3.3.8 (1.17.4).
+* Fixed a problem where the Modern Events Calendar import stopped working on some systems (1.17.5).
 
 = 1.16 =
 
@@ -186,6 +190,10 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 * Welcome Jeero!
 
 == Upgrade Notice ==
+
+= 1.17.5 =
+
+* Fixes a problem where the Modern Events Calendar import stopped working on some systems
 
 = 1.17.4 =
 
