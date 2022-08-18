@@ -211,13 +211,14 @@ class Subscription {
 	 * Loads the Settings of this Subscription.
 	 * 
 	 * @since	1.0
+	 * @since	1.x	Fixed a PHP warning if the current subscription is not present in the DB.
 	 * @return 	void
 	 */
 	function load( ) {
 		
 		$data = Db\Subscriptions\get_subscription( $this->ID );
 		
-		if ( is_null( $data ) ) {
+		if ( !$data ) {
 			return;
 		}
 		
