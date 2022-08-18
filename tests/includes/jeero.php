@@ -1,7 +1,7 @@
 <?php
 class Jeero_Test extends WP_UnitTestCase {
 	
-	function setUp() {	
+	protected function setUp(): void {	
 			
 		parent::setUp();
 

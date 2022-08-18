@@ -77,7 +77,7 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 		$actual = Admin\Subscriptions\get_admin_page_html();
 		$expected = '<input name="calendar[]" type="checkbox" value="'.$this->calendar. '">';
 		
-		$this->assertContains( $expected, $actual );
+		$this->assertStringContainsStringIgnoringCase( $expected, $actual );
 		
 	}
 		
@@ -256,7 +256,7 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 
 		$actual = $events[ 0 ]->post_title;
 		$expected = 'Rendering title template failed:';
-		$this->assertContains( $expected, $actual );	
+		$this->assertStringContainsStringIgnoringCase( $expected, $actual );	
 			
 	}
 
@@ -353,7 +353,7 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 		$actual = Jeero\Admin\Subscriptions\get_admin_page_html();
 		$expected = '<option value="always" selected=\'selected\'';
 		
-		$this->assertContains( $expected, $actual );
+		$this->assertStringContainsStringIgnoringCase( $expected, $actual );
 
 
 	}
@@ -688,10 +688,10 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 		$actual = Jeero\Admin\Subscriptions\get_admin_page_html();
 
 		$expected = '{{title}} with custom template';		
-		$this->assertContains( $expected, $actual, print_r($actual, true ) );
+		$this->assertStringContainsStringIgnoringCase( $expected, $actual, print_r($actual, true ) );
 
 		$expected = '{{description}} with custom template';		
-		$this->assertContains( $expected, $actual, print_r($actual, true ) );
+		$this->assertStringContainsStringIgnoringCase( $expected, $actual, print_r($actual, true ) );
 
 	}			
 }

@@ -35,10 +35,10 @@ if [ $? -ne 0 ]; then
         exit 0
 fi
 
-phpunit --configuration tests/configuration/EventON.xml
-if [ $? -ne 0 ]; then
-        exit 0
-fi
+# phpunit --configuration tests/configuration/EventON.xml
+# if [ $? -ne 0 ]; then
+#        exit 0
+# fi
 
 phpunit --configuration tests/configuration/Very_Simple_Event_List.xml
 if [ $? -ne 0 ]; then

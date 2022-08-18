@@ -14,7 +14,7 @@ class Sugar_Calendar_Test extends Post_Based_Calendar_Test {
 		
 	}
 	
-	function setUp() {
+	protected function setUp(): void {	
 		parent::setUp();
 		sugar_calendar_register_meta_data();
 	}
