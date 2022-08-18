@@ -192,6 +192,10 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 
 == Upgrade Notice ==
 
+= 1.17.6 =
+
+* Improves PHP8 support
+
 = 1.17.5 =
 
 * Fixes a problem where the Modern Events Calendar import stopped working on some systems
