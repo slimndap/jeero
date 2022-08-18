@@ -2,7 +2,7 @@
 Contributors: slimndap
 Tags: calendar, tickets, events, veezi, ticketmaster, audienceview, stager
 Requires PHP: 7.2
-Tested up to: 5.9
+Tested up to: 6.0
 Requires at least: 4.9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -100,6 +100,7 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 * Fixed a problem with incorrect start times of imported events of the Events Schedule WP Plugin (1.17.3).
 * Updated Twig to 3.3.8 (1.17.4).
 * Fixed a problem where the Modern Events Calendar import stopped working on some systems (1.17.5).
+* Fixed a PHP warning in PHP8 (1.17.6).
 
 = 1.16 =
 
