@@ -8,7 +8,7 @@ use Jeero\Subscriptions;
 
 class Admin_Test extends Jeero_Test {
 	
-	function setUp() {
+	protected function setUp(): void {	
 		
 		// Set hook suffix to prevent WP_List_Table from generating warnings.
 		$GLOBALS['hook_suffix'] = '';		
@@ -24,7 +24,7 @@ class Admin_Test extends Jeero_Test {
 		$actual = Admin\Subscriptions\get_admin_page_html();
 		$expected = '<input type="hidden" name="subscription_id" value="a fake ID">';
 		
-		$this->assertContains( $expected, $actual );
+		$this->assertStringContainsStringIgnoringCase( $expected, $actual );
 		
 	}
 
@@ -35,7 +35,7 @@ class Admin_Test extends Jeero_Test {
 		$actual = Admin\Subscriptions\get_admin_page_html();
 		$expected = 'a fake ID';
 		
-		$this->assertContains( $expected, $actual );
+		$this->assertStringContainsStringIgnoringCase( $expected, $actual );
 	}
 
 	function test_edit_form() {
@@ -47,7 +47,7 @@ class Admin_Test extends Jeero_Test {
 		$actual = Admin\Subscriptions\get_admin_page_html();
 		$expected = '<input type="hidden" name="subscription_id" value="a fake ID">';
 		
-		$this->assertContains( $expected, $actual );
+		$this->assertStringContainsStringIgnoringCase( $expected, $actual );
 		
 	}
 
@@ -60,7 +60,7 @@ class Admin_Test extends Jeero_Test {
 		$actual = Admin\Subscriptions\get_admin_page_html();
 		$expected = '<input type="text" name="test_field"';
 		
-		$this->assertContains( $expected, $actual );
+		$this->assertStringContainsStringIgnoringCase( $expected, $actual );
 
 	}
 	
@@ -121,7 +121,7 @@ class Admin_Test extends Jeero_Test {
 		$actual = Admin\Subscriptions\get_admin_page_html();
 		$expected = '<input type="text" name="test_field" value="an updated value"';
 		
-		$this->assertContains( $expected, $actual );
+		$this->assertStringContainsStringIgnoringCase( $expected, $actual );
 
 	}
 	
