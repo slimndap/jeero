@@ -12,7 +12,7 @@ add_action( 'admin_enqueue_scripts', __NAMESPACE__.'\enqueue_scripts' );
  * 
  * @since	1.0
  * @since	1.1		Renamed 'subscriptions' to 'imports'.
- * @since	1.18	Added a logs admin page.
+ * @since	1.18	Added a debug admin page.
  * @return 	void
  */
 function add_menu_item() {
@@ -32,8 +32,8 @@ function add_menu_item() {
         __( 'Jeero Logs', 'jeero' ),
         __( 'Jeero Logs', 'jeero' ),
         'manage_options',
-        'jeero/logs',
-        __NAMESPACE__.'\Logs\do_admin_page',
+        'jeero/debug',
+        __NAMESPACE__.'\Debug\do_admin_page',
     );
     
 }
