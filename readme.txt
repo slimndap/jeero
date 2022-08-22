@@ -91,6 +91,10 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 
 == Changelog ==
 
+= 1.18 =
+
+* Jeero now has a dedicated log file and no longer pollutes your PHP error log.
+
 = 1.17 =
 
 * Adds support for additional venue details to imported events of The Event Calendar plugin.
@@ -191,6 +195,10 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 * Welcome Jeero!
 
 == Upgrade Notice ==
+
+= 1.18 =
+
+* Adds a dedicated Jeero logfile.
 
 = 1.17.6 =
 
