@@ -91,6 +91,10 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 
 == Changelog ==
 
+= 1.19 =
+
+* Imported images now get SEO-friendly filenames and alt tags.
+
 = 1.18 =
 
 * Jeero now has a dedicated log file and no longer pollutes your PHP error log.
@@ -196,6 +200,10 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 
 == Upgrade Notice ==
 
+= 1.19 =
+
+* Adds SEO-friendly filenames and alt tags to imported images.
+
 = 1.18 =
 
 * Adds a dedicated Jeero logfile.
@@ -206,7 +214,7 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 
 = 1.17.5 =
 
-* Fixes a problem where the Modern Events Calendar import stopped working on some systems
+* Fixes a problem where the Modern Events Calendar import stopped working on some systems.
 
 = 1.17.4 =
 
