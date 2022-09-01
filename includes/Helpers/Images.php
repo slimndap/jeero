@@ -59,6 +59,8 @@ function get_image_by_url( $url ) {
  * Adds an external image to the media library.
  * 
  * @since	1.1
+ * @since	1.19	Images now get SEO-friendly filenames and alt tags.
+ *
  * @param 	string			$url
  * @param	int				$post_id
  * @param 	string			$name
@@ -81,14 +83,15 @@ function add_image_to_library( $url, $post_id ) {
 	}
 
 	$extension = get_extension( $tmp );
-	$post_title = get_the_title( $post_id );
+	
+	$post = get_post( $post_id );
 	
 	if ( empty( $extension ) ) {
 		return new \WP_Error( 'jeero\images', sprintf( 'Failed adding image to the media library. Unable to determine extension of %s.', $url ) );
 	}
 
 	$file_array = array(
-		'name' => sprintf( '%s.%s', \sanitize_file_name( $post_title ), $extension ),
+		'name' => sprintf( '%s.%s', \sanitize_file_name( $post->post_name ), $extension ),
 		'tmp_name' => $tmp,
 	);
 
@@ -99,7 +102,7 @@ function add_image_to_library( $url, $post_id ) {
 		return $thumbnail_id;
 	}
 	
-	\update_post_meta( $thumbnail_id, '_wp_attachment_image_alt', $post_title );
+	\update_post_meta( $thumbnail_id, '_wp_attachment_image_alt', $post->post_title );
 
 	// Store original URL with image.
 	\update_post_meta( $thumbnail_id, JEERO_IMG_URL_FIELD, $url );
