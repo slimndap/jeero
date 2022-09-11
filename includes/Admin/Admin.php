@@ -33,9 +33,9 @@ function add_menu_item() {
         __( 'Jeero Logs', 'jeero' ),
         'manage_options',
         'jeero/debug',
-        __NAMESPACE__.'\Debug\do_admin_page',
+        __NAMESPACE__.'\Debug\do_admin_page'
     );
-    
+
 }
 
 /**
