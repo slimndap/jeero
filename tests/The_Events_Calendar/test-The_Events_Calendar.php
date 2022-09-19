@@ -77,12 +77,15 @@ class The_Events_Calendar_Test extends Post_Based_Calendar_Test {
 	function test_has_venue() {
 
 		$settings = array(
+			'theater' => 'veezi',
+			'calendar' => array( $this->calendar ),
+			$this->calendar.'/import/status' => 'publish',
 		);
 
 		$this->import_event( $settings );
 
 		$args = array(
-			'post_status' => 'draft',
+			'post_status' => 'any',
 		);
 		$events = $this->get_events( $args );
 
@@ -141,6 +144,37 @@ class The_Events_Calendar_Test extends Post_Based_Calendar_Test {
 		$this->assertEquals( $expected, $actual );
 		
 	}	
+	
+	function test_inbox_serie_is_imported() {
+		
+		add_filter( 'jeero/mother/get/response/endpoint=inbox', function( $response, $endpoint, $args ) {	
+			
+			$body = json_decode( $response[ 'body' ], true );
+			$body[ 0 ][ 'data' ][ 'production' ][ 'ref' ] = 456;
+			$response[ 'body' ] = json_encode( $body );
+			return $response;
+			
+		}, 11, 3 );
+
+		$settings = array(
+			$this->calendar.'/import/use_series' => array( 1 ),
+		);
+
+		$this->import_event( $settings );
+
+		$args = array(
+			'post_type' => \TEC\Events_Pro\Custom_Tables\V1\Series\Post_Type::POSTTYPE,	
+			'post_status' => 'draft',
+		);
+		$series = get_posts( $args );
+		
+		$actual = count( $series );
+		$expected = 1;
+		$this->assertEquals( $expected, $actual );
+		
+		
+		
+	}
 
 
 }
