@@ -91,6 +91,10 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 
 == Changelog ==
 
+= 1.20 =
+
+* Fixed conflict with events that were previously imported by one of the Theater for WordPress import extensions.
+
 = 1.19 =
 
 * Imported images now get SEO-friendly filenames and alt tags.
@@ -199,6 +203,10 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 * Welcome Jeero!
 
 == Upgrade Notice ==
+
+= 1.20 =
+
+* Fixes conflict with events that were previously imported by one of the Theater for WordPress import extensions.
 
 = 1.19 =
 
