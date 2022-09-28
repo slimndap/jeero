@@ -115,6 +115,8 @@ function add_image_to_library( $url, $post_id ) {
  * Gets a sanitized extension from an image filename.
  * 
  * @since	1.0
+ * @since	1.20.1	Added GIF support.
+ *
  * @param 	string			$filename
  * @return	string|bool
  */
@@ -129,6 +131,7 @@ function get_extension( $filename ) {
     	switch( $mimetype ) {
 			case 'image/jpeg': return 'jpg';
 			case 'image/png': return 'png';
+			case 'image/gif': return 'gif';
 			default: return false;
     	}
     	
