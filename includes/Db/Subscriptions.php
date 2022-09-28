@@ -56,6 +56,20 @@ function get_subscription( $subscription_id ) {
 		
 }
 
+function remove_subscription( $subscription_id ) {
+
+	$subscriptions = get_subscriptions();
+	
+	if ( !array_key_exists( $subscription_id, $subscriptions ) ) {
+		return;
+	}
+	
+	unset( $subscriptions[ $subscription_id ] );
+
+	update_option( JEERO_OPTION_SUBSCRIPTION, $subscriptions, false );
+
+}
+
 /**
  * Saves a Subscription to the DB.
  * 

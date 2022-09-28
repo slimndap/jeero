@@ -61,6 +61,19 @@ function add_success( $message ) {
 }
 
 /**
+ * Adds an success notification to the DB.
+ * 
+ * @since	1.0
+ * @param 	WP_Error	$error
+ * @return 	void
+ */
+function add_warning( $message ) {
+
+	add_notification( $message, 'warning' );
+	
+}
+
+/**
  * Outputs all notifications and removes them from the DB.
  * 
  * @since	1.0

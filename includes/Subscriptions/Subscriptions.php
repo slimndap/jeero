@@ -132,43 +132,51 @@ function get_subscription( $subscription_id ) {
  * @return	Subscription[]	An array containing all of Jeero's Subscriptions.
  */
 function get_subscriptions() {
+	
+	$subscriptions = wp_cache_get( 'subscriptions', 'jeero' );
+	
+	if ( false === $subscriptions ) {
 
-	$settings = get_setting_values();
-
-	// Ask Mother for a list of up-to-date subscriptions.
-	$answers = Mother\get_subscriptions( $settings );
-
-	// Update the Subscriptions in the DB.
-	$subscriptions = array();
-	foreach( $answers as $answer ) {
-		
-		$defaults = array(
-			'status' => false,
-			'logo' => false,
-			'fields' => array(),
-			'inactive' => null,
-			'interval' => null,
-			'next_delivery' => null,
-			'limit' => null,
-		);
-		
-		$answer = wp_parse_args( $answer, $defaults );
-
-		$subscription = new Subscription( $answer[ 'id' ] );
-		$subscription->set( 'status', $answer[ 'status' ] );
-		$subscription->set( 'logo', $answer[ 'logo' ] );
-		$subscription->set( 'fields', $answer[ 'fields' ] );
-				
-		$subscription->set( 'inactive', $answer[ 'inactive' ] );
-		$subscription->set( 'interval', $answer[ 'interval' ] );
-		$subscription->set( 'next_delivery', $answer[ 'next_delivery' ] );
-		$subscription->set( 'limit', $answer[ 'limit' ] );
-		
-		if ( isset( $answer[ 'theater' ] ) ) {
-			$subscription->set( 'theater', $answer[ 'theater' ] );
+		$settings = get_setting_values();
+	
+		// Ask Mother for a list of up-to-date subscriptions.
+		$answers = Mother\get_subscriptions( $settings );
+	
+		// Update the Subscriptions in the DB.
+		$subscriptions = array();
+		foreach( $answers as $answer ) {
+			
+			$defaults = array(
+				'status' => false,
+				'logo' => false,
+				'fields' => array(),
+				'inactive' => null,
+				'interval' => null,
+				'next_delivery' => null,
+				'limit' => null,
+			);
+			
+			$answer = wp_parse_args( $answer, $defaults );
+	
+			$subscription = new Subscription( $answer[ 'id' ] );
+			$subscription->set( 'status', $answer[ 'status' ] );
+			$subscription->set( 'logo', $answer[ 'logo' ] );
+			$subscription->set( 'fields', $answer[ 'fields' ] );
+					
+			$subscription->set( 'inactive', $answer[ 'inactive' ] );
+			$subscription->set( 'interval', $answer[ 'interval' ] );
+			$subscription->set( 'next_delivery', $answer[ 'next_delivery' ] );
+			$subscription->set( 'limit', $answer[ 'limit' ] );
+			
+			if ( isset( $answer[ 'theater' ] ) ) {
+				$subscription->set( 'theater', $answer[ 'theater' ] );
+			}
+	
+			$subscriptions[ $subscription->get( 'ID' ) ] = $subscription;
 		}
-
-		$subscriptions[ $subscription->get( 'ID' ) ] = $subscription;
+		
+		wp_cache_set( 'subscriptions', $subscriptions, 'jeero' );
+		
 	}
 	
 	return $subscriptions;	
