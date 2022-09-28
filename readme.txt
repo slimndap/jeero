@@ -94,6 +94,7 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 = 1.20 =
 
 * Fixed conflict with events that were previously imported by one of the Theater for WordPress import extensions.
+* Adds support for importing GIF files (1.20.1).
 
 = 1.19 =
 
@@ -203,6 +204,10 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 * Welcome Jeero!
 
 == Upgrade Notice ==
+
+= 1.20.1 =
+
+* Adds support for importing GIF files.
 
 = 1.20 =
 
