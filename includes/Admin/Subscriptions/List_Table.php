@@ -212,13 +212,15 @@ class List_Table extends \WP_List_Table {
 		$sortable = array();
 		$this->_column_headers = array($columns, $hidden, $sortable);
 		
-		$this->subscriptions = Subscriptions\get_subscriptions();
+		$subscriptions = Subscriptions\get_subscriptions();
 
-		if ( is_wp_error( $this->subscriptions ) ) {
-			Admin\Notices\add_error( $this->subscriptions );
+		if ( is_wp_error( $subscriptions ) ) {
+			Admin\Notices\add_error( $subscriptions );
 			$this->items = array();		
-			return false;
+			$this->subscriptions = array();
 		}
+		
+		$this->subscriptions = $subscriptions;
 		
 		$filtered_subscriptions = array();
 		

@@ -92,11 +92,7 @@ function deactivate_subscription( $subscription_id ) {
  */
 function get_inbox( $settings ) {
 
-	$args = array(
-		'settings' => urlencode( json_encode( $settings ) ),
-	);
-	
-	$items = get( 'inbox', $args );	
+	$items = post( 'inbox/big', $settings );	
 	
 	if ( \is_wp_error( $items ) ) {
 		return $items;
@@ -182,11 +178,7 @@ function get_subscription( $subscription_id, $settings ) {
  */
 function get_subscriptions( $settings ) {
 
-	$args = array(
-		'settings' => urlencode( json_encode( $settings, JSON_FORCE_OBJECT ) ),
-	);
-
-	$subscriptions = get( 'subscriptions', $args );
+	$subscriptions = post( 'subscriptions/big', $settings );
 	
 	return $subscriptions;
 
@@ -240,17 +232,17 @@ function update_subscription( $subscription_id, $settings ) {
  * @param	array 			$data (default: array())
  * @return 	array|WP_Error
  */
-function get( $endpoint, $data = array() ) {
+function get( $endpoint, $params = array(), $data = array() ) {
 	
-	$response = apply_filters( 'jeero/mother/get/response', NULL, $endpoint, $data );
-	$response = apply_filters( 'jeero/mother/get/response/endpoint='.$endpoint, $response, $endpoint, $data );
+	$response = apply_filters( 'jeero/mother/get/response', NULL, $endpoint, $params );
+	$response = apply_filters( 'jeero/mother/get/response/endpoint='.$endpoint, $response, $endpoint, $params );
 
 	if ( is_null( $response ) ) {
 
 		$url = BASE_URL.'/'.$endpoint;
 		
-		if ( !empty( $data ) ) {
-			$url = add_query_arg( $data, $url );
+		if ( !empty( $params ) ) {
+			$url = add_query_arg( $params, $url );
 		}
 
 		$args = array(
@@ -258,8 +250,13 @@ function get( $endpoint, $data = array() ) {
 			'headers' => array(
 				'site_url' => site_url(),
 				'site_key' => get_site_key(),
+				'Content-Type' => 'application/json',
 			),
 		);
+		if ( !empty( $data ) ) {
+			$args[ 'body' ] = json_encode( $data );
+		}
+		
 		$response = wp_remote_get( $url, $args );
 
 	}
@@ -300,6 +297,7 @@ function post( $endpoint, $data = array() ) {
 		$url = BASE_URL.'/'.$endpoint;
 		
 		$args = array(
+			'timeout' => 30,
 			'headers' => array(
 				'site_url' => \site_url(),
 				'site_key' => get_site_key(),
@@ -311,7 +309,7 @@ function post( $endpoint, $data = array() ) {
 		}
 		
 		$response = \wp_remote_post( $url, $args );
-
+		
 	}
 
 	if ( is_wp_error( $response ) ) {

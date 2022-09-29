@@ -137,6 +137,10 @@ function get_subscriptions() {
 
 	// Ask Mother for a list of up-to-date subscriptions.
 	$answers = Mother\get_subscriptions( $settings );
+	
+	if ( is_wp_error( $answers ) ) {
+		return $answers;
+	}
 
 	// Update the Subscriptions in the DB.
 	$subscriptions = array();
