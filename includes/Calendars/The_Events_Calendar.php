@@ -27,6 +27,11 @@ class The_Events_Calendar extends Post_Based_Calendar {
 	 * 
 	 * @since	1.?
 	 * @since	1.18		@uses \Jeero\Calendars\Calendar::log().
+	 * @since	1.20.1	Replaced tribe_get_events() with get_posts().
+	 *					tribe_get_events() no longer returns events that were created by Jeero
+	 *					because Post_Based_Calendar::insert_post() does not create the required structure and
+	 *					tribe_create_events() is currently not usable:
+	 *					@see: https://wordpress.org/support/topic/tribe_create_event-unable-to-save-startdate/
 	 *
 	 * @param 	string			$ref
 	 * @param 	string 			$theater
@@ -37,17 +42,18 @@ class The_Events_Calendar extends Post_Based_Calendar {
 		$this->log( sprintf( 'Looking for existing %s item %s.', $theater, $ref ) );
 		
 		$args = array(
-			'status' => array( 'any' ),
+			// Trick TEC to not alter the get_posts() query by adding a second post_type to the query.
+			'post_type' => array( $this->get_post_type(), 'fake_post_type' ),
+			'post_status' => 'any',
 			'meta_query' => array(
 				array(
 					'key' => $this->get_ref_key( $theater ),
 					'value' => $ref,					
 				),
 			),
-			'cache_buster' => wp_generate_uuid4( ),
 		);
 
-		$posts = \tribe_get_events( $args );
+		$posts = \get_posts( $args );
 
 		if ( empty( $posts ) ) {
 			return false;
@@ -122,13 +128,13 @@ class The_Events_Calendar extends Post_Based_Calendar {
 	 * @since	1.0
 	 * @since	1.4		Added the subscription param.
 	 * @since	1.8		Added support for import settings to decide whether to 
-	 * 					overwrite title/description/image/categorie during import.
+	 * 					overwrite title/description/image/categories during import.
 	 * 					Added support for post status settings during import.
 	 *					Added support for categories.
 	 *					Added support for descriptions.
 	 * @since	1.10		Added support for title and content Twig templates.
 	 * @since	1.14		Added support for custom fields.	
-	 * @since	1.15.3	Fix: start and end times were incorreclty localized, resulting in
+	 * @since	1.15.3	Fix: start and end times were incorrectly localized, resulting in
 	 *					the start and end times being off.
 	 * @since	1.17		Added support for custom venue title template.
 	 *					Added support for venue meta fields.
