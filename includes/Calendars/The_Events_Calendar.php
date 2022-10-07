@@ -27,10 +27,9 @@ class The_Events_Calendar extends Post_Based_Calendar {
 	 * 
 	 * @since	1.?
 	 * @since	1.18		@uses \Jeero\Calendars\Calendar::log().
-	 * @since	1.20.1	Replaced tribe_get_events() with get_posts().
-	 *					tribe_get_events() no longer returns events that were created by Jeero
-	 *					because Post_Based_Calendar::insert_post() does not create the required structure and
-	 *					tribe_create_events() is currently not usable:
+	 * @since	1.20.2	Replaced tribe_get_events() with get_posts().
+	 *					tribe_get_events() sometimes does not return events that were created with
+	 *					tribe_create_event():
 	 *					@see: https://wordpress.org/support/topic/tribe_create_event-unable-to-save-startdate/
 	 *
 	 * @param 	string			$ref
@@ -38,7 +37,7 @@ class The_Events_Calendar extends Post_Based_Calendar {
 	 * @return 	WP_POST|bool					The event post or <false> if not found.
 	 */
 	function get_event_by_ref( $ref, $theater ) {
-		
+
 		$this->log( sprintf( 'Looking for existing %s item %s.', $theater, $ref ) );
 		
 		$args = array(
@@ -60,7 +59,6 @@ class The_Events_Calendar extends Post_Based_Calendar {
 		}
 		
 		return $posts[ 0 ]->ID;
-		
 	}
 	
 	/**
@@ -112,6 +110,40 @@ class The_Events_Calendar extends Post_Based_Calendar {
 		return $post_fields;		
 	}
 
+	/**
+	 * Inserts or updates a post without sanitizing post content for allowed HTML tags.
+	 * Uses tribe_create_event() to ensure that all necessary database updates are done by 
+	 * The Events Calendar.
+	 * 
+	 * @since	1.20.2
+	 * @param 	array 			$args	An array of elements that make up a post to update or insert.
+	 * @return	int|WP_Error				The post ID on success. The value 0 or WP_Error on failure.
+	 */
+	function insert_post( $args ) {
+		
+		// Temporarily disable sanitizing allowed HTML tags.
+		\remove_filter( 'content_save_pre', 'wp_filter_post_kses' );
+		
+		// Use a dummy date to make sure that $args meets the minimum requirements of tribe_create_event().
+		$defaults = array(
+			'EventStartDate' => date( 'Y-m-d' ),
+			'EventEndDate' => date( 'Y-m-d' ),
+			'EventStartHour' => 19,
+			'EventStartMinute' => 15,
+			'EventEndHour' => 20,
+			'EventEndMinute' => 15,
+		);
+		
+		$args = wp_parse_args( $args, $defaults );
+		
+		$result = \tribe_create_event( $args );
+
+		// Re-enable sanitizing allowed HTML tags.
+		\add_filter( 'content_save_pre', 'wp_filter_post_kses' );
+		
+		return $result;
+	}
+	
 	/**
 	 * Checks if this calendar is active.
 	 * 
