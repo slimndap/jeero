@@ -102,7 +102,7 @@ class The_Events_Calendar extends Post_Based_Calendar {
 		);
 
 		$post_fields[] = array(
-			'name' => 'venue_Website',
+			'name' => 'venue_URL',
 			'title' => __( 'Location website', 'jeero' ),
 			'template' => '',
 		);
@@ -224,7 +224,7 @@ class The_Events_Calendar extends Post_Based_Calendar {
 				$venue = \tribe_get_venue_object( $venue_id );
 				$venue_args = array();
 
-				foreach ( array( 'Address', 'City', 'Zip', 'Phone', 'Website' ) as $meta_field ) {
+				foreach ( array( 'Address', 'City', 'Zip', 'Phone', 'URL' ) as $meta_field ) {
 
 					$post_field = 'venue_'.$meta_field;
 					
