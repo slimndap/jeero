@@ -75,7 +75,7 @@ function get_subscription( $subscription_id ) {
 	// Ask Mother for subscription info, based on the current settings.
 	$answer = Mother\get_subscription( $subscription_id, $subscription->get( 'settings' ) );
 
-	if ( is_wp_error( $answer ) ) {
+	if ( \is_wp_error( $answer ) ) {
 		return $answer;
 	}
 	
@@ -139,6 +139,10 @@ function get_subscriptions() {
 	$answers = Mother\get_subscriptions( $settings );
 	
 	if ( is_wp_error( $answers ) ) {
+		return $answers;
+	}
+
+	if ( \is_wp_error(  $answers ) ) {
 		return $answers;
 	}
 
