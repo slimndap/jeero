@@ -217,7 +217,7 @@ class List_Table extends \WP_List_Table {
 		if ( is_wp_error( $subscriptions ) ) {
 			Admin\Notices\add_error( $subscriptions );
 			$this->items = array();		
-			$this->subscriptions = array();
+			$subscriptions = array();
 		}
 		
 		$this->subscriptions = $subscriptions;
