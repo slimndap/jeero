@@ -46,7 +46,7 @@ class Theater_For_WordPress_Test extends Post_Based_Calendar_Test {
 
 		$jeero_test = $this;
 
-		add_filter( 'jeero/mother/get/response/endpoint=inbox', function( $response, $endpoint, $args ) use ( $jeero_test ) {
+		add_filter( 'jeero/mother/post/response/endpoint=inbox/big', function( $response, $endpoint, $args ) use ( $jeero_test ) {
 		
 			$inbox = $jeero_test->get_mock_response_for_get_inbox( $response, $endpoint, $args );
 			
