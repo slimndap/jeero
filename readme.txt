@@ -11,11 +11,11 @@ Imports events and tickets from your existing ticketing solution to popular Word
 
 == Description ==
 
-Jeero is the missing link between your ticketing solution and your website. 
+Jeero bridges the gap between your ticketing solution and your website.
 
-Tired of manually copying your event data in WordPress from your external ticketing solution? Jeero takes care of that and keeps you website fully up-to-date, including dates, prices, descriptions, images and availability.
+Tired of manually copying your event data from your external ticketing solution into WordPress? Jeero handles this for you, keeping your website fully updated with showtimes, prices, descriptions, images, and deeplinks to your online ticketing interface.
 
-Supported ticketing solutions:
+Ticketing solutions that are supported:
 
 * [ActiveTickets](https://jeero.ooo/publish-activetickets-events-on-wordpress/)
 * [AudienceView Professional](https://jeero.ooo/publish-audienceview-events-on-wordpress/)
@@ -34,6 +34,7 @@ Supported ticketing solutions:
 * [Place2Book](https://jeero.ooo/publish-place2book-events-on-wordpress/)
 * [Reservix](https://jeero.ooo/publish-reservix-events-on-wordpress/)
 * [RTS](https://jeero.ooo/publish-rts-events-on-wordpress/)
+* [Sirius](https://jeero.ooo/publish-sirius-events-on-wordpress/)
 * [Stager](https://jeero.ooo/publish-stager-events-on-wordpress/)
 * [ThunderTix](https://jeero.ooo/publish-thundertix-events-on-wordpress/)
 * [TicketingCiné](https://jeero.ooo/publish-ticketingcine-events-on-wordpress/)
@@ -47,7 +48,7 @@ Supported ticketing solutions:
 * [Tix](https://jeero.ooo/publish-tix-events-on-wordpress/)
 * [Veezi](https://jeero.ooo/publish-veezi-events-on-wordpress/)
 
-Supported calendar/event plugins:
+Calendar/event plugins that are supported:
 
 * [All In One Event Calendar](/plugins/all-in-one-event-calendar/)
 * All [Goodlayers](https://www.goodlayers.com) themes that use their Event Post Type plugin
@@ -60,12 +61,11 @@ Supported calendar/event plugins:
 * [Very Simple Event List](/plugins/very-simple-event-list/)
 * [WP Event Manager](/plugins/wp-event-manager/)
 
-= Is your ticketing solution missing? =
-My objective is to offer imports from _any_ ticketing solution to _any_ calendar plugin. [Contact me](mailto:jeroen@slimndap.com), so I can add your solution as well.
+= Are you missing a ticketing solution? =
+My goal is to provide imports from any ticketing system to any calendar plugin. Please contact me so that I can include your solution as well.
 
 = Get started for free =
-Jeero is a subscription based service, provided by [Slim & Dapper](https://slimndap.com). You can easily setup a free subscription inside the plugin. The free subscription is fully functional and lets you sync up to 10 upcoming events at any given time. When you are ready to move ahead you can upgrade to one of the paid plans. 
-
+Slim & Dapper's Jeero is a subscription-based service. Within the plugin, you can easily set up a free subscription. The free subscription is fully functional, displaying up to ten upcoming events at any given time. When you're ready to display more events, you can upgrade to a paid plan.
 
 == Installation ==
 
@@ -90,6 +90,16 @@ I am still working on the subscription engine. Once it ready the possibility to 
 Subscription rates will range from €20 - €30 per month, depending on your total number of events. 
 
 == Changelog ==
+
+= 1.20 =
+
+* Fixed conflict with events that were previously imported by one of the Theater for WordPress import extensions.
+* Adds support for importing GIF files (1.20.1).
+* Fixed an import problem where events were not properly imported in The Events Calendar 6. (1.20.2).
+
+= 1.19 =
+
+* Imported images now get SEO-friendly filenames and alt tags.
 
 = 1.18 =
 
@@ -196,6 +206,21 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 
 == Upgrade Notice ==
 
+= 1.20.2 =
+* Fixes an import problem where events were not properly imported in The Events Calendar 6.
+
+= 1.20.1 =
+
+* Adds support for importing GIF files.
+
+= 1.20 =
+
+* Fixes conflict with events that were previously imported by one of the Theater for WordPress import extensions.
+
+= 1.19 =
+
+* Adds SEO-friendly filenames and alt tags to imported images.
+
 = 1.18 =
 
 * Adds a dedicated Jeero logfile.
@@ -206,7 +231,7 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 
 = 1.17.5 =
 
-* Fixes a problem where the Modern Events Calendar import stopped working on some systems
+* Fixes a problem where the Modern Events Calendar import stopped working on some systems.
 
 = 1.17.4 =
 

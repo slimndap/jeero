@@ -33,6 +33,17 @@ class Theater_For_WordPress extends Post_Based_Calendar {
 		return class_exists( '\WP_Theatre' );
 	}
 	
+	/**
+	 * Gets an event post by its ref and theater values.
+	 * 
+	 * @since	1.?
+	 * @since	1.20		Fixed finding events that were previously imported by one of the 
+	 *					Theater for WordPress import extensions.
+	 *
+	 * @param 	string			$ref
+	 * @param 	string 			$theater
+	 * @return 	WP_POST|bool					The event post or <false> if not found.
+	 */
 	function get_event_by_ref( $ref, $theater ) {
 		
 		// Find event by Jeero ref key.
@@ -43,7 +54,7 @@ class Theater_For_WordPress extends Post_Based_Calendar {
 		
 		// Find event that was previously imported by a WPT_Importer.
 		$importer = new \WPT_Importer();
-		$importer->set( 'slug', $theater );
+		$importer->set( 'slug', sprintf( 'wpt_%s', $theater ) );
 		if ( $event = $importer->get_production_by_ref( $ref ) ) {
 			return $event->ID;	
 		}
@@ -84,6 +95,8 @@ class Theater_For_WordPress extends Post_Based_Calendar {
 	 * @since	1.15.4	Fix: force floats for events prices to make them match the 
 	 *					sanitazion happening inside the Theater for WordPress plugin.
 	 *					@see https://github.com/slimndap/jeero/issues/6 
+	 * @since	1.20		Clean up event dates that were previously imported by 
+	 *					one of the Theater for WordPress import extensions.
 	 *
 	 */
 	function process_data( $result, $data, $raw, $theater, $subscription ) {
@@ -100,14 +113,15 @@ class Theater_For_WordPress extends Post_Based_Calendar {
 			'events_created' => 0,
 			'events_updated' => 0,
 		) );
+
+		// Mimic the importer of the ActiveTickets for WordPress plugin.
+		$legacy_importer = new \WPT_Importer();
+		$legacy_importer->set( 'slug', sprintf( 'wpt_%s', $theater ) );
 		
 		$ref = $this->get_post_ref( $data );
 
 		if ( $post_id = $this->get_event_by_ref( $ref, $theater ) ) {
 
-			\update_post_meta( $post_id, '_wpt_source', $theater );
-			\update_post_meta( $post_id, '_wpt_source_ref', $ref );
-						
 			$event_args = array(
 				'production' => $post_id,
 				'venue' => $data[ 'venue' ][ 'title' ] ?? '',
@@ -150,6 +164,12 @@ class Theater_For_WordPress extends Post_Based_Calendar {
 			}
 	
 			update_post_meta( $wpt_event->ID, 'tickets_status', $tickets_status );
+			
+			// Replace date that was previously imported by a Theater for WordPress extension.
+			if ( $legacy_date = $legacy_importer->get_event_by_ref( $data[ 'ref' ] ) ) {
+				$this->log( sprintf( 'Deleting legacy %s event date %s.', $theater, $legacy_date->ID ) );
+				\wp_delete_post( $legacy_date->ID, true );
+			}
 			
 		}
 		

@@ -59,6 +59,8 @@ function get_image_by_url( $url ) {
  * Adds an external image to the media library.
  * 
  * @since	1.1
+ * @since	1.19	Images now get SEO-friendly filenames and alt tags.
+ *
  * @param 	string			$url
  * @param	int				$post_id
  * @param 	string			$name
@@ -70,7 +72,7 @@ function add_image_to_library( $url, $post_id ) {
 	if ( $thumbnail_id = get_image_by_url( $url ) ) {
 		return $thumbnail_id;
 	}
-	
+
 	require_once( ABSPATH . 'wp-admin/includes/media.php' );
 	require_once( ABSPATH . 'wp-admin/includes/file.php' );
 	require_once( ABSPATH . 'wp-admin/includes/image.php' );
@@ -82,15 +84,14 @@ function add_image_to_library( $url, $post_id ) {
 
 	$extension = get_extension( $tmp );
 	
+	$post = get_post( $post_id );
+	
 	if ( empty( $extension ) ) {
 		return new \WP_Error( 'jeero\images', sprintf( 'Failed adding image to the media library. Unable to determine extension of %s.', $url ) );
 	}
 
-	$path = parse_url( $url, PHP_URL_PATH );
-	$basename = pathinfo( $path, PATHINFO_FILENAME );
-
 	$file_array = array(
-		'name' => \sanitize_file_name( $basename ).'.'.$extension,
+		'name' => sprintf( '%s.%s', \sanitize_file_name( $post->post_name ), $extension ),
 		'tmp_name' => $tmp,
 	);
 
@@ -101,6 +102,8 @@ function add_image_to_library( $url, $post_id ) {
 		return $thumbnail_id;
 	}
 	
+	\update_post_meta( $thumbnail_id, '_wp_attachment_image_alt', $post->post_title );
+
 	// Store original URL with image.
 	\update_post_meta( $thumbnail_id, JEERO_IMG_URL_FIELD, $url );
 	
@@ -112,6 +115,8 @@ function add_image_to_library( $url, $post_id ) {
  * Gets a sanitized extension from an image filename.
  * 
  * @since	1.0
+ * @since	1.20.1	Added GIF support.
+ *
  * @param 	string			$filename
  * @return	string|bool
  */
@@ -126,6 +131,7 @@ function get_extension( $filename ) {
     	switch( $mimetype ) {
 			case 'image/jpeg': return 'jpg';
 			case 'image/png': return 'png';
+			case 'image/gif': return 'gif';
 			default: return false;
     	}
     	
