@@ -12,12 +12,12 @@ class The_Events_Calendar_Test extends Post_Based_Calendar_Test {
 	function get_events( $args = array() ) {
 
 		$defaults = array(
-			'cache_buster' => wp_generate_uuid4( ),
+			'post_type' => array( 'tribe_events', 'fake' ),
 		);
 		
 		$args = wp_parse_args( $args, $defaults );
 		
-		return \tribe_get_events( $args );
+		return \get_posts( $args );
 		
 	}
 	
@@ -26,10 +26,10 @@ class The_Events_Calendar_Test extends Post_Based_Calendar_Test {
 		$this->import_event();
 
 		$args = array(
-			'post_status' => 'any',
+			'post_status' => array( 'any' ),
 		);		
-		$events = tribe_get_events( $args );	
-		
+		$events = $this->get_events( $args );	
+
 		$expected = date( 'Ymd', time() + 48 * HOUR_IN_SECONDS );
 		$actual = tribe_get_start_date( $events[0]->ID, true, 'Ymd' );
 		
@@ -62,7 +62,7 @@ class The_Events_Calendar_Test extends Post_Based_Calendar_Test {
 			),
 		);
 		
-		$events = \tribe_get_events( $args );
+		$events = $this->get_events( $args );	
 
 		$actual = tribe_get_start_time( $events[ 0 ]->ID, 'H:i' );
 		$expected = date( 'H:i', current_time( 'timestamp' ) + 48 * HOUR_IN_SECONDS );
