@@ -51,6 +51,12 @@ function do_admin_page() {
 	
 }
 
+/**
+ * Processes click on the 'Activate' link of an import.
+ * @since 	1.?
+ * @since	1.21	Redirects back to the list with inactive imports.
+ *
+ */
 function process_activate() {
 	
 	if ( ! current_user_can( 'manage_options' ) ) {
@@ -82,15 +88,16 @@ function process_activate() {
 
 	Admin\Notices\add_success( sprintf( __( '%s subscription activated.', 'jeero' ), $theater[ 'title' ] ) );
 
-	return Admin\redirect( get_admin_page_url( ) );
+	return Admin\redirect( add_query_arg( 'inactive', true, get_admin_page_url( ) ) );
 
 }
 
 /**
- * Processes a click on the 'deactivate subscription' link.
+ * Processes a click on the 'deactivate' link of an import.
  * 
  * @since	1.?
- * @since	1.9	Fixed redirect when trying to deactivate a non existing subscription.
+ * @since	1.9		Fixed redirects when trying to deactivate a non-existing import.
+ * @since	1.21	No redirects to the list ith active imports.
  *
  * @return void
  */
@@ -125,7 +132,7 @@ function process_deactivate() {
 
 	Admin\Notices\add_success( sprintf( __( '%s subscription deactivated.', 'jeero' ), $theater[ 'title' ] ) );
 
-	return Admin\redirect( add_query_arg( 'inactive', true, get_admin_page_url( ) ) );
+	return Admin\redirect( get_admin_page_url( ) );
 	
 }
 
