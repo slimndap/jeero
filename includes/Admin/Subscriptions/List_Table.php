@@ -107,7 +107,8 @@ class List_Table extends \WP_List_Table {
 	 * Outputs the content for the Events Limit column.
 	 * 
 	 * @since	1.0
-	 * @return	void
+	 * @since	1.21		Added an upgrade link for imports that are limited to less than 500 events.
+	 * @return	string
 	 */
     function column_limit( $subscription ) {
 
@@ -117,7 +118,20 @@ class List_Table extends \WP_List_Table {
 		    return __( 'Unknown', 'jeero' );
 	    }
 	    
-	    return sprintf( _n( '%d event', '%d events', $limit, 'jeero' ), $limit );
+	    ob_start();
+	    
+	    printf( _n( '%d event', '%d events', $limit, 'jeero' ), $limit );
+	    
+	    if ( 500 > $limit ) {
+		    
+		    $upgrade_url = add_query_arg( 'subscription', $subscription->ID, 'https://jeero.ooo/product/upgrade-jeero/' );
+			?><br/>
+			<a href="<?php echo $upgrade_url; ?>" target="_blank"><?php
+				_e( 'Upgrade', 'jeero' );
+			?></a><?php
+	    }
+	    
+	    return ob_get_clean();
     }
         
 	/**
