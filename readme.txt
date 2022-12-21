@@ -83,13 +83,18 @@ You should see the first 10 upcoming events that are coming from your ticketing 
 
 = How do I upgrade? =
 
-I am still working on the subscription engine. Once it ready the possibility to upgrade will be made available inside the plugin. It shouldn't take long. For now you can [contact me](mailto:jeroen@slimndap.com) so I can upgrade you manually.
+I am still working on the subscription engine. Once it is ready the possibility to upgrade will be made available inside the plugin. It shouldn't take long. For now you can [contact me](mailto:jeroen@slimndap.com) so I can upgrade you manually.
 
 = How much will it cost? =
 
 Subscription rates will range from €20 - €30 per month, depending on your total number of events. 
 
 == Changelog ==
+
+= 1.21 =
+
+* Improved support for websites that are running multiple Jeero imports. 
+* Added more information about imports to the Jeero logfile.
 
 = 1.20 =
 
@@ -205,6 +210,9 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 * Welcome Jeero!
 
 == Upgrade Notice ==
+
+= 1.21 =
+* Better support for websites that are running multiple Jeero imports.
 
 = 1.20.2 =
 * Fixes an import problem where events were not properly imported in The Events Calendar 6.

@@ -46,7 +46,7 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 			10, 3 
 		);
 
-		add_filter( 'jeero/mother/get/response/endpoint=inbox', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
+		add_filter( 'jeero/mother/post/response/endpoint=inbox/big', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
 		
 		$subscription = Jeero\Subscriptions\get_subscription( 'a fake ID' );
 		$calendar = Jeero\Calendars\get_calendar( $this->calendar );
@@ -128,7 +128,7 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 			10, 3 
 		);
 
-		add_filter( 'jeero/mother/get/response/endpoint=inbox', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
+		add_filter( 'jeero/mother/post/response/endpoint=inbox/big', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
 		
 		$subscription = Jeero\Subscriptions\get_subscription( 'a fake ID' );
 		
@@ -190,7 +190,7 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 			10, 3 
 		);
 
-		add_filter( 'jeero/mother/get/response/endpoint=inbox', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
+		add_filter( 'jeero/mother/post/response/endpoint=inbox/big', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
 		
 		$subscription = Jeero\Subscriptions\get_subscription( 'a fake ID' );
 		
@@ -229,7 +229,7 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 			10, 3 
 		);
 
-		add_filter( 'jeero/mother/get/response/endpoint=inbox', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
+		add_filter( 'jeero/mother/post/response/endpoint=inbox/big', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
 		
 		$subscription = Jeero\Subscriptions\get_subscription( 'a fake ID' );
 		
@@ -268,7 +268,7 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 			10, 3 
 		);
 
-		add_filter( 'jeero/mother/get/response/endpoint=inbox', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
+		add_filter( 'jeero/mother/post/response/endpoint=inbox/big', array( $this, 'get_mock_response_for_get_inbox' ), 10, 3 );
 		
 		$subscription = Jeero\Subscriptions\get_subscription( 'a fake ID' );
 		

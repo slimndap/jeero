@@ -87,16 +87,14 @@ function deactivate_subscription( $subscription_id ) {
  * @since	1.0
  * @since	1.10	Improved encoding of settings.
  *					Always return fully parsed items.
+ * @since	1.21	Now uses POST to support settings > 1024kb.
+ *
  * @param 	array			$settings	The setting values of all subscriptions.
  * @return	array|WP_Error
  */
 function get_inbox( $settings ) {
 
-	$args = array(
-		'settings' => urlencode( json_encode( $settings ) ),
-	);
-	
-	$items = get( 'inbox', $args );	
+	$items = post( 'inbox/big', $settings );	
 	
 	if ( \is_wp_error( $items ) ) {
 		return $items;
@@ -177,16 +175,14 @@ function get_subscription( $subscription_id, $settings ) {
  * Gets all subscriptions.
  * 
  * @since	1.0
+ * @since	1.21	Now uses POST to support settings > 1024kb.
+ *
  * @param 	array			$settings	The setting values of all subscriptions.
  * @return	array|WP_Error
  */
 function get_subscriptions( $settings ) {
 
-	$args = array(
-		'settings' => urlencode( json_encode( $settings, JSON_FORCE_OBJECT ) ),
-	);
-
-	$subscriptions = get( 'subscriptions', $args );
+	$subscriptions = post( 'subscriptions/big', $settings );
 	
 	return $subscriptions;
 
@@ -237,20 +233,20 @@ function update_subscription( $subscription_id, $settings ) {
  * 
  * @since	1.0
  * @param 	string			$endpoint
- * @param	array 			$data (default: array())
+ * @param	array 			$params
  * @return 	array|WP_Error
  */
-function get( $endpoint, $data = array() ) {
+function get( $endpoint, $params = array() ) {
 	
-	$response = apply_filters( 'jeero/mother/get/response', NULL, $endpoint, $data );
-	$response = apply_filters( 'jeero/mother/get/response/endpoint='.$endpoint, $response, $endpoint, $data );
+	$response = apply_filters( 'jeero/mother/get/response', NULL, $endpoint, $params );
+	$response = apply_filters( 'jeero/mother/get/response/endpoint='.$endpoint, $response, $endpoint, $params );
 
 	if ( is_null( $response ) ) {
 
 		$url = BASE_URL.'/'.$endpoint;
 		
-		if ( !empty( $data ) ) {
-			$url = add_query_arg( $data, $url );
+		if ( !empty( $params ) ) {
+			$url = add_query_arg( $params, $url );
 		}
 
 		$args = array(
@@ -300,6 +296,7 @@ function post( $endpoint, $data = array() ) {
 		$url = BASE_URL.'/'.$endpoint;
 		
 		$args = array(
+			'timeout' => 30,
 			'headers' => array(
 				'site_url' => \site_url(),
 				'site_key' => get_site_key(),
@@ -311,7 +308,7 @@ function post( $endpoint, $data = array() ) {
 		}
 		
 		$response = \wp_remote_post( $url, $args );
-
+		
 	}
 
 	if ( is_wp_error( $response ) ) {

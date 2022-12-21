@@ -107,7 +107,8 @@ class List_Table extends \WP_List_Table {
 	 * Outputs the content for the Events Limit column.
 	 * 
 	 * @since	1.0
-	 * @return	void
+	 * @since	1.21		Added an upgrade link for imports that are limited to less than 500 events.
+	 * @return	string
 	 */
     function column_limit( $subscription ) {
 
@@ -117,7 +118,20 @@ class List_Table extends \WP_List_Table {
 		    return __( 'Unknown', 'jeero' );
 	    }
 	    
-	    return sprintf( _n( '%d event', '%d events', $limit, 'jeero' ), $limit );
+	    ob_start();
+	    
+	    printf( _n( '%d event', '%d events', $limit, 'jeero' ), $limit );
+	    
+	    if ( 500 > $limit ) {
+		    
+		    $upgrade_url = add_query_arg( 'subscription', $subscription->ID, 'https://jeero.ooo/product/upgrade-jeero/' );
+			?><br/>
+			<a href="<?php echo $upgrade_url; ?>" target="_blank"><?php
+				_e( 'Upgrade', 'jeero' );
+			?></a><?php
+	    }
+	    
+	    return ob_get_clean();
     }
         
 	/**
@@ -176,7 +190,7 @@ class List_Table extends \WP_List_Table {
     }
     
 	/**
-	 * Outputs the content for a empty List Table.
+	 * Outputs the content for an empty List Table.
 	 * 
 	 * @since	1.0
 	 * @since	1.7	Removed onboarding.
@@ -204,6 +218,7 @@ class List_Table extends \WP_List_Table {
 	 * Loads all Subscriptions for the List Table.
 	 * 
 	 * @since	1.0
+	 * @since	1.21		Improved handling of errors if loading of subscriptions fails.
 	 * @return 	void
 	 */
 	function prepare_items() {
@@ -212,13 +227,15 @@ class List_Table extends \WP_List_Table {
 		$sortable = array();
 		$this->_column_headers = array($columns, $hidden, $sortable);
 		
-		$this->subscriptions = Subscriptions\get_subscriptions();
+		$subscriptions = Subscriptions\get_subscriptions();
 
-		if ( is_wp_error( $this->subscriptions ) ) {
-			Admin\Notices\add_error( $this->subscriptions );
+		if ( is_wp_error( $subscriptions ) ) {
+			Admin\Notices\add_error( $subscriptions );
 			$this->items = array();		
-			return false;
+			$subscriptions = array();
 		}
+		
+		$this->subscriptions = $subscriptions;
 		
 		$filtered_subscriptions = array();
 		
