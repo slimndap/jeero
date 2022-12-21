@@ -2,18 +2,18 @@
 Contributors: slimndap
 Tags: calendar, tickets, events, veezi, ticketmaster, audienceview, stager
 Requires PHP: 7.2
-Tested up to: 6.0
+Tested up to: 6.1
 Requires at least: 4.9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Imports events and tickets from your existing ticketing solution to popular WordPress calendar plugins.
+Imports events and tickets from your existing ticketing solution to The Events Calendar and other popular calendar plugins.
 
 == Description ==
 
 Jeero bridges the gap between your ticketing solution and your website.
 
-Tired of manually copying your event data from your external ticketing solution into WordPress? Jeero handles this for you, keeping your website fully updated with showtimes, prices, descriptions, images, and deeplinks to your online ticketing interface.
+Tired of manually copying your event data from your external ticketing solution into WordPress? Jeero handles this for you, keeping your website fully updated with showtimes, prices, descriptions, images, and deep links to your online ticketing interface.
 
 Ticketing solutions that are supported:
 
