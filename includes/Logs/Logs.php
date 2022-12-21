@@ -12,7 +12,7 @@ const LOG_UID_KEY = 'jeero_log_uid_key';
 
 /**
  * Attaches log import to inbox filter.
- * @since	1.18.1
+ * @since	1.21
  */
 add_filter( 'jeero/inbox/process/item/log', __NAMESPACE__.'\log_from_inbox', 10, 5 );
 
@@ -20,6 +20,8 @@ add_filter( 'jeero/inbox/process/item/log', __NAMESPACE__.'\log_from_inbox', 10,
  * Creates the upload dir for the Jeero log file.
  * 
  * @since	1.18
+ * @since	1.21	Improved error handling is creating logfile folder fails.
+ *
  * @return	string	The path to the upload dir.
  */
 function create_upload_dir() {
@@ -83,6 +85,8 @@ function get_uid() {
  * Gets the path to the Jeero logfile.
  * 
  * @since	1.18
+ * @since	1.21	Improved error handling is getting logfile folder fails.
+ *
  * @return	string 	The path to the Jeero logfile.
  */
 function get_file_path() {
@@ -101,6 +105,8 @@ function get_file_path() {
  * Rotates the Jeero logfile.
  * 
  * @since	1.18
+ * @since	1.21	Improved error handling is getting logfile path fails.
+ *
  * @return	void
  */
 function rotate_logs() {
@@ -127,6 +133,8 @@ function rotate_logs() {
  * Logs a message to the Jeero logfile.
  * 
  * @since	1.18
+ * @since	1.21	Improved error handling is getting logfile path fails.
+ *
  * @param 	string	$message
  * @return	void
  */
@@ -149,7 +157,7 @@ function log( $message ) {
 /**
  * Logs a message from the inbox in the Jeero logfile.
  * 
- * @since	1.18.1
+ * @since	1.21
  */
 function log_from_inbox( $result, $data, $raw, $theater, $subscription ) {
 	
@@ -173,6 +181,8 @@ function log_from_inbox( $result, $data, $raw, $theater, $subscription ) {
  * Gets the contents of the Jeero logfile.
  * 
  * @since	1.18
+ * @since	1.21	Improved error handling is getting logfile path fails.
+ *
  * @return	string
  */
 function get_log_file_content() {
