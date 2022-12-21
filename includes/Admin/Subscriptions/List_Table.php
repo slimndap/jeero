@@ -176,7 +176,7 @@ class List_Table extends \WP_List_Table {
     }
     
 	/**
-	 * Outputs the content for a empty List Table.
+	 * Outputs the content for an empty List Table.
 	 * 
 	 * @since	1.0
 	 * @since	1.7	Removed onboarding.
@@ -204,6 +204,7 @@ class List_Table extends \WP_List_Table {
 	 * Loads all Subscriptions for the List Table.
 	 * 
 	 * @since	1.0
+	 * @since	1.21		Improved handling of errors if loading of subscriptions fails.
 	 * @return 	void
 	 */
 	function prepare_items() {
