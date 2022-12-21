@@ -137,7 +137,7 @@ function process_deactivate() {
  * 
  * @since	1.0
  * @since	1.0.4	Reload subscription to refresh data from Mother, based on new settings.
- * @since	1.5		No stays on form page after saving settings.
+ * @since	1.5		No longer stays on form page after saving settings.
  * @return	void
  */
 function process_form() {

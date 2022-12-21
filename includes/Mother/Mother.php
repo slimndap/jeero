@@ -87,6 +87,8 @@ function deactivate_subscription( $subscription_id ) {
  * @since	1.0
  * @since	1.10	Improved encoding of settings.
  *					Always return fully parsed items.
+ * @since	1.21	Now uses POST to support settings > 1024kb.
+ *
  * @param 	array			$settings	The setting values of all subscriptions.
  * @return	array|WP_Error
  */
@@ -173,6 +175,8 @@ function get_subscription( $subscription_id, $settings ) {
  * Gets all subscriptions.
  * 
  * @since	1.0
+ * @since	1.21	Now uses POST to support settings > 1024kb.
+ *
  * @param 	array			$settings	The setting values of all subscriptions.
  * @return	array|WP_Error
  */
@@ -229,10 +233,10 @@ function update_subscription( $subscription_id, $settings ) {
  * 
  * @since	1.0
  * @param 	string			$endpoint
- * @param	array 			$data (default: array())
+ * @param	array 			$params
  * @return 	array|WP_Error
  */
-function get( $endpoint, $params = array(), $data = array() ) {
+function get( $endpoint, $params = array() ) {
 	
 	$response = apply_filters( 'jeero/mother/get/response', NULL, $endpoint, $params );
 	$response = apply_filters( 'jeero/mother/get/response/endpoint='.$endpoint, $response, $endpoint, $params );
@@ -250,13 +254,8 @@ function get( $endpoint, $params = array(), $data = array() ) {
 			'headers' => array(
 				'site_url' => site_url(),
 				'site_key' => get_site_key(),
-				'Content-Type' => 'application/json',
 			),
 		);
-		if ( !empty( $data ) ) {
-			$args[ 'body' ] = json_encode( $data );
-		}
-		
 		$response = wp_remote_get( $url, $args );
 
 	}

@@ -61,8 +61,9 @@ function get_setting_values() {
  * @since	1.4		Set a default value for 'interval'.
  * 					Added support for custom calendar fields.
  * @since	1.5		Removed calendar activation checkboxes.
- *					They are now managed by the individual calendars.
- * @since	1.10	Set subscription fields after loading fields from calendar
+ *					They are now managed on the corresponding calendar tabs.
+ * @since	1.10	Set subscription fields after loading fields from the calendar.
+ * @since	1.21	Improved error handling if getting subscriptions fails.
  *
  * @param 	int						$subscription_id	The Subscription ID.
  * @return	Subscription|WP_Error	The Subscription. Or an error if something went wrong.
