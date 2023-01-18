@@ -25,6 +25,7 @@ require_once $_tests_dir . '/includes/functions.php';
 function _manually_load_plugin() {
 	require dirname( dirname( __FILE__ ) ) . '/../jeero.php';
 	require dirname( dirname( __FILE__ ) ) . '/../../the-events-calendar/the-events-calendar.php';	
+	require dirname( dirname( __FILE__ ) ) . '/../../events-calendar-pro/events-calendar-pro.php';	
 }
 
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
