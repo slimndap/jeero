@@ -147,7 +147,7 @@ class The_Events_Calendar_Test extends Post_Based_Calendar_Test {
 	
 	function test_inbox_serie_is_imported() {
 		
-		add_filter( 'jeero/mother/get/response/endpoint=inbox', function( $response, $endpoint, $args ) {	
+		add_filter( 'jeero/mother/post/response/endpoint=inbox/big', function( $response, $endpoint, $args ) {	
 			
 			$body = json_decode( $response[ 'body' ], true );
 			$body[ 0 ][ 'data' ][ 'production' ][ 'ref' ] = 456;
