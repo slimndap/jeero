@@ -280,13 +280,26 @@ class The_Events_Calendar extends Post_Based_Calendar {
 					'EventEndMinute' => date( 'i', $event_end ),
 				) 
 			);
-
-			$venue_title = $this->get_rendered_template( 'venue_Title', $data, $subscription );
 			
+			$venue_title = $this->get_rendered_template( 'venue_Title', $data, $subscription );
+
 			if ( !empty( $venue_title ) ) {
 				
-				$venue_id = $this->get_post_id_by_title( $venue_title, 	'tribe_venue' );
-				
+				$venue_id = \tribe_get_venue_id( $post_id );
+
+				$post_fields = $this->get_setting( 'import/post_fields', $subscription );
+
+				if ( 
+					empty( $venue_id ) ||
+					(
+						!empty( $post_fields[ 'venue_Title' ] ) &&
+						!empty( $post_fields[ 'venue_Title' ][ 'update' ] ) &&
+						'always' == $post_fields[ 'venue_Title' ][ 'update' ]
+					)
+				) {
+					$venue_id = $this->get_post_id_by_title( $venue_title, 'tribe_venue' );
+				}
+
 				$venue = \tribe_get_venue_object( $venue_id );
 				$venue_args = array();
 

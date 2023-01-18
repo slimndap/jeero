@@ -95,7 +95,7 @@ class The_Events_Calendar_Test extends Post_Based_Calendar_Test {
 		
 	}	
 
-	function test_venue_uses_defaul_templates() {
+	function test_venue_uses_default_templates() {
 
 		$this->import_event( );
 
@@ -175,6 +175,117 @@ class The_Events_Calendar_Test extends Post_Based_Calendar_Test {
 		
 		
 	}
+
+	/**
+	 * Tests if title is not overwritten after import.
+	 * 
+	 * @since	1.4
+	 */
+	function test_venue_is_not_updated_after_second_import() {
+
+		// Start first import.
+		$this->import_event( );
+
+		// Update venue title of first event.
+		$args = array(
+			'post_status' => 'draft',
+		);
+		$events = $this->get_events( $args );
+
+		$actual = tribe_get_venue( $events[ 0 ]->ID );
+		$expected = 'Paard';
+		$this->assertEquals( $expected, $actual );
+
+		$args = array(
+			'ID' => tribe_get_venue_id( $events[ 0 ]->ID ),
+			'post_title' => 'Paradiso',
+		);
+		wp_update_post( $args );
+
+		$args = array(
+			'post_status' => array( 'draft' ),
+		);		
+		$events = $this->get_events( $args );
+		
+		$actual = tribe_get_venue( $events[ 0 ]->ID );
+		$expected = 'Paradiso';
+		$this->assertEquals( $expected, $actual );
+
+		// Start second import.
+		wp_cache_delete( 'Paard', 'jeero/tribe_venue' );
+		Jeero\Inbox\pickup_items();
+		
+		$args = array(
+			'post_status' => array( 'draft' ),
+		);
+		$events = $this->get_events( $args );
+		
+		$actual = tribe_get_venue( $events[ 0 ]->ID );
+		$expected = 'Paradiso';
+		$this->assertEquals( $expected, $actual );
+		
+	}
+
+	/**
+	 * Tests if title is overwritten after import.
+	 * 
+	 * @since	1.4
+	 */
+	function test_venue_is_updated_after_second_import() {
+
+		$settings = array(
+			'theater' => 'veezi',
+			'calendar' => array( $this->calendar ),
+			$this->calendar.'/import/post_fields' => array(
+				'venue_Title' => array(
+					'update' => 'always',
+				),
+			),
+		);	
+
+		// Start first import.
+		$this->import_event( $settings );
+
+		// Update venue title of first event.
+		$args = array(
+			'post_status' => 'draft',
+		);
+		$events = $this->get_events( $args );
+
+		$actual = tribe_get_venue( $events[ 0 ]->ID );
+		$expected = 'Paard';
+		$this->assertEquals( $expected, $actual );
+
+		$args = array(
+			'ID' => tribe_get_venue_id( $events[ 0 ]->ID ),
+			'post_title' => 'Paradiso',
+		);
+		wp_update_post( $args );
+
+		$args = array(
+			'post_status' => array( 'draft' ),
+		);		
+		$events = $this->get_events( $args );
+		
+		$actual = tribe_get_venue( $events[ 0 ]->ID );
+		$expected = 'Paradiso';
+		$this->assertEquals( $expected, $actual );
+
+		// Start second import.
+		wp_cache_delete( 'Paard', 'jeero/tribe_venue' );
+		Jeero\Inbox\pickup_items();
+		
+		$args = array(
+			'post_status' => array( 'draft' ),
+		);
+		$events = $this->get_events( $args );
+		
+		$actual = tribe_get_venue( $events[ 0 ]->ID );
+		$expected = 'Paard';
+		$this->assertEquals( $expected, $actual );
+		
+	}
+
 
 
 }
