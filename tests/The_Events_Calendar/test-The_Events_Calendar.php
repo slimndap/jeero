@@ -177,7 +177,7 @@ class The_Events_Calendar_Test extends Post_Based_Calendar_Test {
 	}
 
 	/**
-	 * Tests if title is not overwritten after import.
+	 * Tests if venue title is not overwritten after second import.
 	 * 
 	 * @since	1.4
 	 */
@@ -227,7 +227,7 @@ class The_Events_Calendar_Test extends Post_Based_Calendar_Test {
 	}
 
 	/**
-	 * Tests if title is overwritten after import.
+	 * Tests if venue title is overwritten after second import.
 	 * 
 	 * @since	1.4
 	 */
@@ -282,6 +282,112 @@ class The_Events_Calendar_Test extends Post_Based_Calendar_Test {
 		
 		$actual = tribe_get_venue( $events[ 0 ]->ID );
 		$expected = 'Paard';
+		$this->assertEquals( $expected, $actual );
+		
+	}
+
+	/**
+	 * Tests if venue city is not overwritten after second import.
+	 * 
+	 * @since	
+	 */
+	function test_venue_city_is_not_updated_after_second_import() {
+
+		// Start first import.
+		$this->import_event( );
+
+		// Update venue city of first event.
+		$args = array(
+			'post_status' => 'draft',
+		);
+		$events = $this->get_events( $args );
+
+		$actual = tribe_get_city( $events[ 0 ]->ID );
+		$expected = 'Den Haag';
+		$this->assertEquals( $expected, $actual );
+
+		tribe_update_venue( tribe_get_venue_id( $events[ 0 ]->ID ), array(
+			'City' => 'Delft'
+		) );
+		
+		$args = array(
+			'post_status' => array( 'draft' ),
+		);		
+		$events = $this->get_events( $args );
+		
+		$actual = tribe_get_city( $events[ 0 ]->ID );
+		$expected = 'Delft';
+		$this->assertEquals( $expected, $actual );
+
+		// Start second import.
+		wp_cache_delete( 'Paard', 'jeero/tribe_venue' );
+		Jeero\Inbox\pickup_items();
+		
+		$args = array(
+			'post_status' => array( 'draft' ),
+		);
+		$events = $this->get_events( $args );
+		
+		$actual = tribe_get_city( $events[ 0 ]->ID );
+		$expected = 'Delft';
+		$this->assertEquals( $expected, $actual );
+		
+	}
+	
+	/**
+	 * Tests if venue city is overwritten after second import.
+	 * 
+	 * @since	
+	 */
+	function test_venue_city_is_updated_after_second_import() {
+
+		$settings = array(
+			'theater' => 'veezi',
+			'calendar' => array( $this->calendar ),
+			$this->calendar.'/import/post_fields' => array(
+				'venue_City' => array(
+					'update' => 'always',
+				),
+			),
+		);	
+
+		// Start first import.
+		$this->import_event( $settings );
+
+		// Update venue city of first event.
+		$args = array(
+			'post_status' => 'draft',
+		);
+		$events = $this->get_events( $args );
+
+		$actual = tribe_get_city( $events[ 0 ]->ID );
+		$expected = 'Den Haag';
+		$this->assertEquals( $expected, $actual );
+
+		tribe_update_venue( tribe_get_venue_id( $events[ 0 ]->ID ), array(
+			'City' => 'Delft'
+		) );
+		
+		$args = array(
+			'post_status' => array( 'draft' ),
+		);		
+		$events = $this->get_events( $args );
+		
+		$actual = tribe_get_city( $events[ 0 ]->ID );
+		$expected = 'Delft';
+		$this->assertEquals( $expected, $actual );
+
+		// Start second import.
+		wp_cache_delete( 'Paard', 'jeero/tribe_venue' );
+		Jeero\Inbox\pickup_items();
+		
+		$args = array(
+			'post_status' => array( 'draft' ),
+		);
+		$events = $this->get_events( $args );
+		
+		$actual = tribe_get_city( $events[ 0 ]->ID );
+		$expected = 'Den Haag';
 		$this->assertEquals( $expected, $actual );
 		
 	}

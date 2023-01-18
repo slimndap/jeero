@@ -306,8 +306,8 @@ class The_Events_Calendar extends Post_Based_Calendar {
 				foreach ( array( 'Address', 'City', 'Zip', 'Phone', 'URL' ) as $meta_field ) {
 
 					$post_field = 'venue_'.$meta_field;
-					
-					if ( empty( $venue->{ $meta_field } ) ) {
+
+					if ( empty( $venue->{ sanitize_title( $meta_field ) } ) ) {
 						$venue_args[ $meta_field ] = $this->get_rendered_template( $post_field, $data, $subscription );
 						continue;
 					}
