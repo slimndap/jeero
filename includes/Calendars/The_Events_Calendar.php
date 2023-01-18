@@ -61,6 +61,15 @@ class The_Events_Calendar extends Post_Based_Calendar {
 		return $posts[ 0 ]->ID;
 	}
 	
+	/**
+	 * Gets a serie post by its ref and theater values.
+	 * 
+	 * @since	1.22
+	 *
+	 * @param 	string			$ref
+	 * @param 	string 			$theater
+	 * @return 	WP_POST|bool					The serie post or <false> if not found.
+	 */
 	function get_serie_by_ref( $ref, $theater ) {
 
 		$this->log( sprintf( 'Looking for existing %s serie %s.', $theater, $ref ) );
@@ -86,6 +95,13 @@ class The_Events_Calendar extends Post_Based_Calendar {
 		
 	}
 	
+	/**
+	 * Gets all setting fields for a subscription.
+	 * 
+	 * @since	1.22
+	 * @param 	Jeero\Subscription	$subscription
+	 * @return	array
+	 */
 	function get_setting_fields( $subscription ) {
 		
 		$fields = parent::get_setting_fields( $subscription );
@@ -121,6 +137,7 @@ class The_Events_Calendar extends Post_Based_Calendar {
 	 * Gets all post fields for this calendar.
 	 * 
 	 * @since	1.17
+	 * @since	1.22		Added serie content field.
 	 * @return	array
 	 */
 	function get_post_fields() {
@@ -238,6 +255,8 @@ class The_Events_Calendar extends Post_Based_Calendar {
 	 *					Added support for venue meta fields.
 	 * @since	1.17.1	Now uses local number format for event prices.
 	 *					Now remembers map settings.
+	 * @since	1.22		Added support for series.
+	 *					Fix: venue field did not obey the update settings. Fixes #16.
 	 *
 	 * @param 	mixed 			$result
 	 * @param 	array			$data		The structured data of the event.

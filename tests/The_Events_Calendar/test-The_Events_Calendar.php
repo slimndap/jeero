@@ -179,7 +179,7 @@ class The_Events_Calendar_Test extends Post_Based_Calendar_Test {
 	/**
 	 * Tests if venue title is not overwritten after second import.
 	 * 
-	 * @since	1.4
+	 * @since	1.22
 	 */
 	function test_venue_is_not_updated_after_second_import() {
 
@@ -229,7 +229,7 @@ class The_Events_Calendar_Test extends Post_Based_Calendar_Test {
 	/**
 	 * Tests if venue title is overwritten after second import.
 	 * 
-	 * @since	1.4
+	 * @since	1.22
 	 */
 	function test_venue_is_updated_after_second_import() {
 
@@ -289,7 +289,7 @@ class The_Events_Calendar_Test extends Post_Based_Calendar_Test {
 	/**
 	 * Tests if venue city is not overwritten after second import.
 	 * 
-	 * @since	
+	 * @since	1.22
 	 */
 	function test_venue_city_is_not_updated_after_second_import() {
 
@@ -337,7 +337,7 @@ class The_Events_Calendar_Test extends Post_Based_Calendar_Test {
 	/**
 	 * Tests if venue city is overwritten after second import.
 	 * 
-	 * @since	
+	 * @since	1.22
 	 */
 	function test_venue_city_is_updated_after_second_import() {
 

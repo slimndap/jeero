@@ -93,6 +93,11 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 
 == Changelog ==
 
+= 1.22 =
+
+* Added support for series in The Events Calendar. Requires The Events Calendar Pro.
+* Fixed [an issue](https://github.com/slimndap/jeero/issues/16) with the update settings for venue fields in The Events Calendar imports.
+
 = 1.21 =
 
 * Improved support for websites that are running multiple Jeero imports. 
@@ -212,6 +217,10 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 * Welcome Jeero!
 
 == Upgrade Notice ==
+
+= 1.22 =
+
+* Added support for series in The Events Calendar.
 
 = 1.21 =
 * Better support for websites that are running multiple Jeero imports.
