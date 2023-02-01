@@ -257,6 +257,7 @@ class The_Events_Calendar extends Post_Based_Calendar {
 	 *					Now remembers map settings.
 	 * @since	1.22		Added support for series.
 	 *					Fix: venue field did not obey the update settings. Fixes #16.
+	 * @since	1.?		Added support for Ticket buttons for The Events Calendar.
 	 *
 	 * @param 	mixed 			$result
 	 * @param 	array			$data		The structured data of the event.
@@ -403,6 +404,36 @@ class The_Events_Calendar extends Post_Based_Calendar {
 					
 				}
 								
+			}
+
+			// Import prices and tickets_url to Ticket buttons for The Events Calendar plugin.
+			if ( function_exists( '\TBTEC\add_price' ) ) {
+
+				$this->log( 'Updating ticket button.' );
+
+				if ( !empty( $data[ 'prices' ] ) ) {
+
+					$this->log( 'Updating ticket button prices.' );
+					\TBTEC\delete_prices( $post_id );
+
+					foreach( $data[ 'prices' ] as $price ) {
+						
+						if ( isset( $price[ 'title' ] ) ) {
+							$name = $price[ 'title' ];
+						} else {
+							$name = '';
+						}
+						
+						\TBTEC\add_price( $price[ 'amount' ], $name, $post_id );
+						
+					}
+				}
+
+				if ( !empty( $data[ 'tickets_url' ] ) ) {
+					$this->log( 'Updating ticket button url.' );
+					\TBTEC\update_url( $data[ 'tickets_url' ], $post_id );
+				}
+				
 			}
 						
 		}
