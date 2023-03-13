@@ -93,6 +93,10 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 
 == Changelog ==
 
+= 1.23 =
+
+* Added support for event statuses in The Events Calendar.
+
 = 1.22 =
 
 * Added support for series in The Events Calendar. Requires The Events Calendar Pro.
@@ -217,6 +221,10 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 * Welcome Jeero!
 
 == Upgrade Notice ==
+
+= 1.23 =
+
+* Added support for event statuses in The Events Calendar.
 
 = 1.22 =
 
