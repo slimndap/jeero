@@ -392,6 +392,47 @@ class The_Events_Calendar_Test extends Post_Based_Calendar_Test {
 		
 	}
 
+	function test_inbox_empty_status_is_imported_as_scheduled() {
+		
+		$this->import_event();
 
+		$args = array(
+			'post_status' => array( 'any' ),
+		);		
+		$events = $this->get_events( $args );
+		$event = tribe_get_event( $events[ 0 ]->ID );
+		
+		$expected = '';
+		$actual = $event->event_status;
+		
+		$this->assertEquals( $expected, $actual );	
+		
+	}
+	
+	function test_inbox_cancelled_status_is_imported() {
+		
+		add_filter( 'jeero/mother/post/response/endpoint=inbox/big', function( $response, $endpoint, $args ) {	
+			
+			$body = json_decode( $response[ 'body' ], true );
+			$body[ 0 ][ 'data' ][ 'status' ] = 'cancelled';
+			$response[ 'body' ] = json_encode( $body );
+			return $response;
+			
+		}, 11, 3 );
+
+		$this->import_event();
+
+		$args = array(
+			'post_status' => array( 'any' ),
+		);		
+		$events = $this->get_events( $args );
+		$event = tribe_get_event( $events[ 0 ]->ID );
+		
+		$expected = 'canceled';
+		$actual = $event->event_status;
+		
+		$this->assertEquals( $expected, $actual );			
+		
+	}
 
 }
