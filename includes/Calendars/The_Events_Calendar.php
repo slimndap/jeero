@@ -257,6 +257,7 @@ class The_Events_Calendar extends Post_Based_Calendar {
 	 *					Now remembers map settings.
 	 * @since	1.22		Added support for series.
 	 *					Fix: venue field did not obey the update settings. Fixes #16.
+	 * @since	1.23		Added support for event statuses.
 	 *
 	 * @param 	mixed 			$result
 	 * @param 	array			$data		The structured data of the event.
@@ -404,6 +405,21 @@ class The_Events_Calendar extends Post_Based_Calendar {
 				}
 								
 			}
+
+			if ( isset( $data[ 'status' ] ) ) {
+
+				switch( $data[ 'status' ] ) {
+					case 'cancelled':
+						$status = 'canceled';
+						break;
+					default:
+						$status = '';
+				}
+
+				update_post_meta( $post_id, \Tribe\Events\Event_Status\Event_Meta::$key_status, $status );
+				
+			}
+			
 						
 		}
 
