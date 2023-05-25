@@ -257,6 +257,7 @@ class The_Events_Calendar extends Post_Based_Calendar {
 	 *					Now remembers map settings.
 	 * @since	1.22		Added support for series.
 	 *					Fix: venue field did not obey the update settings. Fixes #16.
+	 * @since	1.23		Added support for event statuses.
 	 * @since	1.?		Added support for Ticket buttons for The Events Calendar.
 	 *
 	 * @param 	mixed 			$result
@@ -406,6 +407,20 @@ class The_Events_Calendar extends Post_Based_Calendar {
 								
 			}
 
+			if ( isset( $data[ 'status' ] ) ) {
+
+				switch( $data[ 'status' ] ) {
+					case 'cancelled':
+						$status = 'canceled';
+						break;
+					default:
+						$status = '';
+				}
+
+				update_post_meta( $post_id, \Tribe\Events\Event_Status\Event_Meta::$key_status, $status );
+				
+			}
+			
 			// Import prices and tickets_url to Ticket buttons for The Events Calendar plugin.
 			if ( function_exists( '\TBTEC\add_price' ) ) {
 
