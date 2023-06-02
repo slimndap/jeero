@@ -449,6 +449,11 @@ class The_Events_Calendar extends Post_Based_Calendar {
 					\TBTEC\update_url( $data[ 'tickets_url' ], $post_id );
 				}
 				
+				if ( !empty( $data[ 'status' ] ) ) {
+					$this->log( sprintf( 'Updating ticket status to %s.', $data[ 'status' ] ) );
+					\TBTEC\update_status( $data[ 'status' ], $post_id );
+				}
+				
 			}
 						
 		}
