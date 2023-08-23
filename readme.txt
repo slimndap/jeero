@@ -96,6 +96,8 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 = 1.23 =
 
 * Added support for event statuses in The Events Calendar.
+* Fixed number formatting of prices of imported events of the Modern Events Calendar plugin (1.23.1).
+
 
 = 1.22 =
 
