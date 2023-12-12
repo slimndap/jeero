@@ -2,7 +2,7 @@
 Contributors: slimndap
 Tags: calendar, tickets, events, veezi, ticketmaster, audienceview, stager
 Requires PHP: 7.2
-Tested up to: 6.3
+Tested up to: 6.4
 Requires at least: 4.9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -93,11 +93,14 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 
 == Changelog ==
 
+= 1.24 =
+
+* Improved usability of debug log admin page.
+
 = 1.23 =
 
 * Added support for event statuses in The Events Calendar.
 * Fixed number formatting of prices of imported events of the Modern Events Calendar plugin (1.23.1).
-
 
 = 1.22 =
 
