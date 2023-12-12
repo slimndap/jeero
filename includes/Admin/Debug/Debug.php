@@ -1,6 +1,55 @@
 <?php
 namespace Jeero\Admin\Debug;
 
+add_action( 'admin_enqueue_scripts', __NAMESPACE__.'\enqueue_scripts', 9 );
+add_filter( 'heartbeat_received', __NAMESPACE__.'\receive_heartbeat', 10, 2 );
+
+/**
+ * Enqueues templates scripts on the Jeero admin debug page.
+ * 
+ * @since	1.24
+ * @return 	void
+ */
+function enqueue_scripts( ) {
+
+	$current_screen = get_current_screen();
+	
+	if ( 'admin_page_jeero/debug' != $current_screen->id ) {
+		return;
+	}
+	
+	\wp_enqueue_script( 'jeero/templates', \Jeero\PLUGIN_URI . 'assets/js/debug.js', array( 'jquery' ), \Jeero\VERSION );
+
+}
+
+/**
+ * Adds the Jeero debug log to the heartbeat response.
+ * 
+ * The debug admin screen uses the WordPress Heartbeat API to auto-update the Jeero debug log that is displayed in the screen.
+ * 
+ * @since	1.24
+ * @return 	array	$response	The heartbeat response.
+ */
+function receive_heartbeat( array $response, array $data ) {
+
+	if ( empty( $data[ 'jeero_heartbeat' ] ) ) {
+		return $response;
+	}
+	
+	if ( 'get_debug_log' != $data['jeero_heartbeat'] ) {
+		return $response;		
+	}
+	
+	if ( !current_user_can( 'manage_options' ) ) {
+		$response[ 'jeero_debug_log' ] = __( 'Access to the Jeero debug log is denied.', 'jeero' );
+	} else {
+		$response[ 'jeero_debug_log' ] = \Jeero\Logs\get_log_file_content();		
+	}
+	
+	return $response;
+	
+}
+
 function do_admin_page() {
 	?><div class="wrap">
 		<h1 class="wp-heading-inline"><?php _e( 'Jeero Debug', 'jeero' ); ?></h1>
@@ -14,7 +63,7 @@ function do_admin_page() {
 				<tr>
 					<th scope="row">Logs</th>
 					<td>
-						<textarea class="large-text code" rows="20" readonly><?php
+						<textarea id="jeero_debug_log" class="large-text code" rows="20" readonly><?php
 							echo \Jeero\Logs\get_log_file_content();
 						?></textarea>
 					</td>
