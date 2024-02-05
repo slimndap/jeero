@@ -13,6 +13,15 @@ class Field {
 	
 	protected $subscription_id;
 	
+	/**
+	 * Type of field.
+	 * Possible values are Checkbox, Custom_Fields, Error, Message, Post_Fields, Select, Tab, Template, Textarea, Url.
+	 * 
+	 * @var		string	$type
+	 * @since	1.24.1
+	 */
+	protected $type;
+	
 	protected $value;
 	
 	/**

@@ -19,18 +19,28 @@ class Subscription {
 	public $ID;
 	
 	/**
+	 * The custom fields of this Subscription.
+	 * @var		string[]		$custom_fields
+	 * @since	1.9
+	 */
+	public $custom_fields = array();
+	
+	/**
 	 * The setting fields of this Subscription.
 	 * @var		Field[]		$fields
 	 * @since	1.0
 	 */
 	public $fields = array();
 	
+	public $inactive;
+
 	/**
-	 * The custom fields of this Subscription.
-	 * @var		string[]		$custom_fields
-	 * @since	1.9
+	 * The number of seconds between two imports.
+	 * 
+	 * @var		int	$interval
+	 * @since	1.0
 	 */
-	public $custom_fields = array();
+	public $interval;	
 	
 	/**
 	 * The maximum number of events that will be imported.
@@ -40,15 +50,13 @@ class Subscription {
 	 */
 	public $limit;
 	
-	public $inactive;
-	
 	/**
-	 * The number of seconds between two imports.
+	 * The URL of the theater logo for this Subscription.
 	 * 
-	 * @var		int	$interval
-	 * @since	1.0
+	 * @var		string	$logo
+	 * @since	1.24.1
 	 */
-	public $interval;
+	public $logo;
 	
 	/**
 	 * Time (UTC) after which there will be an update for this Subscription.
