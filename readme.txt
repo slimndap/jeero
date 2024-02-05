@@ -96,6 +96,7 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 = 1.24 =
 
 * Improved usability of debug log admin page.
+* Fixed several PHP warnings in PHP8.2 (1.24.1).
 
 = 1.23 =
 
@@ -226,6 +227,9 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 * Welcome Jeero!
 
 == Upgrade Notice ==
+
+= 1.24.1 =
+* Fixes several PHP warnings in PHP8.2.
 
 = 1.23 =
 
