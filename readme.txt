@@ -47,7 +47,7 @@ Ticketing solutions that are supported:
 * [TicketSolve](https://jeero.ooo/publish-ticketsolve-events-on-wordpress/)
 * [TicketSource](https://jeero.ooo/publish-ticketsource-events-on-wordpress/)
 * [TicketWeb](https://jeero.ooo/publish-ticketweb-events-on-wordpress/)
-* [Tix](https://jeero.ooo/publish-tix-events-on-wordpress/)
+* [Tixly](https://jeero.ooo/publish-tix-events-on-wordpress/)
 * [Veezi](https://jeero.ooo/publish-veezi-events-on-wordpress/)
 
 Calendar/event plugins that are supported:
