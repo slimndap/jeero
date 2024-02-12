@@ -29,13 +29,14 @@ function add_error( \WP_Error $error ) {
  * Adds a notification to the DB.
  * 
  * @since	1.0
+ * 			1.25	Fixed a PHP warning.
  * @param 	string	$message
  * @param 	string 	$type (default: 'info')
  * @return 	void
  */
 function add_notification( $message, $type = 'info' ) {
 	
-	$notifications = get_option( JEERO_ADMIN_NOTICES_OPTION_KEY );
+	$notifications = get_option( JEERO_ADMIN_NOTICES_OPTION_KEY, array() );
 	
 	$notification = array(
 		'message' => $message,
