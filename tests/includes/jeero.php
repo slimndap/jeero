@@ -1,6 +1,13 @@
 <?php
 class Jeero_Test extends WP_UnitTestCase {
 	
+	/**
+	 * The calendar that is being tested.
+	 * @since 1.25
+	 * var	string
+	 */
+	public $calendar;
+	
 	protected function setUp(): void {	
 			
 		parent::setUp();
