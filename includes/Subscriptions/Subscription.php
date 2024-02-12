@@ -189,12 +189,29 @@ class Subscription {
 			$setting = false;
 		}
 		
+		/**
+		 * Filters the setting of a subscription by the setting's name.
+		 * 
+		 * @since 	1.25
+		 *
+		 * @param 	mixed			$setting			The value of the setting.
+		 * @param	Subscription		$subscription	The susbcription.
+		 */
 		$setting = apply_filters( 
 			'jeero/subscription/setting/'.$name,
 			$setting,
 			$this
 		);
 
+		/**
+		 * Filters the setting of a subscription.
+		 * 
+		 * @since 	1.25
+		 *
+		 * @param 	mixed			$setting			The value of the setting.
+		 * @param 	string			$name			The name of the setting.
+		 * @param	Subscription		$subscription	The susbcription.
+		 */
 		$setting = apply_filters( 
 			'jeero/subscription/setting',
 			$setting,
