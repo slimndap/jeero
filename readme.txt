@@ -93,6 +93,11 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 
 == Changelog ==
 
+= 1.25 =
+
+* Added a WP filter to individual subscription settings.
+* Fixed several PHP and WP deprecation warnings.
+
 = 1.24 =
 
 * Improved usability of debug log admin page.
