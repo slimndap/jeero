@@ -184,10 +184,25 @@ class Subscription {
 		}		
 								
 		if ( isset( $settings[ $name ] ) ) {
-			return $settings[ $name ];
+			$setting = $settings[ $name ];
+		} else {
+			$setting = false;
 		}
 		
-		return false;
+		$setting = apply_filters( 
+			'jeero/subscription/setting/'.$name,
+			$setting,
+			$this
+		);
+
+		$setting = apply_filters( 
+			'jeero/subscription/setting',
+			$setting,
+			$name,
+			$this
+		);
+
+		return $setting;
 
 	}
 	
