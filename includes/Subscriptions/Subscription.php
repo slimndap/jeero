@@ -142,7 +142,65 @@ class Subscription {
 		return $fields;		
 		
 	}
+	
+	function get_settings() {
+
+		$settings = $this->get( 'settings' );
 		
+		/**
+		 * Filters the settings of a subscription.
+		 * 
+		 * @since 	1.25
+		 *
+		 * @param 	mixed[]			$setting	s		The value of the setting.
+		 * @param	Subscription		$subscription	The susbcription.
+		 */
+		$settings = apply_filters( 
+			'jeero/subscription/settings',
+			$settings,
+			$this
+		);
+		
+		foreach( $settings as $name => $setting ) {
+			
+			/**
+			 * Filters the setting of a subscription by the setting's name.
+			 * 
+			 * @since 	1.25
+			 *
+			 * @param 	mixed			$setting			The value of the setting.
+			 * @param	Subscription		$subscription	The susbcription.
+			 */
+			$setting = apply_filters( 
+				'jeero/subscription/setting/'.$name,
+				$setting,
+				$this
+			);
+	
+			/**
+			 * Filters the setting of a subscription.
+			 * 
+			 * @since 	1.25
+			 *
+			 * @param 	mixed			$setting			The value of the setting.
+			 * @param 	string			$name			The name of the setting.
+			 * @param	Subscription		$subscription	The susbcription.
+			 */
+			$setting = apply_filters( 
+				'jeero/subscription/setting',
+				$setting,
+				$name,
+				$this
+			);
+			
+			$settings[ $name ] = $setting;
+			
+		}
+
+		return $settings;
+		
+	}
+	
 	/**
 	 * Gets a setting of this Subscription.
 	 * 
@@ -154,7 +212,7 @@ class Subscription {
 	 */
 	function get_setting( $name ) {
 		
-		$settings = $this->get( 'settings' );
+		$settings = $this->get_settings();
 
 		// Check if there is a pre-1.16 value.
 		if ( strpos( $name, '/import/post_fields' ) !== false ) {
@@ -178,47 +236,15 @@ class Subscription {
 					}
 					
 				}
-
-			}
-			
-		}		
-								
+			}			
+		}				
+		
 		if ( isset( $settings[ $name ] ) ) {
 			$setting = $settings[ $name ];
 		} else {
 			$setting = false;
 		}
 		
-		/**
-		 * Filters the setting of a subscription by the setting's name.
-		 * 
-		 * @since 	1.25
-		 *
-		 * @param 	mixed			$setting			The value of the setting.
-		 * @param	Subscription		$subscription	The susbcription.
-		 */
-		$setting = apply_filters( 
-			'jeero/subscription/setting/'.$name,
-			$setting,
-			$this
-		);
-
-		/**
-		 * Filters the setting of a subscription.
-		 * 
-		 * @since 	1.25
-		 *
-		 * @param 	mixed			$setting			The value of the setting.
-		 * @param 	string			$name			The name of the setting.
-		 * @param	Subscription		$subscription	The susbcription.
-		 */
-		$setting = apply_filters( 
-			'jeero/subscription/setting',
-			$setting,
-			$name,
-			$this
-		);
-
 		return $setting;
 
 	}
