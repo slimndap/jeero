@@ -98,6 +98,7 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 * Added a WP filter to individual subscription settings.
 * Fixed several PHP and WP deprecation warnings.
 * Updated Twig to 3.8.0.
+* Fixed an import problem where series were imported multiple times in The Events Calendar. (1.25.1).
 
 = 1.24 =
 
