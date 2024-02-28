@@ -19,18 +19,28 @@ class Subscription {
 	public $ID;
 	
 	/**
+	 * The custom fields of this Subscription.
+	 * @var		string[]		$custom_fields
+	 * @since	1.9
+	 */
+	public $custom_fields = array();
+	
+	/**
 	 * The setting fields of this Subscription.
 	 * @var		Field[]		$fields
 	 * @since	1.0
 	 */
 	public $fields = array();
 	
+	public $inactive;
+
 	/**
-	 * The custom fields of this Subscription.
-	 * @var		string[]		$custom_fields
-	 * @since	1.9
+	 * The number of seconds between two imports.
+	 * 
+	 * @var		int	$interval
+	 * @since	1.0
 	 */
-	public $custom_fields = array();
+	public $interval;	
 	
 	/**
 	 * The maximum number of events that will be imported.
@@ -40,15 +50,13 @@ class Subscription {
 	 */
 	public $limit;
 	
-	public $inactive;
-	
 	/**
-	 * The number of seconds between two imports.
+	 * The URL of the theater logo for this Subscription.
 	 * 
-	 * @var		int	$interval
-	 * @since	1.0
+	 * @var		string	$logo
+	 * @since	1.24.1
 	 */
-	public $interval;
+	public $logo;
 	
 	/**
 	 * Time (UTC) after which there will be an update for this Subscription.
@@ -134,7 +142,65 @@ class Subscription {
 		return $fields;		
 		
 	}
+	
+	function get_settings() {
+
+		$settings = $this->get( 'settings' );
 		
+		/**
+		 * Filters the settings of a subscription.
+		 * 
+		 * @since 	1.25
+		 *
+		 * @param 	mixed[]			$setting	s		The value of the setting.
+		 * @param	Subscription		$subscription	The susbcription.
+		 */
+		$settings = apply_filters( 
+			'jeero/subscription/settings',
+			$settings,
+			$this
+		);
+		
+		foreach( $settings as $name => $setting ) {
+			
+			/**
+			 * Filters the setting of a subscription by the setting's name.
+			 * 
+			 * @since 	1.25
+			 *
+			 * @param 	mixed			$setting			The value of the setting.
+			 * @param	Subscription		$subscription	The susbcription.
+			 */
+			$setting = apply_filters( 
+				'jeero/subscription/setting/'.$name,
+				$setting,
+				$this
+			);
+	
+			/**
+			 * Filters the setting of a subscription.
+			 * 
+			 * @since 	1.25
+			 *
+			 * @param 	mixed			$setting			The value of the setting.
+			 * @param 	string			$name			The name of the setting.
+			 * @param	Subscription		$subscription	The susbcription.
+			 */
+			$setting = apply_filters( 
+				'jeero/subscription/setting',
+				$setting,
+				$name,
+				$this
+			);
+			
+			$settings[ $name ] = $setting;
+			
+		}
+
+		return $settings;
+		
+	}
+	
 	/**
 	 * Gets a setting of this Subscription.
 	 * 
@@ -146,7 +212,7 @@ class Subscription {
 	 */
 	function get_setting( $name ) {
 		
-		$settings = $this->get( 'settings' );
+		$settings = $this->get_settings();
 
 		// Check if there is a pre-1.16 value.
 		if ( strpos( $name, '/import/post_fields' ) !== false ) {
@@ -170,16 +236,16 @@ class Subscription {
 					}
 					
 				}
-
-			}
-			
-		}		
-								
+			}			
+		}				
+		
 		if ( isset( $settings[ $name ] ) ) {
-			return $settings[ $name ];
+			$setting = $settings[ $name ];
+		} else {
+			$setting = false;
 		}
 		
-		return false;
+		return $setting;
 
 	}
 	

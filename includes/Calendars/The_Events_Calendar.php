@@ -65,6 +65,8 @@ class The_Events_Calendar extends Post_Based_Calendar {
 	 * Gets a serie post by its ref and theater values.
 	 * 
 	 * @since	1.22
+	 * @since	1.25.1	Fixed error in $args that made the value of 'post_status' obsolete, 
+	 * 					making it impossible to find series with a post status of 'draft'.
 	 *
 	 * @param 	string			$ref
 	 * @param 	string 			$theater
@@ -75,7 +77,7 @@ class The_Events_Calendar extends Post_Based_Calendar {
 		$this->log( sprintf( 'Looking for existing %s serie %s.', $theater, $ref ) );
 		
 		$args = array(
-			'status' => array( 'any' ),
+			'post_status' => array( 'any' ),
 			'post_type' => \TEC\Events_Pro\Custom_Tables\V1\Series\Post_Type::POSTTYPE,
 			'meta_query' => array(
 				array(

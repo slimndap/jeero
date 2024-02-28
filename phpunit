@@ -1,56 +1,56 @@
 #!/bin/bash
 
-phpunit --configuration tests/configuration/Jeero.xml
+vendor/bin/phpunit --configuration tests/configuration/Jeero.xml
 if [ $? -ne 0 ]; then
         exit 0
 fi
 
-phpunit --configuration tests/configuration/The_Events_Calendar.xml
+vendor/bin/phpunit --configuration tests/configuration/The_Events_Calendar.xml
 if [ $? -ne 0 ]; then
         exit 0
 fi
 
-phpunit --configuration tests/configuration/All_In_One_Event_Calendar.xml
+vendor/bin/phpunit --configuration tests/configuration/All_In_One_Event_Calendar.xml
 if [ $? -ne 0 ]; then
         exit 0
 fi
 
-phpunit --configuration tests/configuration/Theater_For_WordPress.xml
+vendor/bin/phpunit --configuration tests/configuration/Theater_For_WordPress.xml
 if [ $? -ne 0 ]; then
         exit 0
 fi
 
-phpunit --configuration tests/configuration/Events_Schedule_Wp_Plugin.xml
+vendor/bin/phpunit --configuration tests/configuration/Events_Schedule_Wp_Plugin.xml
 if [ $? -ne 0 ]; then
         exit 0
 fi
 
-phpunit --configuration tests/configuration/Sugar_Calendar.xml
+vendor/bin/phpunit --configuration tests/configuration/Sugar_Calendar.xml
 if [ $? -ne 0 ]; then
         exit 0
 fi
 
-phpunit --configuration tests/configuration/WP_Event_Manager.xml
+vendor/bin/phpunit --configuration tests/configuration/WP_Event_Manager.xml
 if [ $? -ne 0 ]; then
         exit 0
 fi
 
-# phpunit --configuration tests/configuration/EventON.xml
+# vendor/bin/phpunit --configuration tests/configuration/EventON.xml
 # if [ $? -ne 0 ]; then
 #        exit 0
 # fi
 
-phpunit --configuration tests/configuration/Very_Simple_Event_List.xml
+vendor/bin/phpunit --configuration tests/configuration/Very_Simple_Event_List.xml
 if [ $? -ne 0 ]; then
         exit 0
 fi
 
-phpunit --configuration tests/configuration/GDLR_Events.xml
+vendor/bin/phpunit --configuration tests/configuration/GDLR_Events.xml
 if [ $? -ne 0 ]; then
         exit 0
 fi
 
-phpunit --configuration tests/configuration/Modern_Events_Calendar.xml
+vendor/bin/phpunit --configuration tests/configuration/Modern_Events_Calendar.xml
 if [ $? -ne 0 ]; then
         exit 0
 fi

@@ -2,7 +2,7 @@
 Contributors: slimndap
 Tags: calendar, tickets, events, veezi, ticketmaster, audienceview, stager
 Requires PHP: 7.2
-Tested up to: 6.1
+Tested up to: 6.4
 Requires at least: 4.9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -47,7 +47,7 @@ Ticketing solutions that are supported:
 * [TicketSolve](https://jeero.ooo/publish-ticketsolve-events-on-wordpress/)
 * [TicketSource](https://jeero.ooo/publish-ticketsource-events-on-wordpress/)
 * [TicketWeb](https://jeero.ooo/publish-ticketweb-events-on-wordpress/)
-* [Tix](https://jeero.ooo/publish-tix-events-on-wordpress/)
+* [Tixly](https://jeero.ooo/publish-tix-events-on-wordpress/)
 * [Veezi](https://jeero.ooo/publish-veezi-events-on-wordpress/)
 
 Calendar/event plugins that are supported:
@@ -93,9 +93,22 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 
 == Changelog ==
 
+= 1.25 =
+
+* Added a WP filter to individual subscription settings.
+* Fixed several PHP and WP deprecation warnings.
+* Updated Twig to 3.8.0.
+* Fixed an import problem where series were imported multiple times in The Events Calendar. (1.25.1).
+
+= 1.24 =
+
+* Improved usability of debug log admin page.
+* Fixed several PHP warnings in PHP8.2 (1.24.1).
+
 = 1.23 =
 
 * Added support for event statuses in The Events Calendar.
+* Fixed number formatting of prices of imported events of the Modern Events Calendar plugin (1.23.1).
 
 = 1.22 =
 
@@ -221,6 +234,9 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 * Welcome Jeero!
 
 == Upgrade Notice ==
+
+= 1.24.1 =
+* Fixes several PHP warnings in PHP8.2.
 
 = 1.23 =
 

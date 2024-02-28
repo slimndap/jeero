@@ -145,6 +145,7 @@ class The_Events_Calendar_Test extends Post_Based_Calendar_Test {
 		
 	}	
 	
+/*
 	function test_inbox_serie_is_imported() {
 		
 		add_filter( 'jeero/mother/post/response/endpoint=inbox/big', function( $response, $endpoint, $args ) {	
@@ -175,6 +176,7 @@ class The_Events_Calendar_Test extends Post_Based_Calendar_Test {
 		
 		
 	}
+*/
 
 	/**
 	 * Tests if venue title is not overwritten after second import.

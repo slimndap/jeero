@@ -46,7 +46,7 @@ function get_setting_values() {
 	foreach( $subscriptions as $subscription_id => $subscription_data ) {
 		
 		$subscription = new Subscription( $subscription_id );
-		$settings[ $subscription_id ] = $subscription->get( 'settings' );
+		$settings[ $subscription_id ] = $subscription->get_settings();
 	}
 	
 	return $settings;	
@@ -74,7 +74,7 @@ function get_subscription( $subscription_id ) {
 	$subscription = new \Jeero\Subscriptions\Subscription( $subscription_id );
 
 	// Ask Mother for subscription info, based on the current settings.
-	$answer = Mother\get_subscription( $subscription_id, $subscription->get( 'settings' ) );
+	$answer = Mother\get_subscription( $subscription_id, $subscription->get_settings() );
 
 	if ( \is_wp_error( $answer ) ) {
 		return $answer;

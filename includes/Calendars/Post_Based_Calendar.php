@@ -267,13 +267,48 @@ abstract class Post_Based_Calendar extends Calendar {
 		return $fields;
 		
 	}
+	
+	/**
+	 * Retrieves a page given its title.
+	 * Replaces  get_page_by_title() from WP because it was deprecated in WP 6.2.
+	 *
+	 * @since 1.25
+	 *
+	 * @param 	string	$title
+	 * @param 	string	$post_type
+	 * @return	WP_Post|null
+	 */
+	 
+	 function get_page_by_title( $title, $post_type ) {
 		
+		$pages = get_posts(
+			array(
+				'post_type'              => $post_type,
+				'title'                  => $title,
+				'post_status'            => 'all',
+				'numberposts'            => 1,
+				'update_post_term_cache' => false,
+				'update_post_meta_cache' => false,           
+				'orderby'                => 'post_date ID',
+				'order'                  => 'ASC',
+			)
+		);
+		
+		if ( empty( $pages ) ) {
+			return null;
+		}
+		
+		return $pages[0];
+		
+	}
+	
 	/**
 	 * Gets a post ID by a title.
 	 *
 	 * Creates a new post if no post is found.
 	 * 
 	 * @since	1.16
+	 *			1.25		Use get_page_by_title() from class to avoid a deprecation warning. 
 	 * @param 	string	$title
 	 * @param 	string	$post_type
 	 * @return	int
@@ -284,7 +319,7 @@ abstract class Post_Based_Calendar extends Calendar {
 
 		if ( false === $post_id ) {
 		
-			$post = get_page_by_title( $title, OBJECT, $post_type );
+			$post = $this->get_page_by_title( $title, $post_type );
 			
 			if ( !( $post ) ) {
 				

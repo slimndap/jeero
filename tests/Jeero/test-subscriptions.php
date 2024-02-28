@@ -69,4 +69,68 @@ class Subscriptions_Test extends Jeero_Test {
 		$this->assertEquals( $expected, $actual, print_r($actual, true) );
 		
 	}
+	
+	function test_subscription_settings_are_filtered() {
+
+		add_filter( 'jeero/mother/post/response/endpoint=subscriptions/big', array( $this, 'get_mock_response_for_get_subscriptions' ), 10, 3 );
+		
+		add_filter( 'jeero/subscription/settings', function( $settings, $subscription ) {
+			foreach( $settings as $name => $setting ) {
+				if ( 'field1' == $name ) {
+					$setting = 'value_filtered';
+				}
+				$settings[ $name ] = $setting;
+			}
+			return $settings;
+		}, 10, 3 );
+
+		$subscriptions =  Subscriptions\get_subscriptions();
+		
+		$settings = array(
+			'field1' => 'value_in_db',
+		);
+		
+		$subscriptions[ 'a fake ID' ]->set( 'settings', $settings );
+		$subscriptions[ 'a fake ID' ]->save();
+		
+		$subscription = new Subscription( 'a fake ID' );
+
+		$actual = $subscription->get( 'settings' )[ 'field1' ];
+		$expected = 'value_in_db';
+		
+		$actual = $subscription->get_setting( 'field1' );
+		$expected = 'value_filtered';
+		
+		$this->assertEquals( $expected, $actual, print_r($actual, true) );
+		
+	}	
+	
+	function test_subscription_setting_is_filtered() {
+
+		add_filter( 'jeero/mother/post/response/endpoint=subscriptions/big', array( $this, 'get_mock_response_for_get_subscriptions' ), 10, 3 );
+		
+		add_filter( 'jeero/subscription/setting/field1', function( $setting, $subscription ) {
+			return 'value_filtered';	
+		}, 10, 3 );
+
+		$subscriptions =  Subscriptions\get_subscriptions();
+		
+		$settings = array(
+			'field1' => 'value_in_db',
+		);
+		
+		$subscriptions[ 'a fake ID' ]->set( 'settings', $settings );
+		$subscriptions[ 'a fake ID' ]->save();
+		
+		$subscription = new Subscription( 'a fake ID' );
+
+		$actual = $subscription->get( 'settings' )[ 'field1' ];
+		$expected = 'value_in_db';
+		
+		$actual = $subscription->get_setting( 'field1' );
+		$expected = 'value_filtered';
+		
+		$this->assertEquals( $expected, $actual, print_r($actual, true) );
+		
+	}
 }

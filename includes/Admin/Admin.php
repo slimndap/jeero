@@ -13,6 +13,8 @@ add_action( 'admin_enqueue_scripts', __NAMESPACE__.'\enqueue_scripts' );
  * @since	1.0
  * @since	1.1		Renamed 'subscriptions' to 'imports'.
  * @since	1.18	Added a debug admin page.
+ * @since	1.24.1	Changed parent slug of debug admin page to ' ', to prevent a PHP 8.1+ warning.
+ *					@see https://core.trac.wordpress.org/ticket/57579#comment:9
  * @return 	void
  */
 function add_menu_item() {
@@ -28,7 +30,7 @@ function add_menu_item() {
     );
     
 	add_submenu_page(
-		'',
+		' ',
         __( 'Jeero Logs', 'jeero' ),
         __( 'Jeero Logs', 'jeero' ),
         'manage_options',
