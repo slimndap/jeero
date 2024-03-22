@@ -460,6 +460,7 @@ abstract class Post_Based_Calendar extends Calendar {
 	 * Processes the data from an event in the inbox.
 	 * 
 	 * @since 	1.16
+	 * @since	1.26		Always use structured images.
 	 */
 	function process_data( $result, $data, $raw, $theater, $subscription ) {
 
@@ -509,10 +510,8 @@ abstract class Post_Based_Calendar extends Calendar {
 				'always' == $this->get_setting( 'import/update/image', $subscription, 'once' ) && 
 				!empty( $data[ 'production' ][ 'img' ] )
 			) {
-				$thumbnail_id = Images\update_featured_image_from_url( 
-					$post_id,
-					$data[ 'production' ][ 'img' ]
-				);
+				$structured_image = Images\get_structured_image( $data[ 'production' ][ 'img' ], $post_id );
+				$thumbnail_id = Images\update_featured_image( $post_id,	$structured_image );
 			}
 			
 			\update_post_meta( $post_id, 'jeero/import/post/last_update', current_time( 'timestamp' ) );
@@ -529,10 +528,8 @@ abstract class Post_Based_Calendar extends Calendar {
 			$post_id = $this->insert_post( $post_args );
 
 			if ( !empty( $data[ 'production' ][ 'img' ] ) ) {
-				$thumbnail_id = Images\update_featured_image_from_url( 
-					$post_id,
-					$data[ 'production' ][ 'img' ]
-				);
+				$structured_image = Images\get_structured_image( $data[ 'production' ][ 'img' ], $post_id );
+				$thumbnail_id = Images\update_featured_image( $post_id,	$structured_image );
 			}
 
 			if ( !empty( $data[ 'production' ][ 'categories' ] ) ) {
