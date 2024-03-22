@@ -93,6 +93,11 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 
 == Changelog ==
 
+= 1.26 =
+
+* Images with dynamic files no longer result in multiple images inside the media library.
+* Imported images can now use alt texts from the ticketing system (if available).
+
 = 1.25 =
 
 * Added a WP filter to individual subscription settings.
@@ -234,6 +239,9 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 * Welcome Jeero!
 
 == Upgrade Notice ==
+
+= 1.26 =
+* Multiple improvements tom image imports.
 
 = 1.24.1 =
 * Fixes several PHP warnings in PHP8.2.
