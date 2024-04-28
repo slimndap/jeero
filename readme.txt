@@ -93,9 +93,12 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 
 == Changelog ==
 
+= 1.27 =
+* Added a WP filter to alter the number of items imported during each pickup.
+
 = 1.26 =
 
-* Images with dynamic files no longer result in multiple images inside the media library.
+* Images with dynamic filenams no longer result in multiple images inside the media library.
 * Imported images can now use alt texts from the ticketing system (if available).
 
 = 1.25 =
@@ -103,7 +106,7 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 * Added a WP filter to individual subscription settings.
 * Fixed several PHP and WP deprecation warnings.
 * Updated Twig to 3.8.0.
-* Fixed an import problem where series were imported multiple times in The Events Calendar. (1.25.1).
+* Fixed an import problem where series were imported multiple times in The Events Calendar (1.25.1).
 
 = 1.24 =
 
@@ -240,8 +243,11 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 
 == Upgrade Notice ==
 
+= 1.27 =
+Added a WP filter to alter the number of items imported during each pickup.
+
 = 1.26 =
-* Multiple improvements tom image imports.
+* Multiple improvements to image imports.
 
 = 1.24.1 =
 * Fixes several PHP warnings in PHP8.2.

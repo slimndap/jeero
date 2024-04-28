@@ -88,7 +88,7 @@ function deactivate_subscription( $subscription_id ) {
  * @since	1.10	Improved encoding of settings.
  *					Always return fully parsed items.
  * @since	1.21	Now uses POST to support settings > 1024kb.
- * @since	1.26.1	Added the $no_of_items_per_pickup param to specifiy the number of items in each inbox pickup.
+ * @since	1.27	Added the $no_of_items_per_pickup param to specifiy the number of items in each inbox pickup.
  *
  * @param 	array			$settings				The setting values of all subscriptions.
  * @param	int|null		$no_of_items_per_pickup	The number of items in each inbox pickup.
@@ -238,7 +238,7 @@ function update_subscription( $subscription_id, $settings ) {
  * Sends a GET request to Mother.
  * 
  * @since	1.0
- * @since	1.26.1	Added the $headers param to specify addtional headers in the GET request.
+ * @since	1.27	Added the $headers param to specify addtional headers in the GET request.
  *
  * @param 	string			$endpoint
  * @param	array 			$params (default: array())
@@ -294,7 +294,7 @@ function get( $endpoint, $params = array(), $headers = array() ) {
  * Sends a POST request to Mother.
  * 
  * @since	1.0
- * @since	1.26.1	Added the $headers param to specify addtional headers in the POST request.
+ * @since	1.27	Added the $headers param to specify addtional headers in the POST request.
  *
  * @param 	string			$endpoint
  * @param	array 			$data (default: array())

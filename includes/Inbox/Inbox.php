@@ -52,7 +52,7 @@ function apply_filters( $tag, $value ) {
  * 
  * @since	1.0
  * @since	1.18	@uses \Jeero\Logs\log().
- * @since	1.26.1	@uses get_inbox_no_of_items_per_pickup() to set the number of items in each inbox pickup. 
+ * @since	1.27	@uses get_inbox_no_of_items_per_pickup() to set the number of items in each inbox pickup. 
  * @return 	void
  */
 function pickup_items() {
@@ -93,7 +93,7 @@ function get_next_pickup() {
 /**
  * Gets the number of items in each inbox pickup.
  * 
- * @since	1.26.1
+ * @since	1.27
  * @return	int|null	A number or null, which tells Jeero to use the default number of items.
  */
 function get_inbox_no_of_items_per_pickup() {
