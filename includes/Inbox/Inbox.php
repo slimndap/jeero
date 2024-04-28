@@ -52,6 +52,7 @@ function apply_filters( $tag, $value ) {
  * 
  * @since	1.0
  * @since	1.18	@uses \Jeero\Logs\log().
+ * @since	1.26.1	@uses get_inbox_no_of_items_per_pickup() to set the number of items in each inbox pickup. 
  * @return 	void
  */
 function pickup_items() {
@@ -60,7 +61,7 @@ function pickup_items() {
 
 	$settings = Subscriptions\get_setting_values();
 
-	$items = Mother\get_inbox( $settings );
+	$items = Mother\get_inbox( $settings, get_inbox_no_of_items_per_pickup() );
 	
 	if ( is_wp_error( $items ) ) {
 		Admin\Notices\add_error( $items );
@@ -86,6 +87,18 @@ function pickup_items() {
 function get_next_pickup() {
 	
 	return wp_next_scheduled( PICKUP_ITEMS_HOOK );
+	
+}
+
+/**
+ * Gets the number of items in each inbox pickup.
+ * 
+ * @since	1.26.1
+ * @return	int|null	A number or null, which tells Jeero to use the default number of items.
+ */
+function get_inbox_no_of_items_per_pickup() {
+
+	return \apply_filters( 'jeero/inbox/no_of_items_per_pickup', null );
 	
 }
 

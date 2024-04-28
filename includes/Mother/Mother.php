@@ -88,13 +88,19 @@ function deactivate_subscription( $subscription_id ) {
  * @since	1.10	Improved encoding of settings.
  *					Always return fully parsed items.
  * @since	1.21	Now uses POST to support settings > 1024kb.
+ * @since	1.26.1	Added the $no_of_items_per_pickup param to specifiy the number of items in each inbox pickup.
  *
- * @param 	array			$settings	The setting values of all subscriptions.
+ * @param 	array			$settings				The setting values of all subscriptions.
+ * @param	int|null		$no_of_items_per_pickup	The number of items in each inbox pickup.
  * @return	array|WP_Error
  */
-function get_inbox( $settings ) {
+function get_inbox( $settings, $no_of_items_per_pickup = null ) {
 
-	$items = post( 'inbox/big', $settings );	
+	$headers = array(
+		'no_of_items_per_pickup' => $no_of_items_per_pickup,
+	);
+
+	$items = post( 'inbox/big', $settings, $headers );	
 	
 	if ( \is_wp_error( $items ) ) {
 		return $items;
@@ -232,12 +238,21 @@ function update_subscription( $subscription_id, $settings ) {
  * Sends a GET request to Mother.
  * 
  * @since	1.0
+ * @since	1.26.1	Added the $headers param to specify addtional headers in the GET request.
+ *
  * @param 	string			$endpoint
- * @param	array 			$params
+ * @param	array 			$params (default: array())
+ * @param	array			$headers (default: array())
  * @return 	array|WP_Error
  */
-function get( $endpoint, $params = array() ) {
+function get( $endpoint, $params = array(), $headers = array() ) {
 	
+	$header_defaults = array(
+		'site_url' => \site_url(),
+		'site_key' => get_site_key(),		
+	);
+	$headers = wp_parse_args( $headers, $header_defaults );
+
 	$response = apply_filters( 'jeero/mother/get/response', NULL, $endpoint, $params );
 	$response = apply_filters( 'jeero/mother/get/response/endpoint='.$endpoint, $response, $endpoint, $params );
 
@@ -251,10 +266,7 @@ function get( $endpoint, $params = array() ) {
 
 		$args = array(
 			'timeout' => 30,
-			'headers' => array(
-				'site_url' => site_url(),
-				'site_key' => get_site_key(),
-			),
+			'headers' => $headers,
 		);
 		$response = wp_remote_get( $url, $args );
 
@@ -282,14 +294,23 @@ function get( $endpoint, $params = array() ) {
  * Sends a POST request to Mother.
  * 
  * @since	1.0
+ * @since	1.26.1	Added the $headers param to specify addtional headers in the POST request.
+ *
  * @param 	string			$endpoint
  * @param	array 			$data (default: array())
+ * @param	array			$headers (default: array())
  * @return 	array|WP_Error
  */
-function post( $endpoint, $data = array() ) {
+function post( $endpoint, $data = array(), $headers= array() ) {
 	
-	$response = \apply_filters( 'jeero/mother/post/response', NULL, $endpoint, $data );
-	$response = \apply_filters( 'jeero/mother/post/response/endpoint='.$endpoint, $response, $endpoint, $data );
+	$header_defaults = array(
+		'site_url' => \site_url(),
+		'site_key' => get_site_key(),		
+	);
+	$headers = wp_parse_args( $headers, $header_defaults );
+	
+	$response = \apply_filters( 'jeero/mother/post/response', NULL, $endpoint, $data, $headers );
+	$response = \apply_filters( 'jeero/mother/post/response/endpoint='.$endpoint, $response, $endpoint, $data, $headers );
 
 	if ( is_null( $response ) ) {
 
@@ -297,10 +318,7 @@ function post( $endpoint, $data = array() ) {
 		
 		$args = array(
 			'timeout' => 30,
-			'headers' => array(
-				'site_url' => \site_url(),
-				'site_key' => get_site_key(),
-			),
+			'headers' => $headers,
 		);
 		
 		if ( !empty( $data ) ) {
