@@ -60,14 +60,14 @@ function pickup_items() {
 	$no_of_items_per_pickup = get_inbox_no_of_items_per_pickup();
 
 	if ( $no_of_items_per_pickup ) {
-		Logs\Log( 'Pick up items from inbox.' );			
-	} else {
 		Logs\Log( 
 			sprintf( 
 				_n( 'Pick up %d item from inbox.', 'Pick up %d items from inbox.', $no_of_items_per_pickup ),
 				$no_of_items_per_pickup
 			)
 		);
+	} else {
+		Logs\Log( 'Pick up items from inbox.' );			
 	}
 
 	$settings = Subscriptions\get_setting_values();
