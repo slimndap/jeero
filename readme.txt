@@ -95,6 +95,7 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 
 = 1.27 =
 * Added a WP filter to alter the number of items imported during each pickup.
+* Performances improvements for imports with a LOT of events (1.27.1).
 
 = 1.26 =
 
