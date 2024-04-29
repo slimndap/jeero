@@ -57,11 +57,22 @@ function apply_filters( $tag, $value ) {
  */
 function pickup_items() {
 
-	Logs\Log( 'Pick up items from inbox.' );
+	$no_of_items_per_pickup = get_inbox_no_of_items_per_pickup();
+
+	if ( $no_of_items_per_pickup ) {
+		Logs\Log( 'Pick up items from inbox.' );			
+	} else {
+		Logs\Log( 
+			sprintf( 
+				_n( 'Pick up %d item from inbox.', 'Pick up %d items from inbox.', $no_of_items_per_pickup ),
+				$no_of_items_per_pickup
+			)
+		);
+	}
 
 	$settings = Subscriptions\get_setting_values();
 
-	$items = Mother\get_inbox( $settings, get_inbox_no_of_items_per_pickup() );
+	$items = Mother\get_inbox( $settings, $no_of_items_per_pickup );
 	
 	if ( is_wp_error( $items ) ) {
 		Admin\Notices\add_error( $items );
@@ -275,6 +286,7 @@ function process_items( $items ) {
 	}
 	
 	$items_processed = array();
+	$start_time = microtime( true );
 	
 	foreach( $items as $item ) {
 		$result = process_item( $item );
@@ -286,7 +298,9 @@ function process_items( $items ) {
 		$items_processed[] = $item;
 	}
 	
-	Logs\Log( sprintf( '%d items processed.', count( $items_processed ) ) );
+	$elapsed_time = microtime( true ) - $start_time;
+	
+	Logs\Log( sprintf( '%d items processed in %.2f seconds.', count( $items_processed ), $elapsed_time ) );
 	
 	remove_items( $items_processed );
 }
