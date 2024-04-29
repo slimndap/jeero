@@ -275,6 +275,8 @@ function process_item( $item ) {
  * @since	1.0
  * @since	1.5		Now accounts for process_item() returning a WP_Error.
  * @since	1.18	@uses \Jeero\Logs\log().
+ * @since	1.27.1	Remove inbox items before processing them, to avoid processing inbox items multiple times.
+ *					Added time elapsed to log message.
  *
  * @param 	array	$items
  * @return 	void
@@ -285,6 +287,8 @@ function process_items( $items ) {
 		return;
 	}
 	
+	remove_items( $items );
+
 	$items_processed = array();
 	$start_time = microtime( true );
 	
@@ -302,7 +306,6 @@ function process_items( $items ) {
 	
 	Logs\Log( sprintf( '%d items processed in %.2f seconds.', count( $items_processed ), $elapsed_time ) );
 	
-	remove_items( $items_processed );
 }
 
 /**
