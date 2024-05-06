@@ -41,9 +41,10 @@ function receive_heartbeat( array $response, array $data ) {
 	}
 	
 	if ( !current_user_can( 'manage_options' ) ) {
-		$response[ 'jeero_debug_log' ] = __( 'Access to the Jeero debug log is denied.', 'jeero' );
+		$response[ 'jeero_debug_log_local' ] = __( 'Access to the Jeero debug log is denied.', 'jeero' );
 	} else {
-		$response[ 'jeero_debug_log' ] = \Jeero\Logs\get_log_file_content();		
+		$response[ 'jeero_debug_log_local' ] = \Jeero\Logs\get_log_file_content( 'local' );		
+		$response[ 'jeero_debug_log_remote' ] = \Jeero\Logs\get_log_file_content( 'remote' );		
 	}
 	
 	return $response;
@@ -51,6 +52,7 @@ function receive_heartbeat( array $response, array $data ) {
 }
 
 function do_admin_page() {
+	
 	?><div class="wrap">
 		<h1 class="wp-heading-inline"><?php _e( 'Jeero Debug', 'jeero' ); ?></h1>
 		<hr class="wp-header-end">
@@ -59,16 +61,24 @@ function do_admin_page() {
 			 Do not share this information with anyone, except when requested specifically by Jeero support.</p>
 		
 		<table class="form-table" role="presentation">
-			<tbody>
-				<tr>
-					<th scope="row">Logs</th>
-					<td>
-						<textarea id="jeero_debug_log" class="large-text code" rows="20" readonly><?php
-							echo \Jeero\Logs\get_log_file_content();
-						?></textarea>
-					</td>
-				</tr>
-				<tr>
+			<tbody><?php
+				
+				$logs = array(
+					'local' => __( 'Local Log', 'jeero' ),
+					'remote' => __( 'Remote Log', 'jeero' ),		
+				);
+	
+				foreach( $logs as $log_slug => $log_label ) {
+					?><tr>
+						<th scope="row"><?php echo esc_html( $log_label ); ?></th>
+						<td>
+							<textarea class="jeero_debug_log large-text code" rows="20" data-debug_log_slug="<?php echo esc_attr( $log_slug ); ?>" readonly><?php
+								echo \Jeero\Logs\get_log_file_content( $log_slug );
+							?></textarea>
+						</td>
+					</tr><?php
+				}
+				?><tr>
 					<th scope="row">Settings</th>
 					<td>
 						<textarea class="large-text code" rows="20" readonly><?php

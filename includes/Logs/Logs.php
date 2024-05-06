@@ -66,14 +66,16 @@ function get_upload_dir() {
  * @since	1.18
  * @return	string	The UUID used for the Jeero log filename.
  */
-function get_uid() {
+function get_uid( $slug ) {
 	
-	$uid = get_option( LOG_UID_KEY );
+	$log_uid_key = sprintf( '%s-%s', $slug, LOG_UID_KEY );
+	
+	$uid = get_option( $log_uid_key );
 	
 	if ( empty( $uid ) ) {
 		
 		$uid = \wp_generate_uuid4();
-		update_option( LOG_UID_KEY, $uid, false );
+		update_option( $log_uid_key, $uid, false );
 		
 	}
 	
@@ -89,7 +91,7 @@ function get_uid() {
  *
  * @return	string 	The path to the Jeero logfile.
  */
-function get_file_path() {
+function get_file_path( $slug ) {
 
 	$upload_dir = get_upload_dir();
 	
@@ -97,7 +99,7 @@ function get_file_path() {
 		return $upload_dir;
 	}
 	
-	return sprintf( '%s%s.log', $upload_dir, get_uid() );
+	return sprintf( '%s%s.log', $upload_dir, get_uid( $slug ) );
 	
 }
 
@@ -109,9 +111,9 @@ function get_file_path() {
  *
  * @return	void
  */
-function rotate_logs() {
+function rotate_logs( $slug ) {
 	
-	$file_path = get_file_path();
+	$file_path = get_file_path( $slug );
 	
 	if ( \is_wp_error( $file_path ) ) {
 		return;
@@ -138,11 +140,11 @@ function rotate_logs() {
  * @param 	string	$message
  * @return	void
  */
-function log( $message ) {
+function log( $message, $slug = 'local' ) {
 	
-	rotate_logs();
+	rotate_logs( $slug );
 	
-	$file_path = get_file_path();
+	$file_path = get_file_path( $slug );
 	
 	if ( \is_wp_error( $file_path ) ) {
 		return $file_path;
@@ -171,7 +173,7 @@ function log_from_inbox( $result, $data, $raw, $theater, $subscription ) {
 		$message = sprintf( '[%s] %s', $theater, $message );
 	}
 	
-	log( $message );
+	log( $message, 'remote' );
 	
 	return $result;
 	
@@ -185,9 +187,9 @@ function log_from_inbox( $result, $data, $raw, $theater, $subscription ) {
  *
  * @return	string
  */
-function get_log_file_content() {
+function get_log_file_content( $slug ) {
 	
-	$file_path = get_file_path();
+	$file_path = get_file_path( $slug );
 	
 	if ( \is_wp_error( $file_path ) ) {
 		return $file_path->get_error_message();
