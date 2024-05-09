@@ -17,8 +17,8 @@ function enqueue_scripts( ) {
 	if ( 'admin_page_jeero/debug' != $current_screen->id ) {
 		return;
 	}
-	
-	\wp_enqueue_script( 'jeero/templates', \Jeero\PLUGIN_URI . 'assets/js/debug.js', array( 'jquery' ), \Jeero\VERSION );
+	\wp_enqueue_script( 'jeero/debug', \Jeero\PLUGIN_URI . 'assets/js/debug.js', array( 'jquery' ), \Jeero\VERSION );
+	wp_localize_script( 'jeero/debug', 'jeero_debug_logs', \Jeero\Logs\get_logs() );
 
 }
 
@@ -40,11 +40,16 @@ function receive_heartbeat( array $response, array $data ) {
 		return $response;		
 	}
 	
-	if ( !current_user_can( 'manage_options' ) ) {
-		$response[ 'jeero_debug_log_local' ] = __( 'Access to the Jeero debug log is denied.', 'jeero' );
-	} else {
-		$response[ 'jeero_debug_log_local' ] = \Jeero\Logs\get_log_file_content( 'local' );		
-		$response[ 'jeero_debug_log_remote' ] = \Jeero\Logs\get_log_file_content( 'remote' );		
+	foreach( \Jeero\Logs\get_logs() as $log_slug => $log_label ) {
+		
+		
+		if ( !current_user_can( 'manage_options' ) ) {
+			$log_response = sprintf( __( 'Access to the Jeero %s is denied.', 'jeero' ), $log_label );
+		} else {
+			$log_response = \Jeero\Logs\get_log_file_content( $log_slug );
+		}
+		
+		$response[ sprintf( 'jeero_debug_log_%s', $log_slug ) ] = $log_response;
 	}
 	
 	return $response;
@@ -63,12 +68,7 @@ function do_admin_page() {
 		<table class="form-table" role="presentation">
 			<tbody><?php
 				
-				$logs = array(
-					'local' => __( 'Local Log', 'jeero' ),
-					'remote' => __( 'Remote Log', 'jeero' ),		
-				);
-	
-				foreach( $logs as $log_slug => $log_label ) {
+				foreach( \Jeero\Logs\get_logs() as $log_slug => $log_label ) {
 					?><tr>
 						<th scope="row"><?php echo esc_html( $log_label ); ?></th>
 						<td>

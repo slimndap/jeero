@@ -202,3 +202,14 @@ function get_log_file_content( $slug ) {
 	return file_get_contents( $file_path );
 	
 }
+
+function get_logs() {
+	
+	$logs = array(
+		'local' => __( 'Local Log', 'jeero' ),
+		'remote' => __( 'Remote Log', 'jeero' ),		
+	);
+	
+	return $logs;	
+	
+}
