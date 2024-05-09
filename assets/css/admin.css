@@ -57,6 +57,9 @@ body.toplevel_page_jeero-imports .jeero-field-custom_fields table tr td.actions 
   width: 100px;
   padding-right: 0;
 }
+body.admin_page_jeero-debug #jeero_debug_content {
+  table-layout: fixed;
+}
 #jeero_footprint .inside {
   margin: 0;
   padding: 6px 0 0 0;

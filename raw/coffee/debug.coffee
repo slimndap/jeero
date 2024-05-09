@@ -12,6 +12,10 @@ jQuery ->
 	$debug_logs = jQuery '.jeero_debug_log'
 	scroll_to_bottom()
 	
+	$debug_settings = jQuery '#jeero_debug_settings'
+	if $debug_settings.length > 0
+		wp.codeEditor.initialize $debug_settings, jeero_debug.settings
+	
 	jQuery( document ).on 'heartbeat-tick', ( event, data ) ->
 	
 		$debug_logs.each ->

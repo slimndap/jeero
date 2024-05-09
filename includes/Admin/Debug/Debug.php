@@ -17,8 +17,23 @@ function enqueue_scripts( ) {
 	if ( 'admin_page_jeero/debug' != $current_screen->id ) {
 		return;
 	}
-	\wp_enqueue_script( 'jeero/debug', \Jeero\PLUGIN_URI . 'assets/js/debug.js', array( 'jquery' ), \Jeero\VERSION );
-	wp_localize_script( 'jeero/debug', 'jeero_debug_logs', \Jeero\Logs\get_logs() );
+	\wp_enqueue_script( 'jeero/debug', \Jeero\PLUGIN_URI . 'assets/js/debug.js', array( 'jquery', 'wp-theme-plugin-editor' ), \Jeero\VERSION );
+	\wp_localize_script( 'jeero/debug', 'jeero_debug_logs', \Jeero\Logs\get_logs() );
+
+	$jeero_debug = array(
+		'settings' => array(
+			'codeEditor' =>	\wp_enqueue_code_editor(
+				array(
+					'type' => 'application/json',
+					'viewportMargin' => 'Infinity',
+				)
+			),
+		),		
+	);
+
+	\wp_localize_script( 'jeero/debug', 'jeero_debug', $jeero_debug );
+	
+	\wp_enqueue_style( 'wp-codemirror' );
 
 }
 
@@ -65,7 +80,7 @@ function do_admin_page() {
 		<p>This page contains debug information about Jeero that can help us investigate any issues with your imports.<br>
 			 Do not share this information with anyone, except when requested specifically by Jeero support.</p>
 		
-		<table class="form-table" role="presentation">
+		<table class="form-table" role="presentation" id="jeero_debug_content">
 			<tbody><?php
 				
 				foreach( \Jeero\Logs\get_logs() as $log_slug => $log_label ) {
@@ -81,9 +96,9 @@ function do_admin_page() {
 				?><tr>
 					<th scope="row">Settings</th>
 					<td>
-						<textarea class="large-text code" rows="20" readonly><?php
+						<textarea id="jeero_debug_settings" class="large-text code" rows="20" readonly><?php
 							$subscriptions = \Jeero\Db\Subscriptions\get_subscriptions();
-							echo json_encode( $subscriptions );
+							echo json_encode( $subscriptions, JSON_PRETTY_PRINT );
 						?></textarea>
 						<p class="description"><?php
 							_e( 'This information can potentially disclose the credentials of your ticketing solution. Only share this information  if you feel comfortable sharing this information with Jeero support.', 'jeero' );
