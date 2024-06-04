@@ -17,8 +17,23 @@ function enqueue_scripts( ) {
 	if ( 'admin_page_jeero/debug' != $current_screen->id ) {
 		return;
 	}
+	\wp_enqueue_script( 'jeero/debug', \Jeero\PLUGIN_URI . 'assets/js/debug.js', array( 'jquery', 'wp-theme-plugin-editor' ), \Jeero\VERSION );
+	\wp_localize_script( 'jeero/debug', 'jeero_debug_logs', \Jeero\Logs\get_logs() );
+
+	$jeero_debug = array(
+		'settings' => array(
+			'codeEditor' =>	\wp_enqueue_code_editor(
+				array(
+					'type' => 'application/json',
+					'viewportMargin' => 'Infinity',
+				)
+			),
+		),		
+	);
+
+	\wp_localize_script( 'jeero/debug', 'jeero_debug', $jeero_debug );
 	
-	\wp_enqueue_script( 'jeero/templates', \Jeero\PLUGIN_URI . 'assets/js/debug.js', array( 'jquery' ), \Jeero\VERSION );
+	\wp_enqueue_style( 'wp-codemirror' );
 
 }
 
@@ -40,10 +55,16 @@ function receive_heartbeat( array $response, array $data ) {
 		return $response;		
 	}
 	
-	if ( !current_user_can( 'manage_options' ) ) {
-		$response[ 'jeero_debug_log' ] = __( 'Access to the Jeero debug log is denied.', 'jeero' );
-	} else {
-		$response[ 'jeero_debug_log' ] = \Jeero\Logs\get_log_file_content();		
+	foreach( \Jeero\Logs\get_logs() as $log_slug => $log_label ) {
+		
+		
+		if ( !current_user_can( 'manage_options' ) ) {
+			$log_response = sprintf( __( 'Access to the Jeero %s is denied.', 'jeero' ), $log_label );
+		} else {
+			$log_response = \Jeero\Logs\get_log_file_content( $log_slug );
+		}
+		
+		$response[ sprintf( 'jeero_debug_log_%s', $log_slug ) ] = $log_response;
 	}
 	
 	return $response;
@@ -51,6 +72,7 @@ function receive_heartbeat( array $response, array $data ) {
 }
 
 function do_admin_page() {
+	
 	?><div class="wrap">
 		<h1 class="wp-heading-inline"><?php _e( 'Jeero Debug', 'jeero' ); ?></h1>
 		<hr class="wp-header-end">
@@ -58,22 +80,25 @@ function do_admin_page() {
 		<p>This page contains debug information about Jeero that can help us investigate any issues with your imports.<br>
 			 Do not share this information with anyone, except when requested specifically by Jeero support.</p>
 		
-		<table class="form-table" role="presentation">
-			<tbody>
-				<tr>
-					<th scope="row">Logs</th>
-					<td>
-						<textarea id="jeero_debug_log" class="large-text code" rows="20" readonly><?php
-							echo \Jeero\Logs\get_log_file_content();
-						?></textarea>
-					</td>
-				</tr>
-				<tr>
+		<table class="form-table" role="presentation" id="jeero_debug_content">
+			<tbody><?php
+				
+				foreach( \Jeero\Logs\get_logs() as $log_slug => $log_label ) {
+					?><tr>
+						<th scope="row"><?php echo esc_html( $log_label ); ?></th>
+						<td>
+							<textarea class="jeero_debug_log large-text code" rows="20" data-debug_log_slug="<?php echo esc_attr( $log_slug ); ?>" readonly><?php
+								echo \Jeero\Logs\get_log_file_content( $log_slug );
+							?></textarea>
+						</td>
+					</tr><?php
+				}
+				?><tr>
 					<th scope="row">Settings</th>
 					<td>
-						<textarea class="large-text code" rows="20" readonly><?php
+						<textarea id="jeero_debug_settings" class="large-text code" rows="20" readonly><?php
 							$subscriptions = \Jeero\Db\Subscriptions\get_subscriptions();
-							echo json_encode( $subscriptions );
+							echo json_encode( $subscriptions, JSON_PRETTY_PRINT );
 						?></textarea>
 						<p class="description"><?php
 							_e( 'This information can potentially disclose the credentials of your ticketing solution. Only share this information  if you feel comfortable sharing this information with Jeero support.', 'jeero' );
