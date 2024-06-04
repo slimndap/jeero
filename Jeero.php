@@ -5,7 +5,7 @@
  * Description:     Synchronizes events and tickets from your existing ticketing solution with popular calendar plugins.
  * Author:          Slim & Dapper
  * Author URI:      https://slimndap.com
- * Version:         1.27
+ * Version:         1.27.2
  * Text Domain: 	jeero
  *
  * @package         Jeero
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     return;
 }
 
-define( 'Jeero\VERSION', '1.27' );
+define( 'Jeero\VERSION', '1.27.2' );
 define( 'Jeero\PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'Jeero\PLUGIN_URI', plugin_dir_url( __FILE__ ) );
 

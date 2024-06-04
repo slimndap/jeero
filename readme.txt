@@ -2,7 +2,7 @@
 Contributors: slimndap
 Tags: calendar, tickets, events, veezi, ticketmaster, audienceview, stager
 Requires PHP: 7.2
-Tested up to: 6.4
+Tested up to: 6.5
 Requires at least: 4.9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -95,6 +95,7 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 
 = 1.27 =
 * Added a WP filter to alter the number of items imported during each pickup.
+* Performances improvements for imports with a LOT of events (1.27.1 + 1.27.2).
 
 = 1.26 =
 
