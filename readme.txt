@@ -93,6 +93,10 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 
 == Changelog ==
 
+= 1.28 =
+* Updated Twig to 3.10.3.
+* Improvements to the debug log admin page.
+
 = 1.27 =
 * Added a WP filter to alter the number of items imported during each pickup.
 * Performances improvements for imports with a LOT of events (1.27.1 + 1.27.2).
@@ -243,6 +247,9 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 * Welcome Jeero!
 
 == Upgrade Notice ==
+
+= 1.28 -
+* Updates Twig to version 3.10.3.
 
 = 1.27 =
 Added a WP filter to alter the number of items imported during each pickup.
