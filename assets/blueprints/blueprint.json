@@ -1,0 +1,17 @@
+{
+    "landingPage": "\/wp-admin\/admin.php?page=jeero\/imports",
+    "preferredVersions": {
+        "php": "8.2",
+        "wp": "6.5"
+    },
+    "phpExtensionBundles": [
+        "kitchen-sink"
+    ],
+	"features": {
+		"networking": true
+	},
+	"login": true,
+	"plugins": [ 'jeero', 'theatre' ],
+	"steps": [
+    ]
+}
