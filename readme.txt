@@ -97,6 +97,7 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 * The Events Calendar no longer imports a dummy end time if the ticketing solution does not provide one.
 * Localised timestamps in log file.
 * Added detection of problems with WP-Cron.
+* Fixed number formatting of prices of imported events of the Modern Events Calendar plugin. No longer uses local number format, because the MEC input field for prices only accepts '.' as separator (1.29.1).
 
 = 1.28 =
 * Updated Twig to 3.10.3.
