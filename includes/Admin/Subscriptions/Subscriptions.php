@@ -254,7 +254,7 @@ function get_edit_html( $subscription_id ) {
 /**
  * Gets the List Table on the Subscriptions Admin page.
  * 
- * @since	1.28.1
+ * @since	1.29
  * @return	WP_List_Table
  */
 function get_list_table() {
@@ -280,7 +280,7 @@ function get_list_table() {
  * @since	1.1		Renamed 'subscriptions' to 'imports'.
  * @since	1.7		Autmatically create first subscription and show edit form.
  *					Replaced 'next pickup' message with 'next import' message.
- * @since	1.28.1	Only display next import if it is scheduled in the future.
+ * @since	1.29	Only display next import if it is scheduled in the future.
  * @return	string
  */
 function get_list_table_html() {
@@ -475,7 +475,7 @@ function show_no_active_calendars_warning() {
 /**
  * Shows an admin error notice on Jeero admin screens if WP-Cron is disabled.
  * 
- * @since	1.28.1
+ * @since	1.29
  */
 function show_wp_cron_disabled_error() {
 	

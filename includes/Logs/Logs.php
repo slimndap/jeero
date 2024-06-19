@@ -136,7 +136,7 @@ function rotate_logs( $slug ) {
  * 
  * @since	1.18
  * @since	1.21	Improved error handling is getting logfile path fails.
- * @since	1.?		Fixed timestamp of logs, now uses local time.
+ * @since	1.29	Fixed timestamp of logs, now uses local time.
  *
  * @param 	string	$message
  * @return	void

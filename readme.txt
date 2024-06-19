@@ -93,6 +93,11 @@ Subscription rates will range from €20 - €30 per month, depending on your to
 
 == Changelog ==
 
+= 1.29 =
+* The Events Calendar no longer imports a dummy end time if the ticketing solution does not provide one.
+* Localised timestamps in log file.
+* Added detection of problems with WP-Cron.
+
 = 1.28 =
 * Updated Twig to 3.10.3.
 * Improvements to the debug log admin page.
@@ -248,7 +253,10 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 
 == Upgrade Notice ==
 
-= 1.28 -
+= 1.29 =
+* The Events Calendar no longer imports a dummy end time if the ticketing solution does not provide one.
+
+= 1.28 =
 * Updates Twig to version 3.10.3.
 
 = 1.27 =
