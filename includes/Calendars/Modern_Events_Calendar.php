@@ -110,6 +110,8 @@ class Modern_Events_Calendar extends Post_Based_Calendar {
 	 *					Added suuport for cancelled events.
 	 *					Fixed import of categories.
 	 * @since	1.23.1	Now uses local number format for event prices.
+	 * @since	1.29.1	No longer uses local number format for event prices, because the MEC input field for
+	 *					prices only accepts '.' as seperator.
 	 *
 	 * @param 	mixed 			$result
 	 * @param 	array			$data		The structured data of the event.
@@ -174,7 +176,7 @@ class Modern_Events_Calendar extends Post_Based_Calendar {
 				
 			if ( !empty( $data[ 'prices' ] ) ) {
 				$amounts = \wp_list_pluck( $data[ 'prices' ], 'amount' );
-				$args[ 'meta' ][ 'mec_cost' ] = number_format_i18n( min( $amounts ), 2 );
+				$args[ 'meta' ][ 'mec_cost' ] = number_format( min( $amounts ), 2 );
 			}
 
 			$event_status = 'EventScheduled';
