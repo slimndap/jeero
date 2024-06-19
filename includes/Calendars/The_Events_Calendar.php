@@ -260,6 +260,7 @@ class The_Events_Calendar extends Post_Based_Calendar {
 	 * @since	1.22		Added support for series.
 	 *					Fix: venue field did not obey the update settings. Fixes #16.
 	 * @since	1.23		Added support for event statuses.
+	 * @since	1.29		Use default TEC end time if no end time is available.
 	 *
 	 * @param 	mixed 			$result
 	 * @param 	array			$data		The structured data of the event.
@@ -290,19 +291,16 @@ class The_Events_Calendar extends Post_Based_Calendar {
 			
 			if ( !empty( $data[ 'end' ] ) ) {
 				$event_end = strtotime( $data[ 'end' ] );
-			} else {
-				$event_end = $event_start;
+				$args = array_merge( 
+					$args, 
+					array(
+						'EventEndDate' => date( 'Y-m-d', $event_end ),
+						'EventEndHour' => date( 'H', $event_end ),
+						'EventEndMinute' => date( 'i', $event_end ),
+					) 
+				);			
 			}
 
-			$args = array_merge( 
-				$args, 
-				array(
-					'EventEndDate' => date( 'Y-m-d', $event_end ),
-					'EventEndHour' => date( 'H', $event_end ),
-					'EventEndMinute' => date( 'i', $event_end ),
-				) 
-			);
-			
 			$venue_title = $this->get_rendered_template( 'venue_Title', $data, $subscription );
 
 			if ( !empty( $venue_title ) ) {
