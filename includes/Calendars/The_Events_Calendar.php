@@ -261,7 +261,7 @@ class The_Events_Calendar extends Post_Based_Calendar {
 	 *					Fix: venue field did not obey the update settings. Fixes #16.
 	 * @since	1.23		Added support for event statuses.
 	 * @since	1.29		Use default TEC end time if no end time is available.
-	 * @since	1.29.1	Use start time if no end time is available, except if end time was previously entered manually in TEC.
+	 * @since	1.29.2	Use start time if no end time is available, except if end time was previously entered manually in TEC.
 	 *
 	 * @param 	mixed 			$result
 	 * @param 	array			$data		The structured data of the event.
