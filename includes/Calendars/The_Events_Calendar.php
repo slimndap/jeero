@@ -261,6 +261,7 @@ class The_Events_Calendar extends Post_Based_Calendar {
 	 *					Fix: venue field did not obey the update settings. Fixes #16.
 	 * @since	1.23		Added support for event statuses.
 	 * @since	1.29		Use default TEC end time if no end time is available.
+	 * @since	1.29.1	Use start time if no end time is available, except if end time was previously entered manually in TEC.
 	 *
 	 * @param 	mixed 			$result
 	 * @param 	array			$data		The structured data of the event.
@@ -289,17 +290,33 @@ class The_Events_Calendar extends Post_Based_Calendar {
 				'EventStartMinute' => date( 'i', $event_start ),
 			);
 			
-			if ( !empty( $data[ 'end' ] ) ) {
-				$event_end = strtotime( $data[ 'end' ] );
-				$args = array_merge( 
-					$args, 
-					array(
-						'EventEndDate' => date( 'Y-m-d', $event_end ),
-						'EventEndHour' => date( 'H', $event_end ),
-						'EventEndMinute' => date( 'i', $event_end ),
-					) 
-				);			
+			if ( empty( $data[ 'end' ] ) ) {
+
+				/** 
+				 * No end time provided. 
+				 * Set end time to start time, except if end time was previously entered manually.
+				 */
+
+				$existing_end_date = get_post_meta( $post_id, '_EventEndDate', true );
+
+				if ( empty( $existing_end_date ) ) {
+					$event_end = $event_start;
+				} else {
+					$event_end = strtotime( $existing_end_date );
+				}
+				
+			} else {
+				$event_end = strtotime( $data[ 'end' ] );				
 			}
+			
+			$args = array_merge( 
+				$args, 
+				array(
+					'EventEndDate' => date( 'Y-m-d', $event_end ),
+					'EventEndHour' => date( 'H', $event_end ),
+					'EventEndMinute' => date( 'i', $event_end ),
+				) 
+			);			
 
 			$venue_title = $this->get_rendered_template( 'venue_Title', $data, $subscription );
 
