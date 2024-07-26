@@ -254,6 +254,9 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 
 == Upgrade Notice ==
 
+= 1.29.3 =
+* Improved detection of malfunctioning WP-Cron.
+
 = 1.29 =
 * The Events Calendar no longer imports a dummy end time if the ticketing solution does not provide one.
 
