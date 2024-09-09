@@ -2,7 +2,7 @@
 Contributors: slimndap
 Tags: calendar, tickets, events, veezi, ticketmaster, audienceview, stager
 Requires PHP: 7.2
-Tested up to: 6.5
+Tested up to: 6.6
 Requires at least: 4.9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -22,6 +22,7 @@ Ticketing solutions that are supported:
 * [ActiveTickets](https://jeero.ooo/publish-activetickets-events-on-wordpress/)
 * [AudienceView Professional](https://jeero.ooo/publish-audienceview-events-on-wordpress/)
 * [Billeto](https://jeero.ooo/publish-bravobase-performances-on-wordpress/)
+* [Billetweb](https://jeero.ooo/publish-billetweb-events-on-wordpress/)
 * [BravoBase](https://jeero.ooo/publish-bravobase-performances-on-wordpress/)
 * [Brown Paper Tickets](https://jeero.ooo/publish-brown-paper-tickets-events-on-wordpress/)
 * [Chaplin](https://jeero.ooo/publish-chaplin-films-on-wordpress/)
