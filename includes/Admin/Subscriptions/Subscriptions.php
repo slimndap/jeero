@@ -477,6 +477,8 @@ function show_no_active_calendars_warning() {
  * 
  * @since	1.29
  * @since	1.29.3	Disabled cron detection now uses next pickup instead of next import. 
+ * @since	1.29.4	Disabled cron detection now has some breathing space to prevent false positives 
+ *					if the user refreshes the screen before WP was able to schedule the next pickip. 
  */
 function show_wp_cron_disabled_error() {
 	
@@ -491,7 +493,8 @@ function show_wp_cron_disabled_error() {
 		return;
 	}
 
-	if ( $current_time > $next_pickup ) {
+	// Cron is disabled if the next pickup is not scheduled in the future (with 10 minutes breathing space).
+	if ( $current_time > ( $next_pickup + 10 * MINUTE_IN_SECONDS ) ) {
 		?><div class="notice notice-error">
 			<p><strong><?php _e( 'Jeero import error: WP-Cron not working', 'jeero' ); ?></strong></p>
 			<p><?php _e( 'It looks like WP-Cron, the feature that Jeero relies on to import events from your ticketing system, is currently not functioning properly. This may prevent events from being imported into your WordPress site.', 'jeero' ); ?></p>
