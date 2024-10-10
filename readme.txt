@@ -2,7 +2,7 @@
 Contributors: slimndap
 Tags: calendar, tickets, events, veezi, ticketmaster, audienceview, stager
 Requires PHP: 7.2
-Tested up to: 6.5
+Tested up to: 6.6
 Requires at least: 4.9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -22,6 +22,7 @@ Ticketing solutions that are supported:
 * [ActiveTickets](https://jeero.ooo/publish-activetickets-events-on-wordpress/)
 * [AudienceView Professional](https://jeero.ooo/publish-audienceview-events-on-wordpress/)
 * [Billeto](https://jeero.ooo/publish-bravobase-performances-on-wordpress/)
+* [Billetweb](https://jeero.ooo/publish-billetweb-events-on-wordpress/)
 * [BravoBase](https://jeero.ooo/publish-bravobase-performances-on-wordpress/)
 * [Brown Paper Tickets](https://jeero.ooo/publish-brown-paper-tickets-events-on-wordpress/)
 * [Chaplin](https://jeero.ooo/publish-chaplin-films-on-wordpress/)
@@ -85,13 +86,19 @@ You should see the first 10 upcoming events that are coming from your ticketing 
 
 = How do I upgrade? =
 
-I am still working on the subscription engine. Once it is ready the possibility to upgrade will be made available inside the plugin. It shouldn't take long. For now you can [contact me](mailto:jeroen@slimndap.com) so I can upgrade you manually.
+Go to the Jeero menu in the WordPress admin and click on the upgrade link next the import that needs to import more than 10 upcoming events.
 
-= How much will it cost? =
+= How much does it cost? =
 
-Subscription rates will range from €20 - €30 per month, depending on your total number of events. 
+Subscription rates range from €30 - €70 per month, depending on your total number of upcoming events. 
 
 == Changelog ==
+
+= 1.29 =
+* The Events Calendar no longer imports a dummy end time if the ticketing solution does not provide one (1.29) and an end time was not already entered manually (1.29.2).
+* Localised timestamps in log file.
+* Added detection of problems with WP-Cron.
+* Fixed number formatting of prices of imported events of the Modern Events Calendar plugin. No longer uses local number format, because the MEC input field for prices only accepts '.' as separator (1.29.1).
 
 = 1.28 =
 * Updated Twig to 3.10.3.
@@ -248,7 +255,13 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 
 == Upgrade Notice ==
 
-= 1.28 -
+= 1.29.4 =
+* Improved detection of malfunctioning WP-Cron.
+
+= 1.29 =
+* The Events Calendar no longer imports a dummy end time if the ticketing solution does not provide one.
+
+= 1.28 =
 * Updates Twig to version 3.10.3.
 
 = 1.27 =

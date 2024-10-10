@@ -136,6 +136,7 @@ function rotate_logs( $slug ) {
  * 
  * @since	1.18
  * @since	1.21	Improved error handling is getting logfile path fails.
+ * @since	1.29	Fixed timestamp of logs, now uses local time.
  *
  * @param 	string	$message
  * @return	void
@@ -150,7 +151,16 @@ function log( $message, $slug = 'local' ) {
 		return $file_path;
 	}
 	
-	$message = sprintf( "[%s] %s\n", date( 'r' ), $message );
+	$timezone_string = get_option('timezone_string');
+	if (empty( $timezone_string ) ) {
+	    $gmt_offset = get_option( 'gmt_offset' );
+	    $timezone_string = $gmt_offset ? timezone_name_from_abbr( '', $gmt_offset * 3600, 0 ) : 'UTC';
+	}			
+
+	$time = new \DateTime( );
+	$time->setTimezone( new \DateTimeZone( $timezone_string ) );			
+
+	$message = sprintf( "[%s] %s\n", $time->format( 'r' ), $message );
 	
 	error_log( $message, 3, $file_path );
 	

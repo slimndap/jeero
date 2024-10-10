@@ -37,7 +37,9 @@ add_action( 'admin_init', __NAMESPACE__.'\add_new_subscription' );
 add_action( 'admin_init', __NAMESPACE__.'\process_activate' );
 add_action( 'admin_init', __NAMESPACE__.'\process_deactivate' );
 add_action( 'admin_init', __NAMESPACE__.'\process_form' );
+
 add_action( 'admin_notices', __NAMESPACE__.'\show_no_active_calendars_warning' );
+add_action( 'admin_notices', __NAMESPACE__.'\show_wp_cron_disabled_error' );
 
 /**
  * Outputs the Subscription Admin pages.
@@ -250,18 +252,40 @@ function get_edit_html( $subscription_id ) {
 }
 
 /**
+ * Gets the List Table on the Subscriptions Admin page.
+ * 
+ * @since	1.29
+ * @return	WP_List_Table
+ */
+function get_list_table() {
+	
+	$list_table = wp_cache_get( 'list_table', __NAMESPACE__ );
+	
+	if ( false === $list_table) {
+		
+		$list_table = new List_Table();	
+		$list_table->prepare_items();
+
+		wp_cache_set( 'list_table', $list_table, __NAMESPACE__ );
+		
+	}
+
+	return $list_table;	
+}
+
+/**
  * Gets the HTML for the List Table on the Subscriptions Admin page.
  * 
  * @since	1.0
- * @since	1.1	Renamed 'subscriptions' to 'imports'.
- * @since	1.7	Autmatically create first subscription and show edit form.
- *				Replaced 'next pickup' message with 'next import' message.
+ * @since	1.1		Renamed 'subscriptions' to 'imports'.
+ * @since	1.7		Autmatically create first subscription and show edit form.
+ *					Replaced 'next pickup' message with 'next import' message.
+ * @since	1.29	Only display next import if it is scheduled in the future.
  * @return	string
  */
 function get_list_table_html() {
 	
-	$list_table = new List_Table();	
-	$list_table->prepare_items();
+	$list_table = get_list_table();	
 
 	if ( empty( $list_table->subscriptions ) ) {
 		
@@ -286,15 +310,20 @@ function get_list_table_html() {
 			
 		$list_table->display(); 
 
+		$current_time = time();
 		$next_import = get_next_import( $list_table->subscriptions );
+		
+		if ( $current_time < $next_import ) {
 	    
-	    ?><p title="<?php
-		    echo date_i18n( 'd-m-Y H:i:s', $next_import + get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ); 
-		?>"><?php 
-		    printf( __( 'Next import in %s.', 'jeero' ), human_time_diff( $next_import, time( ) ) );
-		?></p>
+		    ?><p title="<?php
+			    echo date_i18n( 'd-m-Y H:i:s', $next_import + get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ); 
+			?>"><?php 
+			    printf( __( 'Next import in %s.', 'jeero' ), human_time_diff( $next_import, time( ) ) );
+			?></p><?php
+			
+		}
 
-	</div><?php
+	?></div><?php
 		
 	return ob_get_clean();
 
@@ -419,7 +448,7 @@ function add_new_subscription() {
 }
 
 /**
- * Shows an admin notice on Jeero admin scerens if no supported calendar plugins are active.
+ * Shows an admin notice on Jeero admin sceens if no supported calendar plugins are active.
  * 
  * @since	1.5
  */
@@ -438,6 +467,38 @@ function show_no_active_calendars_warning() {
 			<p><?php
 				_e( 'Please activate at least one supported calendar plugin to start importing events.', 'jeero' );
 			?></p>
+		</div><?php
+	}
+	
+}
+
+/**
+ * Shows an admin error notice on Jeero admin screens if WP-Cron is disabled.
+ * 
+ * @since	1.29
+ * @since	1.29.3	Disabled cron detection now uses next pickup instead of next import. 
+ * @since	1.29.4	Disabled cron detection now has some breathing space to prevent false positives 
+ *					if the user refreshes the screen before WP was able to schedule the next pickip. 
+ */
+function show_wp_cron_disabled_error() {
+	
+	$list_table = get_list_table();
+
+	$current_time = time();
+	
+	$next_pickup = Inbox\get_next_pickup();
+	
+	if ( false === $next_pickup ) {
+		// No pickup schedules yet.
+		return;
+	}
+
+	// Cron is disabled if the next pickup is not scheduled in the future (with 10 minutes breathing space).
+	if ( $current_time > ( $next_pickup + 10 * MINUTE_IN_SECONDS ) ) {
+		?><div class="notice notice-error">
+			<p><strong><?php _e( 'Jeero import error: WP-Cron not working', 'jeero' ); ?></strong></p>
+			<p><?php _e( 'It looks like WP-Cron, the feature that Jeero relies on to import events from your ticketing system, is currently not functioning properly. This may prevent events from being imported into your WordPress site.', 'jeero' ); ?></p>
+			<p><a href="https://jeero.ooo/enable-wp-cron/"><?php _e( 'Please enable WP-Cron', 'jeero' ); ?></a>.</p>
 		</div><?php
 	}
 	
