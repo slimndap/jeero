@@ -86,11 +86,11 @@ You should see the first 10 upcoming events that are coming from your ticketing 
 
 = How do I upgrade? =
 
-I am still working on the subscription engine. Once it is ready the possibility to upgrade will be made available inside the plugin. It shouldn't take long. For now you can [contact me](mailto:jeroen@slimndap.com) so I can upgrade you manually.
+Go to the Jeero menu in the WordPress admin and click on the upgrade link next the import that needs to import more than 10 upcoming events.
 
-= How much will it cost? =
+= How much does it cost? =
 
-Subscription rates will range from €20 - €30 per month, depending on your total number of events. 
+Subscription rates range from €30 - €70 per month, depending on your total number of upcoming events. 
 
 == Changelog ==
 
