@@ -53,28 +53,10 @@ class Custom_Post_Type extends Post_Based_Calendar {
 		return $filtered_post_fields;
 	
 	}
-			
-	function get_post_ref( $data ) {
 
-		$ref = parent::get_post_ref( $data );
-
-		if ( !$this->use_event_dates() ) {
-			return $ref;
-		}
-		
-		if ( !empty( $data[ 'production' ][ 'ref' ] ) ) {
-			$ref = $data[ 'production' ][ 'ref' ];
-		} else {
-			$ref = 'e'.$ref;		
-		}
-
-		return $ref;
-				
-	}
-		
 	function get_setting_fields( $subscription ) {
 		
-		$this->post_type = $this->get_setting( 'import/custom_post_type', $subscription );
+		$this->post_type = $this->get_setting( 'import/post_type', $subscription );
 
 		$fields = parent::get_setting_fields( $subscription );
 		
@@ -82,29 +64,80 @@ class Custom_Post_Type extends Post_Based_Calendar {
 
 		foreach( $fields as $field ) {
 
-			$filtered_fields[] = $field;
-
 			if ( 'calendar' == $field[ 'name' ] ) {
 
+				$filtered_fields[] = $field;
+			
 				$args = array(
 					'public' => true,
 					'_builtin' => false,
 				);
 				$post_types = \get_post_types( $args, 'objects' );
+
 				$choices = array(
-					''
+					'' => sprintf( '(%s)', __( 'select a post type', 'jeero' ) ),
 				);
 				foreach( $post_types as $post_type )	 {
 					$choices[ $post_type->name ] = sprintf( '%s (%s)', $post_type->label, $post_type->name );
-				}
-				
+				}				
 				$filtered_fields[] = array(
-					'name' => sprintf( '%s/import/custom_post_type', $this->slug ),
-					'label' => __( 'Custom Post Type', 'jeero' ),
+					'name' => sprintf( '%s/import/post_type', $this->slug ),
+					'label' => __( 'Post type for events', 'jeero' ),
 					'type' => 'select',
 					'choices' => $choices,
 				);
+				
+				continue;
+				
 			}
+				
+			if ( empty( $this->get_post_type() ) ) {
+				break;
+			}
+
+			if ( sprintf( '%s/import/update/categories', $this->slug ) == $field[ 'name' ] ) {
+
+				$args = array(
+					'public' => true,
+					'_builtin' => false,
+				);
+				$taxonomies = \get_object_taxonomies( $this->get_post_type(), 'objects' );
+				
+				if ( empty( $taxonomies ) ) {
+					continue;
+				}
+
+				$choices = array(
+					'' => sprintf( '(%s)', __( 'select a taxonomy', 'jeero' ) ),
+				);
+				foreach( $taxonomies as $taxonomy )	 {
+					$choices[ $taxonomy->name ] = sprintf( '%s (%s)', $taxonomy->label, $taxonomy->name );
+				}				
+				$filtered_fields[] = array(
+					'name' => sprintf( '%s/import/categories_taxonomy', $this->slug ),
+					'label' => __( 'Taxonomy for event categories', 'jeero' ),
+					'type' => 'select',
+					'choices' => $choices,
+				);
+
+				$filtered_fields[] = $field;
+				continue;
+				
+			}
+
+			if ( sprintf( '%s/import/update/image', $this->slug ) == $field[ 'name' ] ) {
+
+				if ( !\post_type_supports( $this->get_post_type(), 'thumbnail' ) ) {
+					continue;
+				}
+				
+				$filtered_fields[] = $field;
+				continue;				
+
+			}
+			
+			$filtered_fields[] = $field;
+
 		}
 
 		return $filtered_fields;
@@ -113,95 +146,11 @@ class Custom_Post_Type extends Post_Based_Calendar {
 
 	function process_data( $result, $data, $raw, $theater, $subscription ) {
 
-		$this->post_type = $this->get_setting( 'import/custom_post_type', $subscription );
+		$this->post_type = $this->get_setting( 'import/post_type', $subscription );
+		$this->categories_taxonomy = $this->get_setting( 'import/categories_taxonomy', $subscription );
 
-		$result = parent::process_data( $result, $data, $raw, $theater, $subscription );
-
-		$event_id = $this->get_event_by_ref( $this->get_post_ref( $data ), $theater );		
-		if ( !$event_id ) {
-			$this->log( sprintf( 'Import of event %s skipped: no existing post found.', $data[ 'ref' ] ) );
-			return $result;
-		}
-		
-		$menu_order = strtotime( $data[ 'start' ] );
-
-		if ( $this->use_event_dates() ) {
-
-			$this->log( sprintf( '%s can have parent-child relationships.', $this->get_post_type() ) );
-			
-			$date_ref = $data[ 'ref' ];
-			$ref_key = $this->get_ref_key( $theater );
-
-			$args = array(
-				'post_type' => $this->get_post_type(),
-				'post_status' => array( 'publish', 'draft' ),
-				'meta_query' => array(
-					array(
-						'key' => $ref_key,
-						'value' => $date_ref,
-					),
-				),
-			);			
-			$posts = \get_posts( $args );
-
-			$date_args = array(
-				'post_title' => $data[ 'production' ][ 'title'],
-				'post_type' => $this->get_post_type(),
-				'post_content' => '',		
-				'post_excerpt' => '',
-				'post_parent' => $event_id,
-				'menu_order' => $menu_order,					
-			);
-			
-			if ( empty( $posts ) ) {
-				
-				$this->log( sprintf( 'Creating date item %s for event item %d.', $date_ref, $event_id ) );
-				
-				$date_args[ 'post_status' ] = 'publish';
-				
-				$date_id = \wp_insert_post( $date_args, true );
-	
-				if ( \is_wp_error( $date_id ) ) {
-					return $date_id;
-				}
-				
-				\add_post_meta( $date_id, $ref_key, $date_ref, true );
-				
-			} else {
-
-				$date_id = $posts[ 0 ]->ID;
-				
-				$this->log( sprintf( 'Updating date item %d for event item %d.', $date_id, $event_id ) );
-
-				$date_args[ 'ID' ] = $date_id;
-				
-				\wp_update_post( $date_args );
-				
-			}
-			
-		} else {
-
-			$this->log( sprintf( '%s can not have parent-child relationships.', $this->get_post_type() ) );
-
-				
-			$event_args = array(
-				'ID' => $event_id,
-				'menu_order' => $menu_order,					
-			);
-			\wp_update_post( $event_args );
-			
-		}
-
-		return $result;
+		return parent::process_data( $result, $data, $raw, $theater, $subscription );
 
 	}
 
-	function use_event_dates() {
-		
-		$post_type_object = get_post_type_object( $this->get_post_type() );
-		
-		return $post_type_object && $post_type_object->hierarchical;
-		
-	}
-	
 }
