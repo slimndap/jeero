@@ -20,23 +20,45 @@ add_action( 'admin_enqueue_scripts', __NAMESPACE__.'\enqueue_scripts' );
 function add_menu_item() {
 	
 	add_menu_page(
-        __( 'Jeero Imports', 'jeero' ),
+        'Jeero',
         'Jeero',
         'manage_options',
-        'jeero/imports',
-        __NAMESPACE__.'\Subscriptions\do_admin_page',
+        'jeero',
+        '',
         'dashicons-tickets-alt',
         90
     );
+
+	add_submenu_page(
+		'jeero',
+        __( 'Jeero Imports', 'jeero' ),
+        __( 'Imports', 'jeero' ),
+        'manage_options',
+        'jeero/imports',
+        __NAMESPACE__.'\Subscriptions\do_admin_page',
+    );
     
 	add_submenu_page(
-		' ',
-        __( 'Jeero Logs', 'jeero' ),
-        __( 'Jeero Logs', 'jeero' ),
+		'jeero',
+        __( 'Jeero Settings', 'jeero' ),
+        __( 'Settings', 'jeero' ),
         'manage_options',
-        'jeero/debug',
-        __NAMESPACE__.'\Debug\do_admin_page',
+        'jeero/settings',
+        __NAMESPACE__.'\Settings\do_admin_page',
     );
+    
+    if ( \get_option( 'jeero/enable_logs' ) ) {
+		add_submenu_page(
+			'jeero',
+	        __( 'Jeero Logs', 'jeero' ),
+	        __( 'Logs', 'jeero' ),
+	        'manage_options',
+	        'jeero/debug',
+	        __NAMESPACE__.'\Debug\do_admin_page',
+	    );
+	}
+    
+    remove_submenu_page( 'jeero', 'jeero' );
     
 }
 
