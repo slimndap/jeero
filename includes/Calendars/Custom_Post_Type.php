@@ -1,15 +1,14 @@
 <?php
 namespace Jeero\Calendars;
 
-const JEERO_CALENDARS_CUSTOM_POST_TYPE_REF_KEY = 'jeero/custom_post_type/ref';
-
 // Register new calendar.
 register_calendar( __NAMESPACE__.'\\Custom_Post_Type' );
 
 /**
- * Theater_For_WordPress class.
+ * Custom_Post_Type class.
  * 
- * @extends Calendar
+ * @since	1.30
+ * @extends Post_Based_Calendar
  */
 class Custom_Post_Type extends Post_Based_Calendar {
 
@@ -22,6 +21,12 @@ class Custom_Post_Type extends Post_Based_Calendar {
 
 	}
 	
+	/**
+	 * Gets all post fields for this custom post type.
+	 * 
+	 * @since	1.30
+	 * @return	array
+	 */
 	function get_post_fields() {
 				
 		$post_fields = parent::get_post_fields();
@@ -30,6 +35,7 @@ class Custom_Post_Type extends Post_Based_Calendar {
 		
 		foreach( $post_fields as $post_field ) {
 			
+			// Check if custom post type supports 'editor'.
 			if ( 'content' == $post_field[ 'name' ] ) {
 				
 				if ( !\post_type_supports( $this->get_post_type(), 'editor' ) ) {
@@ -38,6 +44,7 @@ class Custom_Post_Type extends Post_Based_Calendar {
 				
 			}
 			
+			// Check if custom post type supports 'excerpt'.
 			if ( 'excerpt' == $post_field[ 'name' ] ) {
 				
 				if ( !\post_type_supports( $this->get_post_type(), 'excerpt' ) ) {
@@ -54,6 +61,14 @@ class Custom_Post_Type extends Post_Based_Calendar {
 	
 	}
 
+	/**
+	 * Gets all settings fields for this custom post type.
+	 * 
+	 * @since	1.30
+	 *
+	 * @param	Subscription		The subscription.
+	 * @return	array
+	 */
 	function get_setting_fields( $subscription ) {
 		
 		$this->post_type = $this->get_setting( 'import/post_type', $subscription );
@@ -64,7 +79,14 @@ class Custom_Post_Type extends Post_Based_Calendar {
 
 		foreach( $fields as $field ) {
 
+			// Insert post type field directly beneath the 'calendar' checkbox.
 			if ( 'calendar' == $field[ 'name' ] ) {
+
+				$filtered_fields[] = array(
+					'name' => sprintf( '%s/instructions', $this->slug ),
+					'label' => 'test',
+					'type' => 'message',
+				);
 
 				$filtered_fields[] = $field;
 			
@@ -90,11 +112,13 @@ class Custom_Post_Type extends Post_Based_Calendar {
 				continue;
 				
 			}
-				
+			
+			// Remove all other fields if no post type is selected yet.
 			if ( empty( $this->get_post_type() ) ) {
 				break;
 			}
 
+			// Prepend 'upcate/categories' field with categories taxonomy dropdown.
 			if ( sprintf( '%s/import/update/categories', $this->slug ) == $field[ 'name' ] ) {
 
 				$args = array(
@@ -125,6 +149,7 @@ class Custom_Post_Type extends Post_Based_Calendar {
 				
 			}
 
+			// Ony show 'update/image' field is post type supports it.
 			if ( sprintf( '%s/import/update/image', $this->slug ) == $field[ 'name' ] ) {
 
 				if ( !\post_type_supports( $this->get_post_type(), 'thumbnail' ) ) {
@@ -144,6 +169,11 @@ class Custom_Post_Type extends Post_Based_Calendar {
 		
 	}
 
+	/**
+	 * Processes the data from an event in the inbox.
+	 * 
+	 * @since 	1.30
+	 */
 	function process_data( $result, $data, $raw, $theater, $subscription ) {
 
 		$this->post_type = $this->get_setting( 'import/post_type', $subscription );
