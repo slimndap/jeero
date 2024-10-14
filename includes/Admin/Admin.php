@@ -15,6 +15,7 @@ add_action( 'admin_enqueue_scripts', __NAMESPACE__.'\enqueue_scripts' );
  * @since	1.18	Added a debug admin page.
  * @since	1.24.1	Changed parent slug of debug admin page to ' ', to prevent a PHP 8.1+ warning.
  *					@see https://core.trac.wordpress.org/ticket/57579#comment:9
+ * @since	1.30	Added Settings and Logs submenus.
  * @return 	void
  */
 function add_menu_item() {
@@ -41,7 +42,7 @@ function add_menu_item() {
 	add_submenu_page(
 		'jeero',
         __( 'Jeero Settings', 'jeero' ),
-        __( 'Settings', 'jeero' ),
+        __( 'Settings' ),
         'manage_options',
         'jeero/settings',
         __NAMESPACE__.'\Settings\do_admin_page',

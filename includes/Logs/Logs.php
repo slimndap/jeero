@@ -107,7 +107,7 @@ function get_file_path( $slug ) {
  * Rotates the Jeero logfile.
  * 
  * @since	1.18
- * @since	1.21	Improved error handling is getting logfile path fails.
+ * @since	1.21	Improved error handling if getting logfile path fails.
  *
  * @return	void
  */
@@ -137,11 +137,16 @@ function rotate_logs( $slug ) {
  * @since	1.18
  * @since	1.21	Improved error handling is getting logfile path fails.
  * @since	1.29	Fixed timestamp of logs, now uses local time.
+ * @since	1.30	Check if logs are enabled before logging.
  *
  * @param 	string	$message
  * @return	void
  */
 function log( $message, $slug = 'local' ) {
+	
+    if ( !\get_option( 'jeero/enable_logs' ) ) {
+	    return;
+	}
 	
 	rotate_logs( $slug );
 	

@@ -1,6 +1,19 @@
 <?php
+/**
+ * Handles Jeero settings.
+ *
+ * @since	1.30
+ *
+ */
 namespace Jeero\Admin\Settings;
 
+add_action( 'admin_init', __NAMESPACE__ . '\register_settings' );
+
+/**
+ * Outputs the Jeero settings admin page.
+ *
+ * @since 1.30
+ */
 function do_admin_page() {
     ?>
     <div class="wrap">
@@ -19,9 +32,11 @@ function do_admin_page() {
     <?php
 }
 
-// Hook the settings initialization to admin_init
-add_action( 'admin_init', __NAMESPACE__ . '\register_settings' );
-
+/**
+ * Registers all Jeero settings.
+ *
+ * @since 1.30
+ */
 function register_settings() {
 	
     // Register settings
@@ -30,26 +45,26 @@ function register_settings() {
 
     // Add settings sections
     add_settings_section(
-        'jeero/settings/custom_post_types', // Section ID
-        'Custom Post Types',               // Section title
-        __NAMESPACE__.'\custom_post_types_section',                              // Callback for description (none needed)
-        'jeero/settings'                   // Page to display the section
+        'jeero/settings/custom_post_types',
+        __( 'Custom Post Types', 'jeero' ),
+        __NAMESPACE__.'\custom_post_types_section',
+        'jeero/settings'
     );
 
     add_settings_section(
         'jeero/settings/logs',
-        'Logs',
+        __( 'Logs', 'jeero' ),
         __NAMESPACE__ . '\logs_section',
         'jeero/settings'
     );
 
-    // Add settings fields
+	// Add settings fields
     add_settings_field(
-        'jeero/enable_custom_post_types',          // Field ID
-        'Enable import to Custom Post Types',      // Field title
-        __NAMESPACE__ . '\custom_post_types_field',// Callback function
-        'jeero/settings',                          // Page to display the field
-        'jeero/settings/custom_post_types'          // Section ID
+        'jeero/enable_custom_post_types',
+        __( 'Enable import to Custom Post Types', 'jeero' ),
+        __NAMESPACE__ . '\custom_post_types_field',
+        'jeero/settings',
+        'jeero/settings/custom_post_types'
     );
 
     add_settings_field(
@@ -59,8 +74,14 @@ function register_settings() {
         'jeero/settings',
         'jeero/settings/logs'
     );
+    
 }
 
+/**
+ * Outputs the 'Enable import to Custom Post Types' setting field.
+ *
+ * @since 1.30
+ */
 function custom_post_types_field() {
     $option = get_option( 'jeero/enable_custom_post_types' );
     ?>
@@ -68,6 +89,11 @@ function custom_post_types_field() {
     <?php
 }
 
+/**
+ * Outputs the 'Enable logs' setting field.
+ *
+ * @since 1.30
+ */
 function show_logs_field() {
     $option = get_option( 'jeero/enable_logs' );
     ?>
@@ -75,18 +101,28 @@ function show_logs_field() {
     <?php
 }
 
+/**
+ * Outputs the 'Custom Post Types' section instructions.
+ *
+ * @since 1.30
+ */
 function custom_post_types_section() {
 	?><p><?php
-		_e( 'Enabling this setting will make it possible for Jeero to import events into a Custom Post Type instead of existing Calendar plugins.', 'jeero' );
+		_e( 'Import events into a Custom Post Type instead of existing Calendar plugins.', 'jeero' );
 		?><br><?php
-		_e( 'This is primarily aimed at developers who are able to create their own template functions.', 'jeero' );
+		_e( 'Primarily aimed at developers who are able to create their own template functions.', 'jeero' );
 	?></p><?php
 }
 
+/**
+ * Outputs the 'Logs' section instructions.
+ *
+ * @since 1.30
+ */
 function logs_section() {
 	?><p><?php
-		_e( 'Jeero is able to keep logs from all import activity, which could help in solving any issues.', 'jeero' );
+		_e( 'Keep logs from all import activity, which could help in solving any issues.', 'jeero' );
 		?><br><?php
-		_e( 'Enabling this will add a Logs submenu to the Jeero admin menu.', 'jeero' )
+		_e( 'Adds a Logs submenu to the Jeero admin menu.', 'jeero' )
 	?></p><?php
 }
