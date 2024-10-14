@@ -13,7 +13,8 @@ add_action( 'admin_enqueue_scripts', __NAMESPACE__.'\enqueue_scripts', 9 );
 function enqueue_scripts( ) {
 
 	$current_screen = get_current_screen();	
-	if ( 'toplevel_page_jeero/imports' != $current_screen->id ) {
+
+	if ( 'jeero_page_jeero/imports' != $current_screen->id ) {
 		return;
 	}
 	

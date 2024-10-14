@@ -20,6 +20,16 @@ class Custom_Post_Type extends Post_Based_Calendar {
 		parent::__construct();
 
 	}
+
+	/**
+	 * Checks if this calendar is active.
+	 * 
+	 * @since	1.15
+	 * @return	bool
+	 */
+	function is_active() {
+		return \get_option( 'jeero/enable_custom_post_types' );
+	}
 	
 	/**
 	 * Gets all post fields for this custom post type.
@@ -81,12 +91,6 @@ class Custom_Post_Type extends Post_Based_Calendar {
 
 			// Insert post type field directly beneath the 'calendar' checkbox.
 			if ( 'calendar' == $field[ 'name' ] ) {
-
-				$filtered_fields[] = array(
-					'name' => sprintf( '%s/instructions', $this->slug ),
-					'label' => 'test',
-					'type' => 'message',
-				);
 
 				$filtered_fields[] = $field;
 			
