@@ -13,8 +13,8 @@ add_filter( 'heartbeat_received', __NAMESPACE__.'\receive_heartbeat', 10, 2 );
 function enqueue_scripts( ) {
 
 	$current_screen = get_current_screen();
-	
-	if ( 'admin_page_jeero/debug' != $current_screen->id ) {
+
+	if ( 'jeero_page_jeero/debug' != $current_screen->id ) {
 		return;
 	}
 	\wp_enqueue_script( 'jeero/debug', \Jeero\PLUGIN_URI . 'assets/js/debug.js', array( 'jquery', 'wp-theme-plugin-editor' ), \Jeero\VERSION );

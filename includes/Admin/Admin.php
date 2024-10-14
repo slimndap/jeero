@@ -15,28 +15,51 @@ add_action( 'admin_enqueue_scripts', __NAMESPACE__.'\enqueue_scripts' );
  * @since	1.18	Added a debug admin page.
  * @since	1.24.1	Changed parent slug of debug admin page to ' ', to prevent a PHP 8.1+ warning.
  *					@see https://core.trac.wordpress.org/ticket/57579#comment:9
+ * @since	1.30	Added Settings and Logs submenus.
  * @return 	void
  */
 function add_menu_item() {
 	
 	add_menu_page(
-        __( 'Jeero Imports', 'jeero' ),
+        'Jeero',
         'Jeero',
         'manage_options',
-        'jeero/imports',
-        __NAMESPACE__.'\Subscriptions\do_admin_page',
+        'jeero',
+        '',
         'dashicons-tickets-alt',
         90
     );
+
+	add_submenu_page(
+		'jeero',
+        __( 'Jeero Imports', 'jeero' ),
+        __( 'Imports', 'jeero' ),
+        'manage_options',
+        'jeero/imports',
+        __NAMESPACE__.'\Subscriptions\do_admin_page',
+    );
     
 	add_submenu_page(
-		' ',
-        __( 'Jeero Logs', 'jeero' ),
-        __( 'Jeero Logs', 'jeero' ),
+		'jeero',
+        __( 'Jeero Settings', 'jeero' ),
+        __( 'Settings' ),
         'manage_options',
-        'jeero/debug',
-        __NAMESPACE__.'\Debug\do_admin_page',
+        'jeero/settings',
+        __NAMESPACE__.'\Settings\do_admin_page',
     );
+    
+    if ( \get_option( 'jeero/enable_logs' ) ) {
+		add_submenu_page(
+			'jeero',
+	        __( 'Jeero Logs', 'jeero' ),
+	        __( 'Logs', 'jeero' ),
+	        'manage_options',
+	        'jeero/debug',
+	        __NAMESPACE__.'\Debug\do_admin_page',
+	    );
+	}
+    
+    remove_submenu_page( 'jeero', 'jeero' );
     
 }
 
