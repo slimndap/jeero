@@ -17,10 +17,18 @@ function enqueue_scripts( ) {
 	if ( 'admin_page_jeero/debug' != $current_screen->id ) {
 		return;
 	}
-	\wp_enqueue_script( 'jeero/debug', \Jeero\PLUGIN_URI . 'assets/js/debug.js', array( 'jquery', 'wp-theme-plugin-editor' ), \Jeero\VERSION );
+
+	\wp_register_script( 'chart', 'https://cdn.jsdelivr.net/npm/chart.js@^3', array(), null, true );	
+	\wp_enqueue_script( 
+		'jeero/debug', 
+		\Jeero\PLUGIN_URI . 'assets/js/debug.js', 
+		array( 'jquery', 'chart', 'wp-theme-plugin-editor' ), 
+		\Jeero\VERSION 
+	);
 	\wp_localize_script( 'jeero/debug', 'jeero_debug_logs', \Jeero\Logs\get_logs() );
 
 	$jeero_debug = array(
+		'stats' => \Jeero\Logs\Stats\get_stats(),
 		'settings' => array(
 			'codeEditor' =>	\wp_enqueue_code_editor(
 				array(
@@ -40,9 +48,10 @@ function enqueue_scripts( ) {
 /**
  * Adds the Jeero debug log to the heartbeat response.
  * 
- * The debug admin screen uses the WordPress Heartbeat API to auto-update the Jeero debug log that is displayed in the screen.
+ * The debug admin screen uses the WordPress Heartbeat API to auto-update the Jeero debug log and stats that are displayed in the screen.
  * 
  * @since	1.24
+ * @since	1.30	Added stats to heartbeat response.
  * @return 	array	$response	The heartbeat response.
  */
 function receive_heartbeat( array $response, array $data ) {
@@ -67,18 +76,29 @@ function receive_heartbeat( array $response, array $data ) {
 		$response[ sprintf( 'jeero_debug_log_%s', $log_slug ) ] = $log_response;
 	}
 	
+	$response[ 'jeero_debug_stats' ] = \Jeero\Logs\Stats\get_stats();
+	
 	return $response;
 	
 }
 
+/**
+ * Output the Jeero debug admin page.
+ * 
+ * @since	1.24
+ * @since	1.30	Added stats.
+ * @return 	void
+ */
 function do_admin_page() {
 	
 	?><div class="wrap">
 		<h1 class="wp-heading-inline"><?php _e( 'Jeero Debug', 'jeero' ); ?></h1>
 		<hr class="wp-header-end">
 		
-		<p>This page contains debug information about Jeero that can help us investigate any issues with your imports.<br>
-			 Do not share this information with anyone, except when requested specifically by Jeero support.</p>
+		<p><?php
+			_e( 'This page contains debug information about Jeero that can help us investigate any issues with your imports.', 'jeero' );
+			?><br><?php
+			_e( 'Do not share this information with anyone, except when requested specifically by Jeero support.', 'jeero' ); ?></p>
 		
 		<table class="form-table" role="presentation" id="jeero_debug_content">
 			<tbody><?php
@@ -94,7 +114,11 @@ function do_admin_page() {
 					</tr><?php
 				}
 				?><tr>
-					<th scope="row">Settings</th>
+					<th scope="row"><?php _e( 'Stats', 'jeero' ); ?></th>
+					<td><canvas id="jeero_debug_stats"></canvas></td>
+				</tr>
+				<tr>
+					<th scope="row"><?php _e( 'Settings' ); ?></th>
 					<td>
 						<textarea id="jeero_debug_settings" class="large-text code" rows="20" readonly><?php
 							$subscriptions = \Jeero\Db\Subscriptions\get_subscriptions();

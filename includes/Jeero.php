@@ -58,6 +58,7 @@ include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Template.php';
 include_once PLUGIN_PATH.'includes/Inbox/Inbox.php';
 
 include_once PLUGIN_PATH.'includes/Logs/Logs.php';
+include_once PLUGIN_PATH.'includes/Logs/Stats.php';
 
 include_once PLUGIN_PATH.'includes/Mother/Mother.php';
 
