@@ -63,6 +63,7 @@ Calendar/event plugins that are supported:
 * [The Events Calendar](/plugins/the-events-calendar/)
 * [Very Simple Event List](/plugins/very-simple-event-list/)
 * [WP Event Manager](/plugins/wp-event-manager/)
+* Custom Post Types
 
 = Are you missing a ticketing solution? =
 My goal is to provide imports from any ticketing system to any calendar plugin. Please contact me so that I can include your solution as well.
@@ -93,6 +94,10 @@ Go to the Jeero menu in the WordPress admin and click on the upgrade link next t
 Subscription rates range from €30 - €70 per month, depending on your total number of upcoming events. 
 
 == Changelog ==
+
+= 1.30 =
+* Added support for imports to custom post types. 
+* Added a settings page.
 
 = 1.29 =
 * The Events Calendar no longer imports a dummy end time if the ticketing solution does not provide one (1.29) and an end time was not already entered manually (1.29.2).
@@ -254,6 +259,9 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 * Welcome Jeero!
 
 == Upgrade Notice ==
+
+= 1.30 =
+* Adds support for imports to custom post types.
 
 = 1.29.4 =
 * Improved detection of malfunctioning WP-Cron.
