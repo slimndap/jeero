@@ -21,6 +21,10 @@ const STATS_MAX_HOURS = 24;
  */
 function add_stat( $name, $value ) {
 
+    if ( !\get_option( 'jeero/enable_logs' ) ) {
+	    return;
+	}
+	
 	$file_path = get_file_path( );
 	
 	if ( \is_wp_error( $file_path ) ) {
