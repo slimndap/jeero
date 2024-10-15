@@ -95,7 +95,7 @@ function get_file_path( $slug ) {
 
 	$upload_dir = get_upload_dir();
 	
-	if ( \is_wp_error(  $upload_dir ) ) {
+	if ( \is_wp_error( $upload_dir ) ) {
 		return $upload_dir;
 	}
 	
