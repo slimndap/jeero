@@ -98,6 +98,7 @@ Subscription rates range from €30 - €70 per month, depending on your total n
 = 1.30 =
 * Added support for imports to custom post types. 
 * Added a settings page.
+* Added statistics to the debug page.
 
 = 1.29 =
 * The Events Calendar no longer imports a dummy end time if the ticketing solution does not provide one (1.29) and an end time was not already entered manually (1.29.2).
