@@ -1,8 +1,10 @@
 format_His = (date) ->
-    hours = date.getHours().toString().padStart(2, '0')
-    minutes = date.getMinutes().toString().padStart(2, '0')
-    seconds = date.getSeconds().toString().padStart(2, '0')
-    "#{hours}:#{minutes}:#{seconds}"
+	month = (date.getMonth() + 1).toString().padStart(2, '0')
+	day = date.getDate().toString().padStart(2, '0')
+	hours = date.getHours().toString().padStart(2, '0')
+	minutes = date.getMinutes().toString().padStart(2, '0')
+	seconds = date.getSeconds().toString().padStart(2, '0')
+	"#{month}-#{day} #{hours}:#{minutes}:#{seconds}"
 
 get_processed_stats = ( stats ) ->
 

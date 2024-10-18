@@ -8,7 +8,7 @@
 namespace Jeero\Logs\Stats;
 
 const STATS_UID_KEY = 'jeero_stats_uid_key';
-const STATS_MAX_HOURS = 24;
+const STATS_MAX_HOURS = 6;
 
 /**
  * Attaches stat import to inbox filter.

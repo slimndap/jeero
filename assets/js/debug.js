@@ -3,11 +3,13 @@
 (function () {
   var format_His, get_chart_args, get_processed_stats, update_stats;
   format_His = function (date) {
-    var hours, minutes, seconds;
+    var day, hours, minutes, month, seconds;
+    month = (date.getMonth() + 1).toString().padStart(2, '0');
+    day = date.getDate().toString().padStart(2, '0');
     hours = date.getHours().toString().padStart(2, '0');
     minutes = date.getMinutes().toString().padStart(2, '0');
     seconds = date.getSeconds().toString().padStart(2, '0');
-    return "".concat(hours, ":").concat(minutes, ":").concat(seconds);
+    return "".concat(month, "-").concat(day, " ").concat(hours, ":").concat(minutes, ":").concat(seconds);
   };
   get_processed_stats = function (stats) {
     var data, labels;
