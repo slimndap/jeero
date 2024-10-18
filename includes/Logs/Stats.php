@@ -11,6 +11,12 @@ const STATS_UID_KEY = 'jeero_stats_uid_key';
 const STATS_MAX_HOURS = 24;
 
 /**
+ * Attaches stat import to inbox filter.
+ * @since	1.30.1
+ */
+add_filter( 'jeero/inbox/process/item/stat', __NAMESPACE__.'\add_stat_from_inbox', 10, 5 );
+
+/**
  * Adds a stat to the stats file.
  *
  * @since	1.30
@@ -31,7 +37,7 @@ function add_stat( $name, $value ) {
 		return $file_path;
 	}
 
-	$stats = trim_stats( get_stats() );
+	$stats = get_stats();
 
 	$stats[] = array(
 		'time' => get_time()->format( 'c' ),
@@ -39,7 +45,27 @@ function add_stat( $name, $value ) {
 		'value' => $value,
 	);
 	
+	$stats = trim_stats( $stats );
+
 	file_put_contents( $file_path, json_encode( $stats ) );
+	
+}
+
+/**
+ * Adds a stats from the inbox.
+ * 
+ * @since	1.30.1
+ */
+function add_stat_from_inbox( $result, $data, $raw, $theater, $subscription ) {
+
+	if ( is_wp_error( $result ) ) {
+		return $result;
+	}
+	
+	foreach( $data as $key => $value ) {
+		add_stat( sprintf( 'remote_%s', $key ), $value );
+		
+	}
 	
 }
 
@@ -151,6 +177,27 @@ function get_stats() {
 
 	return $stats;
 
+}
+
+/**
+ * Adds a stat to the cache.
+ *
+ * @since 	1.30.1
+ * @param	$name	string
+ * @param	$value	mixed
+ */
+function cache_set( $name, $value ) {
+	return wp_cache_set( $name, $value, __NAMESPACE__ );
+}
+
+/**
+ * Gets a stat from the cache.
+ *
+ * @since 	1.30.1
+ * @param	$name	string
+ */
+function cache_get( $name ) {
+	return wp_cache_get( $name, __NAMESPACE__ );
 }
 
 /**

@@ -83,11 +83,11 @@ function pickup_items() {
 	
 	if ( empty( $items ) ) {
 		Logs\Log( 'No items found in inbox.' );		
-		Logs\Stats\add_stat( 'items_pickup', 0 );
+		Logs\Stats\add_stat( 'items_picked_up', 0 );
 	} else {
 		$items_found = count( $items );
 		Logs\Log( sprintf( '%d items found in inbox.', $items_found ) );
-		Logs\Stats\add_stat( 'items_pickup', $items_found );
+		Logs\Stats\add_stat( 'items_picked_up', $items_found );
 	}
 		
 	process_items( $items );
@@ -297,6 +297,7 @@ function process_item( $item ) {
  * @since	1.27.2	Remove inbox items after processing.
  *					@uses get_inbox_pickup_interval() to stop processing items before the next pick up begins. 
  * @since	1.30	Added stats.
+ * @since	1.30.1	Added stats for created and updated events. 
  *
  * @param 	array	$items
  * @return 	void
@@ -335,8 +336,12 @@ function process_items( $items ) {
 	$elapsed_time = microtime( true ) - $start_time;
 	
 	Logs\Log( sprintf( 'Processed %d out of %d items in %.2f seconds.', count( $items_processed ), count( $items ), $elapsed_time ) );
+
 	Logs\Stats\add_stat( 'items_processed', count( $items_processed ) );
-	Logs\Stats\add_stat( 'duration_processed', $elapsed_time );
+	Logs\Stats\add_stat( 'processing_time', $elapsed_time );
+
+	Logs\Stats\add_stat( 'events_created', Logs\Stats\cache_get( 'events_created' ) );
+	Logs\Stats\add_stat( 'events_updated', Logs\Stats\cache_get( 'events_updated' ) );
 	
 }
 

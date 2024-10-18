@@ -13,9 +13,12 @@
     var data, labels;
     labels = [];
     data = {
-      'items_pickup': [],
+      'items_picked_up': [],
       'items_processed': [],
-      'duration_processed': []
+      'processing_time': [],
+      'remote_processing_time': [],
+      'events_created': [],
+      'events_updated': []
     };
     stats.forEach(function (stat) {
       var stat_time, stat_time_str;
@@ -28,10 +31,12 @@
       if (labels.indexOf(stat_time_str) === -1) {
         labels.push(stat_time_str);
       }
-      return data[stat.name].push({
-        x: stat_time_str,
-        y: stat.value
-      });
+      if (data[stat.name] != null) {
+        data[stat.name].push({
+          x: stat_time_str,
+          y: stat.value
+        });
+      }
     });
     return {
       labels: labels,
@@ -44,29 +49,87 @@
       data: {
         labels: stats.labels,
         datasets: [{
-          label: 'Items pickup',
-          data: stats.data.items_pickup,
-          borderColor: 'rgba(75, 192, 192, 1)',
+          label: 'Items picked up',
+          data: stats.data.items_picked_up,
+          borderColor: 'rgba(31, 119, 180, 1)',
+          backgroundColor: 'rgba(31, 119, 180, 0.2)',
           borderWidth: 1,
-          fill: false
+          pointRadius: 0,
+          tension: 0.4,
+          cubicInterpolationMode: 'monotone',
+          fill: true
         }, {
           label: 'Items processed',
           data: stats.data.items_processed,
-          borderColor: 'rgba(153, 102, 255, 1)',
+          borderColor: 'rgba(31, 119, 180, 1)',
+          backgroundColor: 'rgba(31, 119, 180, 0.1)',
+          borderDash: [5, 5],
           borderWidth: 1,
-          fill: false
+          pointRadius: 0,
+          tension: 0.4,
+          cubicInterpolationMode: 'monotone'
         }, {
-          label: 'Duration (s)',
-          data: stats.data.duration_processed,
-          borderColor: 'rgba(255, 99, 132, 1)',
+          label: 'Events created',
+          data: stats.data.events_created,
+          borderColor: 'rgba(255, 127, 14, 1)',
+          backgroundColor: 'rgba(255, 127, 14, 0.2)',
           borderWidth: 1,
-          fill: false
+          pointRadius: 0,
+          fill: true,
+          tension: 0.4,
+          cubicInterpolationMode: 'monotone'
+        }, {
+          label: 'Events updated',
+          data: stats.data.events_updated,
+          borderColor: '#ff7f0e',
+          backgroundColor: 'rgba(255, 127, 14, 0.1)',
+          borderDash: [5, 5],
+          borderWidth: 1,
+          pointRadius: 0,
+          fill: false,
+          tension: 0.4,
+          cubicInterpolationMode: 'monotone'
+        }, {
+          label: 'Local processing (s)',
+          data: stats.data.processing_time,
+          backgroundColor: 'rgba(44, 160, 44, 0.2)',
+          borderColor: 'rgba(44, 160, 44, 1)',
+          fill: true,
+          borderWidth: 1,
+          yAxisID: 'y1',
+          tension: 0.4
+        }, {
+          label: 'Remote processing (s)',
+          data: stats.data.remote_processing_time,
+          backgroundColor: 'rgba(44, 160, 44, 0.1)',
+          borderColor: 'rgba(44, 160, 44, 1)',
+          borderDash: [5, 5],
+          fill: false,
+          borderWidth: 1,
+          yAxisID: 'y1',
+          tension: 0.4
         }]
       },
       options: {
         scales: {
           x: {
             type: 'category'
+          },
+          y: {
+            type: 'linear',
+            display: true,
+            min: 0,
+            position: 'left'
+          },
+          y1: {
+            type: 'linear',
+            display: true,
+            position: 'right',
+            min: 0,
+            suggestedMax: 30,
+            grid: {
+              drawOnChartArea: false
+            }
           }
         },
         animation: false

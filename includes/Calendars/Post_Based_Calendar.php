@@ -2,6 +2,7 @@
 namespace Jeero\Calendars;
 
 use Jeero\Helpers\Images as Images;
+use Jeero\Logs\Stats as Stats;
 
 /**
  * Abstract Post_Based_Calendar class.
@@ -461,6 +462,7 @@ abstract class Post_Based_Calendar extends Calendar {
 	 * 
 	 * @since 	1.16
 	 * @since	1.26		Always use structured images.
+	 * @since	1.30.1	Track stats for updated and created events.
 	 */
 	function process_data( $result, $data, $raw, $theater, $subscription ) {
 
@@ -515,6 +517,11 @@ abstract class Post_Based_Calendar extends Calendar {
 			}
 			
 			\update_post_meta( $post_id, 'jeero/import/post/last_update', current_time( 'timestamp' ) );
+			
+			Stats\cache_set(
+				'events_updated', 
+				Stats\cache_get( 'events_updated' ) + 1
+			);
 		
 		} else {
 
@@ -538,12 +545,17 @@ abstract class Post_Based_Calendar extends Calendar {
 
 			\add_post_meta( $post_id, $this->get_ref_key( $theater ), $ref, true );
 
+			Stats\cache_set(
+				'events_created', 
+				Stats\cache_get( 'events_created' ) + 1
+			);
+		
 		}
 
 		$this->update_custom_fields( $post_id, $data, $subscription );
 		
 		\update_post_meta( $post_id, 'jeero/import/post/subscription', $subscription->ID );
-		
+
 		return $post_id;
 		
 	}
