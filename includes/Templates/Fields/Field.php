@@ -36,13 +36,10 @@ class Field {
 	protected $description;
 	
 	function __construct( $args ) {
-		
-		$args = wp_parse_args( $args, $this->get_defaults() );
-		
-		$this->args = $args;
-		$this->name = $args[ 'name' ];
-		$this->label = $args[ 'label' ];
-		$this->description = $args[ 'description' ];
+		$this->args        = wp_parse_args( $args, $this->get_defaults() );
+		$this->name        = $this->args[ 'name' ];
+		$this->label       = $this->args[ 'label' ] ?: $this->name;
+		$this->description = $this->args[ 'description' ];
 	}
 	
 	function get( $name ){
@@ -101,16 +98,15 @@ class Field {
 	 *
 	 * @return	string
 	 */
-	function get_example( $prefix = array(), $indent = 0 ) {
 
-		ob_start();
-?>{{ <?php 
-		if ( !empty( $prefix ) ) {
-			echo implode( '.', $prefix); ?>.<?php
+	function get_example( $prefix = array(), $indent = 0 ) {
+		$variable_parts = $prefix;
+		// Prevent duplicate field names in the prefix
+		if ( empty( $prefix ) || end( $prefix ) !== $this->name ) {
+			$variable_parts[] = $this->name;
 		}
-		echo $this->name; ?> }}<?php
-		return $this->indent_example( ob_get_clean(), $indent );
-				
+		$variable = implode( '.', $variable_parts );
+		return $this->indent_example( "{{ $variable }}", $indent );
 	}
 	
 	/**
@@ -119,15 +115,15 @@ class Field {
 	 * @since	1.10
 	 * @return	array
 	 */
-	function get_variables( $prefix = array() ) {
+
+	function get_variables( $prefix = array(), $indent = 0 ) {
 		return array(
 			array(
-				'name' => $this->name,
+				'name'        => implode( '.', array_merge( $prefix, array( $this->name ) ) ),
 				'description' => $this->get_description(),
-				'example' => false,
+				'example'     => false,
 			),
 		);
-		
 	}
 	
 	/**
@@ -138,15 +134,12 @@ class Field {
 	 * @param	int		$indent
 	 * @return	string
 	 */
-	function indent_example( $example, $indent ) {
 
-		$lines = explode( "\n", $example );
-		for( $l = 0; $l < count( $lines ); $l++ ) {
-			$lines[ $l ] = str_repeat( "\t", $indent ).$lines[ $l ];
-		}
-		
-		return implode( "\n", $lines );
-		
+	protected function indent_example( $content, $indent ) {
+		$lines    = explode( "\n", $content );
+		$indented = array_map( function( $line ) use ( $indent ) {
+			return str_repeat( "\t", $indent ) . $line;
+		}, $lines );
+		return implode( "\n", $indented );
 	}
-	
 }
