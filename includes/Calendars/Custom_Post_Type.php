@@ -75,6 +75,7 @@ class Custom_Post_Type extends Post_Based_Calendar {
 	 * Gets all settings fields for this custom post type.
 	 * 
 	 * @since	1.30
+	 * @since	1.30.3	Custom Post Type tab was not visible if no post type was slected yet.
 	 *
 	 * @param	Subscription		The subscription.
 	 * @return	array
