@@ -261,6 +261,10 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 
 == Upgrade Notice ==
 
+= 1.30.3 =
+
+Fixes a problem with the import of Custom Post Types.
+
 = 1.30 =
 * Adds support for imports to custom post types.
 
