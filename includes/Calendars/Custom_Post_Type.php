@@ -113,14 +113,15 @@ class Custom_Post_Type extends Post_Based_Calendar {
 					'choices' => $choices,
 				);
 				
+				// Remove all other fields if no post type is selected yet.
+				if ( empty( $this->get_post_type() ) ) {
+					break;
+				}
+
 				continue;
 				
 			}
 			
-			// Remove all other fields if no post type is selected yet.
-			if ( empty( $this->get_post_type() ) ) {
-				break;
-			}
 
 			// Prepend 'upcate/categories' field with categories taxonomy dropdown.
 			if ( sprintf( '%s/import/update/categories', $this->slug ) == $field[ 'name' ] ) {
