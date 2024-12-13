@@ -35,6 +35,11 @@ class Field {
 	 */
 	protected $description;
 	
+	/**
+	 * @since	1.?
+	 * @since	1.30.4	Label now uses name as fall back value.
+	 * @return	void
+	 */
 	function __construct( $args ) {
 		$this->args        = wp_parse_args( $args, $this->get_defaults() );
 		$this->name        = $this->args[ 'name' ];
@@ -95,6 +100,7 @@ class Field {
 	 * 
 	 * @since	1.10
 	 * @since	1.15.4	Added support for prefix.
+	 * @since	1.30.4	Prevent duplicate field names in the prefix when field is a nested field.
 	 *
 	 * @return	string
 	 */
@@ -116,7 +122,7 @@ class Field {
 	 * @return	array
 	 */
 
-	function get_variables( $prefix = array(), $indent = 0 ) {
+	function get_variables( $prefix = array() ) {
 		return array(
 			array(
 				'name'        => implode( '.', array_merge( $prefix, array( $this->name ) ) ),
@@ -134,12 +140,14 @@ class Field {
 	 * @param	int		$indent
 	 * @return	string
 	 */
+	function indent_example( $example, $indent ) {
 
-	protected function indent_example( $content, $indent ) {
-		$lines    = explode( "\n", $content );
-		$indented = array_map( function( $line ) use ( $indent ) {
-			return str_repeat( "\t", $indent ) . $line;
-		}, $lines );
-		return implode( "\n", $indented );
+		$lines = explode( "\n", $example );
+		for( $l = 0; $l < count( $lines ); $l++ ) {
+			$lines[ $l ] = str_repeat( "\t", $indent ).$lines[ $l ];
+		}
+		
+		return implode( "\n", $lines );
+
 	}
 }

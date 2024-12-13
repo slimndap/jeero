@@ -45,6 +45,7 @@ class Select extends Field {
 	 * 
 	 * @since	1.10
 	 * @since	1.15.4	Added support for prefix.
+	 * @since	1.30.4	Prevent duplicate field names in the prefix when field is a nested field.
 	 *
 	 * @return	string
 	 */
@@ -79,9 +80,10 @@ class Select extends Field {
 	 * Gets the template variables of the field.
 	 * 
 	 * @since	1.10
+	 * @since	1.30.4	Include prefix in the variable name when field is a nested field.
 	 * @return	array
 	 */
-	function get_variables( $prefix = array(), $indent = 0 ) {
+	function get_variables( $prefix = array() ) {
 		// Include prefix in the variable name
 		return array(
 			array(

@@ -53,6 +53,7 @@ class Group extends Field {
 	 * @since	1.11		Fixed a PHP warning if a sub field did not have a 'type' value.
 	 * @since	1.15.4	Added support for prefix.
 	 *					Added example code for sub fields.
+	 * @since	1.30.4	Prevent duplicate field names in the prefix when field is a nested field.
 	 *
 	 * @return	string
 	 */
@@ -79,14 +80,14 @@ class Group extends Field {
 	 * Gets the template variables of the field.
 	 * 
 	 * @since	1.10
+	 * @since	1.30.4	Include prefix in the variable name when field is a nested field.
 	 * @return	array
 	 */
-
-	function get_variables( $prefix = array(), $indent = 0 ) {
+	function get_variables( $prefix = array() ) {
 		$variables = array();
 		foreach( $this->sub_fields as $sub_field_args ) {
 			$sub_field = get_field_from_config( $sub_field_args );
-			$variables = array_merge( $variables, $sub_field->get_variables( array_merge( $prefix, array( $this->name ) ), $indent ) );
+			$variables = array_merge( $variables, $sub_field->get_variables( array_merge( $prefix, array( $this->name ) ) ) );
 		}
 		return $variables;
 	}
