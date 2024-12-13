@@ -75,6 +75,7 @@ class Custom_Post_Type extends Post_Based_Calendar {
 	 * Gets all settings fields for this custom post type.
 	 * 
 	 * @since	1.30
+	 * @since	1.30.3	Custom Post Type tab was not visible if no post type was slected yet.
 	 *
 	 * @param	Subscription		The subscription.
 	 * @return	array
@@ -113,14 +114,15 @@ class Custom_Post_Type extends Post_Based_Calendar {
 					'choices' => $choices,
 				);
 				
+				// Remove all other fields if no post type is selected yet.
+				if ( empty( $this->get_post_type() ) ) {
+					break;
+				}
+
 				continue;
 				
 			}
 			
-			// Remove all other fields if no post type is selected yet.
-			if ( empty( $this->get_post_type() ) ) {
-				break;
-			}
 
 			// Prepend 'upcate/categories' field with categories taxonomy dropdown.
 			if ( sprintf( '%s/import/update/categories', $this->slug ) == $field[ 'name' ] ) {
