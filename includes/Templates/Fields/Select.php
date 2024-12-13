@@ -8,6 +8,7 @@ namespace Jeero\Templates\Fields;
 class Select extends Field {
 	
 	private $sub_fields;
+	private $item;
 
 	function __construct( $args ) {
 		

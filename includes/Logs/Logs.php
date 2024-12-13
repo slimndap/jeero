@@ -66,14 +66,16 @@ function get_upload_dir() {
  * @since	1.18
  * @return	string	The UUID used for the Jeero log filename.
  */
-function get_uid() {
+function get_uid( $slug ) {
 	
-	$uid = get_option( LOG_UID_KEY );
+	$log_uid_key = sprintf( '%s-%s', $slug, LOG_UID_KEY );
+	
+	$uid = get_option( $log_uid_key );
 	
 	if ( empty( $uid ) ) {
 		
 		$uid = \wp_generate_uuid4();
-		update_option( LOG_UID_KEY, $uid, false );
+		update_option( $log_uid_key, $uid, false );
 		
 	}
 	
@@ -89,15 +91,15 @@ function get_uid() {
  *
  * @return	string 	The path to the Jeero logfile.
  */
-function get_file_path() {
+function get_file_path( $slug ) {
 
 	$upload_dir = get_upload_dir();
 	
-	if ( \is_wp_error(  $upload_dir ) ) {
+	if ( \is_wp_error( $upload_dir ) ) {
 		return $upload_dir;
 	}
 	
-	return sprintf( '%s%s.log', $upload_dir, get_uid() );
+	return sprintf( '%s%s.log', $upload_dir, get_uid( $slug ) );
 	
 }
 
@@ -105,13 +107,13 @@ function get_file_path() {
  * Rotates the Jeero logfile.
  * 
  * @since	1.18
- * @since	1.21	Improved error handling is getting logfile path fails.
+ * @since	1.21	Improved error handling if getting logfile path fails.
  *
  * @return	void
  */
-function rotate_logs() {
+function rotate_logs( $slug ) {
 	
-	$file_path = get_file_path();
+	$file_path = get_file_path( $slug );
 	
 	if ( \is_wp_error( $file_path ) ) {
 		return;
@@ -134,21 +136,36 @@ function rotate_logs() {
  * 
  * @since	1.18
  * @since	1.21	Improved error handling is getting logfile path fails.
+ * @since	1.29	Fixed timestamp of logs, now uses local time.
+ * @since	1.30	Check if logs are enabled before logging.
  *
  * @param 	string	$message
  * @return	void
  */
-function log( $message ) {
+function log( $message, $slug = 'local' ) {
 	
-	rotate_logs();
+    if ( !\get_option( 'jeero/enable_logs' ) ) {
+	    return;
+	}
 	
-	$file_path = get_file_path();
+	rotate_logs( $slug );
+	
+	$file_path = get_file_path( $slug );
 	
 	if ( \is_wp_error( $file_path ) ) {
 		return $file_path;
 	}
 	
-	$message = sprintf( "[%s] %s\n", date( 'r' ), $message );
+	$timezone_string = get_option('timezone_string');
+	if (empty( $timezone_string ) ) {
+	    $gmt_offset = get_option( 'gmt_offset' );
+	    $timezone_string = $gmt_offset ? timezone_name_from_abbr( '', $gmt_offset * 3600, 0 ) : 'UTC';
+	}			
+
+	$time = new \DateTime( );
+	$time->setTimezone( new \DateTimeZone( $timezone_string ) );			
+
+	$message = sprintf( "[%s] %s\n", $time->format( 'r' ), $message );
 	
 	error_log( $message, 3, $file_path );
 	
@@ -171,7 +188,7 @@ function log_from_inbox( $result, $data, $raw, $theater, $subscription ) {
 		$message = sprintf( '[%s] %s', $theater, $message );
 	}
 	
-	log( $message );
+	log( $message, 'remote' );
 	
 	return $result;
 	
@@ -185,9 +202,9 @@ function log_from_inbox( $result, $data, $raw, $theater, $subscription ) {
  *
  * @return	string
  */
-function get_log_file_content() {
+function get_log_file_content( $slug ) {
 	
-	$file_path = get_file_path();
+	$file_path = get_file_path( $slug );
 	
 	if ( \is_wp_error( $file_path ) ) {
 		return $file_path->get_error_message();
@@ -198,5 +215,16 @@ function get_log_file_content() {
 	}
 	
 	return file_get_contents( $file_path );
+	
+}
+
+function get_logs() {
+	
+	$logs = array(
+		'local' => __( 'Local Log', 'jeero' ),
+		'remote' => __( 'Remote Log', 'jeero' ),		
+	);
+	
+	return $logs;	
 	
 }

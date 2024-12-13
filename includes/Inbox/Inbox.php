@@ -18,6 +18,7 @@ use Jeero\Admin;
 use Jeero\Db;
 use Jeero\Subscriptions;
 use Jeero\Logs;
+use Jeero\Logs\Stats;
 
 const PICKUP_ITEMS_HOOK = 'jeero\inbox\pickup_items';
 
@@ -52,15 +53,28 @@ function apply_filters( $tag, $value ) {
  * 
  * @since	1.0
  * @since	1.18	@uses \Jeero\Logs\log().
+ * @since	1.27	@uses get_inbox_no_of_items_per_pickup() to set the number of items in each inbox pickup. 
+ * @since	1.30	Added stats.
  * @return 	void
  */
 function pickup_items() {
 
-	Logs\Log( 'Pick up items from inbox.' );
+	$no_of_items_per_pickup = get_inbox_no_of_items_per_pickup();
+
+	if ( $no_of_items_per_pickup ) {
+		Logs\Log( 
+			sprintf( 
+				_n( 'Pick up %d item from inbox.', 'Pick up %d items from inbox.', $no_of_items_per_pickup ),
+				$no_of_items_per_pickup
+			)
+		);
+	} else {
+		Logs\Log( 'Pick up items from inbox.' );			
+	}
 
 	$settings = Subscriptions\get_setting_values();
 
-	$items = Mother\get_inbox( $settings );
+	$items = Mother\get_inbox( $settings, $no_of_items_per_pickup );
 	
 	if ( is_wp_error( $items ) ) {
 		Admin\Notices\add_error( $items );
@@ -69,8 +83,11 @@ function pickup_items() {
 	
 	if ( empty( $items ) ) {
 		Logs\Log( 'No items found in inbox.' );		
+		Logs\Stats\add_stat( 'items_picked_up', 0 );
 	} else {
-		Logs\Log( sprintf( '%d items found in inbox.', count( $items ) ) );
+		$items_found = count( $items );
+		Logs\Log( sprintf( '%d items found in inbox.', $items_found ) );
+		Logs\Stats\add_stat( 'items_picked_up', $items_found );
 	}
 		
 	process_items( $items );
@@ -86,6 +103,30 @@ function pickup_items() {
 function get_next_pickup() {
 	
 	return wp_next_scheduled( PICKUP_ITEMS_HOOK );
+	
+}
+
+/**
+ * Gets the number of items in each inbox pickup.
+ * 
+ * @since	1.27
+ * @return	int|null	A number or null, which tells Jeero to use the default number of items.
+ */
+function get_inbox_no_of_items_per_pickup() {
+
+	return \apply_filters( 'jeero/inbox/no_of_items_per_pickup', null );
+	
+}
+
+/**
+ * Gets the number of seconds between each inbox pickup.
+ * 
+ * @since	1.27.2
+ * @return	int	The number of seconds.
+ */
+function get_inbox_pickup_interval() {
+
+	return \apply_filters( 'jeero/inbox/pickup_interval', MINUTE_IN_SECONDS );
 	
 }
 
@@ -251,6 +292,12 @@ function process_item( $item ) {
  * @since	1.0
  * @since	1.5		Now accounts for process_item() returning a WP_Error.
  * @since	1.18	@uses \Jeero\Logs\log().
+ * @since	1.27.1	Remove inbox items before processing them, to avoid processing inbox items multiple times.
+ *					Added time elapsed to log message.
+ * @since	1.27.2	Remove inbox items after processing.
+ *					@uses get_inbox_pickup_interval() to stop processing items before the next pick up begins. 
+ * @since	1.30	Added stats.
+ * @since	1.30.1	Added stats for created and updated events. 
  *
  * @param 	array	$items
  * @return 	void
@@ -260,6 +307,9 @@ function process_items( $items ) {
 	if ( empty( $items ) ) {
 		return;
 	}
+	
+	$start_time = microtime( true );
+	$pickup_interval = get_inbox_pickup_interval();
 	
 	$items_processed = array();
 	
@@ -271,11 +321,28 @@ function process_items( $items ) {
 		}
 		
 		$items_processed[] = $item;
+		
+		$elapsed_time = microtime( true ) - $start_time;
+		
+		if ( $elapsed_time > ( $pickup_interval - 1 ) ) {
+			Logs\Log( sprintf( 'Stopped processing items after %.2f seconds to prevent overlap with next pickup.', $elapsed_time ) );
+			break;
+		}
+		
 	}
 	
-	Logs\Log( sprintf( '%d items processed.', count( $items_processed ) ) );
-	
 	remove_items( $items_processed );
+
+	$elapsed_time = microtime( true ) - $start_time;
+	
+	Logs\Log( sprintf( 'Processed %d out of %d items in %.2f seconds.', count( $items_processed ), count( $items ), $elapsed_time ) );
+
+	Logs\Stats\add_stat( 'items_processed', count( $items_processed ) );
+	Logs\Stats\add_stat( 'processing_time', $elapsed_time );
+
+	Logs\Stats\add_stat( 'events_created', Logs\Stats\cache_get( 'events_created' ) );
+	Logs\Stats\add_stat( 'events_updated', Logs\Stats\cache_get( 'events_updated' ) );
+	
 }
 
 /**
@@ -312,6 +379,6 @@ function schedule_next_pickup() {
 	}
 	
 	// Ask Mother to check again in a minute.
-	\wp_schedule_single_event( time() + MINUTE_IN_SECONDS, PICKUP_ITEMS_HOOK );
+	\wp_schedule_single_event( time() + get_inbox_pickup_interval(), PICKUP_ITEMS_HOOK );
 	
 }

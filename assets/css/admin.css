@@ -1,15 +1,15 @@
-body.toplevel_page_jeero-imports .jeero-field-message dl {
+body.jeero_page_jeero-imports .jeero-field-message dl {
   display: flex;
   flex-wrap: wrap;
 }
-body.toplevel_page_jeero-imports .jeero-field-message dl dt {
+body.jeero_page_jeero-imports .jeero-field-message dl dt {
   flex: 0 0 200px;
 }
-body.toplevel_page_jeero-imports .jeero-field-message dl dd {
+body.jeero_page_jeero-imports .jeero-field-message dl dd {
   flex: 0 0 calc(100% - 200px);
   margin-left: 0;
 }
-body.toplevel_page_jeero-imports .jeero-template-example pre {
+body.jeero_page_jeero-imports .jeero-template-example pre {
   padding: 3px 5px 2px 5px;
   margin: 0 1px;
   background: #f0f0f1;
@@ -22,40 +22,43 @@ body.toplevel_page_jeero-imports .jeero-template-example pre {
     -o-tab-size: 2;
        tab-size: 2;
 }
-body.toplevel_page_jeero-imports .CodeMirror {
+body.jeero_page_jeero-imports .CodeMirror {
   height: auto;
 }
-body.toplevel_page_jeero-imports .jeero-field-post_fields table,
-body.toplevel_page_jeero-imports .jeero-field-custom_fields table {
+body.jeero_page_jeero-imports .jeero-field-post_fields table,
+body.jeero_page_jeero-imports .jeero-field-custom_fields table {
   width: 100%;
   table-layout: fixed;
 }
-body.toplevel_page_jeero-imports .jeero-field-post_fields table tr th,
-body.toplevel_page_jeero-imports .jeero-field-custom_fields table tr th,
-body.toplevel_page_jeero-imports .jeero-field-post_fields table tr td,
-body.toplevel_page_jeero-imports .jeero-field-custom_fields table tr td {
+body.jeero_page_jeero-imports .jeero-field-post_fields table tr th,
+body.jeero_page_jeero-imports .jeero-field-custom_fields table tr th,
+body.jeero_page_jeero-imports .jeero-field-post_fields table tr td,
+body.jeero_page_jeero-imports .jeero-field-custom_fields table tr td {
   width: 100%;
   padding: 0 10px 15px 0;
   vertical-align: top;
 }
-body.toplevel_page_jeero-imports .jeero-field-post_fields table tr th.name,
-body.toplevel_page_jeero-imports .jeero-field-custom_fields table tr th.name,
-body.toplevel_page_jeero-imports .jeero-field-post_fields table tr td.name,
-body.toplevel_page_jeero-imports .jeero-field-custom_fields table tr td.name {
+body.jeero_page_jeero-imports .jeero-field-post_fields table tr th.name,
+body.jeero_page_jeero-imports .jeero-field-custom_fields table tr th.name,
+body.jeero_page_jeero-imports .jeero-field-post_fields table tr td.name,
+body.jeero_page_jeero-imports .jeero-field-custom_fields table tr td.name {
   width: 200px;
 }
-body.toplevel_page_jeero-imports .jeero-field-post_fields table tr th.name input,
-body.toplevel_page_jeero-imports .jeero-field-custom_fields table tr th.name input,
-body.toplevel_page_jeero-imports .jeero-field-post_fields table tr td.name input,
-body.toplevel_page_jeero-imports .jeero-field-custom_fields table tr td.name input {
+body.jeero_page_jeero-imports .jeero-field-post_fields table tr th.name input,
+body.jeero_page_jeero-imports .jeero-field-custom_fields table tr th.name input,
+body.jeero_page_jeero-imports .jeero-field-post_fields table tr td.name input,
+body.jeero_page_jeero-imports .jeero-field-custom_fields table tr td.name input {
   max-width: 100%;
 }
-body.toplevel_page_jeero-imports .jeero-field-post_fields table tr th.actions,
-body.toplevel_page_jeero-imports .jeero-field-custom_fields table tr th.actions,
-body.toplevel_page_jeero-imports .jeero-field-post_fields table tr td.actions,
-body.toplevel_page_jeero-imports .jeero-field-custom_fields table tr td.actions {
+body.jeero_page_jeero-imports .jeero-field-post_fields table tr th.actions,
+body.jeero_page_jeero-imports .jeero-field-custom_fields table tr th.actions,
+body.jeero_page_jeero-imports .jeero-field-post_fields table tr td.actions,
+body.jeero_page_jeero-imports .jeero-field-custom_fields table tr td.actions {
   width: 100px;
   padding-right: 0;
+}
+body.jeero_page_jeero-debug #jeero_debug_content {
+  table-layout: fixed;
 }
 #jeero_footprint .inside {
   margin: 0;

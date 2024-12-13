@@ -16,6 +16,7 @@ include_once PLUGIN_PATH.'includes/Db/Subscriptions.php';
 
 include_once PLUGIN_PATH.'includes/Admin/Admin.php';
 include_once PLUGIN_PATH.'includes/Admin/Debug/Debug.php';
+include_once PLUGIN_PATH.'includes/Admin/Settings/Settings.php';
 include_once PLUGIN_PATH.'includes/Admin/Subscriptions/Subscriptions.php';
 include_once PLUGIN_PATH.'includes/Admin/Subscriptions/List_Table.php';
 include_once PLUGIN_PATH.'includes/Admin/Notices/Notices.php';
@@ -35,6 +36,7 @@ include_once PLUGIN_PATH.'includes/Calendars/Events_Schedule_Wp_Plugin.php';
 include_once PLUGIN_PATH.'includes/Calendars/Very_Simple_Event_List.php';
 include_once PLUGIN_PATH.'includes/Calendars/Sugar_Calendar.php';
 include_once PLUGIN_PATH.'includes/Calendars/WP_Event_Manager.php';
+include_once PLUGIN_PATH.'includes/Calendars/Custom_Post_Type.php';
 
 include_once PLUGIN_PATH.'includes/Theaters/Theaters.php';
 include_once PLUGIN_PATH.'includes/Theaters/Theater.php';
@@ -58,6 +60,7 @@ include_once PLUGIN_PATH.'includes/Subscriptions/Fields/Template.php';
 include_once PLUGIN_PATH.'includes/Inbox/Inbox.php';
 
 include_once PLUGIN_PATH.'includes/Logs/Logs.php';
+include_once PLUGIN_PATH.'includes/Logs/Stats.php';
 
 include_once PLUGIN_PATH.'includes/Mother/Mother.php';
 

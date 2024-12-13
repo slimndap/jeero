@@ -2,6 +2,7 @@
 namespace Jeero\Calendars;
 
 use Jeero\Helpers\Images as Images;
+use Jeero\Logs\Stats as Stats;
 
 /**
  * Abstract Post_Based_Calendar class.
@@ -460,6 +461,8 @@ abstract class Post_Based_Calendar extends Calendar {
 	 * Processes the data from an event in the inbox.
 	 * 
 	 * @since 	1.16
+	 * @since	1.26		Always use structured images.
+	 * @since	1.30.1	Track stats for updated and created events.
 	 */
 	function process_data( $result, $data, $raw, $theater, $subscription ) {
 
@@ -509,13 +512,16 @@ abstract class Post_Based_Calendar extends Calendar {
 				'always' == $this->get_setting( 'import/update/image', $subscription, 'once' ) && 
 				!empty( $data[ 'production' ][ 'img' ] )
 			) {
-				$thumbnail_id = Images\update_featured_image_from_url( 
-					$post_id,
-					$data[ 'production' ][ 'img' ]
-				);
+				$structured_image = Images\get_structured_image( $data[ 'production' ][ 'img' ], $post_id );
+				$thumbnail_id = Images\update_featured_image( $post_id,	$structured_image );
 			}
 			
 			\update_post_meta( $post_id, 'jeero/import/post/last_update', current_time( 'timestamp' ) );
+			
+			Stats\cache_set(
+				'events_updated', 
+				Stats\cache_get( 'events_updated' ) + 1
+			);
 		
 		} else {
 
@@ -529,10 +535,8 @@ abstract class Post_Based_Calendar extends Calendar {
 			$post_id = $this->insert_post( $post_args );
 
 			if ( !empty( $data[ 'production' ][ 'img' ] ) ) {
-				$thumbnail_id = Images\update_featured_image_from_url( 
-					$post_id,
-					$data[ 'production' ][ 'img' ]
-				);
+				$structured_image = Images\get_structured_image( $data[ 'production' ][ 'img' ], $post_id );
+				$thumbnail_id = Images\update_featured_image( $post_id,	$structured_image );
 			}
 
 			if ( !empty( $data[ 'production' ][ 'categories' ] ) ) {
@@ -541,12 +545,17 @@ abstract class Post_Based_Calendar extends Calendar {
 
 			\add_post_meta( $post_id, $this->get_ref_key( $theater ), $ref, true );
 
+			Stats\cache_set(
+				'events_created', 
+				Stats\cache_get( 'events_created' ) + 1
+			);
+		
 		}
 
 		$this->update_custom_fields( $post_id, $data, $subscription );
 		
 		\update_post_meta( $post_id, 'jeero/import/post/subscription', $subscription->ID );
-		
+
 		return $post_id;
 		
 	}

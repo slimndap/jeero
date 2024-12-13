@@ -2,7 +2,7 @@
 Contributors: slimndap
 Tags: calendar, tickets, events, veezi, ticketmaster, audienceview, stager
 Requires PHP: 7.2
-Tested up to: 6.4
+Tested up to: 6.6
 Requires at least: 4.9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -22,6 +22,7 @@ Ticketing solutions that are supported:
 * [ActiveTickets](https://jeero.ooo/publish-activetickets-events-on-wordpress/)
 * [AudienceView Professional](https://jeero.ooo/publish-audienceview-events-on-wordpress/)
 * [Billeto](https://jeero.ooo/publish-bravobase-performances-on-wordpress/)
+* [Billetweb](https://jeero.ooo/publish-billetweb-events-on-wordpress/)
 * [BravoBase](https://jeero.ooo/publish-bravobase-performances-on-wordpress/)
 * [Brown Paper Tickets](https://jeero.ooo/publish-brown-paper-tickets-events-on-wordpress/)
 * [Chaplin](https://jeero.ooo/publish-chaplin-films-on-wordpress/)
@@ -62,6 +63,7 @@ Calendar/event plugins that are supported:
 * [The Events Calendar](/plugins/the-events-calendar/)
 * [Very Simple Event List](/plugins/very-simple-event-list/)
 * [WP Event Manager](/plugins/wp-event-manager/)
+* Custom Post Types
 
 = Are you missing a ticketing solution? =
 My goal is to provide imports from any ticketing system to any calendar plugin. Please contact me so that I can include your solution as well.
@@ -85,20 +87,44 @@ You should see the first 10 upcoming events that are coming from your ticketing 
 
 = How do I upgrade? =
 
-I am still working on the subscription engine. Once it is ready the possibility to upgrade will be made available inside the plugin. It shouldn't take long. For now you can [contact me](mailto:jeroen@slimndap.com) so I can upgrade you manually.
+Go to the Jeero menu in the WordPress admin and click on the upgrade link next the import that needs to import more than 10 upcoming events.
 
-= How much will it cost? =
+= How much does it cost? =
 
-Subscription rates will range from €20 - €30 per month, depending on your total number of events. 
+Subscription rates range from €30 - €70 per month, depending on your total number of upcoming events. 
 
 == Changelog ==
+
+= 1.30 =
+* Added support for imports to custom post types. 
+* Added a settings page.
+* Added statistics to the debug page.
+
+= 1.29 =
+* The Events Calendar no longer imports a dummy end time if the ticketing solution does not provide one (1.29) and an end time was not already entered manually (1.29.2).
+* Localised timestamps in log file.
+* Added detection of problems with WP-Cron.
+* Fixed number formatting of prices of imported events of the Modern Events Calendar plugin. No longer uses local number format, because the MEC input field for prices only accepts '.' as separator (1.29.1).
+
+= 1.28 =
+* Updated Twig to 3.10.3.
+* Improvements to the debug log admin page.
+
+= 1.27 =
+* Added a WP filter to alter the number of items imported during each pickup.
+* Performances improvements for imports with a LOT of events (1.27.1 + 1.27.2).
+
+= 1.26 =
+
+* Images with dynamic filenams no longer result in multiple images inside the media library.
+* Imported images can now use alt texts from the ticketing system (if available).
 
 = 1.25 =
 
 * Added a WP filter to individual subscription settings.
 * Fixed several PHP and WP deprecation warnings.
 * Updated Twig to 3.8.0.
-* Fixed an import problem where series were imported multiple times in The Events Calendar. (1.25.1).
+* Fixed an import problem where series were imported multiple times in The Events Calendar (1.25.1).
 
 = 1.24 =
 
@@ -234,6 +260,28 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 * Welcome Jeero!
 
 == Upgrade Notice ==
+
+= 1.30.3 =
+
+Fixes a problem with the import of Custom Post Types.
+
+= 1.30 =
+* Adds support for imports to custom post types.
+
+= 1.29.4 =
+* Improved detection of malfunctioning WP-Cron.
+
+= 1.29 =
+* The Events Calendar no longer imports a dummy end time if the ticketing solution does not provide one.
+
+= 1.28 =
+* Updates Twig to version 3.10.3.
+
+= 1.27 =
+Added a WP filter to alter the number of items imported during each pickup.
+
+= 1.26 =
+* Multiple improvements to image imports.
 
 = 1.24.1 =
 * Fixes several PHP warnings in PHP8.2.
