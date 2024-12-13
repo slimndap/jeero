@@ -8,6 +8,12 @@ use Theaters\Theater;
 use Jeero\Subscriptions\Subscription;
 use Jeero\Db;
 
+/**
+ * Base URL of Jeero's mother.
+ *
+ * @since	1.?
+ * @since	1.30.4 Now uses jeero.ooo domain.
+ */
 const BASE_URL = 'https://api.jeero.ooo/v1';
 const SITE_KEY = 'jeero/mother/site_key';
 
