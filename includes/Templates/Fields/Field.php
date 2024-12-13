@@ -35,14 +35,16 @@ class Field {
 	 */
 	protected $description;
 	
+	/**
+	 * @since	1.?
+	 * @since	1.30.4	Label now uses name as fall back value.
+	 * @return	void
+	 */
 	function __construct( $args ) {
-		
-		$args = wp_parse_args( $args, $this->get_defaults() );
-		
-		$this->args = $args;
-		$this->name = $args[ 'name' ];
-		$this->label = $args[ 'label' ];
-		$this->description = $args[ 'description' ];
+		$this->args        = wp_parse_args( $args, $this->get_defaults() );
+		$this->name        = $this->args[ 'name' ];
+		$this->label       = $this->args[ 'label' ] ?: $this->name;
+		$this->description = $this->args[ 'description' ];
 	}
 	
 	function get( $name ){
@@ -98,19 +100,19 @@ class Field {
 	 * 
 	 * @since	1.10
 	 * @since	1.15.4	Added support for prefix.
+	 * @since	1.30.4	Prevent duplicate field names in the prefix when field is a nested field.
 	 *
 	 * @return	string
 	 */
-	function get_example( $prefix = array(), $indent = 0 ) {
 
-		ob_start();
-?>{{ <?php 
-		if ( !empty( $prefix ) ) {
-			echo implode( '.', $prefix); ?>.<?php
+	function get_example( $prefix = array(), $indent = 0 ) {
+		$variable_parts = $prefix;
+		// Prevent duplicate field names in the prefix
+		if ( empty( $prefix ) || end( $prefix ) !== $this->name ) {
+			$variable_parts[] = $this->name;
 		}
-		echo $this->name; ?> }}<?php
-		return $this->indent_example( ob_get_clean(), $indent );
-				
+		$variable = implode( '.', $variable_parts );
+		return $this->indent_example( "{{ $variable }}", $indent );
 	}
 	
 	/**
@@ -119,15 +121,15 @@ class Field {
 	 * @since	1.10
 	 * @return	array
 	 */
+
 	function get_variables( $prefix = array() ) {
 		return array(
 			array(
-				'name' => $this->name,
+				'name'        => implode( '.', array_merge( $prefix, array( $this->name ) ) ),
 				'description' => $this->get_description(),
-				'example' => false,
+				'example'     => false,
 			),
 		);
-		
 	}
 	
 	/**
@@ -146,7 +148,6 @@ class Field {
 		}
 		
 		return implode( "\n", $lines );
-		
+
 	}
-	
 }

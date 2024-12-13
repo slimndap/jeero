@@ -6,8 +6,7 @@
 namespace Jeero\Templates\Fields;
 
 class Select extends Field {
-	
-	private $sub_fields;
+
 	private $item;
 
 	function __construct( $args ) {
@@ -46,28 +45,34 @@ class Select extends Field {
 	 * 
 	 * @since	1.10
 	 * @since	1.15.4	Added support for prefix.
+	 * @since	1.30.4	Prevent duplicate field names in the prefix when field is a nested field.
 	 *
 	 * @return	string
 	 */
-	function get_example( $prefix = array(), $indent = 0 ) {
-		
-		ob_start();
 
-?>{% if <?php echo $this->name; ?> %}
+	function get_example( $prefix = array(), $indent = 0 ) {
+		// Construct the full variable name with prefix
+		$full_name = implode( '.', array_merge( $prefix, array( $this->name ) ) );
+		$item_var  = $this->item[ 'name' ];
+
+		ob_start();
+?>
+{% if <?php echo $full_name; ?> %}
 <h3><?php echo $this->label; ?></h3>
 <ul>
-	{% for <?php echo $this->item[ 'name' ]; ?> in <?php echo $this->name; ?> %}
+	{% for <?php echo $item_var; ?> in <?php echo $full_name; ?> %}
 		<li>
 <?php
-	$field = get_field_from_config( $this->item );
-	echo $field->get_example( $prefix, $indent + 3 );
+		// Reset the prefix to the loop variable for sub-fields
+		$field = get_field_from_config( $this->item );
+		echo $field->get_example( array( $item_var ), $indent + 3 );
 ?>
 
 		</li>
 	{% endfor %}
 </ul>
-{% endif %}<?php
-	
+{% endif %}
+<?php
 		return $this->indent_example( ob_get_clean(), $indent );
 	}
 
@@ -75,18 +80,18 @@ class Select extends Field {
 	 * Gets the template variables of the field.
 	 * 
 	 * @since	1.10
+	 * @since	1.30.4	Include prefix in the variable name when field is a nested field.
 	 * @return	array
 	 */
 	function get_variables( $prefix = array() ) {
+		// Include prefix in the variable name
 		return array(
 			array(
-				'name' => $this->name,
+				'name'        => implode( '.', array_merge( $prefix, array( $this->name ) ) ),
 				'description' => $this->get_description(),
-				'example' => $this->get_example( $prefix ),
+				'example'     => $this->get_example( $prefix ),
 			),
 		);
-		
 	}
 
-	
 }

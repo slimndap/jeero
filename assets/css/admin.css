@@ -3,10 +3,10 @@ body.jeero_page_jeero-imports .jeero-field-message dl {
   flex-wrap: wrap;
 }
 body.jeero_page_jeero-imports .jeero-field-message dl dt {
-  flex: 0 0 200px;
+  flex: 0 0 300px;
 }
 body.jeero_page_jeero-imports .jeero-field-message dl dd {
-  flex: 0 0 calc(100% - 200px);
+  flex: 0 0 calc(100% - 300px);
   margin-left: 0;
 }
 body.jeero_page_jeero-imports .jeero-template-example pre {
