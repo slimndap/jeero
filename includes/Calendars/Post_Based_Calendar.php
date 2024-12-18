@@ -534,7 +534,7 @@ abstract class Post_Based_Calendar extends Calendar {
 	         * @param string $theater      The source of the event data.
 	         * @param object $subscription The subscription object.
 	         */
-	        do_action( 'Jeero\Calendars\Post_Based_Calendar\update_event', $post_id, $data, $raw, $theater, $subscription );
+	        do_action( 'Jeero\Calendars\Post_Based_Calendar\event_updated', $post_id, $data, $raw, $theater, $subscription );
 
 		
 		} else {
@@ -575,7 +575,7 @@ abstract class Post_Based_Calendar extends Calendar {
 	         * @param string $theater      The source of the event data.
 	         * @param object $subscription The subscription object.
 	         */
-	        do_action( 'Jeero\Calendars\Post_Based_Calendar\create_event', $post_id, $data, $raw, $theater, $subscription );
+	        do_action( 'Jeero\Calendars\Post_Based_Calendar\event_created', $post_id, $data, $raw, $theater, $subscription );
 		
 		}
 
