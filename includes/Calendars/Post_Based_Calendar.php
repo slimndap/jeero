@@ -527,14 +527,16 @@ abstract class Post_Based_Calendar extends Calendar {
 	         * Fires after an event is updated.
 	         *
 	         * @since 1.30.4
+	         * @since 1.30.5		Added $calendar to the params.
 	         *
 	         * @param int    $post_id      The ID of the updated post.
 	         * @param array  $data         The structured event data.
 	         * @param array  $raw          The raw event data from the source.
 	         * @param string $theater      The source of the event data.
 	         * @param object $subscription The subscription object.
+	         * @param object $calendar     The calendar object.
 	         */
-	        do_action( 'Jeero\Calendars\Post_Based_Calendar\event_updated', $post_id, $data, $raw, $theater, $subscription );
+	        do_action( 'Jeero\Calendars\Post_Based_Calendar\event_updated', $post_id, $data, $raw, $theater, $subscription, $this );
 
 		
 		} else {
@@ -568,14 +570,16 @@ abstract class Post_Based_Calendar extends Calendar {
 	         * Fires after a new event is created.
 	         *
 	         * @since 1.30.4
+	         * @since 1.30.5		Added $calendar to the params.
 	         *
 	         * @param int    $post_id      The ID of the newly created post.
 	         * @param array  $data         The structured event data.
 	         * @param array  $raw          The raw event data from the source.
 	         * @param string $theater      The source of the event data.
 	         * @param object $subscription The subscription object.
+	         * @param object $calendar     The calendar object.
 	         */
-	        do_action( 'Jeero\Calendars\Post_Based_Calendar\event_created', $post_id, $data, $raw, $theater, $subscription );
+	        do_action( 'Jeero\Calendars\Post_Based_Calendar\event_created', $post_id, $data, $raw, $theater, $subscription, $this );
 		
 		}
 
