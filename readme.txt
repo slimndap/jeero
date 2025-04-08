@@ -262,6 +262,9 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 
 == Upgrade Notice ==
 
+= 1.30.5 =
+Fixes a problem with non-existing javascript sourcemaps.
+
 = 1.30.4 =
 Improvements to Twig examples inside Jeero settings.
 
