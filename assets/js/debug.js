@@ -9,7 +9,7 @@
     hours = date.getHours().toString().padStart(2, '0');
     minutes = date.getMinutes().toString().padStart(2, '0');
     seconds = date.getSeconds().toString().padStart(2, '0');
-    return "".concat(month, "-").concat(day, " ").concat(hours, ":").concat(minutes, ":").concat(seconds);
+    return `${month}-${day} ${hours}:${minutes}:${seconds}`;
   };
   get_processed_stats = function (stats) {
     var data, labels;
@@ -194,5 +194,3 @@
     });
   });
 }).call(void 0);
-
-//# sourceMappingURL=debug.js.map

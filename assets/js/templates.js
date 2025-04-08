@@ -1,1 +1,49 @@
-"use strict";(function(){var t;t=function(t){var e,a,n,c,i,o,r=arguments.length>1&&void 0!==arguments[1]?arguments[1]:"",l=arguments.length>2&&void 0!==arguments[2]?arguments[2]:"";return null==(a=t.data("index"))&&(a=0),i=t.attr("id"),c="".concat(i,"-").concat(a),n="".concat(i,"[").concat(a,"][name]"),o="".concat(i,"[").concat(a,"][template]"),t.append("<tr id='".concat(c,"'> <td class='name'> <input type='text' class='regular-text' name='").concat(n,"' value='").concat(r,"'> </td> <td class='template'> <textarea name='").concat(o,"'>").concat(l,"</textarea> </td> <td class='actions'> <button type='button' class='button delete-custom-field'>").concat(jeero_templates.translations.delete,"</button> </td> </tr>")),e=jQuery("#"+c),wp.codeEditor.initialize(e.find("textarea"),jeero_templates.settings),e.find(".delete-custom-field").click((function(){return e.remove()})),t.data("index",a+1)},jQuery((function(){return jQuery(".jeero-field-template textarea, .jeero-field-post_fields textarea, .jeero-field-custom_fields textarea").each((function(){return wp.codeEditor.initialize(jQuery(this),jeero_templates.settings)})),jQuery(".jeero-field-custom_fields").each((function(){var e,a,n,c,i,o,r;if(e=jQuery(this),a=(n=e.find("table")).attr("id"),null!=jeero_templates.custom_fields[a])for(i=0,o=(r=jeero_templates.custom_fields[a]).length;i<o;i++)c=r[i],t(n,c.name,c.template);return e.find(".add-custom-field").click((function(){return t(n)}))}))}))}).call(void 0);
+"use strict";
+
+(function () {
+  var add_custom_field;
+  add_custom_field = function ($custom_field_table) {
+    let name = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
+    let template = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
+    var $row, index, name_field_name, row_id, table_id, template_field_name;
+    index = $custom_field_table.data('index');
+    if (index == null) {
+      index = 0;
+    }
+    table_id = $custom_field_table.attr('id');
+    row_id = `${table_id}-${index}`;
+    name_field_name = `${table_id}[${index}][name]`;
+    template_field_name = `${table_id}[${index}][template]`;
+    $custom_field_table.append(`<tr id='${row_id}'> <td class='name'> <input type='text' class='regular-text' name='${name_field_name}' value='${name}'> </td> <td class='template'> <textarea name='${template_field_name}'>${template}</textarea> </td> <td class='actions'> <button type='button' class='button delete-custom-field'>${jeero_templates.translations.delete}</button> </td> </tr>`);
+    $row = jQuery("#" + row_id);
+    wp.codeEditor.initialize($row.find('textarea'), jeero_templates.settings);
+    $row.find('.delete-custom-field').click(function () {
+      return $row.remove();
+    });
+    return $custom_field_table.data('index', index + 1);
+  };
+  jQuery(function () {
+    var $custom_fields_fields, $template_fields;
+    $template_fields = jQuery('.jeero-field-template textarea, .jeero-field-post_fields textarea, .jeero-field-custom_fields textarea');
+    $template_fields.each(function () {
+      return wp.codeEditor.initialize(jQuery(this), jeero_templates.settings);
+    });
+    $custom_fields_fields = jQuery('.jeero-field-custom_fields');
+    return $custom_fields_fields.each(function () {
+      var $field, $field_id, $field_table, custom_field, i, len, ref;
+      $field = jQuery(this);
+      $field_table = $field.find('table');
+      $field_id = $field_table.attr('id');
+      if (jeero_templates.custom_fields[$field_id] != null) {
+        ref = jeero_templates.custom_fields[$field_id];
+        for (i = 0, len = ref.length; i < len; i++) {
+          custom_field = ref[i];
+          add_custom_field($field_table, custom_field.name, custom_field.template);
+        }
+      }
+      return $field.find('.add-custom-field').click(function () {
+        return add_custom_field($field_table);
+      });
+    });
+  });
+}).call(void 0);
