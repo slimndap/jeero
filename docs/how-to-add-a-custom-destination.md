@@ -17,26 +17,17 @@ Jeero supports sending imported events to custom destinations (e.g., third-party
        class My_Calendar extends \Jeero\Calendars\Post_Based_Calendar {
            public function __construct() {
                // Unique identifier for this calendar.
-               $this->slug = 'oerol';
+               $this->slug = 'my_events';
                // Human-readable name shown in Jeero settings.
-               $this->name = __( 'Oerol program and playlists', 'oerol-jeero' );
-               // Optional: override the post type for imported events.
-               $this->post_type = 'my_event_post_type';
+               $this->name = __( 'My Events', 'oerol-jeero' );
+               // Set the post type for imported events.
+               $this->post_type = 'my_events_post_type';
                parent::__construct();
-               // Hook into Jeero inbox processing for this calendar (action 'import').
-               add_filter(
-                   'jeero/inbox/process/item/import/calendar=' . $this->slug,
-                   [ $this, 'process_data' ],
-                   10,
-                   5
-               );
            }
        }
       
        /**
-        * Process each imported item before saving.
-        *
-        * Triggered via 'jeero/inbox/process/item/import/calendar={slug}'.
+        * Process each imported item.
         *
         * @param bool|\WP_Error $result        The current result; return WP_Error to cancel.
         * @param array          $data          Structured event data.
@@ -59,7 +50,7 @@ Jeero supports sending imported events to custom destinations (e.g., third-party
 
        \Jeero\Calendars\register_calendar( 'My_Calendar' );
    } );
-       ```
+   ```
       
 2. **Process Imported Items**
 
@@ -68,6 +59,4 @@ Jeero supports sending imported events to custom destinations (e.g., third-party
 3. **Activate and Configure**
 
    - Activate your custom destination code (e.g., via a plugin or theme).
-   - In the Jeero settings, select "Oerol program and playlists" (or your custom name) as the destination and configure its options.
-
-For more advanced integrations, refer to the existing destination implementations in `wordpress.org/includes/Calendars` and `wordpress.org/includes/Theaters`.
+   - In the Jeero settings, select "My Events" (or your custom name) as the destination and configure its options.
