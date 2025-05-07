@@ -8,8 +8,8 @@
 
  ## Documentation
 
- - [Filters](filters.md)
- - [How to add a custom destination](how-to-add-a-custom-destination.md)
+ - [Filters](docs/filters.md)
+ - [How to add a custom destination](docs/how-to-add-a-custom-destination.md)
 
  ## Contributing
 
