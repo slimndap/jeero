@@ -19,14 +19,42 @@ Jeero supports sending imported events to custom destinations (e.g., third-party
                $this->slug = 'oerol';
                $this->name = __( 'Oerol program and playlists', 'oerol-jeero' );
                parent::__construct();
+               // Hook into Jeero inbox processing for this calendar (action 'import').
+               add_filter(
+                   'jeero/inbox/process/item/import/calendar=' . $this->slug,
+                   [ $this, 'process_data' ],
+                   10,
+                   5
+               );
            }
+       }
+      
+       /**
+        * Process each imported item before saving.
+        *
+        * Triggered via 'jeero/inbox/process/item/import/calendar={slug}'.
+        *
+        * @param bool|\WP_Error $result        The current result; return WP_Error to cancel.
+        * @param array          $data          Structured event data.
+        * @param mixed          $raw           Raw event data.
+        * @param string         $theater       Theater/source name.
+        * @param Subscription   $subscription  Subscription object.
+        * @return bool|\WP_Error             Modified result or error to halt.
+        */
+       public function process_data( $result, $data, $raw, $theater, $subscription ) {
+           // Your custom logic, e.g., skip or transform events.
+           return $result;
        }
 
        \Jeero\Calendars\register_calendar( 'My_Calendar' );
    } );
-   ```
+       ```
+      
+2. **Process Imported Items**
 
-2. **Activate and Configure**
+   The `process_data()` method you added in the class will be called for each imported inbox item. It is triggered via the `jeero/inbox/process/item/import/calendar={slug}` filter.
+
+3. **Activate and Configure**
 
    - Activate your custom destination code (e.g., via a plugin or theme).
    - In the Jeero settings, select "Oerol program and playlists" (or your custom name) as the destination and configure its options.
