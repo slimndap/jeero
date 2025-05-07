@@ -16,8 +16,12 @@ Jeero supports sending imported events to custom destinations (e.g., third-party
 
        class My_Calendar extends \Jeero\Calendars\Post_Based_Calendar {
            public function __construct() {
+               // Unique identifier for this calendar.
                $this->slug = 'oerol';
+               // Human-readable name shown in Jeero settings.
                $this->name = __( 'Oerol program and playlists', 'oerol-jeero' );
+               // Optional: override the post type for imported events.
+               $this->post_type = 'my_event_post_type';
                parent::__construct();
                // Hook into Jeero inbox processing for this calendar (action 'import').
                add_filter(
@@ -42,7 +46,14 @@ Jeero supports sending imported events to custom destinations (e.g., third-party
         * @return bool|\WP_Error             Modified result or error to halt.
         */
        public function process_data( $result, $data, $raw, $theater, $subscription ) {
-           // Your custom logic, e.g., skip or transform events.
+           // First, let the base class import or update the event post.
+           $result = parent::process_data( $result, $data, $raw, $theater, $subscription );
+           
+           // Add your custom logic here, e.g., save additional custom fields:
+           // if ( ! is_wp_error( $result ) ) {
+           //     update_post_meta( $result, '_my_custom_field', $data['production']['custom'] );
+           // }
+           
            return $result;
        }
 
