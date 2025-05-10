@@ -19,7 +19,7 @@ function render( $template, $data ) {
 
 	// Ensure Twig is loaded before first use to prevent redeclaration of global helpers.
 	if ( ! class_exists(\Twig\Environment::class) ) {
-		require_once PLUGIN_PATH . 'vendor/autoload.php';
+		require_once \Jeero\PLUGIN_PATH . '/vendor/autoload.php';
 	}
 	$loader = new \Twig\Loader\ArrayLoader( array(
 	    'jeero.html' => $template,
