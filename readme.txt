@@ -95,6 +95,9 @@ Subscription rates range from €30 - €70 per month, depending on your total n
 
 == Changelog ==
 
+= 1.31 =
+* Avoid conflicts with plugins and themes that use older versions of Twig.
+
 = 1.30 =
 * Added support for imports to custom post types. 
 * Added a settings page.
@@ -261,6 +264,9 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 * Welcome Jeero!
 
 == Upgrade Notice ==
+
+= 1.31 =
+* Avoids conflicts with plugins and themes that use older versions of Twig.
 
 = 1.30.5 =
 Fixes a problem with non-existing javascript sourcemaps.
