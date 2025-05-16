@@ -97,6 +97,7 @@ Subscription rates range from €30 - €70 per month, depending on your total n
 
 = 1.31 =
 * Avoid conflicts with plugins and themes that use older versions of Twig.
+* Fixed WP 6.7+ textdomain loading notice (1.31.1).
 
 = 1.30 =
 * Added support for imports to custom post types. 
