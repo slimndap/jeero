@@ -22,4 +22,7 @@ define( 'Jeero\VERSION', '1.31' );
 define( 'Jeero\PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'Jeero\PLUGIN_URI', plugin_dir_url( __FILE__ ) );
 
-include_once \Jeero\PLUGIN_PATH.'includes/Jeero.php';
+// Bootstrap plugin on plugins_loaded: include core functionality.
+add_action( 'plugins_loaded', function() {
+    include_once \Jeero\PLUGIN_PATH . 'includes/Jeero.php';
+} );
