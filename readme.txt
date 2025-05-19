@@ -266,6 +266,9 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 
 == Upgrade Notice ==
 
+= 1.31.3 =
+* Fixes an issue with stalling imports.
+
 = 1.31 =
 * Avoids conflicts with plugins and themes that use older versions of Twig.
 
