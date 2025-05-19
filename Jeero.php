@@ -23,7 +23,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Bootstrap core plugin functionality on the 'init' hook.
  *
  * Defines plugin constants (version, path, URI), loads the main Jeero loader,
- * and seeds the first Inbox pickup into WP-Cron. Calling schedule_next_pickup()
+ * registers calendar import filters, and seeds the first Inbox pickup into WP-Cron.
+ * Calling add_import_filters() here ensures calendar import callbacks are attached
+ * before any inbox items are processed. Calling schedule_next_pickup()
  * on every init is safe (it no-ops if an event is already scheduled) and
  * ensures that WP-Cron has a job to process incoming items shortly after activation.
  */
@@ -34,5 +36,6 @@ add_action( 'init', function() {
     define( 'Jeero\PLUGIN_URI', plugin_dir_url( __FILE__ ) );
 
     include_once \Jeero\PLUGIN_PATH . 'includes/Jeero.php';
+    \Jeero\Calendars\add_import_filters();
     \Jeero\Inbox\schedule_next_pickup();
 } );

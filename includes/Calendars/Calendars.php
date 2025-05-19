@@ -10,8 +10,6 @@ namespace Jeero\Calendars;
  */
 $_jeero_calendars = array();
 
-add_action( 'init', __NAMESPACE__.'\add_import_filters' );
-
 /**
  * Attaches all calendar imports to the corresponding inbox filter.
  * 
