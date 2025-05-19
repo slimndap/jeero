@@ -266,7 +266,7 @@ Fixed several import issues with the All In One Event Calendar plugin. Adds feat
 
 == Upgrade Notice ==
 
-= 1.31.3 =
+= 1.31.4 =
 * Fixes an issue with stalling imports.
 
 = 1.31 =
