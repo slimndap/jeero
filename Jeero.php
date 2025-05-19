@@ -19,7 +19,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 
-// Bootstrap plugin on init: include core functionality.
+/**
+ * Bootstrap core plugin functionality on the 'init' hook.
+ *
+ * Defines plugin constants (version, path, URI), loads the main Jeero loader,
+ * and seeds the first Inbox pickup into WP-Cron. Calling schedule_next_pickup()
+ * on every init is safe (it no-ops if an event is already scheduled) and
+ * ensures that WP-Cron has a job to process incoming items shortly after activation.
+ */
 add_action( 'init', function() {
 
     define( 'Jeero\VERSION', '1.31.2' );
@@ -27,4 +34,5 @@ add_action( 'init', function() {
     define( 'Jeero\PLUGIN_URI', plugin_dir_url( __FILE__ ) );
 
     include_once \Jeero\PLUGIN_PATH . 'includes/Jeero.php';
+    \Jeero\Inbox\schedule_next_pickup();
 } );

@@ -22,7 +22,8 @@ use Jeero\Logs\Stats;
 
 const PICKUP_ITEMS_HOOK = 'jeero\inbox\pickup_items';
 
-add_action( 'init', __NAMESPACE__.'\schedule_next_pickup' );
+// Scheduling of the next pickup is handled centrally in Jeero.php bootstrap.
+
 add_action( PICKUP_ITEMS_HOOK, __NAMESPACE__.'\pickup_items' );
 
 /**
