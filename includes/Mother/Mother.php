@@ -18,6 +18,37 @@ const BASE_URL = 'https://api.jeero.ooo/v1';
 const SITE_KEY = 'jeero/mother/site_key';
 
 /**
+ * Gets the WordPress site's timezone value for submissions.
+ *
+ * Returns the configured timezone string when available; otherwise, returns a
+ * formatted UTC offset. This value is injected into the settings payload
+ * submitted to Mother so it can be stored at the subscription level and used
+ * during imports.
+ *
+ * @since	x.x.x
+ * @return	string	Timezone identifier (e.g. 'Europe/Amsterdam') or 'UTC±HH:MM'.
+ */
+function get_wp_timezone_value() {
+	// Prefer the explicit timezone string set in Settings > General.
+	$timezone_string = \get_option( 'timezone_string' );
+	if ( ! empty( $timezone_string ) ) {
+		return $timezone_string;
+	}
+
+	// Fallback to the numeric GMT offset (in hours) and format as UTC±HH:MM.
+	$offset = (float) \get_option( 'gmt_offset', 0 );
+	if ( 0.0 === $offset ) {
+		return 'UTC';
+	}
+
+	$hours   = (int) $offset;
+	$minutes = (int) round( abs( $offset - $hours ) * 60 );
+	$sign    = ( $offset < 0 ) ? '-' : '+';
+
+	return sprintf( 'UTC%s%02d:%02d', $sign, abs( $hours ), $minutes );
+}
+
+/**
  * Sends a DELETE request to Mother.
  * 
  * @since	1.0
@@ -175,11 +206,16 @@ function remove_inbox_items( $item_ids ) {
  */
 function get_subscription( $subscription_id, $settings ) {
 
+	// Inject the site's timezone into the settings payload without storing it in WP.
+	// Mother will persist this on the subscription and use it when importing.
+	$settings['timezone'] = get_wp_timezone_value();
+
+	// Build query arguments including current settings for Mother to validate.
 	$args = array(
 		'settings' => urlencode( json_encode( $settings, JSON_FORCE_OBJECT ) ),
 	);
 
-	return get( 'subscriptions/'.$subscription_id, $args );	
+	return get( 'subscriptions/' . $subscription_id, $args );	
 
 }
 
@@ -236,7 +272,7 @@ function update_subscription( $subscription_id, $settings ) {
 		'settings' => $settings,
 	);
 
-	return post( 'subscriptions/'.$subscription_id, $data );	
+	return post( 'subscriptions/' . $subscription_id, $data );	
 
 }
 
