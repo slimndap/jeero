@@ -97,6 +97,7 @@ Subscription rates range from €30 - €70 per month, depending on your total n
 
 = 1.32 =
 * Added a new 'jeero/loaded' action to allow other plugins or themes to hook into the initialization process of Jeero.
+* Send timezone setting value to Jeero server to properly handle timezones during event imports (1.32.1)
 
 = 1.31 =
 * Avoid conflicts with plugins and themes that use older versions of Twig.
