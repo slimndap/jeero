@@ -21,6 +21,7 @@ use Jeero\Logs;
 use Jeero\Logs\Stats;
 
 const PICKUP_ITEMS_HOOK = 'jeero\inbox\pickup_items';
+const PROCESSING_ITEM_MARKER_PREFIX = 'jeero_inbox_processing_item_';
 
 // Scheduling of the next pickup is handled centrally in Jeero.php bootstrap.
 
@@ -144,6 +145,15 @@ function get_inbox_pickup_interval() {
  */
 function process_item( $item ) {
 	
+	$is_item_blocking = is_item_blocking( $item );
+	if ( $is_item_blocking ) {
+		Logs\Log( sprintf( 'Skipping inbox item %s because a previous attempt is still marked as running.', $item['ID'] ?? 'unknown' ) );
+		mark_process_item_ended( $item );
+		return true;
+	}
+
+	mark_process_item_start( $item );
+
 	$action = $item[ 'action' ];
 	$theater = $item[ 'theater' ];
 
@@ -282,6 +292,8 @@ function process_item( $item ) {
 		$theater,
 		$subscription
 	);
+
+	mark_process_item_ended( $item );
 	
 	return $result;
 	
@@ -320,8 +332,6 @@ function process_items( $items ) {
 		if ( \is_wp_error( $result ) ) {
 			Logs\Log( $result->get_error_message() );
 		}
-		
-		$items_processed[] = $item;
 		
 		$elapsed_time = microtime( true ) - $start_time;
 		
@@ -362,6 +372,67 @@ function remove_items( array $items ) {
 	$item_ids = wp_list_pluck( $items, 'ID' );
 	return Mother\remove_inbox_items( $item_ids );
 	
+}
+
+/**
+ * Marks an inbox item before processing attempt starts.
+ *
+ * Persist a marker in permanent storage (option/transient/DB key) before processing
+ * begins so we can detect stuck items when processing is interrupted.
+ *
+ * @param array $item The inbox payload that is about to be processed.
+ */
+function mark_process_item_start( $item ) {
+	$key = get_processing_marker_key( $item );
+	if ( $key === '' ) {
+		return;
+	}
+
+	\set_transient( $key, true, 0 );
+}
+
+/**
+ * Clears the processing attempt marker after processing successfully ended.
+ *
+ * When processing completes without fatal issues, this helper removes the marker
+ * so the inbox item is not treated as blocking in future runs.
+ *
+ * @param array $item The inbox payload that finished processing.
+ */
+function mark_process_item_ended( $item ) {
+	$key = get_processing_marker_key( $item );
+	if ( $key === '' ) {
+		return;
+	}
+
+	\delete_transient( $key );
+}
+
+/**
+ * Checks if an inbox item triggered a blocking error during its previous processing attempt.
+ *
+ * This should return true when the marker set by {@link mark_process_item_start()}
+ * is still present because processing failed before {@link mark_process_item_ended()}
+ * could run.
+ *
+ * @param array $item The inbox payload to inspect.
+ * @return bool True when the item is considered blocking, false otherwise.
+ */
+function is_item_blocking( $item ) {
+	$key = get_processing_marker_key( $item );
+	if ( $key === '' ) {
+		return false;
+	}
+
+	return \false !== \get_transient( $key );
+}
+
+function get_processing_marker_key( $item ) {
+	if ( empty( $item[ 'ID' ] ) ) {
+		return '';
+	}
+
+	return PROCESSING_ITEM_MARKER_PREFIX . \md5( (string) $item[ 'ID' ] );
 }
 
 /**
