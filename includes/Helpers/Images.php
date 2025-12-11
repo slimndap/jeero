@@ -17,6 +17,15 @@ namespace Jeero\Helpers\Images;
 const JEERO_IMG_REF_FIELD = 'jeero/img/url';
 
 /**
+ * Stores the last downloaded URL for an image ref.
+ *
+ * @since 1.33
+ *
+ * @var string
+ */
+const JEERO_IMG_SOURCE_URL_FIELD = 'jeero/img/source_url';
+
+/**
  * Updates the post thumbnail from an external image URL.
  * 
  * @since		1.1
@@ -122,16 +131,27 @@ function add_image_to_library( $structured_image_or_url, $post_id ) {
  * Adds an external image to the media library.
  * 
  * @since	1.26
+ * @since	1.33	Re-downloads when the URL changes for the same ref, stores source URL meta, and replaces outdated attachments.
  *
  * @param 	array			$structured_image
  * @param	int				$post_id
  * @return	int|WP_Error
  */
 function add_structured_image_to_library( $structured_image, $post_id ) {
-	
-	if ( $thumbnail_id = get_existing_thumbnail_for_structured_image( $structured_image ) ) {
-		return $thumbnail_id;
-	}		
+
+	$existing_thumbnail_id = get_existing_thumbnail_for_structured_image( $structured_image );
+
+	if ( $existing_thumbnail_id ) {
+		$stored_url = \get_post_meta( $existing_thumbnail_id, JEERO_IMG_SOURCE_URL_FIELD, true );
+
+		if ( ! empty( $structured_image['url'] ) && $stored_url === $structured_image['url'] ) {
+			// Ensure future checks have the URL stored, even for legacy attachments.
+			if ( empty( $stored_url ) ) {
+				\update_post_meta( $existing_thumbnail_id, JEERO_IMG_SOURCE_URL_FIELD, $structured_image['url'] );
+			}
+			return $existing_thumbnail_id;
+		}
+	}
 
 	require_once( ABSPATH . 'wp-admin/includes/media.php' );
 	require_once( ABSPATH . 'wp-admin/includes/file.php' );
@@ -166,6 +186,12 @@ function add_structured_image_to_library( $structured_image, $post_id ) {
 
 	// Store original URL with image.
 	\update_post_meta( $thumbnail_id, JEERO_IMG_REF_FIELD, $structured_image[ 'ref' ] );
+	\update_post_meta( $thumbnail_id, JEERO_IMG_SOURCE_URL_FIELD, $structured_image[ 'url' ] );
+
+	if ( $existing_thumbnail_id && $thumbnail_id !== $existing_thumbnail_id ) {
+		// Remove outdated attachment so the new download becomes the canonical image for this ref.
+		\wp_delete_attachment( $existing_thumbnail_id, true );
+	}
 	
 	return $thumbnail_id;
 

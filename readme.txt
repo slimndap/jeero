@@ -96,8 +96,8 @@ Subscription rates range from €30 - €70 per month, depending on your total n
 == Changelog ==
 
 = 1.33 =
-* Detect inbox items that are still marked as running, clear their lock, and skip them so they can be removed immediately instead of blocking future pickups.
-* Added helpers and tests around processing markers to ensure stuck items are released and reported in the log.
+* Detect and remove inbox items that blocking future pickups.
+* Re-download images when the source URL changes.
 
 = 1.32 =
 * Added a new 'jeero/loaded' action to allow other plugins or themes to hook into the initialization process of Jeero.
