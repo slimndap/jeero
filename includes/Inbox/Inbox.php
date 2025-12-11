@@ -329,6 +329,10 @@ function process_items( $items ) {
 	foreach( $items as $item ) {
 		$result = process_item( $item );
 		
+		if ( ! \is_wp_error( $result ) ) {
+			$items_processed[] = $item;
+		}
+		
 		if ( \is_wp_error( $result ) ) {
 			Logs\Log( $result->get_error_message() );
 		}

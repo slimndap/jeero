@@ -96,6 +96,71 @@ class Inbox_Test extends Jeero_Test {
 
 	}
 
+	function test_process_items_only_removes_successful_results() {
+
+		$deleted_requests = array();
+		$http_mock = function( $preempt, $args, $url ) use ( &$deleted_requests ) {
+			if ( isset( $args['method'] ) && $args['method'] === 'DELETE' && strpos( $url, '/inbox' ) !== false ) {
+				$deleted_requests[] = $url;
+				return array(
+					'body' => '[]',
+					'response' => array(
+						'code' => 200,
+						'message' => 'OK',
+					),
+				);
+			}
+
+			return $preempt;
+		};
+		add_filter( 'pre_http_request', $http_mock, 10, 3 );
+
+		$failing_id = 'failing-item';
+		$process_filter = function( $result, $data ) use ( $failing_id ) {
+			if ( isset( $data['id'] ) && $data['id'] === $failing_id ) {
+				return new \WP_Error( 'inbox-failure', 'Simulated processing failure.' );
+			}
+
+			return $result;
+		};
+		add_filter( 'jeero/inbox/process/item', $process_filter, 10, 6 );
+
+		$items = array(
+			array_merge(
+				$this->create_dummy_inbox_item( 'success-1' ),
+				array( 'data' => array( 'id' => 'success-1' ), 'raw' => array() )
+			),
+			array_merge(
+				$this->create_dummy_inbox_item( $failing_id ),
+				array( 'data' => array( 'id' => $failing_id ), 'raw' => array() )
+			),
+			array_merge(
+				$this->create_dummy_inbox_item( 'success-2' ),
+				array( 'data' => array( 'id' => 'success-2' ), 'raw' => array() )
+			),
+		);
+
+		Inbox\process_items( $items );
+
+		remove_filter( 'pre_http_request', $http_mock, 10 );
+		remove_filter( 'jeero/inbox/process/item', $process_filter, 10 );
+
+		$this->assertCount( 1, $deleted_requests, 'Inbox items should trigger a single removal request.' );
+
+		$query = array();
+		$parsed_url = wp_parse_url( $deleted_requests[0] );
+		parse_str( $parsed_url['query'], $query );
+
+		$deleted_ids = json_decode( $query['inbox_id'], true );
+
+		$this->assertSame(
+			array( 'success-1', 'success-2' ),
+			$deleted_ids,
+			'Only successfully processed inbox items should be removed.'
+		);
+
+	}
+
 	protected function create_dummy_inbox_item( $id = null ) {
 
 		if ( $id === null ) {
