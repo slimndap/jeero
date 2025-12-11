@@ -95,6 +95,7 @@ function get_existing_thumbnail_for_structured_image( $structured_image ) {
 		'post_type' => 'attachment',
 		'meta_key' => JEERO_IMG_REF_FIELD,
 		'meta_value' => $structured_image[ 'ref' ],
+		'update_post_term_cache' => false,
 	);
 	
 	$images = get_posts( $args );
@@ -190,11 +191,55 @@ function add_structured_image_to_library( $structured_image, $post_id ) {
 
 	if ( $existing_thumbnail_id && $thumbnail_id !== $existing_thumbnail_id ) {
 		// Remove outdated attachment so the new download becomes the canonical image for this ref.
-		\wp_delete_attachment( $existing_thumbnail_id, true );
+		safely_delete_attachment( $existing_thumbnail_id, $structured_image );
 	}
 	
 	return $thumbnail_id;
 
+}
+
+/**
+ * Deletes an attachment while guarding against term relationship errors on unregistered taxonomies.
+ *
+ * @since 1.33
+ *
+ * @param int   $attachment_id
+ * @param array $structured_image Context for logging (expects 'ref' and 'url').
+ */
+function safely_delete_attachment( $attachment_id, $structured_image = array() ) {
+
+	$taxonomies = \get_object_taxonomies( 'attachment' );
+	$terms      = \wp_get_object_terms( $attachment_id, $taxonomies );
+
+	if ( \is_wp_error( $terms ) ) {
+
+		global $wpdb;
+		$wpdb->delete( $wpdb->term_relationships, array( 'object_id' => $attachment_id ) );
+
+		\error_log(
+			sprintf(
+				'[Jeero] Detected invalid taxonomy relationships for attachment %d (ref "%s"), purged term relationships and continuing delete. Error: %s',
+				$attachment_id,
+				$structured_image['ref'] ?? '',
+				$terms->get_error_message()
+			)
+		);
+		$filter = function( $maybe_terms ) {
+			return \is_wp_error( $maybe_terms ) ? array() : $maybe_terms;
+		};
+
+		$short_circuit = function( $maybe_terms, $object_ids = null, $taxonomies = null, $args = null ) {
+			return is_null( $maybe_terms ) ? array() : $maybe_terms;
+		};
+
+		\add_filter( 'get_object_terms', $short_circuit, 0, 4 );
+		\add_filter( 'get_object_terms', $filter, PHP_INT_MAX );
+		\wp_delete_attachment( $attachment_id, true );
+		\remove_filter( 'get_object_terms', $filter, PHP_INT_MAX );
+		\remove_filter( 'get_object_terms', $short_circuit, 0 );
+	} else {
+		\wp_delete_attachment( $attachment_id, true );
+	}
 }
 
 /**

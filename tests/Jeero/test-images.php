@@ -202,4 +202,56 @@ class Images_Test extends Jeero_Test {
 		$this->assertFileExists( $path );
 		$this->assertSame( $this->image_bodies['first-image.png'], file_get_contents( $path ) );
 	}
+
+	public function test_delete_old_attachment_with_invalid_taxonomy_relationship_is_removed_after_cleanup() {
+
+		$post_id = self::factory()->post->create(
+			array(
+				'post_title' => 'Invalid Taxonomy',
+				'post_name'  => 'invalid-taxonomy',
+			)
+		);
+
+		$structured_image = array(
+			'ref'      => 'invalid-tax-ref',
+			'url'      => 'https://example.com/first-image.png',
+			'basename' => 'first-image',
+			'alt'      => 'First Image',
+		);
+
+		$first_id = Images\add_structured_image_to_library( $structured_image, $post_id );
+		$this->assertIsInt( $first_id );
+
+		register_taxonomy(
+			'ghost_taxonomy',
+			'attachment',
+			array(
+				'public' => false,
+			)
+		);
+
+		$error_filter = function ( $terms, $object_ids, $taxonomies, $args ) {
+			if ( in_array( 'ghost_taxonomy', (array) $taxonomies, true ) ) {
+				return new WP_Error( 'invalid_taxonomy', 'Taxonomy no longer registered' );
+			}
+
+			return $terms;
+		};
+
+		add_filter( 'get_object_terms', $error_filter, 10, 4 );
+
+		$structured_image['url']      = 'https://example.com/second-image.png';
+		$structured_image['basename'] = 'second-image';
+
+		$new_id = Images\add_structured_image_to_library( $structured_image, $post_id );
+		$this->assertIsInt( $new_id );
+		$this->assertNotSame( $first_id, $new_id );
+
+		remove_filter( 'get_object_terms', $error_filter, 10 );
+		unregister_taxonomy( 'ghost_taxonomy' );
+
+		// Old attachment should be removed after cleaning relationships.
+		$this->assertNull( get_post( $first_id ) );
+		$this->assertNotNull( get_post( $new_id ) );
+	}
 }
