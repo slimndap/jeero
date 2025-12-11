@@ -201,7 +201,7 @@ function add_structured_image_to_library( $structured_image, $post_id ) {
 /**
  * Deletes an attachment while guarding against term relationship errors on unregistered taxonomies.
  *
- * @since 1.33
+ * @since 1.33.1
  *
  * @param int   $attachment_id
  * @param array $structured_image Context for logging (expects 'ref' and 'url').
