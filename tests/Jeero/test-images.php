@@ -203,12 +203,7 @@ class Images_Test extends Jeero_Test {
 		$this->assertSame( $this->image_bodies['first-image.png'], file_get_contents( $path ) );
 	}
 
-	/**
-	 * Reproduces the fatal where wp_delete_attachment hits wp_get_object_terms() WP_Error for an unregistered taxonomy.
-	 *
-	 * Currently fails until deletion is hardened.
-	 */
-	public function test_delete_old_attachment_with_invalid_taxonomy_relationship_fatals() {
+	public function test_delete_old_attachment_with_invalid_taxonomy_relationship_is_removed_after_cleanup() {
 
 		$post_id = self::factory()->post->create(
 			array(
@@ -245,15 +240,18 @@ class Images_Test extends Jeero_Test {
 
 		add_filter( 'get_object_terms', $error_filter, 10, 4 );
 
-		try {
-			$structured_image['url']      = 'https://example.com/second-image.png';
-			$structured_image['basename'] = 'second-image';
+		$structured_image['url']      = 'https://example.com/second-image.png';
+		$structured_image['basename'] = 'second-image';
 
-			// This triggers deletion of the previous attachment, which currently fatals.
-			Images\add_structured_image_to_library( $structured_image, $post_id );
-		} finally {
-			remove_filter( 'get_object_terms', $error_filter, 10 );
-			unregister_taxonomy( 'ghost_taxonomy' );
-		}
+		$new_id = Images\add_structured_image_to_library( $structured_image, $post_id );
+		$this->assertIsInt( $new_id );
+		$this->assertNotSame( $first_id, $new_id );
+
+		remove_filter( 'get_object_terms', $error_filter, 10 );
+		unregister_taxonomy( 'ghost_taxonomy' );
+
+		// Old attachment should be removed after cleaning relationships.
+		$this->assertNull( get_post( $first_id ) );
+		$this->assertNotNull( get_post( $new_id ) );
 	}
 }
