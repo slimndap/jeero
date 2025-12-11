@@ -202,4 +202,58 @@ class Images_Test extends Jeero_Test {
 		$this->assertFileExists( $path );
 		$this->assertSame( $this->image_bodies['first-image.png'], file_get_contents( $path ) );
 	}
+
+	/**
+	 * Reproduces the fatal where wp_delete_attachment hits wp_get_object_terms() WP_Error for an unregistered taxonomy.
+	 *
+	 * Currently fails until deletion is hardened.
+	 */
+	public function test_delete_old_attachment_with_invalid_taxonomy_relationship_fatals() {
+
+		$post_id = self::factory()->post->create(
+			array(
+				'post_title' => 'Invalid Taxonomy',
+				'post_name'  => 'invalid-taxonomy',
+			)
+		);
+
+		$structured_image = array(
+			'ref'      => 'invalid-tax-ref',
+			'url'      => 'https://example.com/first-image.png',
+			'basename' => 'first-image',
+			'alt'      => 'First Image',
+		);
+
+		$first_id = Images\add_structured_image_to_library( $structured_image, $post_id );
+		$this->assertIsInt( $first_id );
+
+		register_taxonomy(
+			'ghost_taxonomy',
+			'attachment',
+			array(
+				'public' => false,
+			)
+		);
+
+		$error_filter = function ( $terms, $object_ids, $taxonomies, $args ) {
+			if ( in_array( 'ghost_taxonomy', (array) $taxonomies, true ) ) {
+				return new WP_Error( 'invalid_taxonomy', 'Taxonomy no longer registered' );
+			}
+
+			return $terms;
+		};
+
+		add_filter( 'get_object_terms', $error_filter, 10, 4 );
+
+		try {
+			$structured_image['url']      = 'https://example.com/second-image.png';
+			$structured_image['basename'] = 'second-image';
+
+			// This triggers deletion of the previous attachment, which currently fatals.
+			Images\add_structured_image_to_library( $structured_image, $post_id );
+		} finally {
+			remove_filter( 'get_object_terms', $error_filter, 10 );
+			unregister_taxonomy( 'ghost_taxonomy' );
+		}
+	}
 }
