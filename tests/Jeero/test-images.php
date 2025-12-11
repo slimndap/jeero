@@ -104,4 +104,102 @@ class Images_Test extends Jeero_Test {
 			'The image should be refreshed when the URL changes even if the ref is the same.'
 		);
 	}
+
+	public function test_legacy_attachment_without_source_url_is_replaced_on_url_change() {
+
+		$post_id = self::factory()->post->create(
+			array(
+				'post_title' => 'Legacy Post',
+				'post_name'  => 'legacy-post',
+			)
+		);
+
+		$structured_image = array(
+			'ref'      => 'legacy-ref',
+			'url'      => 'https://example.com/first-image.png',
+			'basename' => 'first-image',
+			'alt'      => 'First Image',
+		);
+
+		$first_id = Images\add_structured_image_to_library( $structured_image, $post_id );
+		$this->assertIsInt( $first_id );
+
+		// Simulate a legacy attachment without stored source URL meta.
+		delete_post_meta( $first_id, Images\JEERO_IMG_SOURCE_URL_FIELD );
+
+		$structured_image['url']      = 'https://example.com/second-image.png';
+		$structured_image['basename'] = 'second-image';
+
+		$second_id = Images\add_structured_image_to_library( $structured_image, $post_id );
+		$this->assertIsInt( $second_id );
+		$this->assertNotSame( $first_id, $second_id );
+
+		$this->assertNull( get_post( $first_id ), 'Old attachment should be removed after refresh.' );
+		$this->assertSame(
+			$this->image_bodies['second-image.png'],
+			file_get_contents( get_attached_file( $second_id ) )
+		);
+		$this->assertSame(
+			$structured_image['url'],
+			get_post_meta( $second_id, Images\JEERO_IMG_SOURCE_URL_FIELD, true )
+		);
+
+		$attachments = get_posts(
+			array(
+				'post_type'  => 'attachment',
+				'fields'     => 'ids',
+				'meta_key'   => Images\JEERO_IMG_REF_FIELD,
+				'meta_value' => 'legacy-ref',
+			)
+		);
+		$this->assertSame( array( $second_id ), $attachments );
+	}
+
+	public function test_legacy_attachment_without_source_url_is_refreshed_once_when_url_matches() {
+
+		$post_id = self::factory()->post->create(
+			array(
+				'post_title' => 'Legacy Same URL',
+				'post_name'  => 'legacy-same-url',
+			)
+		);
+
+		$structured_image = array(
+			'ref'      => 'legacy-ref-same',
+			'url'      => 'https://example.com/first-image.png',
+			'basename' => 'first-image',
+			'alt'      => 'First Image',
+		);
+
+		$attachment_id = Images\add_structured_image_to_library( $structured_image, $post_id );
+		$this->assertIsInt( $attachment_id );
+
+		// Remove stored URL meta to mimic pre-migration state.
+		delete_post_meta( $attachment_id, Images\JEERO_IMG_SOURCE_URL_FIELD );
+
+		// Same URL and ref should refresh once to capture source URL without leaving duplicates.
+		$refreshed_id = Images\add_structured_image_to_library( $structured_image, $post_id );
+		$this->assertNotSame( $attachment_id, $refreshed_id );
+
+		$this->assertSame(
+			$structured_image['url'],
+			get_post_meta( $refreshed_id, Images\JEERO_IMG_SOURCE_URL_FIELD, true )
+		);
+
+		$attachments = get_posts(
+			array(
+				'post_type'  => 'attachment',
+				'fields'     => 'ids',
+				'meta_key'   => Images\JEERO_IMG_REF_FIELD,
+				'meta_value' => 'legacy-ref-same',
+			)
+		);
+		$this->assertSame( array( $refreshed_id ), $attachments );
+
+		$this->assertNull( get_post( $attachment_id ), 'Old attachment should be cleaned up to avoid duplicates.' );
+
+		$path = get_attached_file( $refreshed_id );
+		$this->assertFileExists( $path );
+		$this->assertSame( $this->image_bodies['first-image.png'], file_get_contents( $path ) );
+	}
 }
