@@ -33,5 +33,26 @@ class Modern_Events_Calendar_Test extends Post_Based_Calendar_Test {
 		$this->assertEquals( $expected, $actual );
 		
 	}	
+
+	function test_imported_event_is_in_location_taxonomy() {
+
+		$this->import_event();
+
+		$args = array(
+			'post_status' => 'any',
+		);
+		$events = $this->get_events( $args );
+
+		$event = $events[0];
+
+		$location = get_term_by( 'name', 'Paard', 'mec_location' );
+
+		$this->assertNotEmpty( $location, 'The Paard location must exist before checking assigned terms.' );
+
+		$assigned_location_ids = wp_list_pluck( wp_get_object_terms( $event->ID, 'mec_location' ), 'term_id' );
+
+		$this->assertContains( $location->term_id, $assigned_location_ids, 'Jeero should assign the MEC location taxonomy during import so location filters find the event.' );
+
+	}
 		
 }

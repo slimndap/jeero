@@ -94,8 +94,8 @@ class Modern_Events_Calendar extends Post_Based_Calendar {
 		return $location_id;		
 	}
 	
-	/**
-	 * Processes event data from Inbox items.
+		/**
+		 * Processes event data from Inbox items.
 	 * 
 	 * @since	1.?
 	 * @since	1.4		Added the subscription param.
@@ -110,8 +110,9 @@ class Modern_Events_Calendar extends Post_Based_Calendar {
 	 *					Added suuport for cancelled events.
 	 *					Fixed import of categories.
 	 * @since	1.23.1	Now uses local number format for event prices.
-	 * @since	1.29.1	No longer uses local number format for event prices, because the MEC input field for
-	 *					prices only accepts '.' as separator.
+		 * @since	1.29.1	No longer uses local number format for event prices, because the MEC input field for
+		 *					prices only accepts '.' as separator.
+		 * @since	1.33.3	Ensures the MEC location taxonomy term is assigned after import so location filters work immediately.
 	 *
 	 * @param 	mixed 			$result
 	 * @param 	array			$data		The structured data of the event.
@@ -203,13 +204,20 @@ class Modern_Events_Calendar extends Post_Based_Calendar {
 			// Re-enable sanitizing allowed HTML tags.
 			\add_filter( 'content_save_pre', 'wp_filter_post_kses' );
 
-		}
+            $location_id = isset( $args[ 'meta' ][ 'mec_location_id' ] ) ? (int) $args[ 'meta' ][ 'mec_location_id' ] : 0;
+
+            // 1.33.3: make sure MEC location filters see the imported event immediately.
+            if ( $location_id ) {
+                wp_set_object_terms( $post_id, $location_id, 'mec_location' );
+            }
+
+        }
 		
 		// Re-enable new event notifications.
-		add_action( 'mec_event_published', array( $this->get_mec_instance( 'notifications' ), 'user_event_publishing'), 10, 3 );
+		add_action( 'mec_event_published', array( $this->get_mec_instance( 'notifications' ), 'user_event_publishing' ), 10, 3 );
 
 		return $post_id;
 		
 	}
-	
+
 }
