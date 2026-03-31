@@ -110,9 +110,9 @@ class Modern_Events_Calendar extends Post_Based_Calendar {
 	 *					Added suuport for cancelled events.
 	 *					Fixed import of categories.
 	 * @since	1.23.1	Now uses local number format for event prices.
-		 * @since	1.29.1	No longer uses local number format for event prices, because the MEC input field for
-		 *					prices only accepts '.' as separator.
-		 * @since	1.33.3	Ensures the MEC location taxonomy term is assigned after import so location filters work immediately.
+	 * @since	1.29.1	No longer uses local number format for event prices, because the MEC input field for
+	 *					prices only accepts '.' as separator.
+	 * @since	1.33.3	Ensures the MEC location taxonomy term is assigned after import so location filters work immediately.
 	 *
 	 * @param 	mixed 			$result
 	 * @param 	array			$data		The structured data of the event.
