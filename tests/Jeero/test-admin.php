@@ -63,6 +63,42 @@ class Admin_Test extends Jeero_Test {
 		$this->assertStringContainsStringIgnoringCase( $expected, $actual );
 
 	}
+
+	function test_edit_form_has_widgets_tab_when_theater_supports_widgets() {
+
+		add_filter(
+			'jeero/mother/get/response/endpoint=subscriptions/a fake ID',
+			function( $response, $endpoint, $args ) {
+				$response = $this->get_mock_response_for_get_subscription( $response, $endpoint, $args );
+				$body     = json_decode( $response['body'], true );
+
+				$body['theater'] = array(
+					'name'              => 'activetickets',
+					'title'             => 'ActiveTickets',
+					'custom_fields'     => array(),
+					'supported_widgets' => array(
+						'cart_indicator',
+						'cart_inline',
+					),
+				);
+
+				$response['body'] = json_encode( $body );
+
+				return $response;
+			},
+			10,
+			3
+		);
+
+		$_GET['edit'] = 'a fake ID';
+
+		$actual = Admin\Subscriptions\get_admin_page_html();
+
+		$this->assertStringContainsStringIgnoringCase( '<label>Widgets</label>', $actual );
+		$this->assertStringContainsStringIgnoringCase( '<label>ActiveTickets support the following widgets</label>', $actual );
+		$this->assertStringContainsStringIgnoringCase( '<ul class="jeero-widget-list"><li>Cart Indicator</li><li>Inline Basket</li></ul>', $actual );
+
+	}
 	
 
     /**

@@ -8,6 +8,7 @@ namespace Jeero\Subscriptions;
 use Jeero\Db;
 use Jeero\Mother;
 use Jeero\Calendars;
+use Jeero\Theaters\Widgets;
 
 const JEERO_SUBSCRIPTIONS_STATUS_SETUP = 'setup';
 const JEERO_SUBSCRIPTIONS_STATUS_READY = 'ready';
@@ -120,9 +121,89 @@ function get_subscription( $subscription_id ) {
 		$fields = array_merge( $fields, $calendar->get_setting_fields( $subscription ) );			
 	}
 
+	$fields = array_merge( $fields, get_widget_fields( $subscription ) );
+
 	$subscription->set( 'fields', $fields );
 
 	return $subscription;
+}
+
+/**
+ * Get read-only widget fields for a subscription's selected theater.
+ *
+ * @since 1.34
+ *
+ * @param Subscription $subscription The subscription.
+ * @return array[]
+ */
+function get_widget_fields( Subscription $subscription ) {
+
+	$widgets = Widgets\get_supported_widgets_for_subscription( $subscription );
+
+	if ( empty( $widgets ) ) {
+		return array();
+	}
+
+	$items = array();
+	foreach ( $widgets as $widget_name ) {
+		$items[] = sprintf(
+			'<li>%s</li>',
+			esc_html( Widgets\get_widget_label( $widget_name ) )
+		);
+	}
+
+	return array(
+		array(
+			'type'  => 'Tab',
+			'name'  => 'widgets',
+			'label' => __( 'Widgets', 'jeero' ),
+		),
+		array(
+			'type'  => 'Error',
+			'name'  => 'widgets/list',
+			'label' => sprintf(
+				__( '%s support the following widgets', 'jeero' ),
+				esc_html( get_theater_label( $subscription ) )
+			),
+			'value' => sprintf(
+				'<ul class="jeero-widget-list">%s</ul>',
+				implode( '', $items )
+			),
+		),
+	);
+
+}
+
+/**
+ * Get the display label for a subscription's theater.
+ *
+ * @since 1.34
+ *
+ * @param Subscription $subscription The subscription.
+ * @return string
+ */
+function get_theater_label( Subscription $subscription ) {
+
+	$theater = $subscription->get( 'theater' );
+
+	if ( is_array( $theater ) ) {
+		if ( ! empty( $theater['title'] ) && is_scalar( $theater['title'] ) ) {
+			return (string) $theater['title'];
+		}
+
+		if ( ! empty( $theater['name'] ) && is_scalar( $theater['name'] ) ) {
+			return (string) $theater['name'];
+		}
+	}
+
+	$theater_name = $subscription->get_setting( 'theater' );
+
+	if ( empty( $theater_name ) || ! is_scalar( $theater_name ) ) {
+		return __( 'This theater', 'jeero' );
+	}
+
+	return (string) $theater_name;
+
 }
 
 /**
