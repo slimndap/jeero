@@ -24,4 +24,17 @@ abstract class Cart_Inline extends Widget {
 
 	}
 
+	/**
+	 * Get the display label for the inline cart widget.
+	 *
+	 * @since 1.34
+	 *
+	 * @return string
+	 */
+	public static function get_label(): string {
+
+		return __( 'Cart', 'jeero' );
+
+	}
+
 }

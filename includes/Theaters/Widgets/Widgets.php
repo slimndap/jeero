@@ -207,20 +207,47 @@ function get_supported_widgets_for_theater( string $theater_name ): array {
 function get_widget_label( string $widget_name ): string {
 
 	$widget_name = sanitize_key( $widget_name );
+	$widget      = get_widget( $widget_name );
 
-	$labels = array(
-		'cart_indicator' => __( 'Cart Indicator', 'jeero' ),
-		'cart_inline'    => __( 'Inline Basket', 'jeero' ),
-		'tickets_inline' => __( 'Inline Tickets', 'jeero' ),
-	);
+	if ( $widget ) {
+		$class_name = get_class( $widget );
 
-	if ( isset( $labels[ $widget_name ] ) ) {
-		$label = $labels[ $widget_name ];
-	} else {
-		$label = ucwords( str_replace( '_', ' ', $widget_name ) );
+		return $class_name::get_label();
 	}
 
-	return apply_filters( 'jeero/theater/widget/label', $label, $widget_name );
+	$class_name = get_widget_classname( $widget_name );
+
+	if ( $class_name ) {
+		return $class_name::get_label();
+	}
+
+	return ucwords( str_replace( '_', ' ', $widget_name ) );
+
+}
+
+/**
+ * Get a widget class name by globally known widget name.
+ *
+ * @since 1.34
+ *
+ * @param string $widget_name Globally known widget name.
+ * @return string|null
+ */
+function get_widget_classname( string $widget_name ) {
+
+	$widget_name = sanitize_key( $widget_name );
+
+	if ( '' === $widget_name ) {
+		return null;
+	}
+
+	$class_name = __NAMESPACE__ . '\\' . str_replace( ' ', '_', ucwords( str_replace( '_', ' ', $widget_name ) ) );
+
+	if ( ! class_exists( $class_name ) || ! is_subclass_of( $class_name, Widget::class ) ) {
+		return null;
+	}
+
+	return $class_name;
 
 }
 

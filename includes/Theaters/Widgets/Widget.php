@@ -37,6 +37,15 @@ abstract class Widget {
 	abstract public function get_name(): string;
 
 	/**
+	 * Get the display label for this widget.
+	 *
+	 * @since 1.34
+	 *
+	 * @return string
+	 */
+	abstract public static function get_label(): string;
+
+	/**
 	 * Render the widget wrapper for a subscription.
 	 *
 	 * @since 1.34

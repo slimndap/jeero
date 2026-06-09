@@ -18,7 +18,7 @@ class Activetickets extends Theater {
 	 */
 	public function get_supported_widgets(): ?array {
 
-		return array( 'cart_indicator' );
+		return array( 'cart_indicator', 'cart_inline' );
 
 	}
 

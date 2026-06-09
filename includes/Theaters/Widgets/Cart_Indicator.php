@@ -29,6 +29,19 @@ class Cart_Indicator extends Widget {
 	}
 
 	/**
+	 * Get the display label for the cart indicator widget.
+	 *
+	 * @since 1.34
+	 *
+	 * @return string
+	 */
+	public static function get_label(): string {
+
+		return __( 'Cart Indicator', 'jeero' );
+
+	}
+
+	/**
 	 * Get the widget HTML inside the wrapper.
 	 *
 	 * @since 1.34

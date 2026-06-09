@@ -24,4 +24,17 @@ abstract class Tickets_Inline extends Widget {
 
 	}
 
+	/**
+	 * Get the display label for the inline tickets widget.
+	 *
+	 * @since 1.34
+	 *
+	 * @return string
+	 */
+	public static function get_label(): string {
+
+		return __( 'Inline Tickets', 'jeero' );
+
+	}
+
 }
