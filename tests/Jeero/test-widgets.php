@@ -67,6 +67,13 @@ class Widgets_Test extends Jeero_Test {
 
 	function test_theater_widget_echoes_widget() {
 
+		\Jeero\Db\Subscriptions\save_subscription(
+			'a fake ID',
+			array(
+				'theater' => 'activetickets',
+			)
+		);
+
 		ob_start();
 		jeero_theater_widget(
 			'cart_indicator',
@@ -81,7 +88,31 @@ class Widgets_Test extends Jeero_Test {
 
 	}
 
-	function test_theater_widget_subscription_id_adds_theater_wrapper_class() {
+	function test_theater_widget_subscription_id_adds_supported_theater_wrapper_class() {
+
+		\Jeero\Db\Subscriptions\save_subscription(
+			'a fake ID',
+			array(
+				'theater' => 'activetickets',
+			)
+		);
+
+		$actual = jeero_get_theater_widget(
+			'cart_indicator',
+			'a fake ID',
+			array(
+				'label' => 'Winkelmand',
+			)
+		);
+
+		$this->assertStringContainsString(
+			'class="jeero-theater-widget jeero-theater-widget--cart-indicator jeero-theater-widget--theater-activetickets"',
+			$actual
+		);
+
+	}
+
+	function test_theater_widget_returns_empty_string_when_subscription_theater_does_not_support_widget() {
 
 		\Jeero\Db\Subscriptions\save_subscription(
 			'a fake ID',
@@ -98,10 +129,7 @@ class Widgets_Test extends Jeero_Test {
 			)
 		);
 
-		$this->assertStringContainsString(
-			'class="jeero-theater-widget jeero-theater-widget--cart-indicator jeero-theater-widget--theater-veezi"',
-			$actual
-		);
+		$this->assertEquals( '', $actual );
 
 	}
 
@@ -244,7 +272,7 @@ class Widgets_Test extends Jeero_Test {
 
 	}
 
-	function test_activetickets_cart_indicator_renders_without_url() {
+	function test_theater_widget_returns_empty_string_without_subscription_theater() {
 
 		$subscription = new Subscription( 'a fake ID' );
 
@@ -256,13 +284,7 @@ class Widgets_Test extends Jeero_Test {
 			)
 		);
 
-		$this->assertStringContainsString(
-			'class="jeero-theater-widget jeero-theater-widget--cart-indicator"',
-			$actual
-		);
-		$this->assertStringContainsString( 'Winkelmand', $actual );
-		$this->assertStringContainsString( 'data-jeero-bind="cart.count"', $actual );
-		$this->assertStringNotContainsString( '<a ', $actual );
+		$this->assertEquals( '', $actual );
 
 	}
 

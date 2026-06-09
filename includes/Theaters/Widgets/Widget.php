@@ -104,7 +104,7 @@ abstract class Widget {
 		$theater_name = $subscription->get_setting( 'theater' );
 
 		if ( empty( $theater_name ) || ! is_scalar( $theater_name ) ) {
-			return true;
+			return false;
 		}
 
 		return theater_supports_widget( (string) $theater_name, $widget_name );

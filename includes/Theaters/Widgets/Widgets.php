@@ -81,7 +81,7 @@ function theater_supports_widget( string $theater_name, string $widget_name ): b
 	$widget_name  = sanitize_key( $widget_name );
 
 	if ( '' === $theater_name || '' === $widget_name ) {
-		return true;
+		return false;
 	}
 
 	$theater = \Jeero\Theaters\get_theater( $theater_name );
@@ -94,10 +94,6 @@ function theater_supports_widget( string $theater_name, string $widget_name ): b
 
 			return in_array( $widget_name, $supported_widgets, true );
 		}
-	}
-
-	if ( empty( $GLOBALS['jeero_theater_widget_support'][ $theater_name ] ) ) {
-		return true;
 	}
 
 	return ! empty( $GLOBALS['jeero_theater_widget_support'][ $theater_name ][ $widget_name ] );
