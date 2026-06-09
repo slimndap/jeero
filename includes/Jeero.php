@@ -40,6 +40,7 @@ include_once PLUGIN_PATH.'includes/Calendars/Custom_Post_Type.php';
 
 include_once PLUGIN_PATH.'includes/Theaters/Theaters.php';
 include_once PLUGIN_PATH.'includes/Theaters/Theater.php';
+include_once PLUGIN_PATH.'includes/Theaters/Widgets/Widgets.php';
 include_once PLUGIN_PATH.'includes/Theaters/Veezi.php';
 
 include_once PLUGIN_PATH.'includes/Subscriptions/Subscriptions.php';
