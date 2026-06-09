@@ -47,18 +47,13 @@ if ( ! function_exists( 'jeero_get_theater_widget' ) ) {
 			return '';
 		}
 
-		do_action(
-			'jeero/theaters/widgets/enqueue/' . $widget_name,
-			$subscription,
-			$args
-		);
+		$widget = \Jeero\Theaters\Widgets\get_widget( $widget_name );
 
-		return apply_filters(
-			'jeero/theaters/widgets/render/' . $widget_name,
-			'',
-			$subscription,
-			$args
-		);
+		if ( ! $widget ) {
+			return '';
+		}
+
+		return $widget->render( $subscription, $args );
 
 	}
 }
