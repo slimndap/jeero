@@ -137,6 +137,32 @@ function get_supported_widgets_for_subscription( Subscription $subscription ): a
 }
 
 /**
+ * Get all settings fields exposed by widgets supported by a subscription.
+ *
+ * @since 1.34
+ *
+ * @param Subscription $subscription Jeero subscription.
+ * @return array[]
+ */
+function get_setting_fields_for_subscription( Subscription $subscription ): array {
+
+	$fields = array();
+
+	foreach ( get_supported_widgets_for_subscription( $subscription ) as $widget_name ) {
+		$widget = get_widget( $widget_name );
+
+		if ( ! $widget || ! $widget->supports_subscription( $subscription ) ) {
+			continue;
+		}
+
+		$fields = array_merge( $fields, $widget->get_setting_fields( $subscription ) );
+	}
+
+	return $fields;
+
+}
+
+/**
  * Get all widget names supported by a theater name.
  *
  * @since 1.34

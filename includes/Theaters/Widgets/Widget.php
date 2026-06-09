@@ -77,6 +77,20 @@ abstract class Widget {
 	abstract public function get_html( Subscription $subscription, array $args = array() ): string;
 
 	/**
+	 * Get settings fields for this widget.
+	 *
+	 * @since 1.34
+	 *
+	 * @param Subscription $subscription Jeero subscription.
+	 * @return array[]
+	 */
+	public function get_setting_fields( Subscription $subscription ): array {
+
+		return array();
+
+	}
+
+	/**
 	 * Check whether this widget is supported by a subscription's theater.
 	 *
 	 * @since 1.34

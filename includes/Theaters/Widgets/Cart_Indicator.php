@@ -13,6 +13,8 @@ use Jeero\Subscriptions\Subscription;
  */
 class Cart_Indicator extends Widget {
 
+	const SETTING_CART_PAGE = 'widgets/cart_indicator/cart_page';
+
 	/**
 	 * Get the globally known widget name.
 	 *
@@ -61,6 +63,27 @@ class Cart_Indicator extends Widget {
 	}
 
 	/**
+	 * Get settings fields for the cart indicator widget.
+	 *
+	 * @since 1.34
+	 *
+	 * @param Subscription $subscription Jeero subscription.
+	 * @return array[]
+	 */
+	public function get_setting_fields( Subscription $subscription ): array {
+
+		return array(
+			array(
+				'name'    => self::SETTING_CART_PAGE,
+				'label'   => __( 'Cart page', 'jeero' ),
+				'type'    => 'select',
+				'choices' => $this->get_cart_page_choices(),
+			),
+		);
+
+	}
+
+	/**
 	 * Get the basket URL.
 	 *
 	 * @since 1.34
@@ -77,6 +100,12 @@ class Cart_Indicator extends Widget {
 
 		if ( ! empty( $args['url'] ) ) {
 			return esc_url_raw( $args['url'] );
+		}
+
+		$cart_page_url = $this->get_cart_page_url( $subscription );
+
+		if ( '' !== $cart_page_url ) {
+			return $cart_page_url;
 		}
 
 		$integrations = $subscription->get( 'integrations' );
@@ -109,6 +138,59 @@ class Cart_Indicator extends Widget {
 		}
 
 		return '';
+
+	}
+
+	/**
+	 * Get available cart page choices.
+	 *
+	 * @since 1.34
+	 *
+	 * @return string[]
+	 */
+	protected function get_cart_page_choices(): array {
+
+		$choices = array(
+			'' => __( 'Select a page', 'jeero' ),
+		);
+
+		$pages = get_pages(
+			array(
+				'sort_column' => 'post_title',
+			)
+		);
+
+		foreach ( $pages as $page ) {
+			$choices[ (string) $page->ID ] = $page->post_title;
+		}
+
+		return $choices;
+
+	}
+
+	/**
+	 * Get the selected cart page URL.
+	 *
+	 * @since 1.34
+	 *
+	 * @param Subscription $subscription Jeero subscription.
+	 * @return string
+	 */
+	protected function get_cart_page_url( Subscription $subscription ): string {
+
+		$cart_page = $subscription->get_setting( self::SETTING_CART_PAGE );
+
+		if ( empty( $cart_page ) ) {
+			return '';
+		}
+
+		$url = get_permalink( absint( $cart_page ) );
+
+		if ( ! $url ) {
+			return '';
+		}
+
+		return esc_url_raw( $url );
 
 	}
 

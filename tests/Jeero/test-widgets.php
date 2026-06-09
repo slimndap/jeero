@@ -162,6 +162,43 @@ class Widgets_Test extends Jeero_Test {
 
 	}
 
+	function test_cart_indicator_uses_selected_cart_page_url() {
+
+		$cart_page_id = wp_insert_post(
+			array(
+				'post_title'  => 'Basket',
+				'post_status' => 'publish',
+				'post_type'   => 'page',
+			)
+		);
+
+		$subscription = new Subscription( 'a fake ID' );
+		$subscription->set(
+			'theater',
+			array(
+				'name'              => 'activetickets',
+				'supported_widgets' => array( 'cart_indicator' ),
+			)
+		);
+		$subscription->set(
+			'settings',
+			array(
+				'widgets/cart_indicator/cart_page' => $cart_page_id,
+			)
+		);
+
+		$actual = jeero_get_theater_widget(
+			'cart_indicator',
+			$subscription,
+			array(
+				'label' => 'Winkelmand',
+			)
+		);
+
+		$this->assertStringContainsString( sprintf( 'href="%s"', get_permalink( $cart_page_id ) ), $actual );
+
+	}
+
 	function test_theater_widget_returns_empty_string_when_theater_metadata_does_not_support_widget() {
 
 		$subscription = new Subscription( 'a fake ID' );

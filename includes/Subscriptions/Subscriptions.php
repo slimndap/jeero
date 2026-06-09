@@ -152,24 +152,27 @@ function get_widget_fields( Subscription $subscription ) {
 		);
 	}
 
-	return array(
+	return array_merge(
 		array(
-			'type'  => 'Tab',
-			'name'  => 'widgets',
-			'label' => __( 'Widgets', 'jeero' ),
-		),
-		array(
-			'type'  => 'Error',
-			'name'  => 'widgets/list',
-			'label' => sprintf(
-				__( '%s support the following widgets', 'jeero' ),
-				esc_html( get_theater_label( $subscription ) )
+			array(
+				'type'  => 'Tab',
+				'name'  => 'widgets',
+				'label' => __( 'Widgets', 'jeero' ),
 			),
-			'value' => sprintf(
-				'<ul class="jeero-widget-list">%s</ul>',
-				implode( '', $items )
+			array(
+				'type'  => 'Error',
+				'name'  => 'widgets/list',
+				'label' => sprintf(
+					__( '%s support the following widgets', 'jeero' ),
+					esc_html( get_theater_label( $subscription ) )
+				),
+				'value' => sprintf(
+					'<ul class="jeero-widget-list">%s</ul>',
+					implode( '', $items )
+				),
 			),
 		),
+		Widgets\get_setting_fields_for_subscription( $subscription )
 	);
 
 }

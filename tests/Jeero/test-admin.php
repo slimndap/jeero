@@ -66,6 +66,14 @@ class Admin_Test extends Jeero_Test {
 
 	function test_edit_form_has_widgets_tab_when_theater_supports_widgets() {
 
+		$cart_page_id = wp_insert_post(
+			array(
+				'post_title'  => 'Basket',
+				'post_status' => 'publish',
+				'post_type'   => 'page',
+			)
+		);
+
 		add_filter(
 			'jeero/mother/get/response/endpoint=subscriptions/a fake ID',
 			function( $response, $endpoint, $args ) {
@@ -97,6 +105,8 @@ class Admin_Test extends Jeero_Test {
 		$this->assertStringContainsStringIgnoringCase( '<label>Widgets</label>', $actual );
 		$this->assertStringContainsStringIgnoringCase( '<label>ActiveTickets support the following widgets</label>', $actual );
 		$this->assertStringContainsStringIgnoringCase( '<ul class="jeero-widget-list"><li>Cart Indicator</li><li>Inline Basket</li></ul>', $actual );
+		$this->assertStringContainsStringIgnoringCase( '<label>Cart page</label>', $actual );
+		$this->assertStringContainsStringIgnoringCase( sprintf( '<option value="%s">Basket</option>', $cart_page_id ), $actual );
 
 	}
 	
