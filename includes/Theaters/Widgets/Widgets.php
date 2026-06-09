@@ -11,6 +11,7 @@ include_once \Jeero\PLUGIN_PATH . 'includes/Theaters/Widgets/Cart_Indicator.php'
 include_once \Jeero\PLUGIN_PATH . 'includes/Theaters/Widgets/Cart_Inline.php';
 include_once \Jeero\PLUGIN_PATH . 'includes/Theaters/Widgets/Tickets_Inline.php';
 include_once \Jeero\PLUGIN_PATH . 'includes/Theaters/Widgets/Template_Functions.php';
+include_once \Jeero\PLUGIN_PATH . 'includes/Theaters/Widgets/Shortcodes.php';
 
 /**
  * Register a concrete theater widget.
@@ -23,6 +24,8 @@ include_once \Jeero\PLUGIN_PATH . 'includes/Theaters/Widgets/Template_Functions.
 function register_widget( Widget $widget ): void {
 
 	$GLOBALS['jeero_theater_widgets'][ $widget->get_name() ] = $widget;
+
+	Shortcodes\register_widget_shortcode( $widget );
 
 }
 

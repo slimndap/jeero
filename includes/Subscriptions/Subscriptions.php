@@ -146,9 +146,21 @@ function get_widget_fields( Subscription $subscription ) {
 
 	$items = array();
 	foreach ( $widgets as $widget_name ) {
+		$label         = esc_html( Widgets\get_widget_label( $widget_name ) );
+		$shortcode_tag = Widgets\Shortcodes\get_shortcode_tag_for_widget( $widget_name );
+		$shortcode     = '';
+
+		if ( \shortcode_exists( $shortcode_tag ) ) {
+			$shortcode = sprintf(
+				' <code>%s</code>',
+				esc_html( Widgets\Shortcodes\get_shortcode_example( $widget_name, $subscription->get( 'ID' ) ) )
+			);
+		}
+
 		$items[] = sprintf(
-			'<li>%s</li>',
-			esc_html( Widgets\get_widget_label( $widget_name ) )
+			'<li>%s%s</li>',
+			$label,
+			$shortcode
 		);
 	}
 

@@ -104,7 +104,8 @@ class Admin_Test extends Jeero_Test {
 
 		$this->assertStringContainsStringIgnoringCase( '<label>Widgets</label>', $actual );
 		$this->assertStringContainsStringIgnoringCase( '<label>ActiveTickets support the following widgets</label>', $actual );
-		$this->assertStringContainsStringIgnoringCase( '<ul class="jeero-widget-list"><li>Cart Indicator</li><li>Inline Basket</li></ul>', $actual );
+		$this->assertStringContainsStringIgnoringCase( '<li>Cart Indicator <code>[jeero_cart_indicator subscription=&quot;a fake ID&quot;]</code></li>', $actual );
+		$this->assertStringContainsStringIgnoringCase( '<li>Cart</li>', $actual );
 		$this->assertStringContainsStringIgnoringCase( '<label>Cart page</label>', $actual );
 		$this->assertStringContainsStringIgnoringCase( sprintf( '<option value="%s">Basket</option>', $cart_page_id ), $actual );
 

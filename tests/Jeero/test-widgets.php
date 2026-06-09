@@ -294,6 +294,46 @@ class Widgets_Test extends Jeero_Test {
 
 	}
 
+	function test_widget_shortcode_renders_widget() {
+
+		\Jeero\Db\Subscriptions\save_subscription(
+			'a fake ID',
+			array(
+				'theater' => 'activetickets',
+			)
+		);
+
+		$actual = do_shortcode( '[jeero_widget name="cart_indicator" subscription="a fake ID" label="Winkelmand"]' );
+
+		$this->assertStringContainsString( 'Winkelmand', $actual );
+		$this->assertStringContainsString( 'jeero-theater-widget--cart-indicator', $actual );
+
+	}
+
+	function test_registered_widget_gets_generated_shortcode() {
+
+		\Jeero\Db\Subscriptions\save_subscription(
+			'a fake ID',
+			array(
+				'theater' => 'activetickets',
+			)
+		);
+
+		$this->assertTrue( shortcode_exists( 'jeero_cart_indicator' ) );
+
+		$actual = do_shortcode( '[jeero_cart_indicator subscription="a fake ID" label="Winkelmand"]' );
+
+		$this->assertStringContainsString( 'Winkelmand', $actual );
+		$this->assertStringContainsString( 'jeero-theater-widget--cart-indicator', $actual );
+
+	}
+
+	function test_cart_shortcode_alias_is_not_registered() {
+
+		$this->assertFalse( shortcode_exists( 'jeero_cart' ) );
+
+	}
+
 	function test_activetickets_does_not_support_unregistered_widgets() {
 
 		\Jeero\Db\Subscriptions\save_subscription(
