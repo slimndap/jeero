@@ -51,7 +51,7 @@ abstract class Widget {
 	abstract public function get_name(): string;
 
 	/**
-	 * Render the widget for a subscription.
+	 * Render the widget wrapper for a subscription.
 	 *
 	 * @since 1.34
 	 *
@@ -60,7 +60,52 @@ abstract class Widget {
 	 * @param array        $args         Render arguments.
 	 * @return string
 	 */
-	abstract public function render( string $html, Subscription $subscription, array $args = array() ): string;
+	final public function render( string $html, Subscription $subscription, array $args = array() ): string {
+
+		if ( '' !== $html ) {
+			return $html;
+		}
+
+		$content = $this->get_html( $subscription, $args );
+
+		if ( '' === $content ) {
+			return '';
+		}
+
+		return sprintf(
+			'<div class="%s">%s</div>',
+			esc_attr( $this->get_wrapper_class() ),
+			$content
+		);
+
+	}
+
+	/**
+	 * Get the widget HTML inside the wrapper.
+	 *
+	 * @since 1.34
+	 *
+	 * @param Subscription $subscription Jeero subscription.
+	 * @param array        $args         Render arguments.
+	 * @return string
+	 */
+	abstract protected function get_html( Subscription $subscription, array $args = array() ): string;
+
+	/**
+	 * Get the widget wrapper class attribute.
+	 *
+	 * @since 1.34
+	 *
+	 * @return string
+	 */
+	protected function get_wrapper_class(): string {
+
+		return sprintf(
+			'jeero-theater-widget jeero-theater-widget--%s',
+			sanitize_html_class( str_replace( '_', '-', $this->get_name() ) )
+		);
+
+	}
 
 	/**
 	 * Enqueue widget assets for a subscription.
