@@ -41,6 +41,7 @@ include_once PLUGIN_PATH.'includes/Calendars/Custom_Post_Type.php';
 include_once PLUGIN_PATH.'includes/Theaters/Theaters.php';
 include_once PLUGIN_PATH.'includes/Theaters/Theater.php';
 include_once PLUGIN_PATH.'includes/Theaters/Widgets/Widgets.php';
+include_once PLUGIN_PATH.'includes/Theaters/Activetickets.php';
 include_once PLUGIN_PATH.'includes/Theaters/Veezi.php';
 
 include_once PLUGIN_PATH.'includes/Subscriptions/Subscriptions.php';
@@ -74,4 +75,3 @@ include_once PLUGIN_PATH.'includes/Templates/Fields/Group.php';
 include_once PLUGIN_PATH.'includes/Templates/Fields/Select.php';
 
 include_once PLUGIN_PATH.'includes/Footprint/Footprint.php';
-

@@ -134,6 +134,116 @@ class Widgets_Test extends Jeero_Test {
 
 	}
 
+	function test_theater_widget_returns_empty_string_when_theater_metadata_does_not_support_widget() {
+
+		$subscription = new Subscription( 'a fake ID' );
+		$subscription->set(
+			'theater',
+			array(
+				'name'              => 'activetickets',
+				'supported_widgets' => array( 'tickets_inline' ),
+			)
+		);
+
+		$actual = jeero_get_theater_widget(
+			'cart_indicator',
+			$subscription,
+			array(
+				'label' => 'Winkelmand',
+				'url'   => 'https://tickets.example.com/shop/',
+			)
+		);
+
+		$this->assertEquals( '', $actual );
+
+	}
+
+	function test_theater_widget_renders_when_theater_metadata_supports_widget() {
+
+		$subscription = new Subscription( 'a fake ID' );
+		$subscription->set(
+			'theater',
+			array(
+				'name'    => 'activetickets',
+				'widgets' => array(
+					'cart_indicator' => true,
+				),
+			)
+		);
+
+		$actual = jeero_get_theater_widget(
+			'cart_indicator',
+			$subscription,
+			array(
+				'label' => 'Winkelmand',
+				'url'   => 'https://tickets.example.com/shop/',
+			)
+		);
+
+		$this->assertStringContainsString( 'Winkelmand', $actual );
+		$this->assertStringContainsString( 'href="https://tickets.example.com/shop/"', $actual );
+
+	}
+
+	function test_theater_widget_registration_can_limit_supported_widgets_for_theater_setting() {
+
+		\Jeero\Theaters\Widgets\register_theater_widget_support( 'test-theater-support', 'tickets_inline' );
+
+		\Jeero\Db\Subscriptions\save_subscription(
+			'a fake ID',
+			array(
+				'theater' => 'test-theater-support',
+			)
+		);
+
+		$actual = jeero_get_theater_widget(
+			'cart_indicator',
+			'a fake ID',
+			array(
+				'label' => 'Winkelmand',
+			)
+		);
+
+		$this->assertEquals( '', $actual );
+
+	}
+
+	function test_activetickets_supports_cart_indicator_through_theater_class() {
+
+		\Jeero\Db\Subscriptions\save_subscription(
+			'a fake ID',
+			array(
+				'theater' => 'activetickets',
+			)
+		);
+
+		$actual = jeero_get_theater_widget(
+			'cart_indicator',
+			'a fake ID',
+			array(
+				'label' => 'Winkelmand',
+			)
+		);
+
+		$this->assertStringContainsString( 'Winkelmand', $actual );
+
+	}
+
+	function test_activetickets_does_not_support_unregistered_widgets() {
+
+		\Jeero\Db\Subscriptions\save_subscription(
+			'a fake ID',
+			array(
+				'theater' => 'activetickets',
+			)
+		);
+
+		$actual = jeero_get_theater_widget( 'tickets_inline', 'a fake ID' );
+
+		$this->assertEquals( '', $actual );
+
+	}
+
 	function test_activetickets_cart_indicator_renders_without_url() {
 
 		$subscription = new Subscription( 'a fake ID' );

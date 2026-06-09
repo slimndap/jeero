@@ -47,6 +47,10 @@ abstract class Widget {
 	 */
 	final public function render( Subscription $subscription, array $args = array() ): string {
 
+		if ( ! $this->supports_subscription( $subscription ) ) {
+			return '';
+		}
+
 		$content = $this->get_html( $subscription, $args );
 
 		if ( '' === $content ) {
@@ -71,6 +75,41 @@ abstract class Widget {
 	 * @return string
 	 */
 	abstract public function get_html( Subscription $subscription, array $args = array() ): string;
+
+	/**
+	 * Check whether this widget is supported by a subscription's theater.
+	 *
+	 * @since 1.34
+	 *
+	 * @param Subscription $subscription Jeero subscription.
+	 * @return bool
+	 */
+	public function supports_subscription( Subscription $subscription ): bool {
+
+		$widget_name = $this->get_name();
+
+		$theater = $subscription->get( 'theater' );
+		if ( is_array( $theater ) ) {
+			$supported_widgets = $this->get_supported_widgets_from_theater( $theater );
+
+			if ( null !== $supported_widgets ) {
+				return in_array( $widget_name, $supported_widgets, true );
+			}
+
+			if ( ! empty( $theater['name'] ) ) {
+				return theater_supports_widget( (string) $theater['name'], $widget_name );
+			}
+		}
+
+		$theater_name = $subscription->get_setting( 'theater' );
+
+		if ( empty( $theater_name ) || ! is_scalar( $theater_name ) ) {
+			return true;
+		}
+
+		return theater_supports_widget( (string) $theater_name, $widget_name );
+
+	}
 
 	/**
 	 * Get the widget wrapper class attribute.
@@ -100,6 +139,70 @@ abstract class Widget {
 		}
 
 		return implode( ' ', $classes );
+
+	}
+
+	/**
+	 * Get the supported widget names from theater metadata.
+	 *
+	 * @since 1.34
+	 *
+	 * @param array $theater Theater metadata.
+	 * @return string[]|null
+	 */
+	protected function get_supported_widgets_from_theater( array $theater ): ?array {
+
+		foreach ( array( 'supported_widgets', 'widgets' ) as $key ) {
+			if ( ! array_key_exists( $key, $theater ) ) {
+				continue;
+			}
+
+			if ( ! is_array( $theater[ $key ] ) ) {
+				return array();
+			}
+
+			return $this->normalize_supported_widgets( $theater[ $key ] );
+		}
+
+		return null;
+
+	}
+
+	/**
+	 * Normalize a theater widget support list.
+	 *
+	 * @since 1.34
+	 *
+	 * @param array $widgets Widget list.
+	 * @return string[]
+	 */
+	protected function normalize_supported_widgets( array $widgets ): array {
+
+		$supported_widgets = array();
+
+		foreach ( $widgets as $key => $value ) {
+			if ( is_string( $key ) ) {
+				if ( ! $value ) {
+					continue;
+				}
+
+				$widget_name = $key;
+			} else {
+				$widget_name = $value;
+			}
+
+			if ( ! is_scalar( $widget_name ) ) {
+				continue;
+			}
+
+			$widget_name = sanitize_key( (string) $widget_name );
+
+			if ( '' !== $widget_name ) {
+				$supported_widgets[] = $widget_name;
+			}
+		}
+
+		return array_values( array_unique( $supported_widgets ) );
 
 	}
 
