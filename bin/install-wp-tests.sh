@@ -128,23 +128,27 @@ install_db() {
 	fi
 
 	# parse DB_HOST for port or socket references
-	local PARTS=(${DB_HOST//\:/ })
-	local DB_HOSTNAME=${PARTS[0]};
-	local DB_SOCK_OR_PORT=${PARTS[1]};
-	local EXTRA=""
+	local DB_HOSTNAME=""
+	local DB_SOCK_OR_PORT=""
 
-	if ! [ -z $DB_HOSTNAME ] ; then
-		if [ $(echo $DB_SOCK_OR_PORT | grep -e '^[0-9]\{1,\}$') ]; then
-			EXTRA=" --host=$DB_HOSTNAME --port=$DB_SOCK_OR_PORT --protocol=tcp"
-		elif ! [ -z $DB_SOCK_OR_PORT ] ; then
-			EXTRA=" --socket=$DB_SOCK_OR_PORT"
-		elif ! [ -z $DB_HOSTNAME ] ; then
-			EXTRA=" --host=$DB_HOSTNAME --protocol=tcp"
+	if [ -n "$DB_HOST" ]; then
+		IFS=':' read -r DB_HOSTNAME DB_SOCK_OR_PORT <<< "$DB_HOST"
+	fi
+
+	local mysql_args=(create "$DB_NAME" --user="$DB_USER" --password="$DB_PASS")
+
+	if [ -n "$DB_HOSTNAME" ]; then
+		if [[ "$DB_SOCK_OR_PORT" =~ ^[0-9]+$ ]]; then
+			mysql_args+=(--host="$DB_HOSTNAME" --port="$DB_SOCK_OR_PORT" --protocol=tcp)
+		elif [ -n "$DB_SOCK_OR_PORT" ]; then
+			mysql_args+=(--socket="$DB_SOCK_OR_PORT")
+		else
+			mysql_args+=(--host="$DB_HOSTNAME" --protocol=tcp)
 		fi
 	fi
 
 	# create database
-	mysqladmin create $DB_NAME --user="$DB_USER" --password="$DB_PASS"$EXTRA
+	mysqladmin "${mysql_args[@]}"
 }
 
 install_wp

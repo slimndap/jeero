@@ -15,7 +15,58 @@ use Jeero\Db;
  * @since	1.30.4 Now uses jeero.ooo domain.
  */
 const BASE_URL = 'https://api.jeero.ooo/v1';
+const FALLBACK_BASE_URL = 'https://ql621w5yfk.execute-api.eu-west-1.amazonaws.com/jeero/v1';
 const SITE_KEY = 'jeero/mother/site_key';
+
+/**
+ * Builds a Mother endpoint URL.
+ *
+ * @since	1.33.4
+ *
+ * @param string $endpoint Endpoint path relative to the API root.
+ * @param string $base_url Base API URL to use.
+ * @return string
+ */
+function get_endpoint_url( $endpoint, $base_url = BASE_URL ) {
+	return trailingslashit( untrailingslashit( $base_url ) ) . ltrim( $endpoint, '/' );
+}
+
+/**
+ * Returns whether the response failed because the API host could not be resolved.
+ *
+ * @since	1.33.4
+ *
+ * @param mixed $response Response returned by the WP HTTP API.
+ * @return bool
+ */
+function should_retry_with_fallback_url( $response ) {
+	if ( ! \is_wp_error( $response ) ) {
+		return false;
+	}
+
+	$message = strtolower( $response->get_error_message() );
+
+	return false !== strpos( $message, 'could not resolve host' )
+		&& false !== strpos( $message, 'api.jeero.ooo' );
+}
+
+/**
+ * Retries a Mother request against the fallback AWS endpoint when DNS fails.
+ *
+ * @since	1.33.4
+ *
+ * @param callable $request_callback Receives the base URL and returns a response.
+ * @return mixed
+ */
+function maybe_retry_request_with_fallback_url( $request_callback ) {
+	$response = $request_callback( BASE_URL );
+
+	if ( ! should_retry_with_fallback_url( $response ) ) {
+		return $response;
+	}
+
+	return $request_callback( FALLBACK_BASE_URL );
+}
 
 /**
  * Gets the WordPress site's timezone value for submissions.
@@ -58,7 +109,7 @@ function get_wp_timezone_value() {
  */
 function delete( $endpoint, $data = array() ) {
 	
-	$url = BASE_URL.'/'.$endpoint;
+	$url = get_endpoint_url( $endpoint );
 	
 	if ( !empty( $data ) ) {
 		$url = add_query_arg( $data, $url );
@@ -300,17 +351,21 @@ function get( $endpoint, $params = array(), $headers = array() ) {
 
 	if ( is_null( $response ) ) {
 
-		$url = BASE_URL.'/'.$endpoint;
-		
-		if ( !empty( $params ) ) {
-			$url = add_query_arg( $params, $url );
-		}
+			$args = array(
+				'timeout' => 30,
+				'headers' => $headers,
+			);
+			$response = maybe_retry_request_with_fallback_url(
+				function( $base_url ) use ( $endpoint, $params, $args ) {
+					$url = get_endpoint_url( $endpoint, $base_url );
 
-		$args = array(
-			'timeout' => 30,
-			'headers' => $headers,
-		);
-		$response = wp_remote_get( $url, $args );
+					if ( ! empty( $params ) ) {
+						$url = add_query_arg( $params, $url );
+					}
+
+					return wp_remote_get( $url, $args );
+				}
+			);
 
 	}
 
@@ -356,18 +411,22 @@ function post( $endpoint, $data = array(), $headers= array() ) {
 
 	if ( is_null( $response ) ) {
 
-		$url = BASE_URL.'/'.$endpoint;
-		
-		$args = array(
-			'timeout' => 30,
-			'headers' => $headers,
-		);
-		
-		if ( !empty( $data ) ) {
-			$args[ 'body' ] = json_encode( $data );
-		}
-		
-		$response = \wp_remote_post( $url, $args );
+			$args = array(
+				'timeout' => 30,
+				'headers' => $headers,
+			);
+			
+			if ( !empty( $data ) ) {
+				$args[ 'body' ] = json_encode( $data );
+			}
+			
+			$response = maybe_retry_request_with_fallback_url(
+				function( $base_url ) use ( $endpoint, $args ) {
+					$url = get_endpoint_url( $endpoint, $base_url );
+
+					return \wp_remote_post( $url, $args );
+				}
+			);
 		
 	}
 
