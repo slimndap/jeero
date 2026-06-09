@@ -53,6 +53,66 @@ class Widgets_Test extends Jeero_Test {
 
 	}
 
+	function test_activetickets_cart_inline_renders_cart_iframe_from_subscription_baseurl() {
+
+		new \Jeero\Theaters\Widgets\Cart_Inline();
+
+		$subscription = new Subscription( 'a fake ID' );
+		$subscription->set(
+			'theater',
+			array(
+				'name'              => 'activetickets',
+				'supported_widgets' => array( 'cart_inline' ),
+			)
+		);
+		$subscription->set(
+			'settings',
+			array(
+				'baseurl' => 'https://tickets.example.com/shop',
+			)
+		);
+
+		$actual = jeero_get_theater_widget(
+			'cart_inline',
+			$subscription,
+			array(
+				'title'  => 'Winkelmand',
+				'height' => 640,
+			)
+		);
+
+		$this->assertStringContainsString( 'class="jeero-theater-widget jeero-theater-widget--cart-inline jeero-theater-widget--theater-activetickets"', $actual );
+		$this->assertStringContainsString( 'src="https://tickets.example.com/shop/Cart"', $actual );
+		$this->assertStringContainsString( 'title="Winkelmand"', $actual );
+		$this->assertStringContainsString( 'height="640"', $actual );
+
+	}
+
+	function test_cart_inline_does_not_render_for_non_activetickets_subscriptions() {
+
+		new \Jeero\Theaters\Widgets\Cart_Inline();
+
+		$subscription = new Subscription( 'a fake ID' );
+		$subscription->set(
+			'theater',
+			array(
+				'name'              => 'veezi',
+				'supported_widgets' => array( 'cart_inline' ),
+			)
+		);
+		$subscription->set(
+			'settings',
+			array(
+				'baseurl' => 'https://tickets.example.com/shop',
+			)
+		);
+
+		$actual = jeero_get_theater_widget( 'cart_inline', $subscription );
+
+		$this->assertEquals( '', $actual );
+
+	}
+
 	function test_tickets_inline_widget_name_and_wrapper_class() {
 
 		$widget = new Jeero_Test_Tickets_Inline_Widget();
@@ -325,6 +385,12 @@ class Widgets_Test extends Jeero_Test {
 
 		$this->assertStringContainsString( 'Winkelmand', $actual );
 		$this->assertStringContainsString( 'jeero-theater-widget--cart-indicator', $actual );
+
+	}
+
+	function test_registered_cart_inline_widget_gets_generated_shortcode() {
+
+		$this->assertTrue( shortcode_exists( 'jeero_cart_inline' ) );
 
 	}
 

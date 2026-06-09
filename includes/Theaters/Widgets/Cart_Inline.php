@@ -9,7 +9,7 @@ namespace Jeero\Theaters\Widgets;
  *
  * @since 1.34
  */
-abstract class Cart_Inline extends Widget {
+class Cart_Inline extends Widget {
 
 	/**
 	 * Get the globally known widget name.

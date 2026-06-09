@@ -77,13 +77,28 @@ abstract class Widget {
 	/**
 	 * Get the widget HTML inside the wrapper.
 	 *
+	 * By default, the selected theater can provide widget-specific markup via
+	 * a get_{widget_name}_widget_html() method, such as
+	 * get_cart_inline_widget_html().
+	 *
 	 * @since 1.34
 	 *
 	 * @param Subscription $subscription Jeero subscription.
 	 * @param array        $args         Render arguments.
 	 * @return string
 	 */
-	abstract public function get_html( Subscription $subscription, array $args = array() ): string;
+	public function get_html( Subscription $subscription, array $args = array() ): string {
+
+		$theater = $this->get_theater( $subscription );
+		$method  = sprintf( 'get_%s_widget_html', $this->get_name() );
+
+		if ( ! $theater || ! method_exists( $theater, $method ) ) {
+			return '';
+		}
+
+		return (string) $theater->{$method}( $subscription, $args );
+
+	}
 
 	/**
 	 * Get settings fields for this widget.
@@ -162,6 +177,32 @@ abstract class Widget {
 		}
 
 		return implode( ' ', $classes );
+
+	}
+
+	/**
+	 * Get the theater object for a subscription.
+	 *
+	 * @since 1.34
+	 *
+	 * @param Subscription $subscription Jeero subscription.
+	 * @return \Jeero\Theaters\Theater|null
+	 */
+	protected function get_theater( Subscription $subscription ) {
+
+		$theater = $subscription->get( 'theater' );
+
+		if ( ! empty( $theater['name'] ) && is_scalar( $theater['name'] ) ) {
+			return \Jeero\Theaters\get_theater( (string) $theater['name'] );
+		}
+
+		$theater_name = $subscription->get_setting( 'theater' );
+
+		if ( empty( $theater_name ) || ! is_scalar( $theater_name ) ) {
+			return null;
+		}
+
+		return \Jeero\Theaters\get_theater( (string) $theater_name );
 
 	}
 
