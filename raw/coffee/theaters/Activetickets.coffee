@@ -22,7 +22,6 @@ jeero_theater_widget_activetickets_message_handler = ( event ) ->
   data = event.data
   if typeof data == "object" and typeof data.vendor == "string" and
      data.vendor == "ActiveTickets"
-    console.log "Received event", data
     switch data.messageType
       when "ScrollIframe"
         jeero_theater_widget_activetickets_scroll_iframe data.position

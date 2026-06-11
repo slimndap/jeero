@@ -2,7 +2,7 @@
 Contributors: slimndap
 Tags: calendar, tickets, events, veezi, ticketmaster, audienceview, stager
 Requires PHP: 7.2
-Tested up to: 6.9
+Tested up to: 7.0
 Requires at least: 4.9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -95,11 +95,15 @@ Subscription rates range from €30 - €70 per month, depending on your total n
 
 == Changelog ==
 
+= 1.34 =
+* Added theater widgets with template functions and shortcodes for embedding supported ticketing features.
+* Added ActiveTickets cart indicator, inline cart, and inline tickets widgets.
+
 = 1.33 =
 * Detect and remove inbox items that blocking future pickups.
 * Re-download images when the source URL changes.
 * Ensures Modern Events Calendar imports assign the MEC location taxonomy term so location filters show the event immediately (1.33.3).
-* FIx connection problems with the Jeero API (1.33.4).
+* Fix connection problems with the Jeero API (1.33.4).
 
 = 1.32 =
 * Added a new 'jeero/loaded' action to allow other plugins or themes to hook into the initialization process of Jeero.
