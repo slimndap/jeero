@@ -64,6 +64,10 @@ function get_shortcode_example( string $widget_name, string $subscription_id = '
 		);
 	}
 
+	if ( 'tickets_inline' === sanitize_key( $widget_name ) ) {
+		$shortcode .= ' tickets_url="https://example.com/tickets"';
+	}
+
 	return $shortcode . ']';
 
 }
@@ -205,6 +209,12 @@ function get_subscription_from_atts( array $atts ) {
 		}
 	}
 
+	$current_post_subscription_id = get_current_post_subscription_id( $atts );
+
+	if ( '' !== $current_post_subscription_id ) {
+		return new Subscription( $current_post_subscription_id );
+	}
+
 	$default_subscription_id = get_default_subscription_id();
 
 	if ( '' === $default_subscription_id ) {
@@ -212,6 +222,52 @@ function get_subscription_from_atts( array $atts ) {
 	}
 
 	return new Subscription( $default_subscription_id );
+
+}
+
+/**
+ * Get the imported subscription ID for the current widget placement post.
+ *
+ * @since 1.34
+ *
+ * @param array $atts Placement attributes.
+ * @return string
+ */
+function get_current_post_subscription_id( array $atts ): string {
+
+	$post_id = 0;
+
+	if ( ! empty( $atts['post_id'] ) && is_scalar( $atts['post_id'] ) ) {
+		$post_id = absint( $atts['post_id'] );
+	}
+
+	if ( ! $post_id ) {
+		$post_id = absint( get_the_ID() );
+	}
+
+	if ( ! $post_id ) {
+		$post = get_post();
+
+		if ( $post ) {
+			$post_id = absint( $post->ID );
+		}
+	}
+
+	if ( ! $post_id ) {
+		$post_id = absint( get_queried_object_id() );
+	}
+
+	if ( ! $post_id ) {
+		return '';
+	}
+
+	$subscription_id = get_post_meta( $post_id, 'jeero/import/post/subscription', true );
+
+	if ( empty( $subscription_id ) || ! is_scalar( $subscription_id ) ) {
+		return '';
+	}
+
+	return sanitize_text_field( (string) $subscription_id );
 
 }
 

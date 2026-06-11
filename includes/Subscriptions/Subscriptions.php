@@ -199,25 +199,21 @@ function get_widget_fields( Subscription $subscription ) {
  */
 function get_theater_label( Subscription $subscription ) {
 
-	$theater = $subscription->get( 'theater' );
-
-	if ( is_array( $theater ) ) {
-		if ( ! empty( $theater['title'] ) && is_scalar( $theater['title'] ) ) {
-			return (string) $theater['title'];
-		}
-
-		if ( ! empty( $theater['name'] ) && is_scalar( $theater['name'] ) ) {
-			return (string) $theater['name'];
-		}
-	}
-
 	$theater_name = $subscription->get_setting( 'theater' );
 
-	if ( empty( $theater_name ) || ! is_scalar( $theater_name ) ) {
-		return __( 'This theater', 'jeero' );
+	if ( ! empty( $theater_name ) && is_scalar( $theater_name ) ) {
+		$theater_object = \Jeero\Theaters\get_theater( (string) $theater_name );
+
+		if ( $theater_object ) {
+			return $theater_object->get_label();
+		}
 	}
 
-	return (string) $theater_name;
+	if ( ! empty( $theater_name ) && is_scalar( $theater_name ) ) {
+		return (string) $theater_name;
+	}
+
+	return __( 'This theater', 'jeero' );
 
 }
 

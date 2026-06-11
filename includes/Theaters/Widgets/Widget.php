@@ -17,17 +17,6 @@ use Jeero\Subscriptions\Subscription;
 abstract class Widget {
 
 	/**
-	 * Register this widget.
-	 *
-	 * @since 1.34
-	 */
-	public function __construct() {
-
-		register_widget( $this );
-
-	}
-
-	/**
 	 * Get the globally known widget name.
 	 *
 	 * @since 1.34

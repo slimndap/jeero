@@ -318,5 +318,6 @@ function normalize_supported_widgets( array $widgets ): array {
 
 }
 
-new Cart_Indicator();
-new Cart_Inline();
+register_widget( new Cart_Indicator() );
+register_widget( new Cart_Inline() );
+register_widget( new Tickets_Inline() );
