@@ -230,10 +230,22 @@ class Widgets_Test extends Jeero_Test {
 			)
 		);
 		$subscription->save();
+		\Jeero\Db\Subscriptions\save_subscription_state(
+			'a fake ID',
+			array(
+				'inactive' => false,
+				'theater'  => array(
+					'name' => 'activetickets',
+				),
+			)
+		);
 
+		$mother_calls = 0;
 		add_filter(
 			'jeero/mother/post/response/endpoint=subscriptions/big',
-			function() {
+			function() use ( &$mother_calls ) {
+				$mother_calls++;
+
 				return array(
 					'body'     => json_encode(
 						array(
@@ -257,6 +269,7 @@ class Widgets_Test extends Jeero_Test {
 		do_action( 'wp_enqueue_scripts' );
 
 		$this->assertTrue( wp_script_is( 'jeero/theaters/activetickets', 'enqueued' ) );
+		$this->assertEquals( 0, $mother_calls );
 		$this->assertEquals( 0, has_action( 'wp_enqueue_scripts', 'Jeero\Theaters\enqueue_activetickets_scripts' ) );
 
 		$script = wp_scripts()->registered['jeero/theaters/activetickets'];
@@ -314,10 +327,22 @@ class Widgets_Test extends Jeero_Test {
 			)
 		);
 		$subscription->save();
+		\Jeero\Db\Subscriptions\save_subscription_state(
+			'a fake ID',
+			array(
+				'inactive' => true,
+				'theater'  => array(
+					'name' => 'activetickets',
+				),
+			)
+		);
 
+		$mother_calls = 0;
 		add_filter(
 			'jeero/mother/post/response/endpoint=subscriptions/big',
-			function() {
+			function() use ( &$mother_calls ) {
+				$mother_calls++;
+
 				return array(
 					'body'     => json_encode(
 						array(
@@ -341,6 +366,7 @@ class Widgets_Test extends Jeero_Test {
 		do_action( 'wp_enqueue_scripts' );
 
 		$this->assertFalse( wp_script_is( 'jeero/theaters/activetickets', 'enqueued' ) );
+		$this->assertEquals( 0, $mother_calls );
 
 	}
 
