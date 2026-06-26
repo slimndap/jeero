@@ -66,9 +66,23 @@ class Sugar_Calendar_Test extends Post_Based_Calendar_Test {
 	
 	function test_categories_are_imported() {
 		
-		// Skip test, Sugar Calendar does not support categories.
-		$this->assertTrue( true );
-		
+		$settings = array(
+			$this->calendar.'/import/categories_as_calendars' => 'once',
+		);
+
+		$this->import_event( $settings );
+
+		$args = array(
+			'post_status' => 'draft',
+		);
+		$events = $this->get_events( $args );
+
+		$actual = \wp_list_pluck( \wp_get_object_terms( $events[ 0 ]->ID, \sugar_calendar_get_calendar_taxonomy_id() ), 'name' );
+		$expected = array( 'Category A', 'Category B' );
+		sort( $actual );
+		sort( $expected );
+		$this->assertEquals( $expected, $actual );
+
 	}
 
 	function test_has_correct_times() {
@@ -92,7 +106,29 @@ class Sugar_Calendar_Test extends Post_Based_Calendar_Test {
 		$this->assertEquals( $expected, $actual );
 		
 	}
-	
+
+	function test_missing_end_time_uses_start_time_as_end_time() {
+
+		add_filter( 'jeero/mother/post/response/endpoint=inbox/big', function( $response ) {
+			$body = json_decode( $response[ 'body' ], true );
+			unset( $body[ 0 ][ 'data' ][ 'end' ] );
+			$response[ 'body' ] = json_encode( $body );
+
+			return $response;
+		}, 20 );
+
+		$this->import_event();
+
+		$args = array(
+			'post_status' => 'draft',
+		);
+		$events = $this->get_events( $args );
+		$event = sugar_calendar_get_event_by_object( $events[ 0 ]->ID, 'post' );
+
+		$this->assertEquals( $event->start, $event->end );
+
+	}
+
 	function test_has_location() {
 
 		$this->import_event( );
@@ -129,6 +165,52 @@ class Sugar_Calendar_Test extends Post_Based_Calendar_Test {
 		$expected = 'Jeero Calendar';
 		$this->assertContains( $expected, $actual );
 		
+	}
+
+	function test_categories_are_added_to_selected_calendars() {
+
+		wp_create_term( 'Jeero Calendar', \sugar_calendar_get_calendar_taxonomy_id() );
+
+		$settings = array(
+			$this->calendar.'/import/sc_calendar' => array( 'jeero-calendar' ),
+			$this->calendar.'/import/categories_as_calendars' => 'once',
+		);
+
+		$this->import_event( $settings );
+
+		$args = array(
+			'post_status' => 'draft',
+		);
+		$events = $this->get_events( $args );
+
+		$actual = \wp_list_pluck( \wp_get_object_terms( $events[ 0 ]->ID, \sugar_calendar_get_calendar_taxonomy_id() ), 'name' );
+		$expected = array( 'Jeero Calendar', 'Category A', 'Category B' );
+		sort( $actual );
+		sort( $expected );
+		$this->assertEquals( $expected, $actual );
+
+	}
+
+	function test_categories_imported_once_are_preserved_on_update() {
+
+		$settings = array(
+			$this->calendar.'/import/categories_as_calendars' => 'once',
+		);
+
+		$this->import_event( $settings );
+		$this->import_event( $settings );
+
+		$args = array(
+			'post_status' => 'draft',
+		);
+		$events = $this->get_events( $args );
+
+		$actual = \wp_list_pluck( \wp_get_object_terms( $events[ 0 ]->ID, \sugar_calendar_get_calendar_taxonomy_id() ), 'name' );
+		$expected = array( 'Category A', 'Category B' );
+		sort( $actual );
+		sort( $expected );
+		$this->assertEquals( $expected, $actual );
+
 	}
 
 }

@@ -61,11 +61,17 @@ class Sugar_Calendar extends Post_Based_Calendar {
 		foreach( $fields as $field ) {
 			
 
-			/**
-			 * Removed categories field.
-			 * Sugar Calendar does not support categories.
-			 */
 			if ( $field[ 'name' ] == sprintf( '%s/import/update/categories', $this->slug ) ) {
+				$filtered_fields[] = array(
+					'name' => sprintf( '%s/import/categories_as_calendars', $this->slug ),
+					'label' => __( 'Import event categories as calendars', 'jeero' ),
+					'type' => 'select',
+					'choices' => array(
+						'never' => __( 'never', 'jeero' ),
+						'once' => __( 'on first import', 'jeero' ),
+						'always' => __( 'on every import', 'jeero' ),
+					),
+				);
 				continue;
 			}
 			
@@ -134,6 +140,48 @@ class Sugar_Calendar extends Post_Based_Calendar {
 	function is_active() {
 		return class_exists( '\Sugar_Calendar\\Requirements_Check' );
 	}
+
+	/**
+	 * Gets all Sugar Calendar terms for the imported event.
+	 *
+	 * @since	1.34
+	 * @param	array					$data			The structured event data.
+	 * @param	Subscription			$subscription	The subscription.
+	 * @param	bool					$is_update		Whether this import updates an existing event.
+	 * @param	int						$post_id			The imported post ID.
+	 * @return	array									All calendar term names/slugs for the event.
+	 */
+	function get_import_calendars( $data, $subscription, $is_update = false, $post_id = 0 ) {
+
+		$calendars = $this->get_setting( 'import/sc_calendar', $subscription, array() );
+
+		if ( empty( $calendars ) ) {
+			$calendars = array();
+		}
+
+		$category_import = $this->get_setting( 'import/categories_as_calendars', $subscription, 'never' );
+		$category_calendars = array();
+
+		if (
+			!empty( $data[ 'production' ][ 'categories' ] ) &&
+			( 'always' == $category_import || ( 'once' == $category_import && !$is_update ) )
+		) {
+			$category_calendars = $data[ 'production' ][ 'categories' ];
+			\update_post_meta( $post_id, 'jeero/sugar_calendar/imported_category_calendars', $category_calendars );
+		} elseif ( 'once' == $category_import && $is_update ) {
+			$category_calendars = \get_post_meta( $post_id, 'jeero/sugar_calendar/imported_category_calendars', true );
+			if ( empty( $category_calendars ) ) {
+				$category_calendars = array();
+			}
+		} else {
+			\delete_post_meta( $post_id, 'jeero/sugar_calendar/imported_category_calendars' );
+		}
+
+		$calendars = array_merge( $calendars, $category_calendars );
+
+		return array_values( array_unique( $calendars ) );
+
+	}
 	
 	/**
 	 * Processes the data from an event in the inbox.
@@ -143,6 +191,9 @@ class Sugar_Calendar extends Post_Based_Calendar {
 	 *
 	 */
 	function process_data( $result, $data, $raw, $theater, $subscription ) {
+
+		$ref = $this->get_post_ref( $data );
+		$existing_post_id = $this->get_event_by_ref( $ref, $theater );
 		
 		$result = parent::process_data( $result, $data, $raw, $theater, $subscription );
 		
@@ -150,8 +201,6 @@ class Sugar_Calendar extends Post_Based_Calendar {
 			return $result;
 		}
 		
-		$ref = $this->get_post_ref( $data );
-
 		if ( $post_id = $this->get_event_by_ref( $ref, $theater ) ) {
 			
 			$post = \get_post( $post_id );
@@ -169,8 +218,10 @@ class Sugar_Calendar extends Post_Based_Calendar {
 			);
 	
 			if ( !empty( $data[ 'end' ] ) ) {
-				$event_end = strtotime( $data[ 'end' ] );			
+				$event_end = strtotime( $data[ 'end' ] );
 				$event_args[ 'end' ] = date( 'Y-m-d H:i', $event_end );
+			} else {
+				$event_args[ 'end' ] = $event_args[ 'start' ];
 			}
 	
 			if ( !empty( $data[ 'venue' ] ) ) {
@@ -184,15 +235,10 @@ class Sugar_Calendar extends Post_Based_Calendar {
 				$sc_event_id = \sugar_calendar_add_event( $event_args );
 			}
 
-			$calendars = $this->get_setting( 'import/sc_calendar', $subscription, false );
-	
-			if ( !$calendars ) {
-				\wp_set_object_terms( $post_id, array(), sugar_calendar_get_calendar_taxonomy_id(), false  );			
-			} else {
-				\wp_set_object_terms( $post_id, $calendars, sugar_calendar_get_calendar_taxonomy_id(), false  );
-			}
+			$calendars = $this->get_import_calendars( $data, $subscription, !empty( $existing_post_id ), $post_id );
+			\wp_set_object_terms( $post_id, $calendars, sugar_calendar_get_calendar_taxonomy_id(), false );
 
-		}	
+		}
 				
 		return $post_id;
 
