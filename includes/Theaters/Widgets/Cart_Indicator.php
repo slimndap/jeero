@@ -121,35 +121,6 @@ class Cart_Indicator extends Widget {
 			return $cart_page_url;
 		}
 
-		$integrations = $subscription->get( 'integrations' );
-
-		if ( empty( $integrations ) || ! is_array( $integrations ) ) {
-			return '';
-		}
-
-		foreach ( $integrations as $integration ) {
-			if (
-				! empty( $args['source'] )
-				&& (
-					empty( $integration['source'] )
-					|| sanitize_key( $args['source'] ) !== sanitize_key( $integration['source'] )
-				)
-			) {
-				continue;
-			}
-
-			if (
-				empty( $integration['slot'] )
-				|| 'cart_indicator' !== sanitize_key( $integration['slot'] )
-			) {
-				continue;
-			}
-
-			if ( ! empty( $integration['urls']['basket'] ) ) {
-				return esc_url_raw( $integration['urls']['basket'] );
-			}
-		}
-
 		return '';
 
 	}
