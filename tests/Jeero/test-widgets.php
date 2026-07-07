@@ -4,8 +4,42 @@
  */
 
 use Jeero\Subscriptions\Subscription;
+use Jeero\Theaters\Widgets\Account_Indicator;
+use Jeero\Theaters\Widgets\Account_Inline;
 use Jeero\Theaters\Widgets\Cart_Inline;
 use Jeero\Theaters\Widgets\Tickets_Inline;
+
+class Jeero_Test_Account_Indicator_Widget extends Account_Indicator {
+
+	public function get_html( Subscription $subscription, array $args = array() ): string {
+
+		return '';
+
+	}
+
+	public function get_public_wrapper_class(): string {
+
+		return $this->get_wrapper_class();
+
+	}
+
+}
+
+class Jeero_Test_Account_Inline_Widget extends Account_Inline {
+
+	public function get_html( Subscription $subscription, array $args = array() ): string {
+
+		return '';
+
+	}
+
+	public function get_public_wrapper_class(): string {
+
+		return $this->get_wrapper_class();
+
+	}
+
+}
 
 class Jeero_Test_Cart_Inline_Widget extends Cart_Inline {
 
@@ -40,6 +74,30 @@ class Jeero_Test_Tickets_Inline_Widget extends Tickets_Inline {
 }
 
 class Widgets_Test extends Jeero_Test {
+
+	function test_account_indicator_widget_name_and_wrapper_class() {
+
+		$widget = new Jeero_Test_Account_Indicator_Widget();
+
+		$this->assertEquals( 'account_indicator', $widget->get_name() );
+		$this->assertEquals(
+			'jeero-theater-widget jeero-theater-widget--account-indicator',
+			$widget->get_public_wrapper_class()
+		);
+
+	}
+
+	function test_account_inline_widget_name_and_wrapper_class() {
+
+		$widget = new Jeero_Test_Account_Inline_Widget();
+
+		$this->assertEquals( 'account_inline', $widget->get_name() );
+		$this->assertEquals(
+			'jeero-theater-widget jeero-theater-widget--account-inline',
+			$widget->get_public_wrapper_class()
+		);
+
+	}
 
 	function test_cart_inline_widget_name_and_wrapper_class() {
 
@@ -124,6 +182,79 @@ class Widgets_Test extends Jeero_Test {
 		$this->assertStringContainsString( 'src="https://tickets.example.com/shop/Cart"', $actual );
 		$this->assertStringContainsString( 'title="Winkelmand"', $actual );
 		$this->assertStringContainsString( 'height="640"', $actual );
+
+	}
+
+	function test_activetickets_account_inline_renders_account_iframe_from_subscription_baseurl() {
+
+		$subscription = new Subscription( 'a fake ID' );
+		$subscription->set(
+			'theater',
+			array(
+				'name'              => 'activetickets',
+				'supported_widgets' => array( 'account_inline' ),
+			)
+		);
+		$subscription->set(
+			'settings',
+			array(
+				'theater' => 'activetickets',
+				'baseurl' => 'https://tickets.example.com/shop',
+			)
+		);
+
+		$actual = jeero_get_theater_widget(
+			'account_inline',
+			$subscription,
+			array(
+				'title'  => 'Mijn bestellingen',
+				'height' => 640,
+				'path'   => '/nl-NL/OrderHistory',
+			)
+		);
+
+		$this->assertStringContainsString( 'class="jeero-theater-widget jeero-theater-widget--account-inline jeero-theater-widget--theater-activetickets"', $actual );
+		$this->assertStringContainsString( 'src="https://tickets.example.com/shop/nl-NL/OrderHistory"', $actual );
+		$this->assertStringContainsString( 'class="jeero-account-inline"', $actual );
+		$this->assertStringContainsString( 'title="Mijn bestellingen"', $actual );
+		$this->assertStringContainsString( 'height="640"', $actual );
+
+	}
+
+	function test_activetickets_account_indicator_renders_account_link_from_subscription_baseurl() {
+
+		$subscription = new Subscription( 'a fake ID' );
+		$subscription->set(
+			'theater',
+			array(
+				'name'              => 'activetickets',
+				'supported_widgets' => array( 'account_indicator' ),
+			)
+		);
+		$subscription->set(
+			'settings',
+			array(
+				'theater' => 'activetickets',
+				'baseurl' => 'https://tickets.example.com/shop',
+			)
+		);
+
+		$actual = jeero_get_theater_widget(
+			'account_indicator',
+			$subscription,
+			array(
+				'label'            => 'Account',
+				'logged_in_label'  => 'Mijn account',
+				'logged_out_label' => 'Inloggen',
+			)
+		);
+
+		$this->assertStringContainsString( 'class="jeero-theater-widget jeero-theater-widget--account-indicator jeero-theater-widget--theater-activetickets"', $actual );
+		$this->assertStringContainsString( 'href="https://tickets.example.com/shop/nl-NL/Account/Manage"', $actual );
+		$this->assertStringContainsString( 'class="jeero-account-indicator"', $actual );
+		$this->assertStringContainsString( 'data-jeero-bind="account.label"', $actual );
+		$this->assertStringContainsString( 'data-jeero-logged-in-label="Mijn account"', $actual );
+		$this->assertStringContainsString( 'data-jeero-logged-out-label="Inloggen"', $actual );
 
 	}
 
@@ -645,6 +776,18 @@ class Widgets_Test extends Jeero_Test {
 
 	}
 
+	function test_registered_account_indicator_widget_gets_generated_shortcode() {
+
+		$this->assertTrue( shortcode_exists( 'jeero_account_indicator' ) );
+
+	}
+
+	function test_registered_account_inline_widget_gets_generated_shortcode() {
+
+		$this->assertTrue( shortcode_exists( 'jeero_account_inline' ) );
+
+	}
+
 	function test_registered_cart_inline_widget_gets_generated_shortcode() {
 
 		$this->assertTrue( shortcode_exists( 'jeero_cart_inline' ) );
@@ -663,6 +806,17 @@ class Widgets_Test extends Jeero_Test {
 
 		$this->assertEquals(
 			'[jeero_tickets_inline subscription="a fake ID" tickets_url="https://example.com/tickets"]',
+			$actual
+		);
+
+	}
+
+	function test_account_inline_shortcode_example_includes_path_attribute() {
+
+		$actual = \Jeero\Theaters\Widgets\Shortcodes\get_shortcode_example( 'account_inline', 'a fake ID' );
+
+		$this->assertEquals(
+			'[jeero_account_inline subscription="a fake ID" path="/nl-NL/Account/Manage"]',
 			$actual
 		);
 

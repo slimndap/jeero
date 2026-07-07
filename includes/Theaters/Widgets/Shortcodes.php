@@ -68,6 +68,10 @@ function get_shortcode_example( string $widget_name, string $subscription_id = '
 		$shortcode .= ' tickets_url="https://example.com/tickets"';
 	}
 
+	if ( 'account_inline' === sanitize_key( $widget_name ) ) {
+		$shortcode .= ' path="/nl-NL/Account/Manage"';
+	}
+
 	return $shortcode . ']';
 
 }

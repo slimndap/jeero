@@ -7,6 +7,8 @@ namespace Jeero\Theaters\Widgets;
 use Jeero\Subscriptions\Subscription;
 
 include_once \Jeero\PLUGIN_PATH . 'includes/Theaters/Widgets/Widget.php';
+include_once \Jeero\PLUGIN_PATH . 'includes/Theaters/Widgets/Account_Indicator.php';
+include_once \Jeero\PLUGIN_PATH . 'includes/Theaters/Widgets/Account_Inline.php';
 include_once \Jeero\PLUGIN_PATH . 'includes/Theaters/Widgets/Cart_Indicator.php';
 include_once \Jeero\PLUGIN_PATH . 'includes/Theaters/Widgets/Cart_Inline.php';
 include_once \Jeero\PLUGIN_PATH . 'includes/Theaters/Widgets/Tickets_Inline.php';
@@ -318,6 +320,8 @@ function normalize_supported_widgets( array $widgets ): array {
 
 }
 
+register_widget( new Account_Indicator() );
+register_widget( new Account_Inline() );
 register_widget( new Cart_Indicator() );
 register_widget( new Cart_Inline() );
 register_widget( new Tickets_Inline() );

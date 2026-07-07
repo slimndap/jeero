@@ -47,7 +47,77 @@ class Activetickets extends Theater {
 	 */
 	public function get_supported_widgets(): ?array {
 
-		return array( 'cart_indicator', 'cart_inline', 'tickets_inline' );
+		return array( 'account_indicator', 'account_inline', 'cart_indicator', 'cart_inline', 'tickets_inline' );
+
+	}
+
+	/**
+	 * Get the account indicator widget HTML.
+	 *
+	 * @since 1.35
+	 *
+	 * @param Subscription $subscription Jeero subscription.
+	 * @param array        $args         Render arguments.
+	 * @return string
+	 */
+	public function get_account_indicator_widget_html( Subscription $subscription, array $args = array() ): string {
+
+		if ( ! $this->is_active_subscription( $subscription ) ) {
+			return '';
+		}
+
+		$url = $this->get_account_url( $subscription, $args );
+
+		if ( '' === $url ) {
+			return '';
+		}
+
+		$label            = ! empty( $args['label'] ) ? $args['label'] : __( 'Account', 'jeero' );
+		$logged_in_label  = ! empty( $args['logged_in_label'] ) ? $args['logged_in_label'] : $label;
+		$logged_out_label = ! empty( $args['logged_out_label'] ) ? $args['logged_out_label'] : $label;
+
+		return sprintf(
+			'<a href="%s" class="jeero-account-indicator"><span data-jeero-bind="account.label" data-jeero-logged-in-label="%s" data-jeero-logged-out-label="%s">%s</span></a>',
+			esc_url( $url ),
+			esc_attr( $logged_in_label ),
+			esc_attr( $logged_out_label ),
+			esc_html( $label )
+		);
+
+	}
+
+	/**
+	 * Get the inline account widget HTML.
+	 *
+	 * @since 1.35
+	 *
+	 * @param Subscription $subscription Jeero subscription.
+	 * @param array        $args         Render arguments.
+	 * @return string
+	 */
+	public function get_account_inline_widget_html( Subscription $subscription, array $args = array() ): string {
+
+		if ( ! $this->is_active_subscription( $subscription ) ) {
+			return '';
+		}
+
+		$url = $this->get_account_url( $subscription, $args );
+
+		if ( '' === $url ) {
+			return '';
+		}
+
+		$title  = ! empty( $args['title'] ) ? $args['title'] : __( 'Account', 'jeero' );
+		$width  = ! empty( $args['width'] ) ? $args['width'] : '100%';
+		$height = ! empty( $args['height'] ) ? absint( $args['height'] ) : 800;
+
+		return sprintf(
+			'<iframe src="%s" class="jeero-account-inline" title="%s" loading="lazy" width="%s" height="%d"></iframe>',
+			esc_url( $url ),
+			esc_attr( $title ),
+			esc_attr( $width ),
+			$height
+		);
 
 	}
 
@@ -153,6 +223,39 @@ class Activetickets extends Theater {
 	}
 
 	/**
+	 * Get an ActiveTickets account URL.
+	 *
+	 * @since 1.35
+	 *
+	 * @param Subscription $subscription Jeero subscription.
+	 * @param array        $args         Render arguments.
+	 * @return string
+	 */
+	public function get_account_url( Subscription $subscription, array $args = array() ): string {
+
+		foreach ( array( 'account_url', 'url' ) as $key ) {
+			if ( ! empty( $args[ $key ] ) ) {
+				return esc_url_raw( $args[ $key ] );
+			}
+		}
+
+		$path = ! empty( $args['path'] ) ? (string) $args['path'] : '/nl-NL/Account/Manage';
+
+		if ( ! empty( $args['baseurl'] ) ) {
+			return $this->get_account_url_from_baseurl( (string) $args['baseurl'], $path );
+		}
+
+		$baseurl = $subscription->get_setting( 'baseurl' );
+
+		if ( ! empty( $baseurl ) && is_scalar( $baseurl ) ) {
+			return $this->get_account_url_from_baseurl( (string) $baseurl, $path );
+		}
+
+		return '';
+
+	}
+
+	/**
 	 * Get the ActiveTickets URL for an inline tickets widget.
 	 *
 	 * @since 1.34
@@ -191,6 +294,29 @@ class Activetickets extends Theater {
 		return $this->add_visitor_params_to_url(
 			esc_url_raw( untrailingslashit( $baseurl ) . '/Cart' )
 		);
+
+	}
+
+	/**
+	 * Get an ActiveTickets account URL from a subscription base URL.
+	 *
+	 * @since 1.35
+	 *
+	 * @param string $baseurl ActiveTickets base URL.
+	 * @param string $path    Account path.
+	 * @return string
+	 */
+	protected function get_account_url_from_baseurl( string $baseurl, string $path ): string {
+
+		$baseurl = esc_url_raw( $baseurl );
+
+		if ( '' === $baseurl ) {
+			return '';
+		}
+
+		$path = '/' . ltrim( $path, '/' );
+
+		return esc_url_raw( untrailingslashit( $baseurl ) . $path );
 
 	}
 
