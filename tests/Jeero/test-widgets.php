@@ -258,6 +258,46 @@ class Widgets_Test extends Jeero_Test {
 
 	}
 
+	function test_account_indicator_uses_selected_account_page_url() {
+
+		$account_page_id = wp_insert_post(
+			array(
+				'post_title'  => 'My Account',
+				'post_status' => 'publish',
+				'post_type'   => 'page',
+			)
+		);
+
+		$subscription = new Subscription( 'a fake ID' );
+		$subscription->set(
+			'theater',
+			array(
+				'name'              => 'activetickets',
+				'supported_widgets' => array( 'account_indicator' ),
+			)
+		);
+		$subscription->set(
+			'settings',
+			array(
+				'theater'                                => 'activetickets',
+				'baseurl'                                => 'https://tickets.example.com/shop',
+				'widgets/account_indicator/account_page' => $account_page_id,
+			)
+		);
+
+		$actual = jeero_get_theater_widget(
+			'account_indicator',
+			$subscription,
+			array(
+				'label' => 'Account',
+			)
+		);
+
+		$this->assertStringContainsString( sprintf( 'href="%s"', get_permalink( $account_page_id ) ), $actual );
+		$this->assertStringNotContainsString( 'https://tickets.example.com/shop/nl-NL/Account/Manage', $actual );
+
+	}
+
 	function test_activetickets_tickets_inline_renders_ticket_iframe_from_url_arg() {
 
 		new \Jeero\Theaters\Widgets\Tickets_Inline();

@@ -2,6 +2,7 @@
 namespace Jeero\Theaters;
 
 use Jeero\Subscriptions\Subscription;
+use Jeero\Theaters\Widgets\Account_Indicator;
 
 add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_activetickets_scripts', 0 );
 
@@ -66,7 +67,7 @@ class Activetickets extends Theater {
 			return '';
 		}
 
-		$url = $this->get_account_url( $subscription, $args );
+		$url = $this->get_account_indicator_url( $subscription, $args );
 
 		if ( '' === $url ) {
 			return '';
@@ -256,6 +257,33 @@ class Activetickets extends Theater {
 	}
 
 	/**
+	 * Get the account indicator URL.
+	 *
+	 * @since 1.35
+	 *
+	 * @param Subscription $subscription Jeero subscription.
+	 * @param array        $args         Render arguments.
+	 * @return string
+	 */
+	public function get_account_indicator_url( Subscription $subscription, array $args = array() ): string {
+
+		foreach ( array( 'account_url', 'url' ) as $key ) {
+			if ( ! empty( $args[ $key ] ) ) {
+				return esc_url_raw( $args[ $key ] );
+			}
+		}
+
+		$account_page_url = $this->get_account_page_url( $subscription );
+
+		if ( '' !== $account_page_url ) {
+			return $account_page_url;
+		}
+
+		return $this->get_account_url( $subscription, $args );
+
+	}
+
+	/**
 	 * Get the ActiveTickets URL for an inline tickets widget.
 	 *
 	 * @since 1.34
@@ -317,6 +345,32 @@ class Activetickets extends Theater {
 		$path = '/' . ltrim( $path, '/' );
 
 		return esc_url_raw( untrailingslashit( $baseurl ) . $path );
+
+	}
+
+	/**
+	 * Get the selected account page URL.
+	 *
+	 * @since 1.35
+	 *
+	 * @param Subscription $subscription Jeero subscription.
+	 * @return string
+	 */
+	protected function get_account_page_url( Subscription $subscription ): string {
+
+		$account_page = $subscription->get_setting( Account_Indicator::SETTING_ACCOUNT_PAGE );
+
+		if ( empty( $account_page ) ) {
+			return '';
+		}
+
+		$url = get_permalink( absint( $account_page ) );
+
+		if ( ! $url ) {
+			return '';
+		}
+
+		return esc_url_raw( $url );
 
 	}
 
