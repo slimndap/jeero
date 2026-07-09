@@ -581,10 +581,33 @@ abstract class Post_Based_Calendar extends Calendar {
 
 		$this->update_custom_fields( $post_id, $data, $subscription );
 		
+		$this->update_ticket_context_meta( $post_id, $data, $subscription );
+
 		\update_post_meta( $post_id, 'jeero/import/post/subscription', $subscription->ID );
 
 		return $post_id;
 		
+	}
+
+	/**
+	 * Updates canonical Jeero ticket context meta for a post.
+	 *
+	 * @since 1.35
+	 *
+	 * @param int          $post_id      Post ID.
+	 * @param array        $data         Structured event data.
+	 * @param Subscription $subscription Subscription.
+	 * @return void
+	 */
+	function update_ticket_context_meta( $post_id, $data, $subscription ) {
+
+		$tickets_url = ! empty( $data['tickets_url'] ) && is_scalar( $data['tickets_url'] ) ? esc_url_raw( (string) $data['tickets_url'] ) : '';
+		$status      = ! empty( $data['status'] ) && is_scalar( $data['status'] ) ? sanitize_key( (string) $data['status'] ) : 'onsale';
+
+		\update_post_meta( $post_id, 'jeero/import/post/tickets_url', $tickets_url );
+		\update_post_meta( $post_id, 'jeero/import/post/tickets_status', $status );
+		\update_post_meta( $post_id, 'jeero/import/post/subscription', $subscription->ID );
+
 	}
 
 	/**

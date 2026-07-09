@@ -6,6 +6,42 @@ const JEERO_CALENDARS_THEATER_FOR_WORDPRESS_REF_KEY = 'jeero/theater_for_wordpre
 // Register new calendar.
 register_calendar( __NAMESPACE__.'\\Theater_For_WordPress' );
 
+add_filter( 'wpt/event/template/field/value', __NAMESPACE__ . '\\render_theater_for_wordpress_tickets_button_field', 10, 5 );
+
+/**
+ * Render Jeero's tickets button inside Theater for WordPress event templates.
+ *
+ * @since 1.35
+ *
+ * @param string     $value   Field value.
+ * @param string     $field   Template field name.
+ * @param array      $args    Field args.
+ * @param array      $filters Field filters.
+ * @param \WPT_Event $event   Theater for WordPress event.
+ * @return string
+ */
+function render_theater_for_wordpress_tickets_button_field( $value, $field, $args, $filters, $event ) {
+
+	if ( 'jeero_tickets_button' !== $field || ! $event instanceof \WPT_Event ) {
+		return $value;
+	}
+
+	$subscription_id = get_post_meta( $event->ID, 'jeero/import/post/subscription', true );
+
+	if ( empty( $subscription_id ) || ! is_scalar( $subscription_id ) ) {
+		return '';
+	}
+
+	return jeero_get_theater_widget(
+		'tickets_button',
+		(string) $subscription_id,
+		array(
+			'event_id' => $event->ID,
+		)
+	);
+
+}
+
 /**
  * Theater_For_WordPress class.
  * 
@@ -143,6 +179,8 @@ class Theater_For_WordPress extends Post_Based_Calendar {
 			}
 			
 			$wpt_event = $importer->update_event( $event_args );
+
+			$this->delete_ticket_context_meta( $post_id );
 			
 			if ( !empty( $data[ 'end' ] ) ) {
 				update_post_meta( $wpt_event->ID, 'enddate', $data[ 'end' ] );
@@ -164,6 +202,8 @@ class Theater_For_WordPress extends Post_Based_Calendar {
 			}
 	
 			update_post_meta( $wpt_event->ID, 'tickets_status', $tickets_status );
+
+			$this->update_ticket_context_meta( $wpt_event->ID, $data, $subscription );
 			
 			// Replace date that was previously imported by a Theater for WordPress extension.
 			if ( $legacy_date = $legacy_importer->get_event_by_ref( $data[ 'ref' ] ) ) {
@@ -174,6 +214,21 @@ class Theater_For_WordPress extends Post_Based_Calendar {
 		}
 		
 		return $post_id;
+	}
+
+	/**
+	 * Delete canonical ticket context from a Theater for WordPress production.
+	 *
+	 * @since 1.35
+	 *
+	 * @param int $post_id Production post ID.
+	 * @return void
+	 */
+	function delete_ticket_context_meta( $post_id ) {
+
+		delete_post_meta( $post_id, 'jeero/import/post/tickets_url' );
+		delete_post_meta( $post_id, 'jeero/import/post/tickets_status' );
+
 	}
 	
 }

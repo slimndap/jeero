@@ -80,6 +80,13 @@ class Admin_Test extends Jeero_Test {
 				'post_type'   => 'page',
 			)
 		);
+		$tickets_page_id = wp_insert_post(
+			array(
+				'post_title'  => 'Tickets',
+				'post_status' => 'publish',
+				'post_type'   => 'page',
+			)
+		);
 
 		add_filter(
 			'jeero/mother/get/response/endpoint=subscriptions/a fake ID',
@@ -95,6 +102,7 @@ class Admin_Test extends Jeero_Test {
 						'account_indicator',
 						'cart_indicator',
 						'cart_inline',
+						'tickets_button',
 					),
 				);
 
@@ -115,10 +123,13 @@ class Admin_Test extends Jeero_Test {
 		$this->assertStringContainsStringIgnoringCase( '<li>Account Indicator <code>[jeero_account_indicator subscription=&quot;a fake ID&quot;]</code></li>', $actual );
 		$this->assertStringContainsStringIgnoringCase( '<li>Cart Indicator <code>[jeero_cart_indicator subscription=&quot;a fake ID&quot;]</code></li>', $actual );
 		$this->assertStringContainsStringIgnoringCase( '<li>Cart <code>[jeero_cart_inline subscription=&quot;a fake ID&quot;]</code></li>', $actual );
+		$this->assertStringContainsStringIgnoringCase( '<li>Tickets Button <code>[jeero_tickets_button subscription=&quot;a fake ID&quot; tickets_url=&quot;https://example.com/tickets&quot;]</code></li>', $actual );
 		$this->assertStringContainsStringIgnoringCase( '<label>Account page</label>', $actual );
 		$this->assertStringContainsStringIgnoringCase( sprintf( '<option value="%s">My Account</option>', $account_page_id ), $actual );
 		$this->assertStringContainsStringIgnoringCase( '<label>Cart page</label>', $actual );
 		$this->assertStringContainsStringIgnoringCase( sprintf( '<option value="%s">Basket</option>', $cart_page_id ), $actual );
+		$this->assertStringContainsStringIgnoringCase( '<label>Tickets page</label>', $actual );
+		$this->assertStringContainsStringIgnoringCase( sprintf( '<option value="%s">Tickets</option>', $tickets_page_id ), $actual );
 
 	}
 	

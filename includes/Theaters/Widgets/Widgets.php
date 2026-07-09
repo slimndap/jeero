@@ -7,10 +7,12 @@ namespace Jeero\Theaters\Widgets;
 use Jeero\Subscriptions\Subscription;
 
 include_once \Jeero\PLUGIN_PATH . 'includes/Theaters/Widgets/Widget.php';
+include_once \Jeero\PLUGIN_PATH . 'includes/Theaters/Widgets/Ticket_Context.php';
 include_once \Jeero\PLUGIN_PATH . 'includes/Theaters/Widgets/Account_Indicator.php';
 include_once \Jeero\PLUGIN_PATH . 'includes/Theaters/Widgets/Account_Inline.php';
 include_once \Jeero\PLUGIN_PATH . 'includes/Theaters/Widgets/Cart_Indicator.php';
 include_once \Jeero\PLUGIN_PATH . 'includes/Theaters/Widgets/Cart_Inline.php';
+include_once \Jeero\PLUGIN_PATH . 'includes/Theaters/Widgets/Tickets_Button.php';
 include_once \Jeero\PLUGIN_PATH . 'includes/Theaters/Widgets/Tickets_Inline.php';
 include_once \Jeero\PLUGIN_PATH . 'includes/Theaters/Widgets/Template_Functions.php';
 include_once \Jeero\PLUGIN_PATH . 'includes/Theaters/Widgets/Shortcodes.php';
@@ -123,11 +125,11 @@ function get_supported_widgets_for_subscription( Subscription $subscription ): a
 		$supported_widgets = get_supported_widgets_from_theater_metadata( $theater );
 
 		if ( null !== $supported_widgets ) {
-			return $supported_widgets;
+			return with_global_supported_widgets( $supported_widgets );
 		}
 
 		if ( ! empty( $theater['name'] ) && is_scalar( $theater['name'] ) ) {
-			return get_supported_widgets_for_theater( (string) $theater['name'] );
+			return with_global_supported_widgets( get_supported_widgets_for_theater( (string) $theater['name'] ) );
 		}
 	}
 
@@ -137,7 +139,7 @@ function get_supported_widgets_for_subscription( Subscription $subscription ): a
 		return array();
 	}
 
-	return get_supported_widgets_for_theater( (string) $theater_name );
+	return with_global_supported_widgets( get_supported_widgets_for_theater( (string) $theater_name ) );
 
 }
 
@@ -320,8 +322,25 @@ function normalize_supported_widgets( array $widgets ): array {
 
 }
 
+/**
+ * Add globally supported widget names to a theater-specific support list.
+ *
+ * @since 1.35
+ *
+ * @param string[] $widgets Widget list.
+ * @return string[]
+ */
+function with_global_supported_widgets( array $widgets ): array {
+
+	$widgets[] = 'tickets_button';
+
+	return normalize_supported_widgets( $widgets );
+
+}
+
 register_widget( new Account_Indicator() );
 register_widget( new Account_Inline() );
 register_widget( new Cart_Indicator() );
 register_widget( new Cart_Inline() );
+register_widget( new Tickets_Button() );
 register_widget( new Tickets_Inline() );

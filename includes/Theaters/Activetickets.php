@@ -48,7 +48,7 @@ class Activetickets extends Theater {
 	 */
 	public function get_supported_widgets(): ?array {
 
-		return array( 'account_indicator', 'account_inline', 'cart_indicator', 'cart_inline', 'tickets_inline' );
+		return array( 'account_indicator', 'account_inline', 'cart_indicator', 'cart_inline', 'tickets_button', 'tickets_inline' );
 
 	}
 
@@ -291,7 +291,9 @@ class Activetickets extends Theater {
 			return $this->add_visitor_params_to_url( esc_url_raw( $args['tickets_url'] ) );
 		}
 
-		return '';
+		$context = Widgets\get_ticket_context( $args );
+
+		return $this->add_visitor_params_to_url( $context['tickets_url'] );
 
 	}
 

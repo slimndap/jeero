@@ -7,6 +7,7 @@ use Jeero\Subscriptions\Subscription;
 use Jeero\Theaters\Widgets\Account_Indicator;
 use Jeero\Theaters\Widgets\Account_Inline;
 use Jeero\Theaters\Widgets\Cart_Inline;
+use Jeero\Theaters\Widgets\Tickets_Button;
 use Jeero\Theaters\Widgets\Tickets_Inline;
 
 class Jeero_Test_Account_Indicator_Widget extends Account_Indicator {
@@ -64,6 +65,16 @@ class Jeero_Test_Tickets_Inline_Widget extends Tickets_Inline {
 		return '';
 
 	}
+
+	public function get_public_wrapper_class(): string {
+
+		return $this->get_wrapper_class();
+
+	}
+
+}
+
+class Jeero_Test_Tickets_Button_Widget extends Tickets_Button {
 
 	public function get_public_wrapper_class(): string {
 
@@ -335,6 +346,45 @@ class Widgets_Test extends Jeero_Test {
 
 	}
 
+	function test_tickets_inline_resolves_ticket_url_from_jeero_event() {
+
+		$event_id = wp_insert_post(
+			array(
+				'post_title'  => 'Event',
+				'post_status' => 'publish',
+				'post_type'   => 'post',
+			)
+		);
+
+		update_post_meta( $event_id, 'jeero/import/post/tickets_url', 'https://tickets.example.com/shop/Tickets/Show/123' );
+
+		$subscription = new Subscription( 'a fake ID' );
+		$subscription->set(
+			'theater',
+			array(
+				'name'              => 'activetickets',
+				'supported_widgets' => array( 'tickets_inline' ),
+			)
+		);
+		$subscription->set(
+			'settings',
+			array(
+				'theater' => 'activetickets',
+			)
+		);
+
+		$actual = jeero_get_theater_widget(
+			'tickets_inline',
+			$subscription,
+			array(
+				'event_id' => $event_id,
+			)
+		);
+
+		$this->assertStringContainsString( 'src="https://tickets.example.com/shop/Tickets/Show/123"', $actual );
+
+	}
+
 	function test_cart_inline_does_not_render_for_non_activetickets_subscriptions() {
 
 		new \Jeero\Theaters\Widgets\Cart_Inline();
@@ -553,6 +603,18 @@ class Widgets_Test extends Jeero_Test {
 
 	}
 
+	function test_tickets_button_widget_name_and_wrapper_class() {
+
+		$widget = new Jeero_Test_Tickets_Button_Widget();
+
+		$this->assertEquals( 'tickets_button', $widget->get_name() );
+		$this->assertEquals(
+			'jeero-theater-widget jeero-theater-widget--tickets-button',
+			$widget->get_public_wrapper_class()
+		);
+
+	}
+
 	function test_theater_widget_echoes_widget() {
 
 		\Jeero\Db\Subscriptions\save_subscription(
@@ -684,6 +746,182 @@ class Widgets_Test extends Jeero_Test {
 		);
 
 		$this->assertStringContainsString( sprintf( 'href="%s"', get_permalink( $cart_page_id ) ), $actual );
+
+	}
+
+	function test_tickets_button_links_to_canonical_ticket_url() {
+
+		$event_id = wp_insert_post(
+			array(
+				'post_title'  => 'Event',
+				'post_status' => 'publish',
+				'post_type'   => 'post',
+			)
+		);
+
+		update_post_meta( $event_id, 'jeero/import/post/tickets_url', 'https://tickets.example.com/show/123' );
+		update_post_meta( $event_id, 'jeero/import/post/tickets_status', 'onsale' );
+
+		$subscription = new Subscription( 'a fake ID' );
+
+		$actual = jeero_get_theater_widget(
+			'tickets_button',
+			$subscription,
+			array(
+				'event_id' => $event_id,
+			)
+		);
+
+		$this->assertStringContainsString( 'href="https://tickets.example.com/show/123"', $actual );
+		$this->assertStringContainsString( 'class="jeero-tickets-button jeero-tickets-button--onsale"', $actual );
+		$this->assertStringContainsString( 'data-jeero-ticket-status="onsale"', $actual );
+		$this->assertStringContainsString( '>Tickets</a>', $actual );
+
+	}
+
+	function test_tickets_button_uses_selected_tickets_page_with_event_context() {
+
+		$tickets_page_id = wp_insert_post(
+			array(
+				'post_title'  => 'Tickets',
+				'post_status' => 'publish',
+				'post_type'   => 'page',
+			)
+		);
+		$event_id        = wp_insert_post(
+			array(
+				'post_title'  => 'Event',
+				'post_status' => 'publish',
+				'post_type'   => 'post',
+			)
+		);
+
+		update_post_meta( $event_id, 'jeero/import/post/tickets_url', 'https://tickets.example.com/show/123' );
+		update_post_meta( $event_id, 'jeero/import/post/tickets_status', 'onsale' );
+
+		$subscription = new Subscription( 'a fake ID' );
+		$subscription->set(
+			'settings',
+			array(
+				'widgets/tickets_button/tickets_page' => $tickets_page_id,
+			)
+		);
+
+		$actual = jeero_get_theater_widget(
+			'tickets_button',
+			$subscription,
+			array(
+				'event_id' => $event_id,
+			)
+		);
+
+		$this->assertStringContainsString( sprintf( 'href="%s"', esc_url( add_query_arg( 'jeero_event', $event_id, get_permalink( $tickets_page_id ) ) ) ), $actual );
+		$this->assertStringNotContainsString( 'href="https://tickets.example.com/show/123"', $actual );
+
+	}
+
+	function test_tickets_button_soldout_renders_non_clickable_status() {
+
+		$event_id = wp_insert_post(
+			array(
+				'post_title'  => 'Event',
+				'post_status' => 'publish',
+				'post_type'   => 'post',
+			)
+		);
+
+		update_post_meta( $event_id, 'jeero/import/post/tickets_url', 'https://tickets.example.com/show/123' );
+		update_post_meta( $event_id, 'jeero/import/post/tickets_status', 'soldout' );
+
+		$actual = jeero_get_theater_widget(
+			'tickets_button',
+			new Subscription( 'a fake ID' ),
+			array(
+				'event_id' => $event_id,
+			)
+		);
+
+		$this->assertStringContainsString( '<span', $actual );
+		$this->assertStringContainsString( 'Uitverkocht', $actual );
+		$this->assertStringContainsString( 'data-jeero-ticket-status="soldout"', $actual );
+		$this->assertStringNotContainsString( '<a ', $actual );
+
+	}
+
+	function test_tickets_button_cancelled_renders_non_clickable_status() {
+
+		$event_id = wp_insert_post(
+			array(
+				'post_title'  => 'Event',
+				'post_status' => 'publish',
+				'post_type'   => 'post',
+			)
+		);
+
+		update_post_meta( $event_id, 'jeero/import/post/tickets_url', 'https://tickets.example.com/show/123' );
+		update_post_meta( $event_id, 'jeero/import/post/tickets_status', 'cancelled' );
+
+		$actual = jeero_get_theater_widget(
+			'tickets_button',
+			new Subscription( 'a fake ID' ),
+			array(
+				'event_id' => $event_id,
+			)
+		);
+
+		$this->assertStringContainsString( 'Geannuleerd', $actual );
+		$this->assertStringContainsString( 'data-jeero-ticket-status="cancelled"', $actual );
+		$this->assertStringNotContainsString( '<a ', $actual );
+
+	}
+
+	function test_tickets_button_hidden_renders_empty_string() {
+
+		$event_id = wp_insert_post(
+			array(
+				'post_title'  => 'Event',
+				'post_status' => 'publish',
+				'post_type'   => 'post',
+			)
+		);
+
+		update_post_meta( $event_id, 'jeero/import/post/tickets_url', 'https://tickets.example.com/show/123' );
+		update_post_meta( $event_id, 'jeero/import/post/tickets_status', 'hidden' );
+
+		$actual = jeero_get_theater_widget(
+			'tickets_button',
+			new Subscription( 'a fake ID' ),
+			array(
+				'event_id' => $event_id,
+			)
+		);
+
+		$this->assertEquals( '', $actual );
+
+	}
+
+	function test_tickets_button_does_not_read_calendar_plugin_fallback_fields() {
+
+		$event_id = wp_insert_post(
+			array(
+				'post_title'  => 'Event',
+				'post_status' => 'publish',
+				'post_type'   => 'post',
+			)
+		);
+
+		update_post_meta( $event_id, 'tickets_url', 'https://tickets.example.com/show/123' );
+		update_post_meta( $event_id, 'tickets_status', 'onsale' );
+
+		$actual = jeero_get_theater_widget(
+			'tickets_button',
+			new Subscription( 'a fake ID' ),
+			array(
+				'event_id' => $event_id,
+			)
+		);
+
+		$this->assertEquals( '', $actual );
 
 	}
 
@@ -837,6 +1075,23 @@ class Widgets_Test extends Jeero_Test {
 	function test_registered_tickets_inline_widget_gets_generated_shortcode() {
 
 		$this->assertTrue( shortcode_exists( 'jeero_tickets_inline' ) );
+
+	}
+
+	function test_registered_tickets_button_widget_gets_generated_shortcode() {
+
+		$this->assertTrue( shortcode_exists( 'jeero_tickets_button' ) );
+
+	}
+
+	function test_tickets_button_shortcode_example_includes_tickets_url_attribute() {
+
+		$actual = \Jeero\Theaters\Widgets\Shortcodes\get_shortcode_example( 'tickets_button', 'a fake ID' );
+
+		$this->assertEquals(
+			'[jeero_tickets_button subscription="a fake ID" tickets_url="https://example.com/tickets"]',
+			$actual
+		);
 
 	}
 
