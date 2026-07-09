@@ -635,8 +635,8 @@ class Widgets_Test extends Jeero_Test {
 			'cart_indicator',
 			$subscription,
 			array(
-				'label' => 'Winkelmand',
-				'url'   => 'https://tickets.example.com/shop/',
+				'label'      => 'Winkelmand',
+				'basket_url' => 'https://tickets.example.com/shop/',
 			)
 		);
 
@@ -702,8 +702,8 @@ class Widgets_Test extends Jeero_Test {
 			'cart_indicator',
 			$subscription,
 			array(
-				'label' => 'Winkelmand',
-				'url'   => 'https://tickets.example.com/shop/',
+				'label'      => 'Winkelmand',
+				'basket_url' => 'https://tickets.example.com/shop/',
 			)
 		);
 
@@ -728,8 +728,8 @@ class Widgets_Test extends Jeero_Test {
 			'cart_indicator',
 			$subscription,
 			array(
-				'label' => 'Winkelmand',
-				'url'   => 'https://tickets.example.com/shop/',
+				'label'      => 'Winkelmand',
+				'basket_url' => 'https://tickets.example.com/shop/',
 			)
 		);
 

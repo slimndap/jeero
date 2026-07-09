@@ -203,10 +203,8 @@ class Activetickets extends Theater {
 	 */
 	public function get_cart_url( Subscription $subscription, array $args = array() ): string {
 
-		foreach ( array( 'cart_url', 'url' ) as $key ) {
-			if ( ! empty( $args[ $key ] ) ) {
-				return $this->add_visitor_params_to_url( esc_url_raw( $args[ $key ] ) );
-			}
+		if ( ! empty( $args['cart_url'] ) ) {
+			return $this->add_visitor_params_to_url( esc_url_raw( $args['cart_url'] ) );
 		}
 
 		if ( ! empty( $args['baseurl'] ) ) {
@@ -234,10 +232,8 @@ class Activetickets extends Theater {
 	 */
 	public function get_account_url( Subscription $subscription, array $args = array() ): string {
 
-		foreach ( array( 'account_url', 'url' ) as $key ) {
-			if ( ! empty( $args[ $key ] ) ) {
-				return esc_url_raw( $args[ $key ] );
-			}
+		if ( ! empty( $args['account_url'] ) ) {
+			return esc_url_raw( $args['account_url'] );
 		}
 
 		$path = ! empty( $args['path'] ) ? (string) $args['path'] : '/nl-NL/Account/Manage';
@@ -267,10 +263,8 @@ class Activetickets extends Theater {
 	 */
 	public function get_account_indicator_url( Subscription $subscription, array $args = array() ): string {
 
-		foreach ( array( 'account_url', 'url' ) as $key ) {
-			if ( ! empty( $args[ $key ] ) ) {
-				return esc_url_raw( $args[ $key ] );
-			}
+		if ( ! empty( $args['account_url'] ) ) {
+			return esc_url_raw( $args['account_url'] );
 		}
 
 		$account_page_url = $this->get_account_page_url( $subscription );
@@ -293,10 +287,8 @@ class Activetickets extends Theater {
 	 */
 	public function get_tickets_url( array $args = array() ): string {
 
-		foreach ( array( 'tickets_url', 'url' ) as $key ) {
-			if ( ! empty( $args[ $key ] ) ) {
-				return $this->add_visitor_params_to_url( esc_url_raw( $args[ $key ] ) );
-			}
+		if ( ! empty( $args['tickets_url'] ) ) {
+			return $this->add_visitor_params_to_url( esc_url_raw( $args['tickets_url'] ) );
 		}
 
 		return '';

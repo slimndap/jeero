@@ -111,10 +111,6 @@ class Cart_Indicator extends Widget {
 			return esc_url_raw( $args['basket_url'] );
 		}
 
-		if ( ! empty( $args['url'] ) ) {
-			return esc_url_raw( $args['url'] );
-		}
-
 		$cart_page_url = $this->get_cart_page_url( $subscription );
 
 		if ( '' !== $cart_page_url ) {
