@@ -75,3 +75,9 @@ include_once PLUGIN_PATH.'includes/Templates/Fields/Group.php';
 include_once PLUGIN_PATH.'includes/Templates/Fields/Select.php';
 
 include_once PLUGIN_PATH.'includes/Footprint/Footprint.php';
+
+include_once PLUGIN_PATH.'includes/Test_Cleanup.php';
+
+if ( defined( 'WP_CLI' ) && WP_CLI ) {
+	include_once PLUGIN_PATH.'includes/Cli/Test_Cleanup_Command.php';
+}
