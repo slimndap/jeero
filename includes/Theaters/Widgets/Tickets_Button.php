@@ -52,7 +52,7 @@ class Tickets_Button extends Widget {
 	 */
 	public function get_html( Subscription $subscription, array $args = array() ): string {
 
-		$context = get_ticket_context( $args );
+		$context = get_ticket_context( $args, $subscription->ID );
 		$status  = '' !== $context['status'] ? $context['status'] : 'onsale';
 
 		if ( 'hidden' === $status ) {
@@ -143,7 +143,7 @@ class Tickets_Button extends Widget {
 
 		$tickets_page_url = $this->get_tickets_page_url( $subscription );
 
-		if ( '' !== $tickets_page_url && ! empty( $context['post_id'] ) ) {
+		if ( '' !== $tickets_page_url && ! empty( $context['is_event'] ) ) {
 			return esc_url_raw(
 				add_query_arg(
 					array(
