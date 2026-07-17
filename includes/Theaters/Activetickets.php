@@ -57,7 +57,7 @@ class Activetickets extends Theater {
 	 *
 	 * @since 1.35
 	 *
-	 * @param Subscription $subscription Jeero subscription.
+	 * @param Subscription|null $subscription Jeero subscription.
 	 * @param array        $args         Render arguments.
 	 * @return string
 	 */
@@ -137,7 +137,7 @@ class Activetickets extends Theater {
 			return '';
 		}
 
-		$url = $this->get_tickets_url( $args );
+		$url = $this->get_tickets_url( $args, $subscription );
 
 		if ( '' === $url ) {
 			return '';
@@ -282,16 +282,17 @@ class Activetickets extends Theater {
 	 *
 	 * @since 1.34
 	 *
-	 * @param array $args Render arguments.
+	 * @param array        $args         Render arguments.
+	 * @param Subscription $subscription Jeero subscription.
 	 * @return string
 	 */
-	public function get_tickets_url( array $args = array() ): string {
+	public function get_tickets_url( array $args = array(), ?Subscription $subscription = null ): string {
 
 		if ( ! empty( $args['tickets_url'] ) ) {
 			return $this->add_visitor_params_to_url( esc_url_raw( $args['tickets_url'] ) );
 		}
 
-		$context = Widgets\get_ticket_context( $args );
+		$context = Widgets\get_ticket_context( $args, $subscription ? $subscription->ID : '' );
 
 		return $this->add_visitor_params_to_url( $context['tickets_url'] );
 

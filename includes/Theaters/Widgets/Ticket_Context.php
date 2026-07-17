@@ -53,31 +53,47 @@ function get_ticket_context_post_id( array $args = array() ): int {
  *
  * @since 1.35
  *
- * @param array $args Widget arguments.
- * @return array{post_id:int,tickets_url:string,tickets_inline_url:string,status:string}
+ * @param array  $args            Widget arguments.
+ * @param string $subscription_id Expected Jeero subscription ID.
+ * @return array{post_id:int,tickets_url:string,tickets_inline_url:string,status:string,is_event:bool}
  */
-function get_ticket_context( array $args = array() ): array {
+function get_ticket_context( array $args = array(), string $subscription_id = '' ): array {
 
-	$post_id            = get_ticket_context_post_id( $args );
-	$tickets_url        = '';
-	$tickets_inline_url = '';
-	$status             = '';
+	$post_id                   = get_ticket_context_post_id( $args );
+	$canonical_tickets_url     = '';
+	$canonical_subscription_id = '';
+	$tickets_url               = '';
+	$tickets_inline_url        = '';
+	$status                    = '';
+	$is_event                  = false;
+
+	if ( $post_id ) {
+		$canonical_tickets_url = get_post_meta( $post_id, META_TICKETS_URL, true );
+		$canonical_tickets_url = is_scalar( $canonical_tickets_url ) ? esc_url_raw( (string) $canonical_tickets_url ) : '';
+
+		$canonical_subscription_id = get_post_meta( $post_id, META_SUBSCRIPTION, true );
+		$canonical_subscription_id = is_scalar( $canonical_subscription_id ) ? sanitize_text_field( (string) $canonical_subscription_id ) : '';
+
+		$is_event = '' !== $canonical_tickets_url
+			&& '' !== $canonical_subscription_id
+			&& '' !== $subscription_id
+			&& $canonical_subscription_id === $subscription_id;
+	}
 
 	if ( ! empty( $args['tickets_url'] ) && is_scalar( $args['tickets_url'] ) ) {
 		$tickets_url = esc_url_raw( (string) $args['tickets_url'] );
-	} elseif ( $post_id ) {
-		$tickets_url = get_post_meta( $post_id, META_TICKETS_URL, true );
-		$tickets_url = is_scalar( $tickets_url ) ? esc_url_raw( (string) $tickets_url ) : '';
+	} elseif ( $is_event ) {
+		$tickets_url = $canonical_tickets_url;
 	}
 
-	if ( $post_id ) {
+	if ( $is_event ) {
 		$tickets_inline_url = get_post_meta( $post_id, META_TICKETS_INLINE_URL, true );
 		$tickets_inline_url = is_scalar( $tickets_inline_url ) ? esc_url_raw( (string) $tickets_inline_url ) : '';
 	}
 
 	if ( isset( $args['status'] ) && is_scalar( $args['status'] ) ) {
 		$status = normalize_ticket_status( (string) $args['status'] );
-	} elseif ( $post_id ) {
+	} elseif ( $is_event ) {
 		$status = get_post_meta( $post_id, META_TICKETS_STATUS, true );
 		$status = is_scalar( $status ) ? normalize_ticket_status( (string) $status ) : '';
 	}
@@ -87,6 +103,7 @@ function get_ticket_context( array $args = array() ): array {
 		'tickets_url'        => $tickets_url,
 		'tickets_inline_url' => $tickets_inline_url,
 		'status'             => $status,
+		'is_event'           => $is_event,
 	);
 
 }

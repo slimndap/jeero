@@ -45,7 +45,7 @@ class Ticketmatic extends Theater {
 			return '';
 		}
 
-		$context = Widgets\get_ticket_context( $args );
+		$context = Widgets\get_ticket_context( $args, $subscription->ID );
 		$url     = $context['tickets_inline_url'];
 
 		if ( '' === $url || ! $this->is_embeddable_widget_url( $url ) ) {
