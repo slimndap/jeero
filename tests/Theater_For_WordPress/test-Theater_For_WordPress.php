@@ -81,6 +81,35 @@ class Theater_For_WordPress_Test extends Post_Based_Calendar_Test {
 		$actual = $events[ 0 ]->tickets_status();
 		$expected = '_soldout';
 		$this->assertEquals( $expected, $actual );			
+
+		$this->assertEquals( 'soldout', get_post_meta( $events[0]->ID, 'jeero/import/post/tickets_status', true ) );
+		$this->assertEquals( 'https://slimndap.com', get_post_meta( $events[0]->ID, 'jeero/import/post/tickets_url', true ) );
+		$this->assertEquals( 'veezi', get_post_meta( $events[0]->ID, 'jeero/import/post/theater', true ) );
+	}
+
+	function test_jeero_tickets_button_event_template_field_renders_for_event() {
+
+		global $wp_theatre;
+
+		$this->import_event();
+
+		$args   = array(
+			'status' => array( 'draft' ),
+		);
+		$events = $wp_theatre->events->get( $args );
+
+		$actual = apply_filters(
+			'wpt/event/template/field/value',
+			'',
+			'jeero_tickets_button',
+			array(),
+			array(),
+			$events[0]
+		);
+
+		$this->assertStringContainsString( 'href="https://slimndap.com"', $actual );
+		$this->assertStringContainsString( 'data-jeero-ticket-status="onsale"', $actual );
+
 	}
 	
 	

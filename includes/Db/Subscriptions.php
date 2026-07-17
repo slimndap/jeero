@@ -65,13 +65,44 @@ function get_subscription( $subscription_id ) {
  * @return 	void
  */
 function save_subscription( $subscription_id, $settings ) {
-	
+
 	$subscriptions = get_subscriptions();
 	
-	$subscriptions[ $subscription_id ] = array(
-		'settings' => $settings,
+	$subscriptions[ $subscription_id ] = wp_parse_args(
+		array(
+			'settings' => $settings,
+		),
+		$subscriptions[ $subscription_id ] ?? array()
 	);
 	
 	update_option( JEERO_OPTION_SUBSCRIPTION, $subscriptions, false );
-		
+
+}
+
+/**
+ * Saves remote subscription state to the local DB cache.
+ *
+ * @since 1.34
+ * @param string $subscription_id Subscription ID.
+ * @param array  $state           Remote subscription state.
+ * @return void
+ */
+function save_subscription_state( $subscription_id, array $state ) {
+
+	$subscriptions = get_subscriptions();
+
+	if ( empty( $subscriptions[ $subscription_id ] ) ) {
+		$subscriptions[ $subscription_id ] = array(
+			'settings' => array(),
+		);
+	}
+
+	foreach ( array( 'inactive', 'theater' ) as $key ) {
+		if ( array_key_exists( $key, $state ) ) {
+			$subscriptions[ $subscription_id ][ $key ] = $state[ $key ];
+		}
+	}
+
+	update_option( JEERO_OPTION_SUBSCRIPTION, $subscriptions, false );
+
 }

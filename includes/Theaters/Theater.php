@@ -75,19 +75,47 @@ class Theater {
 	 */
 	public function has_active_subscription(): bool {
 
-		$subscriptions = \Jeero\Subscriptions\get_subscriptions();
+		$subscriptions = \Jeero\Db\Subscriptions\get_subscriptions();
 
-		if ( is_wp_error( $subscriptions ) ) {
-			return false;
-		}
-
-		foreach ( $subscriptions as $subscription ) {
-			if ( $subscription instanceof Subscription && $this->is_active_subscription( $subscription ) ) {
+		foreach ( $subscriptions as $subscription_data ) {
+			if ( $this->is_active_subscription_data( $subscription_data ) ) {
 				return true;
 			}
 		}
 
 		return false;
+
+	}
+
+	/**
+	 * Check whether local subscription data belongs to this theater and is active.
+	 *
+	 * @since 1.34
+	 *
+	 * @param array $subscription_data Local subscription data.
+	 * @return bool
+	 */
+	protected function is_active_subscription_data( $subscription_data ): bool {
+
+		if ( ! is_array( $subscription_data ) || ! empty( $subscription_data['inactive'] ) ) {
+			return false;
+		}
+
+		$theater_name = '';
+
+		if ( ! empty( $subscription_data['theater']['name'] ) && is_scalar( $subscription_data['theater']['name'] ) ) {
+			$theater_name = (string) $subscription_data['theater']['name'];
+		} elseif ( ! empty( $subscription_data['settings']['theater'] ) && is_scalar( $subscription_data['settings']['theater'] ) ) {
+			$theater_name = (string) $subscription_data['settings']['theater'];
+		}
+
+		if ( '' === $theater_name ) {
+			return false;
+		}
+
+		$theater = get_theater( $theater_name );
+
+		return $theater && $this->get_name() === $theater->get_name();
 
 	}
 

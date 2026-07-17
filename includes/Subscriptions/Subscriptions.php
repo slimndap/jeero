@@ -102,6 +102,7 @@ function get_subscription( $subscription_id ) {
 	$subscription->set( 'next_delivery', $answer[ 'next_delivery' ] );
 	$subscription->set( 'limit', $answer[ 'limit' ] );
 	$subscription->set( 'theater', $answer[ 'theater' ] );
+	Db\Subscriptions\save_subscription_state( $subscription_id, $answer );
 
 	$fields = array(
 		array(
@@ -268,6 +269,7 @@ function get_subscriptions() {
 		if ( isset( $answer[ 'theater' ] ) ) {
 			$subscription->set( 'theater', $answer[ 'theater' ] );
 		}
+		Db\Subscriptions\save_subscription_state( $subscription->get( 'ID' ), $answer );
 
 		$subscriptions[ $subscription->get( 'ID' ) ] = $subscription;
 	}

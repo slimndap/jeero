@@ -256,6 +256,8 @@ class Subscription {
 		if ( is_wp_error( $answer ) ) {
 			return $answer;
 		}
+
+		Db\Subscriptions\save_subscription_state( $this->ID, $answer );
 	
 		return false == $answer[ 'inactive' ];
 		
@@ -268,6 +270,8 @@ class Subscription {
 		if ( is_wp_error( $answer ) ) {
 			return $answer;
 		}
+
+		Db\Subscriptions\save_subscription_state( $this->ID, $answer );
 	
 		return true == $answer[ 'inactive' ];
 		

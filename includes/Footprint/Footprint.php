@@ -71,6 +71,38 @@ function get_date_string( $datetime ) {
 }
 
 /**
+ * Gets the frontend footprint message for an imported event.
+ *
+ * @since 1.35
+ *
+ * @param int $post_id     Imported event post ID.
+ * @param int $last_update Last import timestamp.
+ * @return string
+ */
+function get_singular_footprint_message( $post_id, $last_update ) {
+
+	$theater_name  = get_post_meta( $post_id, 'jeero/import/post/theater', true );
+	$theater       = is_scalar( $theater_name ) ? \Jeero\Theaters\get_theater( (string) $theater_name ) : false;
+	$theater_label = $theater ? $theater->get_label() : '';
+
+	if ( '' !== $theater_label ) {
+		return sprintf(
+			__( 'This event is imported by Jeero from %1$s on %2$s. Learn more: %3$s', 'jeero' ),
+			$theater_label,
+			get_date_string( $last_update ),
+			'https://jeero.ooo'
+		);
+	}
+
+	return sprintf(
+		__( 'This event is imported by Jeero on %1$s. Learn more: %2$s', 'jeero' ),
+		get_date_string( $last_update ),
+		'https://jeero.ooo'
+	);
+
+}
+
+/**
  * Output a Jeero meta box.
  * 
  * @since	1.17
@@ -126,13 +158,11 @@ function leave_singular_footprint() {
 			continue;
 		}
 		
+		$post_id = get_the_id();
+		$message = get_singular_footprint_message( $post_id, $calendar->get_last_update( $post_id ) );
 		?>
 
-<!-- <?php printf( 
-	__( 'This event is imported by Jeero on %s. Learn more: %s', 'jeero' ),
-	get_date_string( $calendar->get_last_update( get_the_id() ) ), 
-	'https://jeero.ooo' 
-); ?> -->
+<!-- <?php echo esc_html( $message ); ?> -->
 <meta name="generator" content="Jeero <?php echo \Jeero\VERSION; ?>" />
 
 		<?php

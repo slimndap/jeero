@@ -64,8 +64,12 @@ function get_shortcode_example( string $widget_name, string $subscription_id = '
 		);
 	}
 
-	if ( 'tickets_inline' === sanitize_key( $widget_name ) ) {
+	if ( in_array( sanitize_key( $widget_name ), array( 'tickets_button', 'tickets_inline' ), true ) ) {
 		$shortcode .= ' tickets_url="https://example.com/tickets"';
+	}
+
+	if ( 'account_inline' === sanitize_key( $widget_name ) ) {
+		$shortcode .= ' path="/nl-NL/Account/Manage"';
 	}
 
 	return $shortcode . ']';
@@ -235,27 +239,7 @@ function get_subscription_from_atts( array $atts ) {
  */
 function get_current_post_subscription_id( array $atts ): string {
 
-	$post_id = 0;
-
-	if ( ! empty( $atts['post_id'] ) && is_scalar( $atts['post_id'] ) ) {
-		$post_id = absint( $atts['post_id'] );
-	}
-
-	if ( ! $post_id ) {
-		$post_id = absint( get_the_ID() );
-	}
-
-	if ( ! $post_id ) {
-		$post = get_post();
-
-		if ( $post ) {
-			$post_id = absint( $post->ID );
-		}
-	}
-
-	if ( ! $post_id ) {
-		$post_id = absint( get_queried_object_id() );
-	}
+	$post_id = \Jeero\Theaters\Widgets\get_ticket_context_post_id( $atts );
 
 	if ( ! $post_id ) {
 		return '';

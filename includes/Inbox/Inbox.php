@@ -91,7 +91,7 @@ function pickup_items() {
 		Logs\Log( sprintf( '%d items found in inbox.', $items_found ) );
 		Logs\Stats\add_stat( 'items_picked_up', $items_found );
 	}
-		
+
 	process_items( $items );
 	
 }
@@ -216,7 +216,7 @@ function process_item( $item ) {
 			);
 			
 		}
-		
+
 	}
 	
 	/**
@@ -332,7 +332,7 @@ function process_items( $items ) {
 		if ( ! \is_wp_error( $result ) ) {
 			$items_processed[] = $item;
 		}
-		
+
 		if ( \is_wp_error( $result ) ) {
 			Logs\Log( $result->get_error_message() );
 		}
