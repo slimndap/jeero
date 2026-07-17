@@ -601,7 +601,11 @@ abstract class Post_Based_Calendar extends Calendar {
 	 */
 	function update_ticket_context_meta( $post_id, $data, $subscription ) {
 
-		$tickets_url = ! empty( $data['tickets_url'] ) && is_scalar( $data['tickets_url'] ) ? esc_url_raw( (string) $data['tickets_url'] ) : '';
+		$tickets_url        = ! empty( $data['tickets_url'] ) && is_scalar( $data['tickets_url'] ) ? esc_url_raw( (string) $data['tickets_url'] ) : '';
+		$tickets_inline_url = '';
+		if ( ! empty( $data['widgets']['tickets_inline']['url'] ) && is_scalar( $data['widgets']['tickets_inline']['url'] ) ) {
+			$tickets_inline_url = esc_url_raw( (string) $data['widgets']['tickets_inline']['url'] );
+		}
 		$status      = ! empty( $data['status'] ) && is_scalar( $data['status'] ) ? sanitize_key( (string) $data['status'] ) : 'onsale';
 		$theater     = $subscription->get( 'theater' );
 		$theater     = ! empty( $theater['name'] ) && is_scalar( $theater['name'] ) ? sanitize_key( (string) $theater['name'] ) : '';
@@ -612,6 +616,11 @@ abstract class Post_Based_Calendar extends Calendar {
 		}
 
 		\update_post_meta( $post_id, 'jeero/import/post/tickets_url', $tickets_url );
+		if ( '' !== $tickets_inline_url ) {
+			\update_post_meta( $post_id, 'jeero/import/post/widgets/tickets_inline/url', $tickets_inline_url );
+		} else {
+			\delete_post_meta( $post_id, 'jeero/import/post/widgets/tickets_inline/url' );
+		}
 		\update_post_meta( $post_id, 'jeero/import/post/tickets_status', $status );
 		\update_post_meta( $post_id, 'jeero/import/post/subscription', $subscription->ID );
 		\update_post_meta( $post_id, 'jeero/import/post/theater', $theater );

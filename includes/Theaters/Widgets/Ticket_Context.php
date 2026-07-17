@@ -4,10 +4,11 @@
  */
 namespace Jeero\Theaters\Widgets;
 
-const META_TICKETS_URL    = 'jeero/import/post/tickets_url';
-const META_TICKETS_STATUS = 'jeero/import/post/tickets_status';
-const META_SUBSCRIPTION   = 'jeero/import/post/subscription';
-const META_THEATER        = 'jeero/import/post/theater';
+const META_TICKETS_URL        = 'jeero/import/post/tickets_url';
+const META_TICKETS_STATUS     = 'jeero/import/post/tickets_status';
+const META_TICKETS_INLINE_URL = 'jeero/import/post/widgets/tickets_inline/url';
+const META_SUBSCRIPTION       = 'jeero/import/post/subscription';
+const META_THEATER            = 'jeero/import/post/theater';
 
 /**
  * Get the post ID that carries canonical Jeero ticket context.
@@ -53,19 +54,25 @@ function get_ticket_context_post_id( array $args = array() ): int {
  * @since 1.35
  *
  * @param array $args Widget arguments.
- * @return array{post_id:int,tickets_url:string,status:string}
+ * @return array{post_id:int,tickets_url:string,tickets_inline_url:string,status:string}
  */
 function get_ticket_context( array $args = array() ): array {
 
-	$post_id     = get_ticket_context_post_id( $args );
-	$tickets_url = '';
-	$status      = '';
+	$post_id            = get_ticket_context_post_id( $args );
+	$tickets_url        = '';
+	$tickets_inline_url = '';
+	$status             = '';
 
 	if ( ! empty( $args['tickets_url'] ) && is_scalar( $args['tickets_url'] ) ) {
 		$tickets_url = esc_url_raw( (string) $args['tickets_url'] );
 	} elseif ( $post_id ) {
 		$tickets_url = get_post_meta( $post_id, META_TICKETS_URL, true );
 		$tickets_url = is_scalar( $tickets_url ) ? esc_url_raw( (string) $tickets_url ) : '';
+	}
+
+	if ( $post_id ) {
+		$tickets_inline_url = get_post_meta( $post_id, META_TICKETS_INLINE_URL, true );
+		$tickets_inline_url = is_scalar( $tickets_inline_url ) ? esc_url_raw( (string) $tickets_inline_url ) : '';
 	}
 
 	if ( isset( $args['status'] ) && is_scalar( $args['status'] ) ) {
@@ -76,9 +83,10 @@ function get_ticket_context( array $args = array() ): array {
 	}
 
 	return array(
-		'post_id'     => $post_id,
-		'tickets_url' => $tickets_url,
-		'status'      => $status,
+		'post_id'            => $post_id,
+		'tickets_url'        => $tickets_url,
+		'tickets_inline_url' => $tickets_inline_url,
+		'status'             => $status,
 	);
 
 }
