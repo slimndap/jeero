@@ -603,10 +603,18 @@ abstract class Post_Based_Calendar extends Calendar {
 
 		$tickets_url = ! empty( $data['tickets_url'] ) && is_scalar( $data['tickets_url'] ) ? esc_url_raw( (string) $data['tickets_url'] ) : '';
 		$status      = ! empty( $data['status'] ) && is_scalar( $data['status'] ) ? sanitize_key( (string) $data['status'] ) : 'onsale';
+		$theater     = $subscription->get( 'theater' );
+		$theater     = ! empty( $theater['name'] ) && is_scalar( $theater['name'] ) ? sanitize_key( (string) $theater['name'] ) : '';
+
+		if ( '' === $theater ) {
+			$theater_setting = $subscription->get_setting( 'theater' );
+			$theater         = is_scalar( $theater_setting ) ? sanitize_key( (string) $theater_setting ) : '';
+		}
 
 		\update_post_meta( $post_id, 'jeero/import/post/tickets_url', $tickets_url );
 		\update_post_meta( $post_id, 'jeero/import/post/tickets_status', $status );
 		\update_post_meta( $post_id, 'jeero/import/post/subscription', $subscription->ID );
+		\update_post_meta( $post_id, 'jeero/import/post/theater', $theater );
 
 	}
 

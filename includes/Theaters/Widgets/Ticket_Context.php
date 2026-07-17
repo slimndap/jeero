@@ -7,6 +7,7 @@ namespace Jeero\Theaters\Widgets;
 const META_TICKETS_URL    = 'jeero/import/post/tickets_url';
 const META_TICKETS_STATUS = 'jeero/import/post/tickets_status';
 const META_SUBSCRIPTION   = 'jeero/import/post/subscription';
+const META_THEATER        = 'jeero/import/post/theater';
 
 /**
  * Get the post ID that carries canonical Jeero ticket context.
