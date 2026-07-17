@@ -63,7 +63,7 @@ class Tickets_Inline extends Widget {
 				'name'         => self::SETTING_RETURN_URL,
 				'label'        => __( 'Ticketmatic return URL', 'jeero' ),
 				'type'         => 'Url',
-				'required'     => true,
+				'required'     => false,
 				'instructions' => __( 'The page visitors return to after completing the Ticketmatic widget.', 'jeero' ),
 			),
 			array(

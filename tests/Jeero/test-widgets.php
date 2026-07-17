@@ -1165,7 +1165,7 @@ class Widgets_Test extends Jeero_Test {
 
 	}
 
-	function test_ticketmatic_tickets_inline_returns_empty_without_canonical_widget_url() {
+	function test_ticketmatic_tickets_inline_returns_empty_without_canonical_widget_url_and_keeps_normal_ticket_link() {
 
 		\Jeero\Db\Subscriptions\save_subscription( 'a fake ID', array( 'theater' => 'ticketmatic' ) );
 
@@ -1174,19 +1174,21 @@ class Widgets_Test extends Jeero_Test {
 		update_post_meta( $post_id, 'jeero/import/post/subscription', 'a fake ID' );
 
 		$actual = jeero_get_theater_widget( 'tickets_inline', 'a fake ID', array( 'event_id' => $post_id ) );
+		$context = \Jeero\Theaters\Widgets\get_ticket_context( array( 'event_id' => $post_id ), 'a fake ID' );
 
 		$this->assertSame( '', $actual );
+		$this->assertSame( 'https://tickets.example.org/event/123', $context['tickets_url'] );
 
 	}
 
-	function test_ticketmatic_widget_settings_include_required_return_url_and_optional_ids() {
+	function test_new_ticketmatic_import_does_not_require_widget_return_url() {
 
 		$subscription = new Subscription( 'a fake ID' );
 		$subscription->set( 'theater', array( 'name' => 'ticketmatic' ) );
 		$fields = ( new Tickets_Inline() )->get_setting_fields( $subscription );
 
 		$this->assertSame( Tickets_Inline::SETTING_RETURN_URL, $fields[0]['name'] );
-		$this->assertTrue( $fields[0]['required'] );
+		$this->assertFalse( $fields[0]['required'] );
 		$this->assertSame( Tickets_Inline::SETTING_SKIN_ID, $fields[1]['name'] );
 		$this->assertSame( Tickets_Inline::SETTING_SALESCHANNEL_ID, $fields[2]['name'] );
 

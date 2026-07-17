@@ -51,7 +51,7 @@ class Ticket_Context_Test extends Jeero_Test {
 
 	}
 
-	function test_canonical_inline_widget_url_is_removed_when_import_no_longer_provides_it() {
+	function test_ticketmatic_import_keeps_ticket_link_when_inline_widget_url_cannot_be_built() {
 
 		$post_id      = self::factory()->post->create();
 		$subscription = new Subscription( 'a fake ID' );
@@ -60,9 +60,16 @@ class Ticket_Context_Test extends Jeero_Test {
 
 		update_post_meta( $post_id, 'jeero/import/post/widgets/tickets_inline/url', 'https://tickets.example.org/widgets/addtickets?event=123' );
 
-		$calendar->update_ticket_context_meta( $post_id, array(), $subscription );
+		$calendar->update_ticket_context_meta(
+			$post_id,
+			array(
+				'tickets_url' => 'https://tickets.example.org/event/123',
+			),
+			$subscription
+		);
 
 		$this->assertSame( '', get_post_meta( $post_id, 'jeero/import/post/widgets/tickets_inline/url', true ) );
+		$this->assertSame( 'https://tickets.example.org/event/123', get_post_meta( $post_id, 'jeero/import/post/tickets_url', true ) );
 
 	}
 
