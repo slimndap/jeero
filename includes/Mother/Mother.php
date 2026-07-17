@@ -415,11 +415,11 @@ function post( $endpoint, $data = array(), $headers= array() ) {
 				'timeout' => 30,
 				'headers' => $headers,
 			);
-			
+
 			if ( !empty( $data ) ) {
 				$args[ 'body' ] = json_encode( $data );
 			}
-			
+
 			$response = maybe_retry_request_with_fallback_url(
 				function( $base_url ) use ( $endpoint, $args ) {
 					$url = get_endpoint_url( $endpoint, $base_url );
