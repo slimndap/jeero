@@ -44,7 +44,7 @@ class Tickets_Inline extends Widget {
 	}
 
 	/**
-	 * Get Ticketmatic settings sent to Jeero for signing widget URLs.
+	 * Get Ticketmatic settings used to sign widget URLs locally.
 	 *
 	 * @param Subscription $subscription Jeero subscription.
 	 * @return array[]
@@ -67,8 +67,9 @@ class Tickets_Inline extends Widget {
 				'instructions' => __( 'The page visitors return to after completing the Ticketmatic widget.', 'jeero' ),
 			),
 			array(
-				'name'  => self::SETTING_SKIN_ID,
-				'label' => __( 'Ticketmatic skin ID', 'jeero' ),
+				'name'         => self::SETTING_SKIN_ID,
+				'label'        => __( 'Ticketmatic skin ID', 'jeero' ),
+				'instructions' => __( 'Required when using the Ticketmatic inline tickets widget.', 'jeero' ),
 			),
 			array(
 				'name'  => self::SETTING_SALESCHANNEL_ID,
