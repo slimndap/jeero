@@ -114,6 +114,27 @@ class Theater_For_WordPress extends Post_Based_Calendar {
 	function get_post_type() {
 		return \WPT_Production::post_type_name;
 	}
+
+	/**
+	 * Gets all post fields for Theater for WordPress productions and event dates.
+	 *
+	 * @since 1.35
+	 *
+	 * @return array
+	 */
+	function get_post_fields() {
+
+		$post_fields = parent::get_post_fields();
+
+		$post_fields[] = array(
+			'name' => 'remark',
+			'title' => __( 'Event date remark', 'jeero' ),
+			'template' => '',
+		);
+
+		return $post_fields;
+
+	}
 	
 	/**
 	 * Processes the data from an event in the inbox.
@@ -133,6 +154,7 @@ class Theater_For_WordPress extends Post_Based_Calendar {
 	 *					@see https://github.com/slimndap/jeero/issues/6 
 	 * @since	1.20		Clean up event dates that were previously imported by 
 	 *					one of the Theater for WordPress import extensions.
+	 * @since	1.35		Added support for event date remark templates.
 	 *
 	 */
 	function process_data( $result, $data, $raw, $theater, $subscription ) {
@@ -177,10 +199,27 @@ class Theater_For_WordPress extends Post_Based_Calendar {
 					}
 				}
 			}
-			
+
+			$existing_wpt_event = $importer->get_event_by_ref( $data[ 'ref' ] );
 			$wpt_event = $importer->update_event( $event_args );
 
 			$this->delete_ticket_context_meta( $post_id );
+
+			$post_fields = $this->get_setting( 'import/post_fields', $subscription );
+			$update_remark = empty( $existing_wpt_event ) || (
+				!empty( $post_fields[ 'remark' ][ 'update' ] ) &&
+				'always' == $post_fields[ 'remark' ][ 'update' ]
+			);
+
+			if ( $update_remark ) {
+				$remark = $this->get_rendered_template( 'remark', $data, $subscription );
+
+				if ( '' === trim( $remark ) ) {
+					delete_post_meta( $wpt_event->ID, 'remark' );
+				} else {
+					update_post_meta( $wpt_event->ID, 'remark', $remark );
+				}
+			}
 			
 			if ( !empty( $data[ 'end' ] ) ) {
 				update_post_meta( $wpt_event->ID, 'enddate', $data[ 'end' ] );

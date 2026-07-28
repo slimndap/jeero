@@ -111,6 +111,79 @@ class Theater_For_WordPress_Test extends Post_Based_Calendar_Test {
 		$this->assertStringContainsString( 'data-jeero-ticket-status="onsale"', $actual );
 
 	}
+
+	function test_event_date_remark_uses_custom_template() {
+
+		global $wp_theatre;
+
+		add_filter( 'jeero/mother/post/response/endpoint=inbox/big', function( $response ) {
+			$body = json_decode( $response[ 'body' ] );
+			$body[ 0 ]->data->custom->PerfFlagsDescription = '70mm';
+			$response[ 'body' ] = json_encode( $body );
+
+			return $response;
+		}, 11 );
+
+		$settings = array(
+			$this->calendar.'/import/post_fields' => array(
+				'remark' => array(
+					'template' => '{{ PerfFlagsDescription }}',
+				),
+			),
+		);
+
+		$this->import_event( $settings );
+
+		$args = array(
+			'status' => array( 'draft' ),
+		);
+		$events = $wp_theatre->events->get( $args );
+
+		$this->assertEquals( '70mm', $events[ 0 ]->remark() );
+
+	}
+
+	function test_event_date_remark_is_cleared_when_source_becomes_empty() {
+
+		global $wp_theatre;
+
+		add_filter( 'jeero/mother/post/response/endpoint=inbox/big', function( $response ) {
+			$body = json_decode( $response[ 'body' ] );
+			$body[ 0 ]->data->custom->PerfFlagsDescription = '70mm';
+			$response[ 'body' ] = json_encode( $body );
+
+			return $response;
+		}, 11 );
+
+		$settings = array(
+			$this->calendar.'/import/post_fields' => array(
+				'remark' => array(
+					'template' => '{{ PerfFlagsDescription }}',
+					'update' => 'always',
+				),
+			),
+		);
+
+		$this->import_event( $settings );
+
+		add_filter( 'jeero/mother/post/response/endpoint=inbox/big', function( $response ) {
+			$body = json_decode( $response[ 'body' ] );
+			$body[ 0 ]->data->custom->PerfFlagsDescription = '';
+			$response[ 'body' ] = json_encode( $body );
+
+			return $response;
+		}, 12 );
+
+		Inbox\pickup_items();
+
+		$args = array(
+			'status' => array( 'draft' ),
+		);
+		$events = $wp_theatre->events->get( $args );
+
+		$this->assertSame( '', get_post_meta( $events[ 0 ]->ID, 'remark', true ) );
+
+	}
 	
 	
 	/**
