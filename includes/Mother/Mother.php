@@ -199,6 +199,7 @@ function get_inbox( $settings, $no_of_items_per_pickup = null ) {
 		'start' => false,
 		'end' => false,
 		'tickets_url' => false,
+		'widgets' => array(),
 		'prices' => array(),
 		'venue' => false,
 		'status' => 'onsale',

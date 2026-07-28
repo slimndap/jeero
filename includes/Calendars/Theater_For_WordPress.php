@@ -267,6 +267,7 @@ class Theater_For_WordPress extends Post_Based_Calendar {
 
 		delete_post_meta( $post_id, 'jeero/import/post/tickets_url' );
 		delete_post_meta( $post_id, 'jeero/import/post/tickets_status' );
+		delete_post_meta( $post_id, 'jeero/import/post/widgets/tickets_inline/url' );
 
 	}
 	

@@ -1095,6 +1095,178 @@ class Widgets_Test extends Jeero_Test {
 
 	}
 
+	function test_ticketmatic_supports_tickets_inline_through_theater_class() {
+
+		\Jeero\Db\Subscriptions\save_subscription(
+			'a fake ID',
+			array(
+				'theater' => 'ticketmatic',
+			)
+		);
+
+		$post_id = self::factory()->post->create();
+		update_post_meta( $post_id, 'jeero/import/post/tickets_url', 'https://tickets.example.org/event/123' );
+		update_post_meta( $post_id, 'jeero/import/post/subscription', 'a fake ID' );
+		update_post_meta( $post_id, 'jeero/import/post/widgets/tickets_inline/url', 'https://tickets.example.org/widgets/addtickets?event=123&signature=signed' );
+
+		$actual = jeero_get_theater_widget(
+			'tickets_inline',
+			'a fake ID',
+			array(
+				'event_id' => $post_id,
+				'title'    => 'Kies tickets',
+				'width'    => '90%',
+				'height'   => '650',
+			)
+		);
+
+		$this->assertStringContainsString( 'src="https://tickets.example.org/widgets/addtickets?event=123&#038;signature=signed"', $actual );
+		$this->assertStringContainsString( 'class="jeero-tickets-inline jeero-ticketmatic-addtickets"', $actual );
+		$this->assertStringContainsString( 'title="Kies tickets"', $actual );
+		$this->assertStringContainsString( 'width="90%" height="650"', $actual );
+
+	}
+
+	function test_ticketmatic_builds_signed_inline_widget_url_from_subscription_settings() {
+
+		\Jeero\Db\Subscriptions\save_subscription(
+			'a fake ID',
+			array(
+				'theater'                              => 'ticketmatic',
+				'accountname'                          => 'examplevenue',
+				'accesskey'                            => 'public-key',
+				'secretkey'                            => 'secret-key',
+				Tickets_Inline::SETTING_RETURN_URL      => 'https://www.example.org/tickets/return',
+				Tickets_Inline::SETTING_SKIN_ID         => '42',
+				Tickets_Inline::SETTING_SALESCHANNEL_ID => '7',
+			)
+		);
+
+		$post_id = self::factory()->post->create();
+		update_post_meta( $post_id, 'jeero/import/post/tickets_url', 'https://apps.ticketmatic.com/widgets/examplevenue/addtickets?event=12345' );
+		update_post_meta( $post_id, 'jeero/import/post/subscription', 'a fake ID' );
+
+		$actual = jeero_get_theater_widget( 'tickets_inline', 'a fake ID', array( 'event_id' => $post_id ) );
+
+		$parameters = array(
+			'event'          => '12345',
+			'flow'           => 'basketwithcheckout',
+			'oncompletion'   => 'return',
+			'returnurl'      => 'https://www.example.org/tickets/return',
+			'saleschannelid' => '7',
+			'skinid'         => '42',
+		);
+		$payload = 'public-keyexamplevenue';
+		foreach ( $parameters as $key => $value ) {
+			$payload .= $key . $value;
+		}
+		$signature = hash_hmac( 'sha256', $payload, 'secret-key' );
+
+		$this->assertStringContainsString( 'https://apps.ticketmatic.com/widgets/examplevenue/addtickets?', html_entity_decode( $actual ) );
+		$this->assertStringContainsString( 'event=12345', $actual );
+		$this->assertStringContainsString( 'skinid=42', $actual );
+		$this->assertStringContainsString( 'saleschannelid=7', $actual );
+		$this->assertStringContainsString( 'signature=' . $signature, $actual );
+
+	}
+
+	function test_ticketmatic_does_not_build_inline_widget_url_without_skin_id() {
+
+		\Jeero\Db\Subscriptions\save_subscription(
+			'a fake ID',
+			array(
+				'theater'                         => 'ticketmatic',
+				'accountname'                     => 'examplevenue',
+				'accesskey'                       => 'public-key',
+				'secretkey'                       => 'secret-key',
+				Tickets_Inline::SETTING_RETURN_URL => 'https://www.example.org/tickets/return',
+			)
+		);
+
+		$post_id = self::factory()->post->create();
+		update_post_meta( $post_id, 'jeero/import/post/tickets_url', 'https://apps.ticketmatic.com/widgets/examplevenue/addtickets?event=12345' );
+		update_post_meta( $post_id, 'jeero/import/post/subscription', 'a fake ID' );
+
+		$this->assertSame( '', jeero_get_theater_widget( 'tickets_inline', 'a fake ID', array( 'event_id' => $post_id ) ) );
+
+	}
+
+	function test_ticketmatic_tickets_inline_ignores_shortcode_widget_url_override() {
+
+		\Jeero\Db\Subscriptions\save_subscription(
+			'a fake ID',
+			array(
+				'theater'                         => 'ticketmatic',
+				'accountname'                     => 'examplevenue',
+				'accesskey'                       => 'public-key',
+				'secretkey'                       => 'secret-key',
+				Tickets_Inline::SETTING_RETURN_URL => 'https://www.example.org/tickets/return',
+				Tickets_Inline::SETTING_SKIN_ID    => '42',
+			)
+		);
+
+		$post_id = self::factory()->post->create();
+		update_post_meta( $post_id, 'jeero/import/post/tickets_url', 'https://apps.ticketmatic.com/widgets/examplevenue/addtickets?event=123' );
+		update_post_meta( $post_id, 'jeero/import/post/subscription', 'a fake ID' );
+
+		$actual = jeero_get_theater_widget(
+			'tickets_inline',
+			'a fake ID',
+			array(
+				'event_id'   => $post_id,
+				'tickets_url' => 'https://attacker.invalid/widget',
+			)
+		);
+
+		$this->assertStringContainsString( 'event=123', $actual );
+		$this->assertStringNotContainsString( 'attacker.invalid', $actual );
+
+	}
+
+	function test_ticketmatic_tickets_inline_rejects_non_sibling_widget_domain() {
+
+		\Jeero\Db\Subscriptions\save_subscription( 'a fake ID', array( 'theater' => 'ticketmatic' ) );
+
+		$post_id = self::factory()->post->create();
+		update_post_meta( $post_id, 'jeero/import/post/tickets_url', 'https://tickets.example.org/event/123' );
+		update_post_meta( $post_id, 'jeero/import/post/subscription', 'a fake ID' );
+		update_post_meta( $post_id, 'jeero/import/post/widgets/tickets_inline/url', 'https://tickets.other-example.org/widgets/addtickets?event=123&signature=signed' );
+
+		$actual = jeero_get_theater_widget( 'tickets_inline', 'a fake ID', array( 'event_id' => $post_id ) );
+
+		$this->assertSame( '', $actual );
+
+	}
+
+	function test_ticketmatic_tickets_inline_returns_empty_without_canonical_widget_url_and_keeps_normal_ticket_link() {
+
+		\Jeero\Db\Subscriptions\save_subscription( 'a fake ID', array( 'theater' => 'ticketmatic' ) );
+
+		$post_id = self::factory()->post->create();
+		update_post_meta( $post_id, 'jeero/import/post/tickets_url', 'https://tickets.example.org/event/123' );
+		update_post_meta( $post_id, 'jeero/import/post/subscription', 'a fake ID' );
+
+		$actual = jeero_get_theater_widget( 'tickets_inline', 'a fake ID', array( 'event_id' => $post_id ) );
+		$context = \Jeero\Theaters\Widgets\get_ticket_context( array( 'event_id' => $post_id ), 'a fake ID' );
+
+		$this->assertSame( '', $actual );
+		$this->assertSame( 'https://tickets.example.org/event/123', $context['tickets_url'] );
+
+	}
+
+	function test_new_ticketmatic_import_does_not_require_widget_return_url() {
+
+		$subscription = new Subscription( 'a fake ID' );
+		$subscription->set( 'theater', array( 'name' => 'ticketmatic' ) );
+		$fields = ( new Tickets_Inline() )->get_setting_fields( $subscription );
+
+		$this->assertSame( Tickets_Inline::SETTING_RETURN_URL, $fields[0]['name'] );
+		$this->assertFalse( $fields[0]['required'] );
+		$this->assertSame( Tickets_Inline::SETTING_SKIN_ID, $fields[1]['name'] );
+		$this->assertSame( Tickets_Inline::SETTING_SALESCHANNEL_ID, $fields[2]['name'] );
+
+	}
+
 	function test_widget_shortcode_renders_widget() {
 
 		\Jeero\Db\Subscriptions\save_subscription(

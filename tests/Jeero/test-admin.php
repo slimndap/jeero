@@ -64,6 +64,21 @@ class Admin_Test extends Jeero_Test {
 
 	}
 
+	function test_edit_form_preserves_requested_tab() {
+
+		add_filter( 'jeero/mother/get/response/endpoint=subscriptions/a fake ID', array( $this, 'get_mock_response_for_get_subscription' ), 10, 3 );
+
+		$_GET = array(
+			'edit'      => 'a fake ID',
+			'jeero_tab' => 2,
+		);
+
+		$actual = Admin\Subscriptions\get_admin_page_html();
+
+		$this->assertStringContainsStringIgnoringCase( '<input type="hidden" name="jeero_tab" value="2">', $actual );
+
+	}
+
 	function test_edit_form_has_widgets_tab_when_theater_supports_widgets() {
 
 		$cart_page_id = wp_insert_post(
@@ -162,6 +177,25 @@ class Admin_Test extends Jeero_Test {
 		
 		$this->assertEquals( $expected, $actual );
 		
+	}
+
+	function test_edit_form_submit_redirect_preserves_active_tab() {
+
+		add_filter( 'jeero/mother/get/response/endpoint=subscriptions/a fake ID', array( $this, 'get_mock_response_for_get_subscription' ), 10, 3 );
+
+		$_GET = array(
+			'subscription_id' => 'a fake ID',
+			'theater'         => 'veezi',
+			'test_field'      => 'an updated value',
+			'jeero_tab'       => 2,
+			'jeero/nonce'     => wp_create_nonce( 'save' ),
+		);
+
+		$redirect_url = Admin\Subscriptions\process_form();
+
+		$this->assertStringContainsString( 'edit=a+fake+ID', $redirect_url );
+		$this->assertStringContainsString( 'jeero_tab=2', $redirect_url );
+
 	}
 
     /**
