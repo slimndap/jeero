@@ -195,7 +195,12 @@ function process_form() {
 	} else {		
 		Admin\Notices\add_success( sprintf( __( '%s subscription updated.', 'jeero' ), $theater[ 'title' ] ) );					
 	}
-	Admin\redirect( get_admin_edit_url( $subscription->get( 'ID' ) ) );
+	$redirect_url = get_admin_edit_url( $subscription->get( 'ID' ) );
+	if ( isset( $_GET['jeero_tab'] ) ) {
+		$redirect_url = add_query_arg( 'jeero_tab', absint( $_GET['jeero_tab'] ), $redirect_url );
+	}
+
+	return Admin\redirect( $redirect_url );
 	
 }
 
@@ -228,6 +233,7 @@ function get_edit_html( $subscription_id ) {
 		<form class="jeero-form"><?php
 			wp_nonce_field( 'save', 'jeero/nonce', true, true );
 			?><input type="hidden" name="subscription_id" value="<?php echo $subscription_id; ?>">
+			<input type="hidden" name="jeero_tab" value="<?php echo esc_attr( isset( $_GET['jeero_tab'] ) ? absint( $_GET['jeero_tab'] ) : 0 ); ?>">
 			<table class="form-table">
 				<tbody><?php
 					foreach( $subscription->get_fields() as $field ) {

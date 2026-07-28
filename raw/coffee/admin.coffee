@@ -27,8 +27,13 @@ get_tabs = () ->
 	return $tabs if $tabs?
 	$tabs = get_nav_tabs().find '.nav-tab'
 
+get_active_tab_index = () ->
+	tab_index = parseInt get_form().find( 'input[name="jeero_tab"]' ).val(), 10
+	if isNaN( tab_index ) then 0 else tab_index
 
 show_tab = ( tab_index ) ->
+	tab_index = Math.max 0, Math.min tab_index, get_tabs().length - 1
+	get_form().find( 'input[name="jeero_tab"]' ).val tab_index
 
 	# Hide all fields.
 	get_fields().hide()
@@ -55,7 +60,7 @@ jQuery ->
 		
 			show_tab jQuery( @ ).data 'tab_index' 
 
-		show_tab 0
+		show_tab get_active_tab_index()
 	
 	get_fields().find( 'input' ).on 'invalid', ->
 		
