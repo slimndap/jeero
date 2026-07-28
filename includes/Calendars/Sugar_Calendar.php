@@ -144,7 +144,7 @@ class Sugar_Calendar extends Post_Based_Calendar {
 	/**
 	 * Gets all Sugar Calendar terms for the imported event.
 	 *
-	 * @since	1.34
+	 * @since	1.35
 	 * @param	array					$data			The structured event data.
 	 * @param	Subscription			$subscription	The subscription.
 	 * @param	bool					$is_update		Whether this import updates an existing event.

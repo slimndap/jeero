@@ -95,6 +95,14 @@ Subscription rates range from €30 - €70 per month, depending on your total n
 
 == Changelog ==
 
+= 1.35 =
+* Added subscription-safe ticket buttons for supported theater integrations.
+* Added ActiveTickets account widgets and improved cart feedback.
+* Added signed inline ticket widgets for Ticketmatic.
+* Added configurable event-date remarks to Theater for WordPress imports.
+* Added category imports for Sugar Calendar.
+* Preserved the active subscription tab after saving settings.
+
 = 1.34 =
 * Added theater widgets with template functions and shortcodes for embedding supported ticketing features.
 * Added ActiveTickets cart indicator, inline cart, and inline tickets widgets.
