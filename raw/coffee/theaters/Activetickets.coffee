@@ -51,11 +51,35 @@ jeero_theater_widget_activetickets_scroll_iframe = ( position, source ) ->
         top: y
         behavior: 'smooth'
 
-# Resize the inline ActiveTickets iframe when the shop reports a new content height.
-jeero_theater_widget_activetickets_resize_iframe = ( height ) ->
-    iframe = document.querySelector jeero_theater_widget_activetickets_iframe_selector
-    if iframe
-        iframe.style.height = (height + 50) + "px"
+# Resize the originating ActiveTickets iframe. If a tall editor collapses above
+# the viewport, keep the visitor with the shop instead of exposing the page
+# content that follows the iframe.
+jeero_theater_widget_activetickets_resize_iframe = ( height, source ) ->
+    iframes = document.querySelectorAll jeero_theater_widget_activetickets_iframe_selector
+    iframe = null
+    for candidate in iframes
+        if !source or candidate.contentWindow == source
+            iframe = candidate
+            break
+
+    return unless iframe
+
+    height = Number height
+    return unless isFinite height
+
+    height = Math.max 0, height + 50
+    rect = iframe.getBoundingClientRect()
+    oldHeight = rect.height
+    viewportTop = window.scrollY
+    iframeTop = rect.top + viewportTop
+    margin = 20
+
+    iframe.style.height = height + "px"
+
+    if height < oldHeight and iframeTop < viewportTop and iframeTop + height < viewportTop + margin
+        window.scroll
+            top: Math.max 0, iframeTop - margin
+            behavior: 'smooth'
 
 # Reflect the ActiveTickets login state on the document body for theme styling hooks.
 jeero_theater_widget_activetickets_set_login_status = ( loginStatus ) ->
@@ -204,7 +228,7 @@ jeero_theater_widget_activetickets_message_handler = ( event ) ->
       when "ScrollIframe"
         jeero_theater_widget_activetickets_scroll_iframe data.position, event.source
       when "ContentHeightChanged"
-        jeero_theater_widget_activetickets_resize_iframe data.height
+        jeero_theater_widget_activetickets_resize_iframe data.height, event.source
       when "LoginStatus"
         jeero_theater_widget_activetickets_store_login_status data.loginStatus
 

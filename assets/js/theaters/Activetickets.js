@@ -64,11 +64,36 @@ jeero_theater_widget_activetickets_scroll_iframe = function(position, source) {
   });
 };
 
-jeero_theater_widget_activetickets_resize_iframe = function(height) {
-  var iframe;
-  iframe = document.querySelector(jeero_theater_widget_activetickets_iframe_selector);
-  if (iframe) {
-    return iframe.style.height = (height + 50) + "px";
+jeero_theater_widget_activetickets_resize_iframe = function(height, source) {
+  var candidate, iframe, iframeTop, iframes, j, len, margin, oldHeight, rect, viewportTop;
+  iframes = document.querySelectorAll(jeero_theater_widget_activetickets_iframe_selector);
+  iframe = null;
+  for (j = 0, len = iframes.length; j < len; j++) {
+    candidate = iframes[j];
+    if (!source || candidate.contentWindow === source) {
+      iframe = candidate;
+      break;
+    }
+  }
+  if (!iframe) {
+    return;
+  }
+  height = Number(height);
+  if (!isFinite(height)) {
+    return;
+  }
+  height = Math.max(0, height + 50);
+  rect = iframe.getBoundingClientRect();
+  oldHeight = rect.height;
+  viewportTop = window.scrollY;
+  iframeTop = rect.top + viewportTop;
+  margin = 20;
+  iframe.style.height = height + "px";
+  if (height < oldHeight && iframeTop < viewportTop && iframeTop + height < viewportTop + margin) {
+    return window.scroll({
+      top: Math.max(0, iframeTop - margin),
+      behavior: 'smooth'
+    });
   }
 };
 
@@ -244,7 +269,7 @@ jeero_theater_widget_activetickets_message_handler = function(event) {
       case "ScrollIframe":
         return jeero_theater_widget_activetickets_scroll_iframe(data.position, event.source);
       case "ContentHeightChanged":
-        return jeero_theater_widget_activetickets_resize_iframe(data.height);
+        return jeero_theater_widget_activetickets_resize_iframe(data.height, event.source);
       case "LoginStatus":
         return jeero_theater_widget_activetickets_store_login_status(data.loginStatus);
     }
