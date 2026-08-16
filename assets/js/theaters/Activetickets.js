@@ -28,17 +28,40 @@ jeero_theater_widget_activetickets_get_value = function(data, paths) {
   return void 0;
 };
 
-jeero_theater_widget_activetickets_scroll_iframe = function(position) {
-  var iframe, rect, y;
-  iframe = document.querySelector(jeero_theater_widget_activetickets_iframe_selector);
-  if (iframe) {
-    rect = iframe.getBoundingClientRect();
-    y = rect.top + window.scrollY + position;
-    return window.scroll({
-      top: y,
-      behavior: 'smooth'
-    });
+jeero_theater_widget_activetickets_scroll_iframe = function(position, source) {
+  var candidate, iframe, iframes, j, len, margin, target, viewportBottom, viewportHeight, viewportTop, y;
+  iframes = document.querySelectorAll(jeero_theater_widget_activetickets_iframe_selector);
+  iframe = null;
+  for (j = 0, len = iframes.length; j < len; j++) {
+    candidate = iframes[j];
+    if (!source || candidate.contentWindow === source) {
+      iframe = candidate;
+      break;
+    }
   }
+  if (!iframe) {
+    return;
+  }
+  position = Number(position);
+  if (!isFinite(position)) {
+    position = 0;
+  }
+  margin = 20;
+  viewportTop = window.scrollY;
+  viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+  viewportBottom = viewportTop + viewportHeight;
+  target = iframe.getBoundingClientRect().top + viewportTop + position;
+  if (target < viewportTop + margin) {
+    y = Math.max(0, target - margin);
+  } else if (target > viewportBottom - margin) {
+    y = Math.max(0, target - viewportHeight + margin);
+  } else {
+    return;
+  }
+  return window.scroll({
+    top: y,
+    behavior: 'smooth'
+  });
 };
 
 jeero_theater_widget_activetickets_resize_iframe = function(height) {
@@ -219,7 +242,7 @@ jeero_theater_widget_activetickets_message_handler = function(event) {
     }
     switch (data.messageType) {
       case "ScrollIframe":
-        return jeero_theater_widget_activetickets_scroll_iframe(data.position);
+        return jeero_theater_widget_activetickets_scroll_iframe(data.position, event.source);
       case "ContentHeightChanged":
         return jeero_theater_widget_activetickets_resize_iframe(data.height);
       case "LoginStatus":

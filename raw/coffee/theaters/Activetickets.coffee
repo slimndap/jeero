@@ -18,15 +18,38 @@ jeero_theater_widget_activetickets_get_value = ( data, paths ) ->
 
     undefined
 
-# Scroll the parent page so a target position inside the ActiveTickets iframe is visible.
-jeero_theater_widget_activetickets_scroll_iframe = ( position ) ->
-    iframe = document.querySelector jeero_theater_widget_activetickets_iframe_selector
-    if iframe
-        rect = iframe.getBoundingClientRect()
-        y = rect.top + window.scrollY + position
-        window.scroll
-            top: y
-            behavior: 'smooth'
+# Scroll only as far as needed to reveal a target position inside the
+# ActiveTickets iframe. Aligning every target with the top of the viewport can
+# make the surrounding page appear to disappear when the inline shop grows.
+jeero_theater_widget_activetickets_scroll_iframe = ( position, source ) ->
+    iframes = document.querySelectorAll jeero_theater_widget_activetickets_iframe_selector
+    iframe = null
+    for candidate in iframes
+        if !source or candidate.contentWindow == source
+            iframe = candidate
+            break
+
+    return unless iframe
+
+    position = Number position
+    position = 0 unless isFinite position
+
+    margin = 20
+    viewportTop = window.scrollY
+    viewportHeight = window.innerHeight or document.documentElement.clientHeight
+    viewportBottom = viewportTop + viewportHeight
+    target = iframe.getBoundingClientRect().top + viewportTop + position
+
+    if target < viewportTop + margin
+        y = Math.max 0, target - margin
+    else if target > viewportBottom - margin
+        y = Math.max 0, target - viewportHeight + margin
+    else
+        return
+
+    window.scroll
+        top: y
+        behavior: 'smooth'
 
 # Resize the inline ActiveTickets iframe when the shop reports a new content height.
 jeero_theater_widget_activetickets_resize_iframe = ( height ) ->
@@ -179,7 +202,7 @@ jeero_theater_widget_activetickets_message_handler = ( event ) ->
 
     switch data.messageType
       when "ScrollIframe"
-        jeero_theater_widget_activetickets_scroll_iframe data.position
+        jeero_theater_widget_activetickets_scroll_iframe data.position, event.source
       when "ContentHeightChanged"
         jeero_theater_widget_activetickets_resize_iframe data.height
       when "LoginStatus"
