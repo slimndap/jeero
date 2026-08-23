@@ -102,6 +102,8 @@ Subscription rates range from €30 - €70 per month, depending on your total n
 * Added configurable event-date remarks to Theater for WordPress imports.
 * Added category imports for Sugar Calendar.
 * Preserved the active subscription tab after saving settings.
+* Improved scrolling and resizing of inline ActiveTickets checkouts (1.35.1).
+* Fixed stale import lists that could hide saved settings and create duplicate imports (1.35.1).
 
 = 1.34 =
 * Added theater widgets with template functions and shortcodes for embedding supported ticketing features.
