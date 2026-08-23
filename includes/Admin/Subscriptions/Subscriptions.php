@@ -264,17 +264,8 @@ function get_edit_html( $subscription_id ) {
  * @return	WP_List_Table
  */
 function get_list_table() {
-	
-	$list_table = wp_cache_get( 'list_table', __NAMESPACE__ );
-	
-	if ( false === $list_table) {
-		
-		$list_table = new List_Table();	
-		$list_table->prepare_items();
-
-		wp_cache_set( 'list_table', $list_table, __NAMESPACE__ );
-		
-	}
+	$list_table = new List_Table();
+	$list_table->prepare_items();
 
 	return $list_table;	
 }
@@ -487,9 +478,6 @@ function show_no_active_calendars_warning() {
  *					if the user refreshes the screen before WP was able to schedule the next pickip. 
  */
 function show_wp_cron_disabled_error() {
-	
-	$list_table = get_list_table();
-
 	$current_time = time();
 	
 	$next_pickup = Inbox\get_next_pickup();

@@ -38,6 +38,22 @@ class Admin_Test extends Jeero_Test {
 		$this->assertStringContainsStringIgnoringCase( $expected, $actual );
 	}
 
+	function test_subscriptions_list_ignores_stale_object_cache() {
+
+		$list_table                = new Admin\Subscriptions\List_Table();
+		$list_table->subscriptions = array();
+		wp_cache_set( 'list_table', $list_table, 'Jeero\Admin\Subscriptions' );
+
+		add_filter( 'jeero/mother/post/response/endpoint=subscriptions/big', array( $this, 'get_mock_response_for_get_subscriptions' ), 10, 3 );
+		add_filter( 'jeero/mother/post/response/endpoint=subscriptions', array( $this, 'get_mock_response_for_add_subscription' ), 10, 3 );
+		add_filter( 'jeero/mother/get/response/endpoint=subscriptions/a fake ID', array( $this, 'get_mock_response_for_get_subscription' ), 10, 3 );
+
+		$actual = Admin\Subscriptions\get_admin_page_html();
+
+		$this->assertStringContainsStringIgnoringCase( 'another fake ID', $actual );
+
+	}
+
 	function test_edit_form() {
 		
 		add_filter( 'jeero/mother/get/response/endpoint=subscriptions/a fake ID', array( $this, 'get_mock_response_for_get_subscription' ), 10, 3 );
