@@ -108,6 +108,15 @@ class Activetickets extends Theater {
 			return '';
 		}
 
+		// Return to the embedding page after saving account details in ActiveTickets.
+		$return_url = isset( $args['return_url'] ) ? esc_url_raw( $args['return_url'] ) : ( is_singular() ? get_permalink( get_queried_object_id() ) : '' );
+		$query_args = array();
+		wp_parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $query_args );
+
+		if ( $return_url && ( isset( $args['return_url'] ) || ! isset( $query_args['returnUrl'] ) ) ) {
+			$url = add_query_arg( 'returnUrl', rawurlencode( $return_url ), $url );
+		}
+
 		$title  = ! empty( $args['title'] ) ? $args['title'] : __( 'Account', 'jeero' );
 		$width  = ! empty( $args['width'] ) ? $args['width'] : '100%';
 		$height = ! empty( $args['height'] ) ? absint( $args['height'] ) : 800;

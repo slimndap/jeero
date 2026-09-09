@@ -232,6 +232,49 @@ class Widgets_Test extends Jeero_Test {
 
 	}
 
+	function test_activetickets_account_inline_returns_to_embedding_page_only() {
+
+		$page_id = self::factory()->post->create( array( 'post_type' => 'page' ) );
+		$this->go_to( get_permalink( $page_id ) );
+		$subscription = new Subscription( 'a fake ID' );
+		$subscription->set( 'settings', array( 'theater' => 'activetickets', 'baseurl' => 'https://tickets.example.com' ) );
+		$theater = new \Jeero\Theaters\Activetickets();
+
+		$actual = $theater->get_account_inline_widget_html( $subscription );
+		$this->assertStringContainsString( 'returnUrl=' . rawurlencode( get_permalink( $page_id ) ), $actual );
+		$this->assertStringNotContainsString( 'returnUrl', $theater->get_account_indicator_widget_html( $subscription ) );
+		$this->assertStringNotContainsString( 'returnUrl', $theater->get_cart_inline_widget_html( $subscription ) );
+
+	}
+
+	function test_activetickets_account_inline_accepts_explicit_return_url() {
+
+		$subscription = new Subscription( 'a fake ID' );
+		$subscription->set( 'settings', array( 'theater' => 'activetickets', 'baseurl' => 'https://tickets.example.com' ) );
+		$theater = new \Jeero\Theaters\Activetickets();
+		$return_url = 'https://example.com/account/?view=details&language=nl';
+		$actual = $theater->get_account_inline_widget_html( $subscription, array( 'return_url' => $return_url ) );
+
+		$this->assertStringContainsString( 'returnUrl=' . rawurlencode( $return_url ), $actual );
+
+	}
+
+	function test_activetickets_account_inline_preserves_existing_return_url() {
+
+		$page_id = self::factory()->post->create( array( 'post_type' => 'page' ) );
+		$this->go_to( get_permalink( $page_id ) );
+		$subscription = new Subscription( 'a fake ID' );
+		$subscription->set( 'settings', array( 'theater' => 'activetickets', 'baseurl' => 'https://tickets.example.com' ) );
+		$theater = new \Jeero\Theaters\Activetickets();
+		$return_url = 'https://example.com/existing/';
+		$args = array( 'account_url' => 'https://tickets.example.com/nl-NL/Account/Manage?returnUrl=' . rawurlencode( $return_url ) );
+
+		$this->assertStringContainsString( 'returnUrl=' . rawurlencode( $return_url ), $theater->get_account_inline_widget_html( $subscription, $args ) );
+		$args['return_url'] = 'https://example.com/override/';
+		$this->assertStringContainsString( 'returnUrl=' . rawurlencode( $args['return_url'] ), $theater->get_account_inline_widget_html( $subscription, $args ) );
+
+	}
+
 	function test_activetickets_account_indicator_renders_account_link_from_subscription_baseurl() {
 
 		$subscription = new Subscription( 'a fake ID' );
