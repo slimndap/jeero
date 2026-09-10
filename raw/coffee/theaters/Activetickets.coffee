@@ -207,8 +207,26 @@ jeero_theater_widget_activetickets_restore_state = ->
     jeero_theater_widget_activetickets_restore_cart()
     jeero_theater_widget_activetickets_restore_login_status()
 
+# Promote a returned website page out of our own ActiveTickets iframe. Checking
+# the same-origin frame element avoids relying on the provider's referrer policy.
+jeero_theater_widget_activetickets_exit_return_iframe = ->
+    return false if window.self == window.top
+
+    try
+        frame = window.frameElement
+        return false unless frame? and frame.matches jeero_theater_widget_activetickets_iframe_selector
+        return false unless frame.closest '.jeero-theater-widget--theater-activetickets'
+        return false unless window.top.location.origin == window.location.origin
+
+        window.top.location.replace window.location.href
+        return true
+    catch error
+        # Cross-origin or sandboxed embeddings must remain untouched.
+        return false
+
 # Register event handlers and restore ActiveTickets state once the DOM can be queried safely.
 jeero_theater_widget_activetickets_init = ->
+    return if jeero_theater_widget_activetickets_exit_return_iframe()
     window.onmessage = jeero_theater_widget_activetickets_message_handler
 
     if document.readyState == 'loading'
