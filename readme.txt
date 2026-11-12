@@ -96,8 +96,7 @@ Subscription rates range from €30 - €70 per month, depending on your total n
 == Changelog ==
 
 = 1.36 =
-* Added inline TaPoS ticket booking with a configurable booking endpoint, visitor sessions and automatic iframe resizing.
-* Kept direct ticket booking available when the TaPoS iframe cannot be used.
+* Added inline ticket widgets for TaPoS.
 
 = 1.35 =
 * Added subscription-safe ticket buttons for supported theater integrations.
