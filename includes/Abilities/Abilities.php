@@ -1,5 +1,9 @@
 <?php
-/** Jeero operations shared by PHP, the REST API and the WordPress MCP Adapter. */
+/**
+ * Registers Jeero operations for PHP, REST and the WordPress MCP Adapter.
+ *
+ * @since	1.?
+ */
 namespace Jeero\Abilities;
 
 use Jeero\Db\Subscriptions as Db;
@@ -10,6 +14,13 @@ use Jeero\Inbox;
 add_action( 'wp_abilities_api_categories_init', __NAMESPACE__ . '\\register_category' );
 add_action( 'wp_abilities_api_init', __NAMESPACE__ . '\\register_abilities' );
 
+/**
+ * Registers the Jeero ability category.
+ *
+ * @since	1.?
+ *
+ * @return	void
+ */
 function register_category() {
 	wp_register_ability_category( 'jeero', array(
 		'label' => __( 'Jeero', 'jeero' ),
@@ -17,11 +28,26 @@ function register_category() {
 	) );
 }
 
+/**
+ * Checks whether the current user can execute a Jeero ability.
+ *
+ * @since	1.?
+ *
+ * @param	string	$operation	The ability name without the Jeero namespace.
+ * @return	bool	Whether the required WordPress capability is granted.
+ */
 function can_execute( $operation ) {
 	$capability = in_array( $operation, array( 'get-events', 'get-event', 'list-event-categories' ), true ) ? 'edit_posts' : 'manage_options';
 	return current_user_can( $capability );
 }
 
+/**
+ * Registers Jeero abilities with their schemas, permissions and MCP metadata.
+ *
+ * @since	1.?
+ *
+ * @return	void
+ */
 function register_abilities() {
 	$string = array( 'type' => 'string', 'minLength' => 1, 'maxLength' => 191 );
 	$subscription = array( 'subscription' => $string + array( 'description' => 'A subscription ID or its local subscription_key.' ) );
@@ -106,10 +132,27 @@ function register_abilities() {
 	}
 }
 
+/**
+ * Creates a public error without exposing connector diagnostics or credentials.
+ *
+ * @since	1.?
+ *
+ * @param	string	$code   	The error code.
+ * @param	string	$message	The public error message.
+ * @return	\WP_Error	The public ability error.
+ */
 function error( $code = 'jeero_request_failed', $message = 'Jeero could not complete this request. Check the subscription in WordPress and try again.' ) {
 	return new \WP_Error( $code, $message );
 }
 
+/**
+ * Resolves a subscription ID, local key or default subscription.
+ *
+ * @since	1.?
+ *
+ * @param	string|null	$selector	The subscription ID or local key. Defaults to null.
+ * @return	string|\WP_Error	The subscription ID, or an error if no unique subscription is available.
+ */
 function resolve_subscription( $selector = null ) {
 	$subscriptions = Db\get_subscriptions();
 	if ( null !== $selector ) {
@@ -134,6 +177,14 @@ function resolve_subscription( $selector = null ) {
 	return error( 'jeero_subscription_required', 'Select a Jeero subscription explicitly or set a default subscription.' );
 }
 
+/**
+ * Gets the public summary of a locally configured subscription.
+ *
+ * @since	1.?
+ *
+ * @param	string	$id	The subscription ID.
+ * @return	array	The subscription summary without credentials.
+ */
 function subscription_summary( $id ) {
 	$data = Db\get_subscription( $id );
 	$settings = $data['settings'] ?? array();
@@ -147,6 +198,14 @@ function subscription_summary( $id ) {
 	);
 }
 
+/**
+ * Lists public subscription summaries matching the supplied filters.
+ *
+ * @since	1.?
+ *
+ * @param	array	$input	The ability input or event filters.
+ * @return	array	The number of matching subscriptions and their summaries.
+ */
 function list_subscriptions( $input ) {
 	$items = array();
 	foreach ( Db\get_subscriptions() as $id => $data ) {
@@ -162,6 +221,14 @@ function list_subscriptions( $input ) {
 	return array( 'count' => count( $items ), 'subscriptions' => $items );
 }
 
+/**
+ * Checks a subscription and reports configuration completeness without credentials.
+ *
+ * @since	1.?
+ *
+ * @param	string	$id	The subscription ID.
+ * @return	array|\WP_Error	The public subscription details, or a connector error.
+ */
 function get_subscription( $id ) {
 	$subscription = Subscriptions\get_subscription( $id );
 	if ( is_wp_error( $subscription ) ) {
@@ -183,6 +250,15 @@ function get_subscription( $id ) {
 	return $summary;
 }
 
+/**
+ * Updates a subscription's ticketing system without persisting runtime credentials.
+ *
+ * @since	1.?
+ *
+ * @param	string	$id      	The subscription ID.
+ * @param	array 	$settings	The validated ticketing system settings.
+ * @return	true|\WP_Error	True on success, or a public configuration error.
+ */
 function select_theater( $id, $settings ) {
 	$subscription = new Subscriptions\Subscription( $id );
 	$merged = array_merge( $subscription->get_settings(), $settings );
@@ -195,6 +271,14 @@ function select_theater( $id, $settings ) {
 	return true;
 }
 
+/**
+ * Creates a subscription with a local key, label and optional ticketing system.
+ *
+ * @since	1.?
+ *
+ * @param	array	$input	The ability input or event filters.
+ * @return	array|\WP_Error	The public subscription summary and configuration URL, or an error.
+ */
 function create_subscription( $input ) {
 	$existing = resolve_subscription( $input['subscription_key'] );
 	if ( ! is_wp_error( $existing ) ) {
@@ -225,6 +309,14 @@ function create_subscription( $input ) {
 	return subscription_summary( $id ) + array( 'configuration_url' => \Jeero\Admin\Subscriptions\get_admin_edit_url( $id ) );
 }
 
+/**
+ * Refreshes selected active subscriptions while sharing the inbox lock with cron.
+ *
+ * @since	1.?
+ *
+ * @param	array	$input	The ability input or event filters.
+ * @return	array|\WP_Error	The refresh results, or an error if synchronization fails.
+ */
 function sync( $input ) {
 	$targets = list_subscriptions( $input + array( 'active_only' => true ) )['subscriptions'];
 	if ( isset( $input['subscription_id'] ) ) {
@@ -257,6 +349,15 @@ function sync( $input ) {
 	return array( 'count' => count( $results ), 'subscriptions' => array_values( $results ) );
 }
 
+/**
+ * Executes a Jeero ability with permission checks and redacted results.
+ *
+ * @since	1.?
+ *
+ * @param	string	$operation	The ability name without the Jeero namespace.
+ * @param	array 	$input    	The ability input or event filters.
+ * @return	array|\WP_Error	The public ability result, or an execution error.
+ */
 function execute( $operation, $input ) {
 	if ( ! function_exists( 'Jeero\\Db\\Subscriptions\\get_subscriptions' ) ) {
 		return error( 'jeero_not_ready', 'Jeero has not finished loading.' );
@@ -274,6 +375,15 @@ function execute( $operation, $input ) {
 	}
 }
 
+/**
+ * Dispatches a validated Jeero ability to its subscription or event operation.
+ *
+ * @since	1.?
+ *
+ * @param	string	$operation	The ability name without the Jeero namespace.
+ * @param	array 	$input    	The ability input or event filters.
+ * @return	array|\WP_Error	The operation result, or an error.
+ */
 function run( $operation, $input ) {
 	if ( 'list-subscriptions' === $operation ) {
 		return list_subscriptions( $input );

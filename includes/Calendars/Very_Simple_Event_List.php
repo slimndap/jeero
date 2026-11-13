@@ -16,6 +16,16 @@ register_calendar( __NAMESPACE__.'\\Very_Simple_Event_List' );
  */
 class Very_Simple_Event_List extends Post_Based_Calendar {
 
+	/**
+	 * Adds current VS Event List dates, location and ticket link.
+	 *
+	 * @since	1.?
+	 *
+	 * @param	\WP_Post                         	$post        	The imported calendar post.
+	 * @param	array                            	$data        	The supplementary Jeero source data.
+	 * @param	\Jeero\Subscriptions\Subscription	$subscription	The subscription.
+	 * @return	array|\WP_Error|null	The combined event fields, null if no readable native event is available, or a read error.
+	 */
 	function get_calendar_event_data( $post, $data, $subscription ) {
 		$data = parent::get_calendar_event_data( $post, $data, $subscription );
 		if ( is_wp_error( $data ) ) {
@@ -46,8 +56,9 @@ class Very_Simple_Event_List extends Post_Based_Calendar {
 	
 	/**
 	 * Checks if this calendar is active.
-	 * 
+	 *
 	 * @since	1.15
+	 * @since	1.?	Also detects the current VS Event List post type registration function.
 	 * @return	bool
 	 */
 	function is_active() {

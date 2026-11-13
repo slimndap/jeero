@@ -11,6 +11,13 @@ register_calendar( __NAMESPACE__.'\\The_Events_Calendar' );
  */
 class The_Events_Calendar extends Post_Based_Calendar {
 
+	/**
+	 * Gets imported posts and loads their native The Events Calendar objects.
+	 *
+	 * @since	1.?
+	 *
+	 * @return	\WP_Post[]	The native calendar posts, including imported drafts.
+	 */
 	function get_calendar_posts() {
 		// As in get_event_by_ref(), include imports that lack TEC's occurrence index.
 		$posts = get_posts( array(
@@ -21,6 +28,16 @@ class The_Events_Calendar extends Post_Based_Calendar {
 		return array_filter( array_map( 'tribe_get_event', $posts ) );
 	}
 
+	/**
+	 * Adds current The Events Calendar dates, venue, status and event website.
+	 *
+	 * @since	1.?
+	 *
+	 * @param	\WP_Post                         	$post        	The imported calendar post.
+	 * @param	array                            	$data        	The supplementary Jeero source data.
+	 * @param	\Jeero\Subscriptions\Subscription	$subscription	The subscription.
+	 * @return	array|\WP_Error	The combined event fields, or a read error.
+	 */
 	function get_calendar_event_data( $post, $data, $subscription ) {
 		$data = parent::get_calendar_event_data( $post, $data, $subscription );
 		if ( is_wp_error( $data ) ) {

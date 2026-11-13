@@ -1,14 +1,43 @@
 <?php
+/**
+ * Tests Jeero abilities, permissions, synchronization and credential redaction.
+ *
+ * @since	1.?
+ */
 use Jeero\Abilities\Data;
 use Jeero\Db\Subscriptions as Db;
 use Jeero\Inbox;
 
+/**
+ * Provides imported WordPress posts for the ability integration tests.
+ *
+ * @since	1.?
+ */
 class Abilities_Test_Calendar extends \Jeero\Calendars\Post_Based_Calendar {
+	/**
+	 * Initializes the calendar fixture used by ability tests.
+	 *
+	 * @since	1.?
+	 *
+	 * @param	string	$slug	The calendar slug. Defaults to Abilities_Test_Calendar.
+	 */
 	function __construct( $slug = 'Abilities_Test_Calendar' ) {
 		$this->slug = $slug;
 		$this->post_type = 'post';
 	}
 
+	/**
+	 * Imports event fields into a WordPress post for the ability tests.
+	 *
+	 * @since	1.?
+	 *
+	 * @param	mixed                            	$result      	The result of previous inbox processing.
+	 * @param	array                            	$data        	The structured event data.
+	 * @param	mixed                            	$raw         	The raw connector response.
+	 * @param	string                           	$theater     	The ticketing system name.
+	 * @param	\Jeero\Subscriptions\Subscription	$subscription	The subscription.
+	 * @return	int|\WP_Error	The imported post ID, or an import error.
+	 */
 	function process_data( $result, $data, $raw, $theater, $subscription ) {
 		if ( is_wp_error( $result ) ) {
 			return $result;
@@ -29,6 +58,11 @@ class Abilities_Test_Calendar extends \Jeero\Calendars\Post_Based_Calendar {
 	}
 }
 
+/**
+ * Tests Jeero operations through the WordPress Abilities API and REST.
+ *
+ * @since	1.?
+ */
 class Abilities_Test extends Jeero_Test {
 	private $requests = array();
 	private $inbox = array();
@@ -38,6 +72,13 @@ class Abilities_Test extends Jeero_Test {
 	private $get;
 	private $calendars_before;
 
+	/**
+	 * Requires a WordPress version that provides the Abilities API.
+	 *
+	 * @since	1.?
+	 *
+	 * @return	void
+	 */
 	public static function setUpBeforeClass(): void {
 		parent::setUpBeforeClass();
 		if ( ! function_exists( 'wp_get_ability' ) ) {
@@ -45,6 +86,13 @@ class Abilities_Test extends Jeero_Test {
 		}
 	}
 
+	/**
+	 * Sets up subscriptions, a calendar fixture and mocked connector responses.
+	 *
+	 * @since	1.?
+	 *
+	 * @return	void
+	 */
 	protected function setUp(): void {
 		parent::setUp();
 		global $_jeero_calendars;
@@ -99,6 +147,13 @@ class Abilities_Test extends Jeero_Test {
 		add_filter( 'pre_http_request', $this->http, 10, 3 );
 	}
 
+	/**
+	 * Restores calendar registrations, connector filters and the current user.
+	 *
+	 * @since	1.?
+	 *
+	 * @return	void
+	 */
 	protected function tearDown(): void {
 		global $_jeero_calendars;
 		$_jeero_calendars = $this->calendars_before;
@@ -110,16 +165,43 @@ class Abilities_Test extends Jeero_Test {
 		parent::tearDown();
 	}
 
+	/**
+	 * Creates a successful mocked HTTP response.
+	 *
+	 * @since	1.?
+	 *
+	 * @param	mixed	$body	The value to encode as the response body.
+	 * @return	array	The mocked WordPress HTTP response.
+	 */
 	private function response( $body ) {
 		return array( 'body' => wp_json_encode( $body ), 'response' => array( 'code' => 200 ) );
 	}
 
+	/**
+	 * Executes a registered Jeero ability for the current test user.
+	 *
+	 * @since	1.?
+	 *
+	 * @param	string	$name 	The ability name without the Jeero namespace.
+	 * @param	array 	$input	The ability input or event filters.
+	 * @return	array|\WP_Error	The ability result, or an error.
+	 */
 	private function call( $name, $input = array() ) {
 		$ability = wp_get_ability( 'jeero/' . $name );
 		$this->assertNotNull( $ability );
 		return $ability->execute( $input );
 	}
 
+	/**
+	 * Creates a normalized inbox event for the ability tests.
+	 *
+	 * @since	1.?
+	 *
+	 * @param	string	$ref  	The event reference. Defaults to e1.
+	 * @param	string	$id   	The subscription ID. Defaults to one.
+	 * @param	string	$start	The event start date and time.
+	 * @return	array	The mocked inbox event.
+	 */
 	private function event( $ref = 'e1', $id = 'one', $start = '2026-11-15 20:00:00' ) {
 		return array(
 			'ID' => $id . '-' . $ref, 'subscription_id' => $id,
@@ -134,6 +216,11 @@ class Abilities_Test extends Jeero_Test {
 		);
 	}
 
+	/**
+	 * Tests if all eleven abilities expose REST and MCP metadata without sync or snapshot tools.
+	 *
+	 * @since	1.?
+	 */
 	function test_all_eleven_abilities_are_registered_without_manual_sync_or_snapshots() {
 		$names = array( 'list-subscriptions', 'get-subscription', 'create-subscription', 'config-subscription', 'set-default-subscription', 'activate-subscription', 'deactivate-subscription', 'get-events', 'get-event', 'list-event-categories', 'get-logs' );
 		foreach ( $names as $name ) {
@@ -153,6 +240,11 @@ class Abilities_Test extends Jeero_Test {
 		$this->assertSame( array(), $this->requests );
 	}
 
+	/**
+	 * Tests if anonymous users and subscribers are denied ability access.
+	 *
+	 * @since	1.?
+	 */
 	function test_anonymous_users_and_subscribers_cannot_access_abilities() {
 		foreach ( array( 0, self::factory()->user->create( array( 'role' => 'subscriber' ) ) ) as $user ) {
 			wp_set_current_user( $user );
@@ -166,6 +258,11 @@ class Abilities_Test extends Jeero_Test {
 		$this->assertSame( array(), $this->requests );
 	}
 
+	/**
+	 * Tests if contributors, authors and editors can only execute the event read abilities.
+	 *
+	 * @since	1.?
+	 */
 	function test_post_editors_can_only_execute_the_three_event_read_abilities() {
 		$read_abilities = array( 'get-events', 'get-event', 'list-event-categories' );
 		$this->inbox = array( $this->event() );
@@ -185,6 +282,11 @@ class Abilities_Test extends Jeero_Test {
 		}
 	}
 
+	/**
+	 * Tests if schemas reject credentials, unknown fields and invalid pagination.
+	 *
+	 * @since	1.?
+	 */
 	function test_input_validation_rejects_credentials_unknown_fields_and_invalid_pagination() {
 		foreach ( array(
 			array( 'config-subscription', array( 'subscription' => 'one', 'settings' => array( 'api_key' => 'do-not-accept' ) ) ),
@@ -200,6 +302,11 @@ class Abilities_Test extends Jeero_Test {
 		$this->assertSame( array(), $this->requests );
 	}
 
+	/**
+	 * Tests subscription summaries, defaults, private configuration URLs and safe errors.
+	 *
+	 * @since	1.?
+	 */
 	function test_subscription_summaries_config_link_defaults_and_private_errors() {
 		$list = $this->call( 'list-subscriptions', array( 'theater' => 'stager' ) );
 		$this->assertSame( 1, $list['count'] );
@@ -219,6 +326,11 @@ class Abilities_Test extends Jeero_Test {
 		$this->assertStringNotContainsString( 'private-key', $error->get_error_message() );
 	}
 
+	/**
+	 * Tests if subscription creation preserves its local key and private configuration flow.
+	 *
+	 * @since	1.?
+	 */
 	function test_create_subscription_keeps_local_alias_and_supports_private_theater_configuration() {
 		$result = $this->call( 'create-subscription', array( 'subscription_key' => 'third', 'label' => 'Third', 'settings' => array( 'theater' => 'stager' ) ) );
 		$this->assertSame( 'new-id', $result['subscription_id'] );
@@ -230,6 +342,11 @@ class Abilities_Test extends Jeero_Test {
 		$this->assertSame( 'veezi', Db\get_subscription( 'new-id' )['settings']['theater'] );
 	}
 
+	/**
+	 * Tests if remote deactivation preserves imported events and local settings.
+	 *
+	 * @since	1.?
+	 */
 	function test_deactivation_uses_mother_and_preserves_data_and_settings() {
 		Inbox\process_item( $this->event() );
 		$this->call( 'set-default-subscription', array( 'subscription' => 'one' ) );
@@ -243,6 +360,11 @@ class Abilities_Test extends Jeero_Test {
 		$this->assertContains( array( 'subscriptions/one/deactivate' ), $this->requests );
 	}
 
+	/**
+	 * Tests if event reads synchronize selected subscriptions at most once per minute.
+	 *
+	 * @since	1.?
+	 */
 	function test_event_reads_sync_only_selected_subscriptions_and_throttle_refreshes() {
 		$this->inbox = array( $this->event(), $this->event( 'other', 'two' ) );
 		$first = $this->call( 'get-events', array( 'subscription' => 'main' ) );
@@ -258,6 +380,11 @@ class Abilities_Test extends Jeero_Test {
 		$this->assertSame( 2, Data\get_events( array() )['total'] );
 	}
 
+	/**
+	 * Tests if cron and abilities share a lock and recover expired locks.
+	 *
+	 * @since	1.?
+	 */
 	function test_cron_and_ability_share_lock_and_expired_lock_can_be_recovered() {
 		add_option( 'jeero/inbox/pickup_lock', time() + 300, '', false );
 		$this->assertWPError( $this->call( 'get-events', array( 'subscription' => 'one' ) ) );
@@ -268,6 +395,11 @@ class Abilities_Test extends Jeero_Test {
 		$this->assertFalse( get_option( 'jeero/inbox/pickup_lock' ) );
 	}
 
+	/**
+	 * Tests if failed synchronization remains retryable and keeps credentials private.
+	 *
+	 * @since	1.?
+	 */
 	function test_failed_sync_is_retried_and_does_not_return_upstream_credentials() {
 		$this->remote_error = true;
 		$result = $this->call( 'get-events', array( 'subscription' => 'one' ) );
@@ -277,12 +409,22 @@ class Abilities_Test extends Jeero_Test {
 		$this->assertFalse( get_option( 'jeero/inbox/pickup_lock' ) );
 	}
 
+	/**
+	 * Tests if an expired importer leaves a newer inbox lock intact.
+	 *
+	 * @since	1.?
+	 */
 	function test_expired_importer_cannot_release_its_successors_lock() {
 		update_option( 'jeero/inbox/pickup_lock', time() + 600, false );
 		Inbox\release_pickup_lock( time() - 300 );
 		$this->assertGreaterThan( time(), get_option( 'jeero/inbox/pickup_lock' ) );
 	}
 
+	/**
+	 * Tests event filters, pagination, updates and references shared by subscriptions.
+	 *
+	 * @since	1.?
+	 */
 	function test_event_postmeta_filters_paginates_updates_and_disambiguates_subscriptions() {
 		Inbox\process_item( $this->event() );
 		Inbox\process_item( $this->event( 'e2', 'one', '2026-11-16T20:00:00+01:00' ) );
@@ -314,6 +456,11 @@ class Abilities_Test extends Jeero_Test {
 		$this->assertSame( array( array( 'name' => 'Live', 'events' => 1 ), array( 'name' => 'Music', 'events' => 1 ) ), $categories['categories'] );
 	}
 
+	/**
+	 * Tests if calendar reads use existing posts and preserve escaped event fields.
+	 *
+	 * @since	1.?
+	 */
 	function test_calendar_read_methods_use_existing_posts_and_preserve_escaped_source_data() {
 		$item = $this->event();
 		$item['data']['production']['description'] = 'A "quoted" title and C:\\Shows\\Today';
@@ -331,6 +478,11 @@ class Abilities_Test extends Jeero_Test {
 		$this->assertNull( $this->calendar->get_event( 'e1' ) );
 	}
 
+	/**
+	 * Tests if reads deduplicate calendar copies without consulting an event table.
+	 *
+	 * @since	1.?
+	 */
 	function test_event_reads_deduplicate_multiple_calendar_imports_without_an_event_table() {
 		global $_jeero_calendars;
 		$second = new Abilities_Test_Calendar( 'Second_Test_Calendar' );
@@ -364,6 +516,11 @@ class Abilities_Test extends Jeero_Test {
 		}
 	}
 
+	/**
+	 * Tests if scoped synchronization leaves another subscription's inbox items untouched.
+	 *
+	 * @since	1.?
+	 */
 	function test_scoped_sync_never_consumes_another_subscriptions_inbox_items() {
 		remove_filter( 'jeero/mother/post/response', $this->post, 10 );
 		$unscoped = function() { return $this->response( array( $this->event(), $this->event( 'other', 'two' ) ) ); };
@@ -382,6 +539,11 @@ class Abilities_Test extends Jeero_Test {
 		}
 	}
 
+	/**
+	 * Tests if ticketing system configuration does not persist runtime credentials.
+	 *
+	 * @since	1.?
+	 */
 	function test_runtime_credentials_are_not_persisted_when_selecting_a_theater() {
 		$inject = function( $settings ) { $settings['runtime_token'] = 'runtime-secret'; return $settings; };
 		add_filter( 'jeero/subscription/settings', $inject );
@@ -395,6 +557,11 @@ class Abilities_Test extends Jeero_Test {
 		$this->assertSame( 'runtime-secret', $this->requests[0][1]['settings']['runtime_token'] );
 	}
 
+	/**
+	 * Tests site timezone date filters and rejection of invalid imported events.
+	 *
+	 * @since	1.?
+	 */
 	function test_event_dates_use_site_timezone_and_invalid_events_remain_pending() {
 		update_option( 'timezone_string', 'Europe/Amsterdam' );
 		$this->assertIsInt( Inbox\process_item( $this->event( '0', 'one', '2026-11-15T23:30:00Z' ) ) );
@@ -407,6 +574,11 @@ class Abilities_Test extends Jeero_Test {
 		$this->assertSame( 1, Data\get_events( array() )['total'] );
 	}
 
+	/**
+	 * Tests if a metadata storage failure prevents acknowledgement and refresh caching.
+	 *
+	 * @since	1.?
+	 */
 	function test_storage_failure_prevents_acknowledging_the_event() {
 		$this->inbox = array( $this->event() );
 		$break_insert = function( $check, $post_id, $key ) {
@@ -422,12 +594,22 @@ class Abilities_Test extends Jeero_Test {
 		$this->assertFalse( get_transient( 'jeero_sync_' . md5( 'one' ) ) );
 	}
 
+	/**
+	 * Tests if invalid date filters are rejected before synchronization.
+	 *
+	 * @since	1.?
+	 */
 	function test_invalid_dates_are_rejected_before_triggering_a_sync() {
 		$this->assertWPError( $this->call( 'get-events', array( 'date' => '2026-02-30' ) ) );
 		$this->assertWPError( $this->call( 'get-events', array( 'from' => '2026-12-01', 'to' => '2026-11-01' ) ) );
 		$this->assertSame( array(), $this->requests );
 	}
 
+	/**
+	 * Tests if failed imports remain pending without a cached successful refresh.
+	 *
+	 * @since	1.?
+	 */
 	function test_failed_import_is_not_cached_or_acknowledged() {
 		$this->inbox = array( $this->event() );
 		$fail = function() { return new WP_Error( 'test_failure', 'Import failed.' ); };
@@ -446,6 +628,11 @@ class Abilities_Test extends Jeero_Test {
 		}
 	}
 
+	/**
+	 * Tests subscription log filters, bounded storage and credential redaction.
+	 *
+	 * @since	1.?
+	 */
 	function test_inbox_logs_are_filtered_bounded_and_redacted_before_storage() {
 		foreach ( array( 'one', 'two' ) as $id ) {
 			$item = $this->event( 'log', $id );
@@ -463,11 +650,21 @@ class Abilities_Test extends Jeero_Test {
 		$this->assertCount( 1000, get_option( 'jeero/abilities/logs' ) );
 	}
 
+	/**
+	 * Tests if redaction covers encoded credentials and authorization headers.
+	 *
+	 * @since	1.?
+	 */
 	function test_redaction_covers_encoded_settings_and_authorization_headers() {
 		$value = array( 'message' => 'Bearer other-token private-key-123456 ' . rawurlencode( 'private-key-123456' ) . ' ' . base64_encode( 'private-key-123456' ) );
 		$this->assertSame( array( 'message' => 'Bearer [REDACTED] [REDACTED] [REDACTED] [REDACTED]' ), Data\clean( $value ) );
 	}
 
+	/**
+	 * Tests REST permissions, input validation, GET methods and automatic synchronization.
+	 *
+	 * @since	1.?
+	 */
 	function test_rest_uses_the_same_validation_and_permissions() {
 		$server = rest_get_server();
 		$request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/jeero/list-subscriptions/run' );

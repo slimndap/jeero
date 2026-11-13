@@ -1,5 +1,9 @@
 <?php
-/** Shared validation, redaction and aggregation of calendar event data. */
+/**
+ * Validates, redacts and combines event data from Jeero calendars.
+ *
+ * @since	1.?
+ */
 namespace Jeero\Abilities\Data;
 
 use Jeero\Db\Subscriptions;
@@ -9,7 +13,14 @@ if ( function_exists( 'wp_register_ability' ) ) {
 	add_filter( 'jeero/inbox/process/item', __NAMESPACE__ . '\\capture', PHP_INT_MAX, 6 );
 }
 
-/** Keep credentials and upstream diagnostics out of ability results and storage. */
+/**
+ * Redacts credentials from strings and nested arrays.
+ *
+ * @since	1.?
+ *
+ * @param	mixed	$value	The value to redact.
+ * @return	mixed	The value with known credentials and sensitive fields redacted.
+ */
 function clean( $value ) {
 	$secrets = array();
 	$remember = function( $settings ) use ( &$remember, &$secrets ) {
@@ -58,6 +69,19 @@ function clean( $value ) {
 	return $redact( $value );
 }
 
+/**
+ * Stores redacted inbox log messages for the abilities API.
+ *
+ * @since	1.?
+ *
+ * @param	mixed                            	$result      	The result of previous inbox processing.
+ * @param	array                            	$data        	The structured inbox data.
+ * @param	mixed                            	$raw         	The raw connector response.
+ * @param	string                           	$action      	The inbox action.
+ * @param	string                           	$theater     	The ticketing system name.
+ * @param	\Jeero\Subscriptions\Subscription	$subscription	The subscription.
+ * @return	mixed	The original processing result.
+ */
 function capture( $result, $data, $raw, $action, $theater, $subscription ) {
 	if ( is_wp_error( $result ) || ! is_array( $data ) ) {
 		return $result;
@@ -76,6 +100,14 @@ function capture( $result, $data, $raw, $action, $theater, $subscription ) {
 	return $result;
 }
 
+/**
+ * Validates and redacts normalized event fields before storage or output.
+ *
+ * @since	1.?
+ *
+ * @param	mixed	$data	The structured event data to validate.
+ * @return	array|\WP_Error	The supported event fields, or a validation error.
+ */
 function prepare_event( $data ) {
 	if ( ! is_array( $data ) || ! isset( $data['ref'], $data['start'], $data['production']['title'] ) ) {
 		return new \WP_Error( 'jeero_invalid_event', 'Incomplete Jeero event data.' );
@@ -100,6 +132,14 @@ function prepare_event( $data ) {
 	return clean( array_intersect_key( $data, array_flip( array( 'ref', 'start', 'end', 'status', 'tickets', 'tickets_url', 'prices', 'venue', 'production', 'custom' ) ) ) );
 }
 
+/**
+ * Validates calendar dates and the order of an event date range.
+ *
+ * @since	1.?
+ *
+ * @param	array	$input	The ability input or event filters.
+ * @return	true|\WP_Error	True for valid filters, or a date validation error.
+ */
 function validate_filters( $input ) {
 	foreach ( array( 'date', 'from', 'to' ) as $field ) {
 		if ( isset( $input[ $field ] ) && ( ! preg_match( '/^(\d{4})-(\d{2})-(\d{2})$/', $input[ $field ], $parts ) || ! checkdate( (int) $parts[2], (int) $parts[3], (int) $parts[1] ) ) ) {
@@ -112,6 +152,15 @@ function validate_filters( $input ) {
 	return true;
 }
 
+/**
+ * Checks whether an event matches subscription, text, category and date filters.
+ *
+ * @since	1.?
+ *
+ * @param	array	$event	The normalized event data.
+ * @param	array	$input	The ability input or event filters.
+ * @return	bool	Whether the event matches every supplied filter.
+ */
 function matches( $event, $input ) {
 	foreach ( array( 'subscription_id', 'theater', 'status', 'ref' ) as $field ) {
 		if ( isset( $input[ $field ] ) && (string) ( $event[ $field ] ?? '' ) !== (string) $input[ $field ] ) {
@@ -133,7 +182,14 @@ function matches( $event, $input ) {
 	return true;
 }
 
-/** A single Jeero event can be imported into more than one calendar. */
+/**
+ * Deduplicates calendar copies by subscription and event reference.
+ *
+ * @since	1.?
+ *
+ * @param	array[]	$events	The normalized event data from one or more calendars.
+ * @return	array[]	The most recently updated copy of each event.
+ */
 function unique_events( $events ) {
 	$unique = array();
 	foreach ( $events as $event ) {
@@ -145,6 +201,14 @@ function unique_events( $events ) {
 	return array_values( $unique );
 }
 
+/**
+ * Gets unique imported events from calendars and applies the supplied filters.
+ *
+ * @since	1.?
+ *
+ * @param	array	$input	The ability input or event filters.
+ * @return	array[]|\WP_Error	The matching events, or a calendar read error.
+ */
 function calendar_events( $input ) {
 	$valid = validate_filters( $input );
 	if ( is_wp_error( $valid ) ) {
@@ -166,6 +230,14 @@ function calendar_events( $input ) {
 	} ) );
 }
 
+/**
+ * Gets matching events ordered by start time with pagination metadata.
+ *
+ * @since	1.?
+ *
+ * @param	array	$input	The ability input or event filters.
+ * @return	array|\WP_Error	The event page and pagination metadata, or a read error.
+ */
 function get_events( $input ) {
 	$events = calendar_events( $input );
 	if ( is_wp_error( $events ) ) {
@@ -188,6 +260,14 @@ function get_events( $input ) {
 	);
 }
 
+/**
+ * Gets one imported event by reference and optional subscription.
+ *
+ * @since	1.?
+ *
+ * @param	array	$input	The ability input or event filters.
+ * @return	array|\WP_Error	The event data, or an error if no unique event is found.
+ */
 function get_event( $input ) {
 	$events = array();
 	foreach ( Calendars\get_calendars() as $calendar ) {
@@ -209,6 +289,14 @@ function get_event( $input ) {
 	return $events[0];
 }
 
+/**
+ * Counts unique imported events per category.
+ *
+ * @since	1.?
+ *
+ * @param	array[]	$events	The normalized event data.
+ * @return	array	The number of categories and the event count for each category.
+ */
 function categories_from_events( $events ) {
 	$counts = array();
 	foreach ( unique_events( $events ) as $event ) {
@@ -224,6 +312,14 @@ function categories_from_events( $events ) {
 	return array( 'count' => count( $categories ), 'categories' => $categories );
 }
 
+/**
+ * Gets category counts from imported events matching the supplied filters.
+ *
+ * @since	1.?
+ *
+ * @param	array	$input	The ability input or event filters.
+ * @return	array|\WP_Error	The category counts, or a calendar read error.
+ */
 function get_categories( $input ) {
 	$events = calendar_events( $input );
 	return is_wp_error( $events ) ? $events : categories_from_events( $events );

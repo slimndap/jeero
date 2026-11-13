@@ -12,6 +12,13 @@ register_calendar( __NAMESPACE__.'\\Custom_Post_Type' );
  */
 class Custom_Post_Type extends Post_Based_Calendar {
 
+	/**
+	 * Gets imported posts from the post types configured for all subscriptions.
+	 *
+	 * @since	1.?
+	 *
+	 * @return	\WP_Post[]	The native calendar posts, including imported drafts.
+	 */
 	function get_calendar_posts() {
 		$types = array();
 		foreach ( \Jeero\Db\Subscriptions\get_subscriptions() as $entry ) {
@@ -24,10 +31,28 @@ class Custom_Post_Type extends Post_Based_Calendar {
 		) ) : array();
 	}
 
+	/**
+	 * Gets the category taxonomy configured for a custom post type subscription.
+	 *
+	 * @since	1.?
+	 *
+	 * @param	\Jeero\Subscriptions\Subscription	$subscription	The subscription.
+	 * @return	string	The category taxonomy slug.
+	 */
 	function get_categories_taxonomy( $subscription ) {
 		return $this->get_setting( 'import/categories_taxonomy', $subscription );
 	}
 
+	/**
+	 * Reads current custom post fields while retaining the Jeero event date.
+	 *
+	 * @since	1.?
+	 *
+	 * @param	\WP_Post                         	$post        	The imported calendar post.
+	 * @param	array                            	$data        	The supplementary Jeero source data.
+	 * @param	\Jeero\Subscriptions\Subscription	$subscription	The subscription.
+	 * @return	array|\WP_Error|null	The combined event fields, null if no readable native event is available, or a read error.
+	 */
 	function get_calendar_event_data( $post, $data, $subscription ) {
 		// Custom post types have no fixed native date field; retain the Jeero date.
 		return empty( $data['start'] ) ? null : parent::get_calendar_event_data( $post, $data, $subscription );

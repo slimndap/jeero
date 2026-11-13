@@ -26,7 +26,14 @@ abstract class Post_Based_Calendar extends Calendar {
 	 */
 	protected $categories_taxonomy = false;
 
-	/** Read imported events through the calendar, retaining supplementary Jeero fields. */
+	/**
+	 * Gets current imported calendar events with supplementary Jeero source fields.
+	 *
+	 * @since	1.?
+	 *
+	 * @param	array	$input	The optional subscription, reference, category, text and date filters.
+	 * @return	array[]|\WP_Error	The matching normalized events, or a read or validation error.
+	 */
 	function get_events( $input = array() ) {
 		$valid = Event_Data\validate_filters( $input );
 		if ( is_wp_error( $valid ) ) {
@@ -89,7 +96,13 @@ abstract class Post_Based_Calendar extends Calendar {
 		} ) );
 	}
 
-	/** Calendars with a query API override this; other post calendars use WordPress. */
+	/**
+	 * Gets subscription-linked calendar posts through WordPress.
+	 *
+	 * @since	1.?
+	 *
+	 * @return	\WP_Post[]	The imported calendar posts, including drafts.
+	 */
 	function get_calendar_posts() {
 		return get_posts( array(
 			'post_type' => $this->get_post_type(), 'post_status' => 'any',
@@ -98,7 +111,16 @@ abstract class Post_Based_Calendar extends Calendar {
 		) );
 	}
 
-	/** Calendar-specific readers add dates, locations and other native event fields. */
+	/**
+	 * Adds current post fields and categories to supplementary Jeero event data.
+	 *
+	 * @since	1.?
+	 *
+	 * @param	\WP_Post                         	$post        	The imported calendar post.
+	 * @param	array                            	$data        	The supplementary Jeero source data.
+	 * @param	\Jeero\Subscriptions\Subscription	$subscription	The subscription.
+	 * @return	array|\WP_Error	The combined event fields, or a category read error.
+	 */
 	function get_calendar_event_data( $post, $data, $subscription ) {
 		$data['production'] = array_merge( $data['production'] ?? array(), array(
 			'title' => $post->post_title, 'description' => $post->post_content,
@@ -117,6 +139,15 @@ abstract class Post_Based_Calendar extends Calendar {
 		return $data;
 	}
 
+	/**
+	 * Gets a single imported calendar event by reference.
+	 *
+	 * @since	1.?
+	 *
+	 * @param	string|int	$ref  	The event reference.
+	 * @param	array     	$input	The optional event filters, including the subscription ID.
+	 * @return	array|null|\WP_Error	The event, null if not found, or an error if the result is ambiguous.
+	 */
 	function get_event( $ref, $input = array() ) {
 		$events = $this->get_events( array( 'ref' => $ref ) + $input );
 		if ( is_wp_error( $events ) ) {
@@ -128,6 +159,14 @@ abstract class Post_Based_Calendar extends Calendar {
 		return $events ? $events[0] : null;
 	}
 
+	/**
+	 * Gets category names and event counts from matching imported events.
+	 *
+	 * @since	1.?
+	 *
+	 * @param	array	$input	The optional event filters.
+	 * @return	array|\WP_Error	The category counts, or a calendar read error.
+	 */
 	function list_event_categories( $input = array() ) {
 		$events = $this->get_events( $input );
 		return is_wp_error( $events ) ? $events : Event_Data\categories_from_events( $events );
@@ -567,10 +606,18 @@ abstract class Post_Based_Calendar extends Calendar {
 	
 	/**
 	 * Processes the data from an event in the inbox.
-	 * 
+	 *
 	 * @since 	1.16
 	 * @since	1.26		Always use structured images.
 	 * @since	1.30.1	Track stats for updated and created events.
+	 * @since	1.?	Stores supplementary Jeero source data and propagates metadata errors.
+	 *
+	 * @param	mixed                            	$result      	The result of previous inbox processing.
+	 * @param	array                            	$data        	The structured event data.
+	 * @param	mixed                            	$raw         	The raw connector response.
+	 * @param	string                           	$theater     	The ticketing system name.
+	 * @param	\Jeero\Subscriptions\Subscription	$subscription	The subscription.
+	 * @return	int|\WP_Error	The imported post ID, or an import error.
 	 */
 	function process_data( $result, $data, $raw, $theater, $subscription ) {
 
@@ -702,11 +749,12 @@ abstract class Post_Based_Calendar extends Calendar {
 	 * Updates canonical ticket context and available Jeero source data for a post.
 	 *
 	 * @since 1.35
+	 * @since	1.?	Stores supplementary event data in the existing metadata update.
 	 *
-	 * @param int          $post_id      Post ID.
-	 * @param array        $data         Structured event data.
-	 * @param Subscription $subscription Subscription.
-	 * @return true|\WP_Error
+	 * @param	int                              	$post_id     	The imported post ID.
+	 * @param	array                            	$data        	The structured event data or ticket-only context.
+	 * @param	\Jeero\Subscriptions\Subscription	$subscription	The subscription.
+	 * @return	true|\WP_Error	True on success, or a validation or storage error.
 	 */
 	function update_ticket_context_meta( $post_id, $data, $subscription ) {
 		if ( ! is_numeric( $post_id ) || (int) $post_id <= 0 || ! get_post( (int) $post_id ) ) {

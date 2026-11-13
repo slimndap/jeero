@@ -12,6 +12,13 @@ register_calendar( __NAMESPACE__.'\\WP_Event_Manager' );
  */
 class WP_Event_Manager extends Post_Based_Calendar {
 
+	/**
+	 * Gets event listings through WP Event Manager, including imported drafts.
+	 *
+	 * @since	1.?
+	 *
+	 * @return	\WP_Post[]	The native calendar posts, including imported drafts.
+	 */
 	function get_calendar_posts() {
 		// The listing API ignores its post_status argument in some versions.
 		$include_drafts = function( $args ) { $args['post_status'] = 'any'; return $args; };
@@ -26,6 +33,16 @@ class WP_Event_Manager extends Post_Based_Calendar {
 		return $query->posts;
 	}
 
+	/**
+	 * Adds current WP Event Manager dates, times, location and ticket status.
+	 *
+	 * @since	1.?
+	 *
+	 * @param	\WP_Post                         	$post        	The imported calendar post.
+	 * @param	array                            	$data        	The supplementary Jeero source data.
+	 * @param	\Jeero\Subscriptions\Subscription	$subscription	The subscription.
+	 * @return	array|\WP_Error	The combined event fields, or a read error.
+	 */
 	function get_calendar_event_data( $post, $data, $subscription ) {
 		$data = parent::get_calendar_event_data( $post, $data, $subscription );
 		if ( is_wp_error( $data ) ) {

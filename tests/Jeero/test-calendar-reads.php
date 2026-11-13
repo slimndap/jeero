@@ -1,18 +1,65 @@
 <?php
+/**
+ * Tests native calendar readers and configured custom post types.
+ *
+ * @since	1.?
+ */
 use Jeero\Db\Subscriptions as Db;
 
+/**
+ * Tests imported event reads without a running external calendar plugin.
+ *
+ * @since	1.?
+ */
 class Native_Calendar_Read_Test extends Jeero_Test {
-	/** @dataProvider metadata_calendars */
+	/**
+	 * Tests if post calendars read current native fields without source metadata.
+	 *
+	 * @since	1.?
+	 *
+	 * @dataProvider metadata_calendars
+	 *
+	 * @param	string	$slug    	The calendar slug.
+	 * @param	array 	$meta    	The native metadata for the event fixture.
+	 * @param	string	$taxonomy	The calendar category taxonomy.
+	 */
 	function test_post_calendars_read_native_fields_without_source_metadata( $slug, $meta, $taxonomy ) {
 		switch ( $slug ) {
 			case 'GDLR_Events':
-				$calendar = new class extends Jeero\Calendars\GDLR_Events { function is_active() { return true; } };
+				$calendar = new class extends Jeero\Calendars\GDLR_Events {
+					/**
+					 * Enables the calendar reader for the native metadata fixture.
+					 *
+					 * @since	1.?
+					 *
+					 * @return	bool	Always true for this fixture.
+					 */
+					function is_active() { return true; }
+				};
 				break;
 			case 'Very_Simple_Event_List':
-				$calendar = new class extends Jeero\Calendars\Very_Simple_Event_List { function is_active() { return true; } };
+				$calendar = new class extends Jeero\Calendars\Very_Simple_Event_List {
+					/**
+					 * Enables the calendar reader for the native metadata fixture.
+					 *
+					 * @since	1.?
+					 *
+					 * @return	bool	Always true for this fixture.
+					 */
+					function is_active() { return true; }
+				};
 				break;
 			case 'Events_Schedule_Wp_Plugin':
-				$calendar = new class extends Jeero\Calendars\Events_Schedule_Wp_Plugin { function is_active() { return true; } };
+				$calendar = new class extends Jeero\Calendars\Events_Schedule_Wp_Plugin {
+					/**
+					 * Enables the calendar reader for the native metadata fixture.
+					 *
+					 * @since	1.?
+					 *
+					 * @return	bool	Always true for this fixture.
+					 */
+					function is_active() { return true; }
+				};
 				register_taxonomy( 'wcs-room', 'class' );
 				break;
 		}
@@ -36,6 +83,13 @@ class Native_Calendar_Read_Test extends Jeero_Test {
 		$this->assertCount( 0, $calendar->get_events() );
 	}
 
+	/**
+	 * Provides native metadata fixtures for WordPress post calendars.
+	 *
+	 * @since	1.?
+	 *
+	 * @return	array[]	The calendar slugs, native metadata and category taxonomies.
+	 */
 	static function metadata_calendars() {
 		$start = strtotime( '2031-02-03 20:15:00 UTC' );
 		return array(
@@ -45,6 +99,11 @@ class Native_Calendar_Read_Test extends Jeero_Test {
 		);
 	}
 
+	/**
+	 * Tests if each custom post type subscription uses its configured post type and taxonomy.
+	 *
+	 * @since	1.?
+	 */
 	function test_custom_post_types_use_each_subscriptions_post_type_and_taxonomy() {
 		if ( ! function_exists( 'wp_register_ability' ) ) {
 			$this->markTestSkipped( 'The Abilities API requires WordPress 6.9 or newer.' );

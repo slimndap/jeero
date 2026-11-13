@@ -71,7 +71,14 @@ class Theater_For_WordPress extends Post_Based_Calendar {
 		return class_exists( '\WP_Theatre' );
 	}
 	
-	/** Read current Theater performances, retaining supplementary Jeero source fields. */
+	/**
+	 * Gets current Theater performances with their linked production data.
+	 *
+	 * @since	1.?
+	 *
+	 * @param	array	$input	The optional subscription, reference, category, text and date filters.
+	 * @return	array[]|\WP_Error	The normalized performance data, or a read or validation error.
+	 */
 	function get_events( $input = array() ) {
 		$valid = Event_Data\validate_filters( $input );
 		if ( is_wp_error( $valid ) ) {
@@ -212,25 +219,32 @@ class Theater_For_WordPress extends Post_Based_Calendar {
 	}
 	
 	/**
-	 * Processes the data from an event in the inbox.
-	 * 
+	 * Imports a production and its performance into Theater for WordPress.
+	 *
 	 * @since 	1.?
 	 * @since	1.3.2	Added support for ticket status.
-	 * @since	1.4		Added support for import settings to decide whether to 
+	 * @since	1.4		Added support for import settings to decide whether to
 	 * 					overwrite title/description/image during import.
 	 * 					Added support for post status settings during import.
 	 * @since	1.6		Added support for categories.
-	 *					Added support for city.
+	 * 					Added support for city.
 	 * @since	1.10		Added support for title and content Twig templates.
-	 * @since	1.14		Added support for custom fields.	
+	 * @since	1.14		Added support for custom fields.
 	 * @since	1.15.1	Fix: event status was not set properly.
-	 * @since	1.15.4	Fix: force floats for events prices to make them match the 
-	 *					sanitazion happening inside the Theater for WordPress plugin.
-	 *					@see https://github.com/slimndap/jeero/issues/6 
-	 * @since	1.20		Clean up event dates that were previously imported by 
-	 *					one of the Theater for WordPress import extensions.
+	 * @since	1.15.4	Fix: force floats for events prices to make them match the
+	 * 					sanitazion happening inside the Theater for WordPress plugin.
+	 * 					@see https://github.com/slimndap/jeero/issues/6
+	 * @since	1.20		Clean up event dates that were previously imported by
+	 * 					one of the Theater for WordPress import extensions.
 	 * @since	1.35		Added support for event date remark templates.
+	 * @since	1.?	Stores Jeero data per performance and propagates import errors.
 	 *
+	 * @param	mixed                            	$result      	The result of previous inbox processing.
+	 * @param	array                            	$data        	The structured event data.
+	 * @param	mixed                            	$raw         	The raw connector response.
+	 * @param	string                           	$theater     	The ticketing system name.
+	 * @param	\Jeero\Subscriptions\Subscription	$subscription	The subscription.
+	 * @return	int|\WP_Error	The parent production post ID, or an import error.
 	 */
 	function process_data( $result, $data, $raw, $theater, $subscription ) {
 		
@@ -340,12 +354,13 @@ class Theater_For_WordPress extends Post_Based_Calendar {
 	}
 
 	/**
-	 * Delete canonical ticket context from a Theater for WordPress production.
+	 * Deletes ticket context and supplementary Jeero event data from a production.
 	 *
 	 * @since 1.35
+	 * @since	1.?	Also removes supplementary Jeero event data from the production.
 	 *
-	 * @param int $post_id Production post ID.
-	 * @return void
+	 * @param	int	$post_id	The production post ID.
+	 * @return	void
 	 */
 	function delete_ticket_context_meta( $post_id ) {
 

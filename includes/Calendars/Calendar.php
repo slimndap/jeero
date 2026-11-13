@@ -326,10 +326,18 @@ class Calendar {
 
 	/**
 	 * Imports the data from an event in the inbox.
-	 * 
+	 *
 	 * @since 	1.?
 	 * @since	1.4		Added the subscription param.
 	 * @since	1.18		@uses \Jeero\Calendars\Calendar::log().
+	 * @since	1.?	Returns import errors to the inbox caller.
+	 *
+	 * @param	mixed                            	$result      	The result of previous inbox processing.
+	 * @param	array                            	$data        	The structured event data.
+	 * @param	mixed                            	$raw         	The raw connector response.
+	 * @param	string                           	$theater     	The ticketing system name.
+	 * @param	\Jeero\Subscriptions\Subscription	$subscription	The subscription.
+	 * @return	mixed	The calendar import result, including any WP_Error.
 	 */
 	function import( $result, $data, $raw, $theater, $subscription ) {
 		

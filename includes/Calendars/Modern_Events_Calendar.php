@@ -13,10 +13,27 @@ register_calendar( __NAMESPACE__.'\\Modern_Events_Calendar' );
  */
 class Modern_Events_Calendar extends Post_Based_Calendar {
 
+	/**
+	 * Gets calendar posts through Modern Events Calendar's event query.
+	 *
+	 * @since	1.?
+	 *
+	 * @return	\WP_Post[]	The native calendar posts, including imported drafts.
+	 */
 	function get_calendar_posts() {
 		return $this->get_mec_instance( 'main' )->get_events( -1, array( 'any' ) );
 	}
 
+	/**
+	 * Adds current Modern Events Calendar dates, status, cost and location.
+	 *
+	 * @since	1.?
+	 *
+	 * @param	\WP_Post                         	$post        	The imported calendar post.
+	 * @param	array                            	$data        	The supplementary Jeero source data.
+	 * @param	\Jeero\Subscriptions\Subscription	$subscription	The subscription.
+	 * @return	array|\WP_Error|null	The combined event fields, null if no readable native event is available, or a read error.
+	 */
 	function get_calendar_event_data( $post, $data, $subscription ) {
 		$data = parent::get_calendar_event_data( $post, $data, $subscription );
 		if ( is_wp_error( $data ) ) {

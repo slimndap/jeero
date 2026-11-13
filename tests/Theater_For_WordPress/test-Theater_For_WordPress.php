@@ -87,6 +87,11 @@ class Theater_For_WordPress_Test extends Post_Based_Calendar_Test {
 		$this->assertEquals( 'veezi', get_post_meta( $events[0]->ID, 'jeero/import/post/theater', true ) );
 	}
 
+	/**
+	 * Tests if two performances of one production keep separate Jeero source metadata.
+	 *
+	 * @since	1.?
+	 */
 	function test_jeero_source_data_belongs_to_each_performance_of_a_production() {
 		if ( ! function_exists( 'wp_register_ability' ) ) {
 			$this->markTestSkipped( 'The Abilities API requires WordPress 6.9 or newer.' );
@@ -134,6 +139,11 @@ class Theater_For_WordPress_Test extends Post_Based_Calendar_Test {
 		$this->assertSame( '', get_post_meta( $production_id, '_jeero_event_data', true ) );
 	}
 
+	/**
+	 * Tests if Theater reads use edited native fields and retain supplementary Jeero data.
+	 *
+	 * @since	1.?
+	 */
 	function test_calendar_reads_current_theater_fields_and_retains_supplementary_source_data() {
 		if ( ! function_exists( 'wp_register_ability' ) ) {
 			$this->markTestSkipped( 'The Abilities API requires WordPress 6.9 or newer.' );
@@ -192,6 +202,11 @@ class Theater_For_WordPress_Test extends Post_Based_Calendar_Test {
 		$this->assertWPError( $calendar->get_events( array( 'date' => '2030-02-30' ) ) );
 	}
 
+	/**
+	 * Tests if older Theater imports remain readable while unrelated and orphaned dates are omitted.
+	 *
+	 * @since	1.?
+	 */
 	function test_calendar_reads_older_imports_without_source_metadata_and_omits_unrelated_or_orphaned_dates() {
 		$this->import_event();
 		$calendar = Jeero\Calendars\get_calendar( $this->calendar );

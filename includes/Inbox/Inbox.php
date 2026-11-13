@@ -52,13 +52,15 @@ function apply_filters( $tag, $value ) {
 
 /**
  * Picks up items from Inbox and processes them.
- * 
+ *
  * @since	1.0
  * @since	1.18	@uses \Jeero\Logs\log().
- * @since	1.27	@uses get_inbox_no_of_items_per_pickup() to set the number of items in each inbox pickup. 
+ * @since	1.27	@uses get_inbox_no_of_items_per_pickup() to set the number of items in each inbox pickup.
  * @since	1.30	Added stats.
- * @param array|null $settings Optional subscription settings for a scoped pickup.
- * @return array|\WP_Error Processing counts or an error.
+ * @since	1.?	Adds a shared lock, scoped pickup and processing results.
+ *
+ * @param	array|null	$settings	Optional subscription settings for a scoped pickup. Defaults to null.
+ * @return	array|\WP_Error	The processed and failed item counts, or a pickup error.
  */
 function pickup_items( $settings = null ) {
 
@@ -79,6 +81,14 @@ function pickup_items( $settings = null ) {
 	}
 }
 
+/**
+ * Releases the inbox pickup lock only if its expiration still matches.
+ *
+ * @since	1.?
+ *
+ * @param	int	$expires	The expiration timestamp of the lock being released.
+ * @return	void
+ */
 function release_pickup_lock( $expires ) {
 	global $wpdb;
 	// An expired importer must not release a lock acquired by its successor.
@@ -86,6 +96,14 @@ function release_pickup_lock( $expires ) {
 	wp_cache_delete( 'jeero/inbox/pickup_lock', 'options' );
 }
 
+/**
+ * Picks up and processes inbox items after the caller acquires the lock.
+ *
+ * @since	1.?
+ *
+ * @param	array|null	$settings	Subscription settings for a scoped pickup, or null for all subscriptions.
+ * @return	array|\WP_Error	The processed and failed item counts, or a pickup error.
+ */
 function pickup_items_unlocked( $settings ) {
 	$scoped = null !== $settings;
 
@@ -339,19 +357,20 @@ function process_item( $item ) {
 
 /**
  * Processes all items in Inbox and removes processed items from Inbox.
- * 
+ *
  * @since	1.0
  * @since	1.5		Now accounts for process_item() returning a WP_Error.
  * @since	1.18	@uses \Jeero\Logs\log().
  * @since	1.27.1	Remove inbox items before processing them, to avoid processing inbox items multiple times.
- *					Added time elapsed to log message.
+ * 					Added time elapsed to log message.
  * @since	1.27.2	Remove inbox items after processing.
- *					@uses get_inbox_pickup_interval() to stop processing items before the next pick up begins. 
+ * 					@uses get_inbox_pickup_interval() to stop processing items before the next pick up begins.
  * @since	1.30	Added stats.
- * @since	1.30.1	Added stats for created and updated events. 
+ * @since	1.30.1	Added stats for created and updated events.
+ * @since	1.?	Returns processed and failed item counts.
  *
- * @param 	array	$items
- * @return array Processing counts.
+ * @param	array[]	$items	The inbox items to process.
+ * @return	array	The processed and failed item counts.
  */
 function process_items( $items ) {
 	

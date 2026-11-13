@@ -100,6 +100,11 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 		
 	}
 
+	/**
+	 * Tests if imported events can be read and counted through their calendar.
+	 *
+	 * @since	1.?
+	 */
 	function test_imported_events_are_readable_through_calendar() {
 		if ( ! function_exists( 'wp_register_ability' ) ) {
 			$this->markTestSkipped( 'The Abilities API requires WordPress 6.9 or newer.' );
@@ -117,6 +122,11 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 		$this->assertSame( count( $categories ), $calendar->list_event_categories()['count'] );
 	}
 
+	/**
+	 * Tests if edited native titles and dates remain readable without Jeero source metadata.
+	 *
+	 * @since	1.?
+	 */
 	function test_calendar_reads_edited_native_data_without_source_metadata() {
 		$this->import_event();
 		$calendar = \Jeero\Calendars\get_calendar( $this->calendar );

@@ -13,6 +13,16 @@ register_calendar( __NAMESPACE__.'\\Events_Schedule_Wp_Plugin' );
  */
 class Events_Schedule_Wp_Plugin extends Post_Based_Calendar {
 
+	/**
+	 * Adds current Events Schedule dates, duration, ticket link and rooms.
+	 *
+	 * @since	1.?
+	 *
+	 * @param	\WP_Post                         	$post        	The imported calendar post.
+	 * @param	array                            	$data        	The supplementary Jeero source data.
+	 * @param	\Jeero\Subscriptions\Subscription	$subscription	The subscription.
+	 * @return	array|\WP_Error|null	The combined event fields, null if no readable native event is available, or a read error.
+	 */
 	function get_calendar_event_data( $post, $data, $subscription ) {
 		$data = parent::get_calendar_event_data( $post, $data, $subscription );
 		if ( is_wp_error( $data ) ) {

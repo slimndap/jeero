@@ -12,15 +12,40 @@ register_calendar( __NAMESPACE__.'\\Sugar_Calendar' );
  */
 class Sugar_Calendar extends Post_Based_Calendar {
 
+	/**
+	 * Gets WordPress posts linked to Sugar Calendar events.
+	 *
+	 * @since	1.?
+	 *
+	 * @return	\WP_Post[]	The native calendar posts, including imported drafts.
+	 */
 	function get_calendar_posts() {
 		$events = \sugar_calendar_get_events( array( 'number' => 0, 'object_type' => 'post' ) );
 		return array_filter( array_map( function( $event ) { return get_post( $event->object_id ); }, $events ) );
 	}
 
+	/**
+	 * Gets the taxonomy used for Sugar Calendar calendars.
+	 *
+	 * @since	1.?
+	 *
+	 * @param	\Jeero\Subscriptions\Subscription	$subscription	The subscription.
+	 * @return	string	The category taxonomy slug.
+	 */
 	function get_categories_taxonomy( $subscription ) {
 		return \sugar_calendar_get_calendar_taxonomy_id();
 	}
 
+	/**
+	 * Adds Sugar Calendar dates with their timezones and the current location.
+	 *
+	 * @since	1.?
+	 *
+	 * @param	\WP_Post                         	$post        	The imported calendar post.
+	 * @param	array                            	$data        	The supplementary Jeero source data.
+	 * @param	\Jeero\Subscriptions\Subscription	$subscription	The subscription.
+	 * @return	array|\WP_Error|null	The combined event fields, null if no readable native event is available, or a read error.
+	 */
 	function get_calendar_event_data( $post, $data, $subscription ) {
 		$data = parent::get_calendar_event_data( $post, $data, $subscription );
 		if ( is_wp_error( $data ) ) {

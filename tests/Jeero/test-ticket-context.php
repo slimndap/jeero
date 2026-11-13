@@ -10,6 +10,11 @@ class Jeero_Test_Ticket_Context_Calendar extends \Jeero\Calendars\Post_Based_Cal
 
 class Ticket_Context_Test extends Jeero_Test {
 
+	/**
+	 * Tests if ticket-only metadata updates succeed without requiring an event payload.
+	 *
+	 * @since	1.?
+	 */
 	function test_canonical_ticket_context_meta_is_written_for_post_based_imports() {
 
 		$post_id = wp_insert_post(
@@ -75,6 +80,11 @@ class Ticket_Context_Test extends Jeero_Test {
 
 	}
 
+	/**
+	 * Tests if incomplete referenced events return a metadata validation error.
+	 *
+	 * @since	1.?
+	 */
 	function test_incomplete_referenced_event_reports_metadata_error() {
 		if ( ! function_exists( 'wp_register_ability' ) ) {
 			$this->markTestSkipped( 'The Abilities API requires WordPress 6.9 or newer.' );
