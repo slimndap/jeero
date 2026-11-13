@@ -18,6 +18,9 @@ if ( ! defined( 'ABSPATH' ) ) {
     return;
 }
 
+// Register before init so an early abilities discovery also finds Jeero.
+include_once __DIR__ . '/includes/Abilities/Abilities.php';
+
 
 /**
  * Bootstrap core plugin functionality on the 'init' hook.

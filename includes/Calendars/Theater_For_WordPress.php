@@ -1,6 +1,8 @@
 <?php
 namespace Jeero\Calendars;
 
+use Jeero\Abilities\Data as Event_Data;
+
 const JEERO_CALENDARS_THEATER_FOR_WORDPRESS_REF_KEY = 'jeero/theater_for_wordpress/ref';
 
 // Register new calendar.
@@ -69,6 +71,79 @@ class Theater_For_WordPress extends Post_Based_Calendar {
 		return class_exists( '\WP_Theatre' );
 	}
 	
+	/** Read current Theater performances, retaining supplementary Jeero source fields. */
+	function get_events( $input = array() ) {
+		$valid = Event_Data\validate_filters( $input );
+		if ( is_wp_error( $valid ) ) {
+			return $valid;
+		}
+		global $wp_theatre, $wpdb;
+		if ( ! $this->is_active() || ! $wp_theatre ) {
+			return array();
+		}
+		$wpdb->last_error = '';
+		$performances = $wp_theatre->events->get( array( 'status' => 'any' ) );
+		if ( $wpdb->last_error ) {
+			return new \WP_Error( 'jeero_storage', 'Unable to read Theater performances.' );
+		}
+		$events = array();
+		foreach ( $performances as $performance ) {
+			$production = $performance->production();
+			if ( ! $production ) {
+				continue;
+			}
+			$subscription_id = get_post_meta( $performance->ID, 'jeero/import/post/subscription', true ) ?: get_post_meta( $production->ID, 'jeero/import/post/subscription', true );
+			$ref = get_post_meta( $performance->ID, '_wpt_source_ref', true );
+			if ( '' === $subscription_id || '' === $ref ) {
+				continue;
+			}
+			$categories = wp_get_object_terms( $production->ID, 'category', array( 'fields' => 'names' ) );
+			if ( is_wp_error( $categories ) ) {
+				return $categories;
+			}
+			$source = get_post_meta( $performance->ID, '_jeero_event_data', true );
+			$data = is_array( $source ) ? $source : array();
+			$data['ref'] = $ref;
+			$data['start'] = get_post_meta( $performance->ID, 'event_date', true );
+			$data['end'] = get_post_meta( $performance->ID, 'enddate', true ) ?: false;
+			$data['status'] = ltrim( $performance->tickets_status(), '_' );
+			$data['tickets_url'] = $performance->tickets_url();
+			if ( isset( $data['tickets']['url'] ) ) {
+				$data['tickets']['url'] = $data['tickets_url'];
+			}
+			$data['venue'] = array_merge( is_array( $data['venue'] ?? null ) ? $data['venue'] : array(), array( 'title' => $performance->venue(), 'city' => $performance->city() ) );
+			$data['production'] = array_merge( $data['production'] ?? array(), array(
+				'title' => $production->title(), 'description' => $production->content(),
+				'categories' => $categories, 'img' => get_the_post_thumbnail_url( $production->ID, 'full' ),
+			) );
+			$data['prices'] = array();
+			foreach ( get_post_meta( $performance->ID, '_wpt_event_tickets_price' ) as $price ) {
+				$parts = explode( '|', $price, 2 );
+				$price = array( 'amount' => (float) $parts[0], 'title' => $parts[1] ?? '' );
+				foreach ( $source['prices'] ?? array() as $source_price ) {
+					if ( ( $source_price['title'] ?? '' ) === $price['title'] ) {
+						$price += $source_price;
+						break;
+					}
+				}
+				$data['prices'][] = $price;
+			}
+			$event = Event_Data\prepare_event( $data );
+			if ( is_wp_error( $event ) ) {
+				return $event;
+			}
+			$post = get_post( $performance->ID );
+			$event['subscription_id'] = (string) $subscription_id;
+			$event['theater'] = get_post_meta( $performance->ID, '_wpt_source', true );
+			$event['created_at'] = $source['created_at'] ?? $post->post_date_gmt;
+			$event['updated_at'] = max( $source['updated_at'] ?? '', $post->post_modified_gmt, $production->post()->post_modified_gmt );
+			$events[] = Event_Data\clean( $event );
+		}
+		return array_values( array_filter( Event_Data\unique_events( $events ), function( $event ) use ( $input ) {
+			return Event_Data\matches( $event, $input );
+		} ) );
+	}
+
 	/**
 	 * Gets an event post by its ref and theater values.
 	 * 
@@ -202,6 +277,12 @@ class Theater_For_WordPress extends Post_Based_Calendar {
 
 			$existing_wpt_event = $importer->get_event_by_ref( $data[ 'ref' ] );
 			$wpt_event = $importer->update_event( $event_args );
+			if ( is_wp_error( $wpt_event ) ) {
+				return $wpt_event;
+			}
+			if ( ! $wpt_event || empty( $wpt_event->ID ) ) {
+				return new \WP_Error( 'jeero_storage', 'No imported Theater performance is available for Jeero data.' );
+			}
 
 			$this->delete_ticket_context_meta( $post_id );
 
@@ -242,7 +323,10 @@ class Theater_For_WordPress extends Post_Based_Calendar {
 	
 			update_post_meta( $wpt_event->ID, 'tickets_status', $tickets_status );
 
-			$this->update_ticket_context_meta( $wpt_event->ID, $data, $subscription );
+			$updated = $this->update_ticket_context_meta( $wpt_event->ID, $data, $subscription );
+			if ( is_wp_error( $updated ) ) {
+				return $updated;
+			}
 			
 			// Replace date that was previously imported by a Theater for WordPress extension.
 			if ( $legacy_date = $legacy_importer->get_event_by_ref( $data[ 'ref' ] ) ) {
@@ -268,6 +352,8 @@ class Theater_For_WordPress extends Post_Based_Calendar {
 		delete_post_meta( $post_id, 'jeero/import/post/tickets_url' );
 		delete_post_meta( $post_id, 'jeero/import/post/tickets_status' );
 		delete_post_meta( $post_id, 'jeero/import/post/widgets/tickets_inline/url' );
+		delete_post_meta( $post_id, '_jeero_event_data' );
+		delete_post_meta( $post_id, '_jeero_event_calendar' );
 
 	}
 	

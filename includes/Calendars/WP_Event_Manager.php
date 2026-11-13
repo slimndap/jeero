@@ -12,6 +12,40 @@ register_calendar( __NAMESPACE__.'\\WP_Event_Manager' );
  */
 class WP_Event_Manager extends Post_Based_Calendar {
 
+	function get_calendar_posts() {
+		// The listing API ignores its post_status argument in some versions.
+		$include_drafts = function( $args ) { $args['post_status'] = 'any'; return $args; };
+		add_filter( 'event_manager_get_listings', $include_drafts );
+		try {
+			$query = function_exists( 'wpem_get_event_listings' )
+				? \wpem_get_event_listings( array( 'posts_per_page' => -1 ) )
+				: \get_event_listings( array( 'posts_per_page' => -1 ) );
+		} finally {
+			remove_filter( 'event_manager_get_listings', $include_drafts );
+		}
+		return $query->posts;
+	}
+
+	function get_calendar_event_data( $post, $data, $subscription ) {
+		$data = parent::get_calendar_event_data( $post, $data, $subscription );
+		if ( is_wp_error( $data ) ) {
+			return $data;
+		}
+		foreach ( array( 'start', 'end' ) as $field ) {
+			$date = get_post_meta( $post->ID, '_event_' . $field . '_date', true );
+			$time = get_post_meta( $post->ID, '_event_' . $field . '_time', true );
+			$data[ $field ] = $date && $time ? substr( $date, 0, 10 ) . ' ' . $time : ( $date ?: false );
+		}
+		$data['tickets_url'] = get_post_meta( $post->ID, '_registration', true );
+		$data['venue'] = array( 'title' => get_post_meta( $post->ID, '_event_location', true ) );
+		if ( get_post_meta( $post->ID, '_cancelled', true ) ) {
+			$data['status'] = 'cancelled';
+		} elseif ( 'cancelled' === $data['status'] ) {
+			$data['status'] = 'onsale';
+		}
+		return $data;
+	}
+
 	function __construct() {
 		
 		$this->slug = 'WP_Event_Manager';

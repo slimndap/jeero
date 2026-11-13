@@ -13,6 +13,34 @@ register_calendar( __NAMESPACE__.'\\EventON' );
  */
 class EventON extends Post_Based_Calendar {
 
+	function get_calendar_posts() {
+		$query = \EVO()->calendar->get_events_from_wp_query( array( 'wp_args' => array( 'post_status' => 'any', 'has_password' => null ) ) );
+		return $query ? $query->posts : array();
+	}
+
+	function get_calendar_event_data( $post, $data, $subscription ) {
+		$data = parent::get_calendar_event_data( $post, $data, $subscription );
+		if ( is_wp_error( $data ) ) {
+			return $data;
+		}
+		$event = new \EVO_Event( $post->ID );
+		$start = $event->get_prop( 'evcal_srow' );
+		if ( ! is_numeric( $start ) ) {
+			return null;
+		}
+		$data['start'] = gmdate( 'Y-m-d H:i:s', (int) $start );
+		$end = $event->get_prop( 'evcal_erow' );
+		$data['end'] = is_numeric( $end ) ? gmdate( 'Y-m-d H:i:s', (int) $end ) : false;
+		$data['tickets_url'] = (string) $event->get_prop( 'evcal_lmlink' );
+		if ( 'cancelled' === $event->get_prop( '_status' ) ) {
+			$data['status'] = 'cancelled';
+		} elseif ( 'cancelled' === $data['status'] ) {
+			$data['status'] = 'onsale';
+		}
+		$data['venue'] = array( 'title' => (string) $event->get_location_name() );
+		return $data;
+	}
+
 	function __construct() {
 		
 		$this->slug = 'EventON';

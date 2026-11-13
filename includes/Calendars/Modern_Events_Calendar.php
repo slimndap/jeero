@@ -13,6 +13,40 @@ register_calendar( __NAMESPACE__.'\\Modern_Events_Calendar' );
  */
 class Modern_Events_Calendar extends Post_Based_Calendar {
 
+	function get_calendar_posts() {
+		return $this->get_mec_instance( 'main' )->get_events( -1, array( 'any' ) );
+	}
+
+	function get_calendar_event_data( $post, $data, $subscription ) {
+		$data = parent::get_calendar_event_data( $post, $data, $subscription );
+		if ( is_wp_error( $data ) ) {
+			return $data;
+		}
+		$main = $this->get_mec_instance( 'main' );
+		// An automatic import may have changed these fields earlier in this request.
+		$main->getCache()->delete( 'meta-' . $post->ID . '-1' );
+		$meta = $main->get_post_meta( $post->ID, true );
+		foreach ( array( 'start', 'end' ) as $field ) {
+			$date = $meta[ 'mec_' . $field . '_date' ] ?? '';
+			if ( ! $date ) {
+				return null;
+			}
+			$data[ $field ] = gmdate( 'Y-m-d H:i:s', strtotime( $date ) + (int) ( $meta[ 'mec_' . $field . '_day_seconds' ] ?? 0 ) );
+		}
+		$data['tickets_url'] = $meta['mec_more_info'] ?? '';
+		if ( 'EventCancelled' === ( $meta['mec_event_status'] ?? '' ) ) {
+			$data['status'] = 'cancelled';
+		} elseif ( 'cancelled' === $data['status'] ) {
+			$data['status'] = 'onsale';
+		}
+		$location = $main->get_location_data( (int) ( $meta['mec_location_id'] ?? 0 ) );
+		$data['venue'] = array( 'title' => $location['name'] ?? '', 'city' => $location['address'] ?? '' );
+		if ( is_numeric( $meta['mec_cost'] ?? null ) ) {
+			$data['prices'] = array( array( 'amount' => (float) $meta['mec_cost'] ) );
+		}
+		return $data;
+	}
+
 	function __construct() {
 		
 		$this->slug = 'Modern_Events_Calendar';

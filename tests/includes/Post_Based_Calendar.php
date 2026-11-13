@@ -100,6 +100,88 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 		
 	}
 
+	function test_imported_events_are_readable_through_calendar() {
+		if ( ! function_exists( 'wp_register_ability' ) ) {
+			$this->markTestSkipped( 'The Abilities API requires WordPress 6.9 or newer.' );
+		}
+		$this->import_event();
+		$calendar = \Jeero\Calendars\get_calendar( $this->calendar );
+		$events = $calendar->get_events();
+		$this->assertCount( 1, $events );
+		$this->assertSame( 'A test event', $events[0]['production']['title'] );
+		$this->assertSame( $events[0], $calendar->get_event( $events[0]['ref'] ) );
+		$posts = $this->get_events( array( 'post_status' => 'any' ) );
+		$subscription = new \Jeero\Subscriptions\Subscription( 'a fake ID' );
+		$taxonomy = $calendar->get_categories_taxonomy( $subscription );
+		$categories = $taxonomy && taxonomy_exists( $taxonomy ) ? wp_get_object_terms( $posts[0]->ID, $taxonomy, array( 'fields' => 'names' ) ) : array();
+		$this->assertSame( count( $categories ), $calendar->list_event_categories()['count'] );
+	}
+
+	function test_calendar_reads_edited_native_data_without_source_metadata() {
+		$this->import_event();
+		$calendar = \Jeero\Calendars\get_calendar( $this->calendar );
+		$post = $this->get_events( array( 'post_status' => 'any' ) )[0];
+		$event_id = $post->ID;
+		wp_update_post( array( 'ID' => $post->ID, 'post_title' => 'Edited native title', 'post_content' => 'Edited native description' ) );
+		$start = '2031-02-03 20:15:00';
+		$end = '2031-02-03 22:00:00';
+		switch ( $this->calendar ) {
+			case 'Theater_For_WordPress':
+				$performances = $GLOBALS['wp_theatre']->events->get( array( 'status' => 'any' ) );
+				$event_id = $performances[0]->ID;
+				update_post_meta( $event_id, 'event_date', $start );
+				break;
+			case 'Sugar_Calendar':
+				$native = sugar_calendar_get_event_by_object( $event_id );
+				sugar_calendar_update_event( $native->id, array( 'start' => $start, 'end' => $end ) );
+				break;
+			case 'All_In_One_Event_Calendar':
+				$native = $GLOBALS['ai1ec_front_controller']->return_registry( true )->get( 'model.event' );
+				$native->initialize_from_id( $event_id );
+				$native->set( 'start', strtotime( $start ) );
+				$native->set( 'end', strtotime( $end ) );
+				$native->save( true );
+				break;
+			case 'The_Events_Calendar':
+				tribe_update_event( $event_id, array( 'EventStartDate' => '2031-02-03', 'EventStartHour' => '20', 'EventStartMinute' => '15', 'EventEndDate' => '2031-02-03', 'EventEndHour' => '22', 'EventEndMinute' => '00' ) );
+				break;
+			case 'Modern_Events_Calendar':
+				update_post_meta( $event_id, 'mec_start_date', '2031-02-03' );
+				update_post_meta( $event_id, 'mec_end_date', '2031-02-03' );
+				update_post_meta( $event_id, 'mec_start_day_seconds', 20 * HOUR_IN_SECONDS + 15 * MINUTE_IN_SECONDS );
+				break;
+			case 'EventON':
+				update_post_meta( $event_id, 'evcal_srow', strtotime( $start ) );
+				break;
+			case 'Very_Simple_Event_List':
+				update_post_meta( $event_id, 'event-start-date', strtotime( $start ) );
+				break;
+			case 'WP_Event_Manager':
+				update_post_meta( $event_id, '_event_start_date', '2031-02-03' );
+				update_post_meta( $event_id, '_event_start_time', '20:15:00' );
+				break;
+			case 'Events_Schedule_Wp_Plugin':
+				update_post_meta( $event_id, '_wcs_timestamp', strtotime( $start ) );
+				break;
+			case 'GDLR_Events':
+				$options = $calendar->get_post_option( $event_id );
+				$options['date'] = '2031-02-03';
+				$options['time'] = '20:15';
+				update_post_meta( $event_id, 'post-option', wp_json_encode( $options ) );
+				break;
+		}
+		delete_post_meta( $event_id, '_jeero_event_data' );
+		delete_post_meta( $event_id, '_jeero_event_calendar' );
+		$events = $calendar->get_events( array( 'date' => '2031-02-03', 'query' => 'Edited native' ) );
+		$this->assertIsArray( $events );
+		$this->assertCount( 1, $events );
+		$this->assertSame( 'Edited native title', $events[0]['production']['title'] );
+		$this->assertSame( 'Edited native description', $events[0]['production']['description'] );
+		$this->assertSame( '20:15', substr( $events[0]['start'], 11, 5 ) );
+		$this->assertSame( 'a fake ID', $events[0]['subscription_id'] );
+		$this->assertSame( '', get_post_meta( $event_id, '_jeero_event_data', true ) );
+	}
+
 	function test_inbox_event_uses_default_templates() {
 		
 		$this->import_event();

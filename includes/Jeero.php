@@ -13,6 +13,7 @@
 namespace Jeero;
 
 include_once PLUGIN_PATH.'includes/Db/Subscriptions.php';
+include_once PLUGIN_PATH.'includes/Abilities/Data.php';
 
 include_once PLUGIN_PATH.'includes/Admin/Admin.php';
 include_once PLUGIN_PATH.'includes/Admin/Debug/Debug.php';

@@ -29,7 +29,7 @@ class Ticket_Context_Test extends Jeero_Test {
 		);
 		$calendar     = new Jeero_Test_Ticket_Context_Calendar();
 
-		$calendar->update_ticket_context_meta(
+		$updated = $calendar->update_ticket_context_meta(
 			$post_id,
 			array(
 				'tickets_url' => 'https://tickets.example.com/show/123',
@@ -48,6 +48,8 @@ class Ticket_Context_Test extends Jeero_Test {
 		$this->assertEquals( 'soldout', get_post_meta( $post_id, 'jeero/import/post/tickets_status', true ) );
 		$this->assertEquals( 'a fake ID', get_post_meta( $post_id, 'jeero/import/post/subscription', true ) );
 		$this->assertEquals( 'activetickets', get_post_meta( $post_id, 'jeero/import/post/theater', true ) );
+		$this->assertTrue( $updated );
+		$this->assertSame( '', get_post_meta( $post_id, '_jeero_event_data', true ) );
 
 	}
 
@@ -71,6 +73,17 @@ class Ticket_Context_Test extends Jeero_Test {
 		$this->assertSame( '', get_post_meta( $post_id, 'jeero/import/post/widgets/tickets_inline/url', true ) );
 		$this->assertSame( 'https://tickets.example.org/event/123', get_post_meta( $post_id, 'jeero/import/post/tickets_url', true ) );
 
+	}
+
+	function test_incomplete_referenced_event_reports_metadata_error() {
+		if ( ! function_exists( 'wp_register_ability' ) ) {
+			$this->markTestSkipped( 'The Abilities API requires WordPress 6.9 or newer.' );
+		}
+		$post_id = self::factory()->post->create();
+		$calendar = new Jeero_Test_Ticket_Context_Calendar();
+		$result = $calendar->update_ticket_context_meta( $post_id, array( 'ref' => 'event-123' ), new Subscription( 'a fake ID' ) );
+		$this->assertWPError( $result );
+		$this->assertSame( '', get_post_meta( $post_id, '_jeero_event_data', true ) );
 	}
 
 	function test_canonical_ticket_context_uses_subscription_theater_setting_as_fallback() {

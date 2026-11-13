@@ -3,6 +3,7 @@ namespace Jeero\Calendars;
 
 use Jeero\Helpers\Images as Images;
 use Jeero\Logs\Stats as Stats;
+use Jeero\Abilities\Data as Event_Data;
 
 /**
  * Abstract Post_Based_Calendar class.
@@ -24,6 +25,113 @@ abstract class Post_Based_Calendar extends Calendar {
 	 * @since	1.16
 	 */
 	protected $categories_taxonomy = false;
+
+	/** Read imported events through the calendar, retaining supplementary Jeero fields. */
+	function get_events( $input = array() ) {
+		$valid = Event_Data\validate_filters( $input );
+		if ( is_wp_error( $valid ) ) {
+			return $valid;
+		}
+		if ( ! $this->is_active() ) {
+			return array();
+		}
+		global $wpdb;
+		$wpdb->last_error = '';
+		$posts = $this->get_calendar_posts();
+		if ( is_wp_error( $posts ) ) {
+			return $posts;
+		}
+		if ( $wpdb->last_error ) {
+			return new \WP_Error( 'jeero_storage', 'Unable to read imported Jeero events.' );
+		}
+		$events = array();
+		foreach ( $posts as $post ) {
+			$post = get_post( $post );
+			if ( ! $post || in_array( $post->post_status, array( 'trash', 'auto-draft', 'inherit' ), true ) ) {
+				continue;
+			}
+			$source = get_post_meta( $post->ID, '_jeero_event_data', true );
+			$source = is_array( $source ) ? $source : array();
+			$subscription_id = get_post_meta( $post->ID, 'jeero/import/post/subscription', true );
+			if ( '' === $subscription_id ) {
+				continue;
+			}
+			$subscription = new \Jeero\Subscriptions\Subscription( $subscription_id );
+			$theater = get_post_meta( $post->ID, 'jeero/import/post/theater', true ) ?: $subscription->get_setting( 'theater' );
+			$ref = get_post_meta( $post->ID, $this->get_ref_key( $theater ), true );
+			if ( '' === $ref && get_post_meta( $post->ID, '_jeero_event_calendar', true ) === $this->slug ) {
+				$ref = $source['ref'] ?? '';
+			}
+			if ( '' === $ref ) {
+				continue;
+			}
+			$data = $this->get_calendar_event_data( $post, $source, $subscription );
+			if ( is_wp_error( $data ) ) {
+				return $data;
+			}
+			if ( ! $data ) {
+				continue;
+			}
+			$data['ref'] = $ref;
+			$event = Event_Data\prepare_event( $data );
+			if ( is_wp_error( $event ) ) {
+				return $event;
+			}
+			$event['subscription_id'] = (string) $subscription_id;
+			$event['theater'] = $theater;
+			$event['created_at'] = $source['created_at'] ?? $post->post_date_gmt;
+			$event['updated_at'] = max( $source['updated_at'] ?? '', $post->post_modified_gmt );
+			$events[] = $event;
+		}
+		// shortcut: filter normalized events in PHP; use native query filters if programme size makes this expensive.
+		return array_values( array_filter( Event_Data\unique_events( $events ), function( $event ) use ( $input ) {
+			return Event_Data\matches( $event, $input );
+		} ) );
+	}
+
+	/** Calendars with a query API override this; other post calendars use WordPress. */
+	function get_calendar_posts() {
+		return get_posts( array(
+			'post_type' => $this->get_post_type(), 'post_status' => 'any',
+			'posts_per_page' => -1, 'orderby' => 'ID', 'order' => 'ASC',
+			'meta_key' => 'jeero/import/post/subscription',
+		) );
+	}
+
+	/** Calendar-specific readers add dates, locations and other native event fields. */
+	function get_calendar_event_data( $post, $data, $subscription ) {
+		$data['production'] = array_merge( $data['production'] ?? array(), array(
+			'title' => $post->post_title, 'description' => $post->post_content,
+			'img' => get_the_post_thumbnail_url( $post, 'full' ),
+		) );
+		$taxonomy = $this->get_categories_taxonomy( $subscription );
+		if ( $taxonomy ) {
+			$categories = taxonomy_exists( $taxonomy ) ? wp_get_object_terms( $post->ID, $taxonomy, array( 'fields' => 'names' ) ) : array();
+			if ( is_wp_error( $categories ) ) {
+				return $categories;
+			}
+			$data['production']['categories'] = $categories;
+		}
+		$data['status'] = $data['status'] ?? ( get_post_meta( $post->ID, 'jeero/import/post/tickets_status', true ) ?: 'onsale' );
+		$data['tickets_url'] = get_post_meta( $post->ID, 'jeero/import/post/tickets_url', true );
+		return $data;
+	}
+
+	function get_event( $ref, $input = array() ) {
+		$events = $this->get_events( array( 'ref' => $ref ) + $input );
+		if ( is_wp_error( $events ) ) {
+			return $events;
+		}
+		if ( count( $events ) > 1 ) {
+			return new \WP_Error( 'jeero_event_not_unique', 'Multiple events found. Supply a subscription.' );
+		}
+		return $events ? $events[0] : null;
+	}
+
+	function list_event_categories( $input = array() ) {
+		$events = $this->get_events( $input );
+		return is_wp_error( $events ) ? $events : Event_Data\categories_from_events( $events );
+	}
 
 	/**
 	 * Gets the categories setting field.
@@ -581,25 +689,29 @@ abstract class Post_Based_Calendar extends Calendar {
 
 		$this->update_custom_fields( $post_id, $data, $subscription );
 		
-		$this->update_ticket_context_meta( $post_id, $data, $subscription );
-
-		\update_post_meta( $post_id, 'jeero/import/post/subscription', $subscription->ID );
+		$updated = $this->update_ticket_context_meta( $post_id, $data, $subscription );
+		if ( is_wp_error( $updated ) ) {
+			return $updated;
+		}
 
 		return $post_id;
 		
 	}
 
 	/**
-	 * Updates canonical Jeero ticket context meta for a post.
+	 * Updates canonical ticket context and available Jeero source data for a post.
 	 *
 	 * @since 1.35
 	 *
 	 * @param int          $post_id      Post ID.
 	 * @param array        $data         Structured event data.
 	 * @param Subscription $subscription Subscription.
-	 * @return void
+	 * @return true|\WP_Error
 	 */
 	function update_ticket_context_meta( $post_id, $data, $subscription ) {
+		if ( ! is_numeric( $post_id ) || (int) $post_id <= 0 || ! get_post( (int) $post_id ) ) {
+			return new \WP_Error( 'jeero_storage', 'No imported event post is available for Jeero data.' );
+		}
 
 		$tickets_url        = ! empty( $data['tickets_url'] ) && is_scalar( $data['tickets_url'] ) ? esc_url_raw( (string) $data['tickets_url'] ) : '';
 		$tickets_inline_url = '';
@@ -625,6 +737,25 @@ abstract class Post_Based_Calendar extends Calendar {
 		\update_post_meta( $post_id, 'jeero/import/post/subscription', $subscription->ID );
 		\update_post_meta( $post_id, 'jeero/import/post/theater', $theater );
 
+		// Ticket-only callers omit the event reference and need no source payload.
+		if ( ! function_exists( 'wp_register_ability' ) || ! array_key_exists( 'ref', $data ) ) {
+			return true;
+		}
+		$event = Event_Data\prepare_event( $data );
+		if ( is_wp_error( $event ) ) {
+			return $event;
+		}
+		$previous = get_post_meta( $post_id, '_jeero_event_data', true );
+		$event['subscription_id'] = $subscription->ID;
+		$event['theater'] = $theater;
+		$event['created_at'] = $previous['created_at'] ?? current_time( 'mysql', true );
+		$event['updated_at'] = current_time( 'mysql', true );
+		foreach ( array( '_jeero_event_calendar' => $this->slug, '_jeero_event_data' => $event ) as $key => $value ) {
+			if ( get_post_meta( $post_id, $key, true ) !== $value && false === update_post_meta( $post_id, $key, wp_slash( $value ) ) ) {
+				return new \WP_Error( 'jeero_storage', 'Unable to save Jeero event metadata.' );
+			}
+		}
+		return true;
 	}
 
 	/**

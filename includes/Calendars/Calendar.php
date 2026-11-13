@@ -339,7 +339,7 @@ class Calendar {
 		
 		if ( \is_wp_error( $result ) ) {
 			$this->log( sprintf( 'Import of %s item failed: %s.', $theater, $result->get_error_message() ) );
-			return;
+			return $result;
 		}
 		
 		$this->log( sprintf( 'Import of %s item successful.', $theater ) );

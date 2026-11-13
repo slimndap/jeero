@@ -12,6 +12,27 @@ register_calendar( __NAMESPACE__.'\\Custom_Post_Type' );
  */
 class Custom_Post_Type extends Post_Based_Calendar {
 
+	function get_calendar_posts() {
+		$types = array();
+		foreach ( \Jeero\Db\Subscriptions\get_subscriptions() as $entry ) {
+			$type = $entry['settings'][ $this->slug . '/import/post_type' ] ?? '';
+			if ( $type && post_type_exists( $type ) ) { $types[] = $type; }
+		}
+		return $types ? get_posts( array(
+			'post_type' => array_values( array_unique( $types ) ), 'post_status' => 'any',
+			'posts_per_page' => -1, 'meta_key' => 'jeero/import/post/subscription',
+		) ) : array();
+	}
+
+	function get_categories_taxonomy( $subscription ) {
+		return $this->get_setting( 'import/categories_taxonomy', $subscription );
+	}
+
+	function get_calendar_event_data( $post, $data, $subscription ) {
+		// Custom post types have no fixed native date field; retain the Jeero date.
+		return empty( $data['start'] ) ? null : parent::get_calendar_event_data( $post, $data, $subscription );
+	}
+
 	function __construct() {
 		
 		$this->slug = 'Custom_Post_Type';

@@ -93,6 +93,48 @@ Go to the Jeero menu in the WordPress admin and click on the upgrade link next t
 
 Subscription rates range from €30 - €70 per month, depending on your total number of upcoming events. 
 
+== Developer API ==
+
+On WordPress 6.9 or newer, Jeero registers these abilities for PHP, the WordPress Abilities REST API and the separately installed official WordPress MCP Adapter:
+
+* jeero/list-subscriptions
+* jeero/get-subscription
+* jeero/create-subscription
+* jeero/config-subscription
+* jeero/set-default-subscription
+* jeero/activate-subscription
+* jeero/deactivate-subscription
+* jeero/get-events
+* jeero/get-event
+* jeero/list-event-categories
+* jeero/get-logs
+
+get-events, get-event and list-event-categories require the edit_posts capability, available to administrators, editors, authors and contributors in the default WordPress roles. All other abilities require manage_options. HTTP clients can authenticate with a WordPress Application Password over HTTPS. Jeero does not include an MCP server or an OAuth server.
+
+PHP example, after WordPress init:
+
+    $result = wp_get_ability( 'jeero/get-events' )->execute( array(
+        'from' => '2026-11-01',
+        'to' => '2026-11-30',
+        'limit' => 50,
+    ) );
+
+Ability input and output schemas are available from WordPress. REST execution uses /wp-json/wp-abilities/v1/abilities/jeero/{ability}/run. Read abilities use GET with an input parameter, including get-events, get-event and list-event-categories. get-events and get-event retain their automatic synchronization as maintenance while retrieving current data. Management abilities use POST with an input object.
+
+The subscription selector accepts the WordPress subscription ID or a local subscription_key assigned by create-subscription. get-subscription and config-subscription require an explicit selector when multiple active subscriptions exist and no default has been set. Event and category lists include imported events from all subscriptions unless filtered.
+
+Configuration accepts only settings.theater. config-subscription returns the existing WordPress admin URL, where the user signs in and enters credentials privately. Credentials, raw connector payloads and upstream error messages are not returned by abilities.
+
+Calendar classes provide get_events(), get_event() and list_event_categories(). Normalized Jeero source data is saved as protected _jeero_event_data postmeta on each imported event, with a _jeero_event_calendar marker. Theater for WordPress stores this on individual performances rather than the parent production. No event table or separate post type is created. Multiple calendar copies are deduplicated by subscription and event reference; trashed or deleted posts are not returned.
+
+Calendar readers use the calendar's event APIs where available, or its WordPress posts and native metadata. Current titles, descriptions, categories, dates and other supported native fields take precedence over source data. Theater for WordPress combines individual performances with their linked production. Sugar Calendar, EventON and Modern Events Calendar use their own event queries; All-in-One Event Calendar uses its event model. The Events Calendar uses tribe_get_event() and its field functions, retaining the existing post query workaround for imports without an occurrence index. WP Event Manager uses its listing API, including drafts.
+
+Older Jeero imports with a subscription and event reference can be read without the new source metadata. Existing posts receive supplementary source metadata on their next successful import; there is no automatic backfill. Custom Post Type has no fixed native date fields, so its event dates still require the Jeero source metadata; its configured post types and category taxonomies are read per subscription. Supplementary source fields, including current ticket totals and availability, remain available when supplied by the connector. There is no ticket snapshot ability or ticket history storage. Date filters use YYYY-MM-DD in the WordPress timezone; creation/update timestamps are UTC.
+
+get-events refreshes active subscriptions at most once per minute; get-event does so when an explicit subscription is provided. Synchronization also updates the configured WordPress calendars and shares an inbox lock with scheduled imports. activate-subscription and deactivate-subscription affect remote delivery in Mother, unlike the standalone Jeero MCP server's local pause. get-logs retains the latest 1000 redacted inbox messages.
+
+Older WordPress installations continue to import events without registering abilities or collecting the additional source metadata. The standalone Jeero MCP server's subscriptions and SQLite data are not migrated or shared automatically.
+
 == Changelog ==
 
 = 1.36 =

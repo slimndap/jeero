@@ -57,9 +57,37 @@ function apply_filters( $tag, $value ) {
  * @since	1.18	@uses \Jeero\Logs\log().
  * @since	1.27	@uses get_inbox_no_of_items_per_pickup() to set the number of items in each inbox pickup. 
  * @since	1.30	Added stats.
- * @return 	void
+ * @param array|null $settings Optional subscription settings for a scoped pickup.
+ * @return array|\WP_Error Processing counts or an error.
  */
-function pickup_items() {
+function pickup_items( $settings = null ) {
+
+	// Cron and abilities must never consume the same inbox concurrently.
+	$lock = 'jeero/inbox/pickup_lock';
+	$previous = get_option( $lock );
+	if ( $previous && (int) $previous < time() ) {
+		release_pickup_lock( $previous );
+	}
+	$expires = time() + 5 * MINUTE_IN_SECONDS;
+	if ( ! add_option( $lock, $expires, '', false ) ) {
+		return new \WP_Error( 'jeero_sync_running', 'A Jeero import is already running. Try again later.' );
+	}
+	try {
+		return pickup_items_unlocked( $settings );
+	} finally {
+		release_pickup_lock( $expires );
+	}
+}
+
+function release_pickup_lock( $expires ) {
+	global $wpdb;
+	// An expired importer must not release a lock acquired by its successor.
+	$wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->options WHERE option_name = %s AND option_value = %s", 'jeero/inbox/pickup_lock', $expires ) );
+	wp_cache_delete( 'jeero/inbox/pickup_lock', 'options' );
+}
+
+function pickup_items_unlocked( $settings ) {
+	$scoped = null !== $settings;
 
 	$no_of_items_per_pickup = get_inbox_no_of_items_per_pickup();
 
@@ -74,13 +102,23 @@ function pickup_items() {
 		Logs\Log( 'Pick up items from inbox.' );			
 	}
 
-	$settings = Subscriptions\get_setting_values();
+	if ( null === $settings ) {
+		$settings = Subscriptions\get_setting_values();
+	}
 
 	$items = Mother\get_inbox( $settings, $no_of_items_per_pickup );
 	
 	if ( is_wp_error( $items ) ) {
 		Admin\Notices\add_error( $items );
-		return;
+		return $items;
+	}
+	if ( ! is_array( $items ) ) {
+		return new \WP_Error( 'jeero_invalid_inbox', 'Jeero returned an invalid inbox response.' );
+	}
+	if ( $scoped ) {
+		$items = array_values( array_filter( $items, function( $item ) use ( $settings ) {
+			return isset( $item['subscription_id'] ) && array_key_exists( $item['subscription_id'], $settings );
+		} ) );
 	}
 	
 	if ( empty( $items ) ) {
@@ -92,7 +130,7 @@ function pickup_items() {
 		Logs\Stats\add_stat( 'items_picked_up', $items_found );
 	}
 
-	process_items( $items );
+	return process_items( $items );
 	
 }
 
@@ -313,18 +351,19 @@ function process_item( $item ) {
  * @since	1.30.1	Added stats for created and updated events. 
  *
  * @param 	array	$items
- * @return 	void
+ * @return array Processing counts.
  */
 function process_items( $items ) {
 	
 	if ( empty( $items ) ) {
-		return;
+		return array( 'processed' => 0, 'failed' => 0 );
 	}
 	
 	$start_time = microtime( true );
 	$pickup_interval = get_inbox_pickup_interval();
 	
 	$items_processed = array();
+	$failed = 0;
 	
 	foreach( $items as $item ) {
 		$result = process_item( $item );
@@ -334,6 +373,7 @@ function process_items( $items ) {
 		}
 
 		if ( \is_wp_error( $result ) ) {
+			$failed++;
 			Logs\Log( $result->get_error_message() );
 		}
 		
@@ -357,6 +397,8 @@ function process_items( $items ) {
 
 	Logs\Stats\add_stat( 'events_created', Logs\Stats\cache_get( 'events_created' ) );
 	Logs\Stats\add_stat( 'events_updated', Logs\Stats\cache_get( 'events_updated' ) );
+
+	return array( 'processed' => count( $items_processed ), 'failed' => $failed );
 	
 }
 

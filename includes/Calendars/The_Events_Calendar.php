@@ -11,6 +11,34 @@ register_calendar( __NAMESPACE__.'\\The_Events_Calendar' );
  */
 class The_Events_Calendar extends Post_Based_Calendar {
 
+	function get_calendar_posts() {
+		// As in get_event_by_ref(), include imports that lack TEC's occurrence index.
+		$posts = get_posts( array(
+			'post_type' => array( $this->get_post_type(), 'fake_post_type' ),
+			'post_status' => 'any', 'posts_per_page' => -1,
+			'meta_key' => 'jeero/import/post/subscription',
+		) );
+		return array_filter( array_map( 'tribe_get_event', $posts ) );
+	}
+
+	function get_calendar_event_data( $post, $data, $subscription ) {
+		$data = parent::get_calendar_event_data( $post, $data, $subscription );
+		if ( is_wp_error( $data ) ) {
+			return $data;
+		}
+		$data['start'] = \tribe_get_start_date( $post, false, 'Y-m-d H:i:sP' );
+		$data['end'] = \tribe_get_end_date( $post, false, 'Y-m-d H:i:sP' );
+		$data['tickets_url'] = \tribe_get_event_website_url( $post );
+		$data['venue'] = array( 'title' => \tribe_get_venue( $post ), 'city' => \tribe_get_city( $post ) );
+		$status = get_post_meta( $post->ID, \Tribe\Events\Event_Status\Event_Meta::$key_status, true );
+		if ( 'canceled' === $status ) {
+			$data['status'] = 'cancelled';
+		} elseif ( 'cancelled' === $data['status'] ) {
+			$data['status'] = 'onsale';
+		}
+		return $data;
+	}
+
 	function __construct() {
 		
 		$this->slug = 'The_Events_Calendar';

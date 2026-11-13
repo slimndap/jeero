@@ -12,6 +12,30 @@ register_calendar( __NAMESPACE__.'\\Sugar_Calendar' );
  */
 class Sugar_Calendar extends Post_Based_Calendar {
 
+	function get_calendar_posts() {
+		$events = \sugar_calendar_get_events( array( 'number' => 0, 'object_type' => 'post' ) );
+		return array_filter( array_map( function( $event ) { return get_post( $event->object_id ); }, $events ) );
+	}
+
+	function get_categories_taxonomy( $subscription ) {
+		return \sugar_calendar_get_calendar_taxonomy_id();
+	}
+
+	function get_calendar_event_data( $post, $data, $subscription ) {
+		$data = parent::get_calendar_event_data( $post, $data, $subscription );
+		if ( is_wp_error( $data ) ) {
+			return $data;
+		}
+		$event = \sugar_calendar_get_event_by_object( $post->ID );
+		if ( ! $event || ! $event->id ) {
+			return null;
+		}
+		$data['start'] = $event->start_dto->format( 'Y-m-d H:i:sP' );
+		$data['end'] = $event->end_dto->format( 'Y-m-d H:i:sP' );
+		$data['venue'] = array( 'title' => (string) \get_event_meta( $event->id, 'location', true ) );
+		return $data;
+	}
+
 	function __construct() {
 		
 		$this->slug = 'Sugar_Calendar';
