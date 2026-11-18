@@ -15,7 +15,7 @@ class Sugar_Calendar extends Post_Based_Calendar {
 	/**
 	 * Gets WordPress posts linked to Sugar Calendar events.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 *
 	 * @return	\WP_Post[]	The native calendar posts, including imported drafts.
 	 */
@@ -27,7 +27,7 @@ class Sugar_Calendar extends Post_Based_Calendar {
 	/**
 	 * Gets the taxonomy used for Sugar Calendar calendars.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 *
 	 * @param	\Jeero\Subscriptions\Subscription	$subscription	The subscription.
 	 * @return	string	The category taxonomy slug.

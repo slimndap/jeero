@@ -2,7 +2,7 @@
 Contributors: slimndap
 Tags: calendar, tickets, events, veezi, ticketmaster, audienceview, stager
 Requires PHP: 7.2
-Tested up to: 7.0
+Tested up to: 7.1
 Requires at least: 4.9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -11,65 +11,19 @@ Imports events and tickets from your existing ticketing solution to The Events C
 
 == Description ==
 
-Jeero bridges the gap between your ticketing solution and your website.
+Jeero automatically imports events from your ticketing system into WordPress. Keep showtimes, prices, descriptions, images and ticket links up to date.
 
-Tired of manually copying your event data from your external ticketing solution into WordPress? Jeero handles this for you, keeping your website fully updated with showtimes, prices, descriptions, images, and deep links to your online ticketing interface.
+Let AI assistants access your imported events and manage your imports with Jeero's MCP server. Enable it in Jeero Settings and follow the [setup instructions](https://jeero.ooo/mcp/).
 
-https://www.youtube.com/watch?v=6r4GhOKRU-o
+Supported ticketing solutions include [ActiveTickets](https://jeero.ooo/import/activetickets/), [AudienceView Professional](https://jeero.ooo/import/audienceview/), [Billeto](https://jeero.ooo/import/billeto/), [Billetweb](https://jeero.ooo/import/billetweb/), [BravoBase](https://jeero.ooo/import/bravobase/), [Brown Paper Tickets](https://jeero.ooo/import/bpt/), [Chaplin](https://jeero.ooo/import/chaplin/), [Ciné Office](https://jeero.ooo/import/cineoffice/), [Ents24](https://jeero.ooo/import/ents24/), [Eventive](https://jeero.ooo/import/eventive/), [Fienta](https://jeero.ooo/import/fienta/), [KinoTickets Online](https://jeero.ooo/import/kinotickets/), [Ovatic](https://jeero.ooo/import/ovatic/), [OvationTix](https://jeero.ooo/import/ovationtix/), [PatronBase](https://jeero.ooo/import/patronbase/), [Place2Book](https://jeero.ooo/import/place2book/), [Reservix](https://jeero.ooo/import/reservix/), [RTS](https://jeero.ooo/import/rts/), [Sirius](https://jeero.ooo/import/sirius/), [Stager](https://jeero.ooo/import/stager_pushfeed/), [ThunderTix](https://jeero.ooo/import/thundertix/), [TicketingCiné](https://jeero.ooo/import/ticketingcine/), [Ticketlab](https://jeero.ooo/import/ticketlab/), [Ticketmaster](https://jeero.ooo/import/ticketmaster/), [Ticketmatic](https://jeero.ooo/import/ticketmatic/), [Ticketportal](https://jeero.ooo/import/ticketportal_cz/), [TicketSolve](https://jeero.ooo/import/ticketsolve/), [TicketSource](https://jeero.ooo/import/ticketsource/), [TicketWeb](https://jeero.ooo/import/ticketweb/), [Tixly](https://jeero.ooo/import/tix/) and [Veezi](https://jeero.ooo/import/veezi/).
 
-Ticketing solutions that are supported:
-
-* [ActiveTickets](https://jeero.ooo/publish-activetickets-events-on-wordpress/)
-* [AudienceView Professional](https://jeero.ooo/publish-audienceview-events-on-wordpress/)
-* [Billeto](https://jeero.ooo/publish-bravobase-performances-on-wordpress/)
-* [Billetweb](https://jeero.ooo/publish-billetweb-events-on-wordpress/)
-* [BravoBase](https://jeero.ooo/publish-bravobase-performances-on-wordpress/)
-* [Brown Paper Tickets](https://jeero.ooo/publish-brown-paper-tickets-events-on-wordpress/)
-* [Chaplin](https://jeero.ooo/publish-chaplin-films-on-wordpress/)
-* [Ciné Office](https://jeero.ooo/publish-cine-office-shows-on-wordpress/)
-* [Ents24](https://jeero.ooo/publish-ents24-events-on-wordpress/)
-* [Eventive](https://jeero.ooo/publish-eventive-films-on-wordpress/)
-* [Fienta](https://jeero.ooo/publish-fienta-events-on-wordpress/)
-* [KinoTickets Online](https://jeero.ooo/publish-kinotickets-online-films-on-wordpress/)
-* [Ovatic](https://jeero.ooo/publish-ovatic-events-on-wordpress/)
-* [OvationTix](https://jeero.ooo/publish-ovationtix-events-on-wordpress/)
-* [PatronBase](https://jeero.ooo/publish-patronbase-performances-on-wordpress/)
-* [Place2Book](https://jeero.ooo/publish-place2book-events-on-wordpress/)
-* [Reservix](https://jeero.ooo/publish-reservix-events-on-wordpress/)
-* [RTS](https://jeero.ooo/publish-rts-events-on-wordpress/)
-* [Sirius](https://jeero.ooo/publish-sirius-events-on-wordpress/)
-* [Stager](https://jeero.ooo/publish-stager-events-on-wordpress/)
-* [ThunderTix](https://jeero.ooo/publish-thundertix-events-on-wordpress/)
-* [TicketingCiné](https://jeero.ooo/publish-ticketingcine-events-on-wordpress/)
-* [Ticketlab](https://jeero.ooo/publish-ticketlab-events-on-wordpress/)
-* [Ticketmaster](https://jeero.ooo/publish-ticketmaster-events-on-wordpress/)
-* [Ticketmatic](https://jeero.ooo/publish-ticketmatic-events-on-wordpress/)
-* [Ticketportal](https://jeero.ooo/publish-ticketportal_cz-events-on-wordpress/)
-* [TicketSolve](https://jeero.ooo/publish-ticketsolve-events-on-wordpress/)
-* [TicketSource](https://jeero.ooo/publish-ticketsource-events-on-wordpress/)
-* [TicketWeb](https://jeero.ooo/publish-ticketweb-events-on-wordpress/)
-* [Tixly](https://jeero.ooo/publish-tix-events-on-wordpress/)
-* [Veezi](https://jeero.ooo/publish-veezi-events-on-wordpress/)
-
-Calendar/event plugins that are supported:
-
-* [All In One Event Calendar](/plugins/all-in-one-event-calendar/)
-* All [Goodlayers](https://www.goodlayers.com) themes that use their Event Post Type plugin
-* [EventON](https://www.myeventon.com/)
-* [Events Schedule WordPress Plugin](https://demo.curlythemes.com/timetable-wordpress-plugin/)
-* [Modern Events Calendar](/plugins/modern-events-calendar-lite/)
-* [Sugar Calendar](/plugins/sugar-calendar-lite/)
-* [Theater for Wordpress](/plugins/theatre/)
-* [The Events Calendar](/plugins/the-events-calendar/)
-* [Very Simple Event List](/plugins/very-simple-event-list/)
-* [WP Event Manager](/plugins/wp-event-manager/)
-* Custom Post Types
+Supported calendars include [All In One Event Calendar](https://jeero.ooo/import/all-in-one-event-calendar/), [Goodlayers](https://jeero.ooo/import/gdlr-events/) themes that use the Event Post Type plugin, [EventON](https://jeero.ooo/import/eventon/), [Events Schedule WordPress Plugin](https://jeero.ooo/import/events-schedule-wp-plugin/), [Modern Events Calendar](https://jeero.ooo/import/modern-events-calendar/), [Sugar Calendar](https://jeero.ooo/import/sugar-calendar/), [Theater for Wordpress](https://jeero.ooo/import/theater-for-wordpress/), [The Events Calendar](https://jeero.ooo/import/the-events-calendar/), [Very Simple Event List](https://jeero.ooo/import/very-simple-event-list/), [WP Event Manager](https://jeero.ooo/import/wp-event-manager/) and [custom post types](https://jeero.ooo/import/custom-post-type/).
 
 = Are you missing a ticketing solution? =
-My goal is to provide imports from any ticketing system to any calendar plugin. Please contact me so that I can include your solution as well.
+Contact me to request support for your ticketing system or calendar plugin.
 
 = Get started for free =
-Slim & Dapper's Jeero is a subscription-based service. Within the plugin, you can easily set up a free subscription. The free subscription is fully functional, displaying up to ten upcoming events at any given time. When you're ready to display more events, you can upgrade to a paid plan.
+Import up to ten upcoming events for free. Upgrade to a paid plan when you need more.
 
 == Installation ==
 
@@ -140,6 +94,9 @@ get-events refreshes active subscriptions at most once per minute; get-event doe
 Older WordPress installations continue to import events without registering abilities or collecting the additional source metadata. The standalone Jeero MCP server's subscriptions and SQLite data are not migrated or shared automatically.
 
 == Changelog ==
+
+= 1.37 =
+* Added an MCP server. See the [setup instructions](https://jeero.ooo/mcp/).
 
 = 1.36 =
 * Added inline ticket widgets for TaPoS.

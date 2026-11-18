@@ -15,7 +15,7 @@ class Custom_Post_Type extends Post_Based_Calendar {
 	/**
 	 * Gets imported posts from the post types configured for all subscriptions.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 *
 	 * @return	\WP_Post[]	The native calendar posts, including imported drafts.
 	 */
@@ -34,7 +34,7 @@ class Custom_Post_Type extends Post_Based_Calendar {
 	/**
 	 * Gets the category taxonomy configured for a custom post type subscription.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 *
 	 * @param	\Jeero\Subscriptions\Subscription	$subscription	The subscription.
 	 * @return	string	The category taxonomy slug.

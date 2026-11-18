@@ -31,7 +31,7 @@ class Very_Simple_Event_List extends Post_Based_Calendar {
 	 * Checks if this calendar is active.
 	 *
 	 * @since	1.15
-	 * @since	1.?	Also detects the current VS Event List post type registration function.
+	 * @since	1.37	Also detects the current VS Event List post type registration function.
 	 * @return	bool
 	 */
 	function is_active() {

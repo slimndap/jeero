@@ -2,20 +2,20 @@
 /**
  * Tests standardized calendar reads and configured custom post types.
  *
- * @since	1.?
+ * @since	1.37
  */
 use Jeero\Db\Subscriptions as Db;
 
 /**
  * Tests imported event reads without a running external calendar plugin.
  *
- * @since	1.?
+ * @since	1.37
  */
 class Native_Calendar_Read_Test extends Jeero_Test {
 	/**
 	 * Sets up an authorized user for calendar read fixtures.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 *
 	 * @return	void
 	 */
@@ -27,7 +27,7 @@ class Native_Calendar_Read_Test extends Jeero_Test {
 	/**
 	 * Tests if post calendars preserve standardized Jeero data despite different native fields.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 *
 	 * @dataProvider metadata_calendars
 	 *
@@ -42,7 +42,7 @@ class Native_Calendar_Read_Test extends Jeero_Test {
 					/**
 					 * Enables the calendar reader for the native metadata fixture.
 					 *
-					 * @since	1.?
+					 * @since	1.37
 					 *
 					 * @return	bool	Always true for this fixture.
 					 */
@@ -54,7 +54,7 @@ class Native_Calendar_Read_Test extends Jeero_Test {
 					/**
 					 * Enables the calendar reader for the native metadata fixture.
 					 *
-					 * @since	1.?
+					 * @since	1.37
 					 *
 					 * @return	bool	Always true for this fixture.
 					 */
@@ -66,7 +66,7 @@ class Native_Calendar_Read_Test extends Jeero_Test {
 					/**
 					 * Enables the calendar reader for the native metadata fixture.
 					 *
-					 * @since	1.?
+					 * @since	1.37
 					 *
 					 * @return	bool	Always true for this fixture.
 					 */
@@ -105,7 +105,7 @@ class Native_Calendar_Read_Test extends Jeero_Test {
 	/**
 	 * Provides native metadata fixtures for WordPress post calendars.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 *
 	 * @return	array[]	The calendar slugs, native metadata and category taxonomies.
 	 */
@@ -121,7 +121,7 @@ class Native_Calendar_Read_Test extends Jeero_Test {
 	/**
 	 * Tests if each custom post type subscription uses its configured post type and taxonomy.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_custom_post_types_use_each_subscriptions_post_type_and_taxonomy() {
 		if ( ! function_exists( 'wp_register_ability' ) ) {

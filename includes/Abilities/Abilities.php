@@ -2,7 +2,7 @@
 /**
  * Registers Jeero operations for PHP and the WordPress MCP Adapter.
  *
- * @since	1.?
+ * @since	1.37
  */
 namespace Jeero\Abilities;
 
@@ -17,7 +17,7 @@ add_action( 'wp_abilities_api_init', __NAMESPACE__ . '\\register_abilities' );
 /**
  * Registers the Jeero ability category.
  *
- * @since	1.?
+ * @since	1.37
  *
  * @return	void
  */
@@ -31,7 +31,7 @@ function register_category() {
 /**
  * Checks whether the current user can execute a Jeero ability.
  *
- * @since	1.?
+ * @since	1.37
  *
  * @param	string	$operation	The ability name without the Jeero namespace.
  * @return	bool	Whether the required WordPress capability is granted.
@@ -44,7 +44,7 @@ function can_execute( $operation ) {
 /**
  * Registers Jeero abilities with their schemas, permissions and MCP metadata.
  *
- * @since	1.?
+ * @since	1.37
  *
  * @return	void
  */
@@ -136,7 +136,7 @@ function register_abilities() {
 /**
  * Creates a public error without exposing connector diagnostics or credentials.
  *
- * @since	1.?
+ * @since	1.37
  *
  * @param	string	$code   	The error code.
  * @param	string	$message	The public error message.
@@ -149,7 +149,7 @@ function error( $code = 'jeero_request_failed', $message = 'Jeero could not comp
 /**
  * Resolves a subscription ID, local key or default subscription.
  *
- * @since	1.?
+ * @since	1.37
  *
  * @param	string|null	$selector	The subscription ID or local key. Defaults to null.
  * @return	string|\WP_Error	The subscription ID, or an error if no unique subscription is available.
@@ -181,7 +181,7 @@ function resolve_subscription( $selector = null ) {
 /**
  * Gets the public summary of a locally configured subscription.
  *
- * @since	1.?
+ * @since	1.37
  *
  * @param	string	$id	The subscription ID.
  * @return	array	The subscription summary without credentials.
@@ -202,7 +202,7 @@ function subscription_summary( $id ) {
 /**
  * Lists public subscription summaries matching the supplied filters.
  *
- * @since	1.?
+ * @since	1.37
  *
  * @param	array	$input	The ability input or event filters.
  * @return	array	The number of matching subscriptions and their summaries.
@@ -225,7 +225,7 @@ function list_subscriptions( $input ) {
 /**
  * Checks a subscription and reports configuration completeness without credentials.
  *
- * @since	1.?
+ * @since	1.37
  *
  * @param	string	$id	The subscription ID.
  * @return	array|\WP_Error	The public subscription details, or a connector error.
@@ -254,7 +254,7 @@ function get_subscription( $id ) {
 /**
  * Updates a subscription's ticketing system without persisting runtime credentials.
  *
- * @since	1.?
+ * @since	1.37
  *
  * @param	string	$id      	The subscription ID.
  * @param	array 	$settings	The validated ticketing system settings.
@@ -275,7 +275,7 @@ function select_theater( $id, $settings ) {
 /**
  * Creates a subscription with a local key, label and optional ticketing system.
  *
- * @since	1.?
+ * @since	1.37
  *
  * @param	array	$input	The ability input or event filters.
  * @return	array|\WP_Error	The public subscription summary and configuration URL, or an error.
@@ -313,7 +313,7 @@ function create_subscription( $input ) {
 /**
  * Refreshes selected active subscriptions while sharing the inbox lock with cron.
  *
- * @since	1.?
+ * @since	1.37
  *
  * @param	array	$input	The ability input or event filters.
  * @return	array|\WP_Error	The refresh results, or an error if synchronization fails.
@@ -353,7 +353,7 @@ function sync( $input ) {
 /**
  * Executes a Jeero ability with permission checks and redacted results.
  *
- * @since	1.?
+ * @since	1.37
  *
  * @param	string	$operation	The ability name without the Jeero namespace.
  * @param	array 	$input    	The ability input or event filters.
@@ -379,7 +379,7 @@ function execute( $operation, $input ) {
 /**
  * Dispatches a validated Jeero ability to its subscription or event operation.
  *
- * @since	1.?
+ * @since	1.37
  *
  * @param	string	$operation	The ability name without the Jeero namespace.
  * @param	array 	$input    	The ability input or event filters.

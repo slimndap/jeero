@@ -14,7 +14,7 @@ class The_Events_Calendar extends Post_Based_Calendar {
 	/**
 	 * Gets imported posts and loads their native The Events Calendar objects.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 *
 	 * @return	\WP_Post[]	The native calendar posts, including imported drafts.
 	 */

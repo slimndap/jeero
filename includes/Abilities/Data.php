@@ -2,7 +2,7 @@
 /**
  * Validates, redacts and combines event data from Jeero calendars.
  *
- * @since	1.?
+ * @since	1.37
  */
 namespace Jeero\Abilities\Data;
 
@@ -16,7 +16,7 @@ if ( function_exists( 'wp_register_ability' ) ) {
 /**
  * Redacts credentials from strings and nested arrays.
  *
- * @since	1.?
+ * @since	1.37
  *
  * @param	mixed	$value	The value to redact.
  * @return	mixed	The value with known credentials and sensitive fields redacted.
@@ -72,7 +72,7 @@ function clean( $value ) {
 /**
  * Stores redacted inbox log messages for the abilities API.
  *
- * @since	1.?
+ * @since	1.37
  *
  * @param	mixed                            	$result      	The result of previous inbox processing.
  * @param	array                            	$data        	The structured inbox data.
@@ -103,7 +103,7 @@ function capture( $result, $data, $raw, $action, $theater, $subscription ) {
 /**
  * Validates and redacts normalized event fields before storage or output.
  *
- * @since	1.?
+ * @since	1.37
  *
  * @param	mixed	$data	The structured event data to validate.
  * @return	array|\WP_Error	The supported event fields, or a validation error.
@@ -135,7 +135,7 @@ function prepare_event( $data ) {
 /**
  * Validates calendar dates and the order of an event date range.
  *
- * @since	1.?
+ * @since	1.37
  *
  * @param	array	$input	The ability input or event filters.
  * @return	true|\WP_Error	True for valid filters, or a date validation error.
@@ -155,7 +155,7 @@ function validate_filters( $input ) {
 /**
  * Checks whether an event matches subscription, text, category and date filters.
  *
- * @since	1.?
+ * @since	1.37
  *
  * @param	array	$event	The normalized event data.
  * @param	array	$input	The ability input or event filters.
@@ -185,7 +185,7 @@ function matches( $event, $input ) {
 /**
  * Deduplicates calendar copies by subscription and event reference.
  *
- * @since	1.?
+ * @since	1.37
  *
  * @param	array[]	$events	The normalized event data from one or more calendars.
  * @return	array[]	The most recently updated copy of each event.
@@ -204,7 +204,7 @@ function unique_events( $events ) {
 /**
  * Gets unique imported events from calendars and applies the supplied filters.
  *
- * @since	1.?
+ * @since	1.37
  *
  * @param	array	$input	The ability input or event filters.
  * @return	array[]|\WP_Error	The matching events, or a calendar read error.
@@ -233,7 +233,7 @@ function calendar_events( $input ) {
 /**
  * Gets matching events ordered by start time with pagination metadata.
  *
- * @since	1.?
+ * @since	1.37
  *
  * @param	array	$input	The ability input or event filters.
  * @return	array|\WP_Error	The event page and pagination metadata, or a read error.
@@ -263,7 +263,7 @@ function get_events( $input ) {
 /**
  * Gets one imported event by reference and optional subscription.
  *
- * @since	1.?
+ * @since	1.37
  *
  * @param	array	$input	The ability input or event filters.
  * @return	array|\WP_Error	The event data, or an error if no unique event is found.
@@ -292,7 +292,7 @@ function get_event( $input ) {
 /**
  * Counts unique imported events per category.
  *
- * @since	1.?
+ * @since	1.37
  *
  * @param	array[]	$events	The normalized event data.
  * @return	array	The number of categories and the event count for each category.
@@ -315,7 +315,7 @@ function categories_from_events( $events ) {
 /**
  * Gets category counts from imported events matching the supplied filters.
  *
- * @since	1.?
+ * @since	1.37
  *
  * @param	array	$input	The ability input or event filters.
  * @return	array|\WP_Error	The category counts, or a calendar read error.

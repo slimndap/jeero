@@ -330,7 +330,7 @@ class Calendar {
 	 * @since 	1.?
 	 * @since	1.4		Added the subscription param.
 	 * @since	1.18		@uses \Jeero\Calendars\Calendar::log().
-	 * @since	1.?	Returns import errors to the inbox caller.
+	 * @since	1.37	Returns import errors to the inbox caller.
 	 *
 	 * @param	mixed                            	$result      	The result of previous inbox processing.
 	 * @param	array                            	$data        	The structured event data.

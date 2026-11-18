@@ -103,7 +103,7 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 	/**
 	 * Tests if imported events can be read and counted through their calendar.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_imported_events_are_readable_through_calendar() {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
@@ -122,7 +122,7 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 	/**
 	 * Tests if website edits leave standardized Jeero fields unchanged.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_calendar_reads_standardized_data_after_native_edits() {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );

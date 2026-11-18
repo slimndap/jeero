@@ -24,7 +24,8 @@ require_once $_tests_dir . '/includes/functions.php';
  */
 function _manually_load_plugin() {
 	require dirname( dirname( __FILE__ ) ) . '/../jeero.php';
-	require dirname( dirname( __FILE__ ) ) . '/../../eventON/eventon.php';	
+	$eventon = dirname( dirname( __FILE__ ) ) . '/../../eventON/eventon.php';
+	require file_exists( $eventon ) ? $eventon : dirname( dirname( __FILE__ ) ) . '/../../eventon-lite/eventon.php';
 }
 
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );

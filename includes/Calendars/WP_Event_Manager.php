@@ -15,7 +15,7 @@ class WP_Event_Manager extends Post_Based_Calendar {
 	/**
 	 * Gets event listings through WP Event Manager, including imported drafts.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 *
 	 * @return	\WP_Post[]	The native calendar posts, including imported drafts.
 	 */

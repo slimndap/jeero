@@ -10,7 +10,7 @@ class Admin_Test extends Jeero_Test {
 	/**
 	 * Tests if the MCP checkbox defaults to off and saves boolean values through Settings.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_mcp_setting_defaults_to_off_and_renders_saved_checkbox_state() {
 		Admin\Settings\register_settings();

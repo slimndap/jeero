@@ -74,7 +74,7 @@ class Theater_For_WordPress extends Post_Based_Calendar {
 	/**
 	 * Gets standardized Jeero performances with readable linked WordPress pages.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 *
 	 * @param	array	$input	The optional subscription, reference, category, text and date filters.
 	 * @return	array[]|\WP_Error	The normalized performance data, or a read or validation error.
@@ -211,7 +211,7 @@ class Theater_For_WordPress extends Post_Based_Calendar {
 	 * @since	1.20		Clean up event dates that were previously imported by
 	 * 					one of the Theater for WordPress import extensions.
 	 * @since	1.35		Added support for event date remark templates.
-	 * @since	1.?	Stores Jeero data per performance and propagates import errors.
+	 * @since	1.37	Stores Jeero data per performance and propagates import errors.
 	 *
 	 * @param	mixed                            	$result      	The result of previous inbox processing.
 	 * @param	array                            	$data        	The structured event data.
@@ -331,7 +331,7 @@ class Theater_For_WordPress extends Post_Based_Calendar {
 	 * Deletes ticket context and supplementary Jeero event data from a production.
 	 *
 	 * @since 1.35
-	 * @since	1.?	Also removes supplementary Jeero event data from the production.
+	 * @since	1.37	Also removes supplementary Jeero event data from the production.
 	 *
 	 * @param	int	$post_id	The production post ID.
 	 * @return	void

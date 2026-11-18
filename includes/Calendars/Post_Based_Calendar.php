@@ -29,7 +29,7 @@ abstract class Post_Based_Calendar extends Calendar {
 	/**
 	 * Gets readable standardized Jeero events with their current WordPress page details.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 *
 	 * @param	array	$input	The optional subscription, reference, category, text and date filters.
 	 * @return	array[]|\WP_Error	The matching normalized events, or a read or validation error.
@@ -94,7 +94,7 @@ abstract class Post_Based_Calendar extends Calendar {
 	/**
 	 * Gets subscription-linked calendar posts through WordPress.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 *
 	 * @return	\WP_Post[]	The imported calendar posts, including drafts.
 	 */
@@ -109,7 +109,7 @@ abstract class Post_Based_Calendar extends Calendar {
 	/**
 	 * Adds current WordPress page details without changing standardized Jeero fields.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 *
 	 * @param	\WP_Post	$post	The imported event page or linked Theater production.
 	 * @param	array   	$data	The validated standardized Jeero event data.
@@ -126,7 +126,7 @@ abstract class Post_Based_Calendar extends Calendar {
 	/**
 	 * Gets a single imported calendar event by reference.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 *
 	 * @param	string|int	$ref  	The event reference.
 	 * @param	array     	$input	The optional event filters, including the subscription ID.
@@ -146,7 +146,7 @@ abstract class Post_Based_Calendar extends Calendar {
 	/**
 	 * Gets category names and event counts from matching imported events.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 *
 	 * @param	array	$input	The optional event filters.
 	 * @return	array|\WP_Error	The category counts, or a calendar read error.
@@ -594,7 +594,7 @@ abstract class Post_Based_Calendar extends Calendar {
 	 * @since 	1.16
 	 * @since	1.26		Always use structured images.
 	 * @since	1.30.1	Track stats for updated and created events.
-	 * @since	1.?	Stores supplementary Jeero source data and propagates metadata errors.
+	 * @since	1.37	Stores supplementary Jeero source data and propagates metadata errors.
 	 *
 	 * @param	mixed                            	$result      	The result of previous inbox processing.
 	 * @param	array                            	$data        	The structured event data.
@@ -733,7 +733,7 @@ abstract class Post_Based_Calendar extends Calendar {
 	 * Updates canonical ticket context and available Jeero source data for a post.
 	 *
 	 * @since 1.35
-	 * @since	1.?	Stores supplementary event data in the existing metadata update.
+	 * @since	1.37	Stores supplementary event data in the existing metadata update.
 	 *
 	 * @param	int                              	$post_id     	The imported post ID.
 	 * @param	array                            	$data        	The structured event data or ticket-only context.

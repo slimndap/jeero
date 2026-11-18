@@ -16,7 +16,7 @@ class EventON extends Post_Based_Calendar {
 	/**
 	 * Gets calendar posts through EventON's event query.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 *
 	 * @return	\WP_Post[]	The native calendar posts, including imported drafts.
 	 */

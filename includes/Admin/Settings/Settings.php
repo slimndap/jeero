@@ -125,7 +125,7 @@ function show_logs_field() {
 /**
  * Outputs the setting that exposes Jeero abilities through the MCP Adapter.
  *
- * @since 1.?
+ * @since 1.37
  *
  * @return void
  */
@@ -164,7 +164,7 @@ function logs_section() {
 /**
  * Outputs the 'MCP server' section instructions.
  *
- * @since 1.?
+ * @since 1.37
  *
  * @return void
  */

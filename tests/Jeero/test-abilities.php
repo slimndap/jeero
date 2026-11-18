@@ -2,7 +2,7 @@
 /**
  * Tests Jeero abilities, permissions, synchronization and credential redaction.
  *
- * @since	1.?
+ * @since	1.37
  */
 use Jeero\Abilities\Data;
 use Jeero\Db\Subscriptions as Db;
@@ -11,13 +11,13 @@ use Jeero\Inbox;
 /**
  * Provides imported WordPress posts for the ability integration tests.
  *
- * @since	1.?
+ * @since	1.37
  */
 class Abilities_Test_Calendar extends \Jeero\Calendars\Post_Based_Calendar {
 	/**
 	 * Initializes the calendar fixture used by ability tests.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 *
 	 * @param	string	$slug	The calendar slug. Defaults to Abilities_Test_Calendar.
 	 */
@@ -29,7 +29,7 @@ class Abilities_Test_Calendar extends \Jeero\Calendars\Post_Based_Calendar {
 	/**
 	 * Imports event fields into a WordPress post for the ability tests.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 *
 	 * @param	mixed                            	$result      	The result of previous inbox processing.
 	 * @param	array                            	$data        	The structured event data.
@@ -61,7 +61,7 @@ class Abilities_Test_Calendar extends \Jeero\Calendars\Post_Based_Calendar {
 /**
  * Tests Jeero abilities, MCP exposure and disabled REST access.
  *
- * @since	1.?
+ * @since	1.37
  */
 class Abilities_Test extends Jeero_Test {
 	private $requests = array();
@@ -77,7 +77,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Requires a WordPress version that provides the Abilities API.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 *
 	 * @return	void
 	 */
@@ -91,7 +91,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Sets up subscriptions, a calendar fixture and mocked connector responses.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 *
 	 * @return	void
 	 */
@@ -152,7 +152,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Restores calendar and ability registrations, connector filters and the current user.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 *
 	 * @return	void
 	 */
@@ -176,7 +176,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Creates a successful mocked HTTP response.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 *
 	 * @param	mixed	$body	The value to encode as the response body.
 	 * @return	array	The mocked WordPress HTTP response.
@@ -188,7 +188,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Executes a registered Jeero ability for the current test user.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 *
 	 * @param	string	$name 	The ability name without the Jeero namespace.
 	 * @param	array 	$input	The ability input or event filters.
@@ -203,7 +203,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Creates a normalized inbox event for the ability tests.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 *
 	 * @param	string	$ref  	The event reference. Defaults to e1.
 	 * @param	string	$id   	The subscription ID. Defaults to one.
@@ -227,7 +227,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Reloads ability registrations to simulate a new request after changing MCP access.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 *
 	 * @param	bool	$enabled	Whether Jeero MCP access is enabled.
 	 * @return	void
@@ -249,7 +249,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Sends a JSON-RPC message through the official adapter's HTTP transport route.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 *
 	 * @param	string	$method      	The MCP method.
 	 * @param	array 	$params      	The protocol parameters.
@@ -275,7 +275,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Negotiates an MCP session for the current WordPress user.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 *
 	 * @return	void
 	 */
@@ -296,7 +296,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Calls an adapter meta-tool through MCP and returns its protocol result.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 *
 	 * @param	string	$name     	The adapter tool name without its MCP prefix.
 	 * @param	array 	$arguments	The tool arguments.
@@ -313,7 +313,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Tests discovery, schemas and all eleven Jeero abilities through the adapter's HTTP transport.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 * @group	mcp-adapter
 	 */
 	function test_mcp_adapter_discovers_and_executes_all_jeero_abilities_without_rest() {
@@ -362,7 +362,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Tests if toggling MCP access updates discovery and blocks execution in an existing session.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 * @group	mcp-adapter
 	 */
 	function test_mcp_adapter_respects_the_jeero_access_setting() {
@@ -385,7 +385,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Tests if MCP transport enforces user capabilities and each event's WordPress read permissions.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 * @group	mcp-adapter
 	 */
 	function test_mcp_adapter_enforces_user_and_event_permissions() {
@@ -420,7 +420,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Tests if all eleven abilities stay registered with REST and MCP exposure disabled by default.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_all_eleven_abilities_are_registered_without_manual_sync_or_snapshots() {
 		$names = array( 'list-subscriptions', 'get-subscription', 'create-subscription', 'config-subscription', 'set-default-subscription', 'activate-subscription', 'deactivate-subscription', 'get-events', 'get-event', 'list-event-categories', 'get-logs' );
@@ -444,7 +444,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Tests if the MCP setting controls every Jeero ability while REST stays disabled and PHP permissions remain enforced.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_mcp_setting_enables_and_disables_all_jeero_abilities() {
 		$registry = WP_Abilities_Registry::get_instance();
@@ -480,7 +480,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Tests if anonymous users and subscribers are denied ability access.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_anonymous_users_and_subscribers_cannot_access_abilities() {
 		foreach ( array( 0, self::factory()->user->create( array( 'role' => 'subscriber' ) ) ) as $user ) {
@@ -498,7 +498,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Tests if contributors, authors and editors can only execute the event read abilities.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_post_editors_can_only_execute_the_three_event_read_abilities() {
 		$read_abilities = array( 'get-events', 'get-event', 'list-event-categories' );
@@ -522,7 +522,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Tests if event details, lists, pagination and categories respect each post's read permissions.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_event_readers_only_return_posts_the_current_user_can_read() {
 		$users = array(
@@ -573,7 +573,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Tests if a post-specific capability denial hides an event before its source data is read.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_event_readers_honor_post_specific_capability_filters() {
 		$post_id = Inbox\process_item( $this->event() );
@@ -596,7 +596,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Tests if schemas reject credentials, unknown fields and invalid pagination.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_input_validation_rejects_credentials_unknown_fields_and_invalid_pagination() {
 		foreach ( array(
@@ -616,7 +616,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Tests subscription summaries, defaults, private configuration URLs and safe errors.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_subscription_summaries_config_link_defaults_and_private_errors() {
 		$list = $this->call( 'list-subscriptions', array( 'theater' => 'stager' ) );
@@ -640,7 +640,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Tests if subscription creation preserves its local key and private configuration flow.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_create_subscription_keeps_local_alias_and_supports_private_theater_configuration() {
 		$result = $this->call( 'create-subscription', array( 'subscription_key' => 'third', 'label' => 'Third', 'settings' => array( 'theater' => 'stager' ) ) );
@@ -656,7 +656,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Tests if remote deactivation preserves imported events and local settings.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_deactivation_uses_mother_and_preserves_data_and_settings() {
 		Inbox\process_item( $this->event() );
@@ -674,7 +674,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Tests if event reads synchronize selected subscriptions at most once per minute.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_event_reads_sync_only_selected_subscriptions_and_throttle_refreshes() {
 		$this->inbox = array( $this->event(), $this->event( 'other', 'two' ) );
@@ -694,7 +694,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Tests if cron and abilities share a lock and recover expired locks.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_cron_and_ability_share_lock_and_expired_lock_can_be_recovered() {
 		add_option( 'jeero/inbox/pickup_lock', time() + 300, '', false );
@@ -709,7 +709,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Tests if failed synchronization remains retryable and keeps credentials private.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_failed_sync_is_retried_and_does_not_return_upstream_credentials() {
 		$this->remote_error = true;
@@ -723,7 +723,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Tests if an expired importer leaves a newer inbox lock intact.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_expired_importer_cannot_release_its_successors_lock() {
 		update_option( 'jeero/inbox/pickup_lock', time() + 600, false );
@@ -734,7 +734,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Tests event filters, pagination, updates and references shared by subscriptions.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_event_postmeta_filters_paginates_updates_and_disambiguates_subscriptions() {
 		Inbox\process_item( $this->event() );
@@ -770,7 +770,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Tests if calendar reads use existing posts and preserve escaped event fields.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_calendar_read_methods_use_existing_posts_and_preserve_escaped_source_data() {
 		$item = $this->event();
@@ -792,7 +792,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Tests if list and detail reads add live page details and preserve all source fields.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_event_reads_preserve_jeero_data_and_add_live_wordpress_page_details() {
 		$item = $this->event();
@@ -841,7 +841,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Tests if reads deduplicate calendar copies without consulting an event table.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_event_reads_deduplicate_multiple_calendar_imports_without_an_event_table() {
 		global $_jeero_calendars;
@@ -885,7 +885,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Tests if scoped synchronization leaves another subscription's inbox items untouched.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_scoped_sync_never_consumes_another_subscriptions_inbox_items() {
 		remove_filter( 'jeero/mother/post/response', $this->post, 10 );
@@ -908,7 +908,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Tests if ticketing system configuration does not persist runtime credentials.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_runtime_credentials_are_not_persisted_when_selecting_a_theater() {
 		$inject = function( $settings ) { $settings['runtime_token'] = 'runtime-secret'; return $settings; };
@@ -926,7 +926,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Tests site timezone date filters and rejection of invalid imported events.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_event_dates_use_site_timezone_and_invalid_events_remain_pending() {
 		update_option( 'timezone_string', 'Europe/Amsterdam' );
@@ -943,7 +943,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Tests if a metadata storage failure prevents acknowledgement and refresh caching.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_storage_failure_prevents_acknowledging_the_event() {
 		$this->inbox = array( $this->event() );
@@ -963,7 +963,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Tests if invalid date filters are rejected before synchronization.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_invalid_dates_are_rejected_before_triggering_a_sync() {
 		$this->assertWPError( $this->call( 'get-events', array( 'date' => '2026-02-30' ) ) );
@@ -974,7 +974,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Tests if failed imports remain pending without a cached successful refresh.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_failed_import_is_not_cached_or_acknowledged() {
 		$this->inbox = array( $this->event() );
@@ -997,7 +997,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Tests subscription log filters, bounded storage and credential redaction.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_inbox_logs_are_filtered_bounded_and_redacted_before_storage() {
 		foreach ( array( 'one', 'two' ) as $id ) {
@@ -1019,7 +1019,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Tests if redaction covers encoded credentials and authorization headers.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_redaction_covers_encoded_settings_and_authorization_headers() {
 		$value = array( 'message' => 'Bearer other-token private-key-123456 ' . rawurlencode( 'private-key-123456' ) . ' ' . base64_encode( 'private-key-123456' ) );
@@ -1029,7 +1029,7 @@ class Abilities_Test extends Jeero_Test {
 	/**
 	 * Tests if every Jeero ability is hidden from REST discovery and execution for all users.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_jeero_abilities_are_hidden_from_rest_discovery_and_execution() {
 		$server = rest_get_server();

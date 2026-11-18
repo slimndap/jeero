@@ -90,7 +90,7 @@ class Theater_For_WordPress_Test extends Post_Based_Calendar_Test {
 	/**
 	 * Tests if two performances of one production keep separate Jeero source metadata.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_jeero_source_data_belongs_to_each_performance_of_a_production() {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
@@ -143,7 +143,7 @@ class Theater_For_WordPress_Test extends Post_Based_Calendar_Test {
 	/**
 	 * Tests if Theater preserves standardized Jeero fields and adds current production page details.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_calendar_preserves_standardized_data_and_adds_production_page_details() {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
@@ -203,7 +203,7 @@ class Theater_For_WordPress_Test extends Post_Based_Calendar_Test {
 	/**
 	 * Tests if Theater omits missing source data and unrelated or orphaned dates.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_calendar_omits_missing_source_metadata_and_unrelated_or_orphaned_dates() {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
@@ -239,7 +239,7 @@ class Theater_For_WordPress_Test extends Post_Based_Calendar_Test {
 	/**
 	 * Tests if Theater reads check the production page rather than the performance's post status.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 */
 	function test_calendar_reads_require_permission_to_read_the_production_page() {
 		$administrator = self::factory()->user->create( array( 'role' => 'administrator' ) );

@@ -16,7 +16,7 @@ class Modern_Events_Calendar extends Post_Based_Calendar {
 	/**
 	 * Gets calendar posts through Modern Events Calendar's event query.
 	 *
-	 * @since	1.?
+	 * @since	1.37
 	 *
 	 * @return	\WP_Post[]	The native calendar posts, including imported drafts.
 	 */
