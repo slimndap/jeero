@@ -86,3 +86,17 @@
     });
   });
 }).call(void 0);
+jQuery(function () {
+  var button = document.getElementById('jeero-mcp-copy');
+  if (!button) return;
+  button.addEventListener('click', async function () {
+    var status = document.getElementById('jeero-mcp-copy-status');
+    status.textContent = '';
+    try {
+      await navigator.clipboard.writeText(document.getElementById('jeero-mcp-url').value);
+      status.textContent = button.dataset.success;
+    } catch (error) {
+      status.textContent = button.dataset.error;
+    }
+  });
+});

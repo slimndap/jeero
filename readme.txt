@@ -17,7 +17,7 @@ Supported ticketing solutions include [ActiveTickets](https://jeero.ooo/import/a
 
 Supported calendars include [All In One Event Calendar](https://jeero.ooo/import/all-in-one-event-calendar/), [Goodlayers](https://jeero.ooo/import/gdlr-events/) themes that use the Event Post Type plugin, [EventON](https://jeero.ooo/import/eventon/), [Events Schedule WordPress Plugin](https://jeero.ooo/import/events-schedule-wp-plugin/), [Modern Events Calendar](https://jeero.ooo/import/modern-events-calendar/), [Sugar Calendar](https://jeero.ooo/import/sugar-calendar/), [Theater for Wordpress](https://jeero.ooo/import/theater-for-wordpress/), [The Events Calendar](https://jeero.ooo/import/the-events-calendar/), [Very Simple Event List](https://jeero.ooo/import/very-simple-event-list/), [WP Event Manager](https://jeero.ooo/import/wp-event-manager/) and [custom post types](https://jeero.ooo/import/custom-post-type/).
 
-Jeero includes an MCP server that lets AI assistants access your imported events and manage your imports. See the [setup instructions](https://jeero.ooo/mcp/).
+Jeero MCP lets AI assistants access your imported events and manage your imports through the official WordPress MCP Adapter. See the [setup instructions](https://jeero.ooo/mcp/).
 
 = Are you missing a ticketing solution? =
 Contact me to request support for your ticketing system or calendar plugin.
@@ -39,6 +39,14 @@ You should see the first 10 upcoming events that are coming from your ticketing 
 
 == Frequently Asked Questions ==
 
+= How do I connect an AI client with Jeero MCP? =
+
+With your Jeero import already working, install and activate the official [MCP Adapter by WordPress.org](https://wordpress.org/plugins/mcp-adapter/) via Plugins → Add New.
+
+In WordPress, go to Jeero → Settings → MCP server, enable Jeero MCP and click Save Changes. Then click Copy URL next to the Jeero MCP endpoint and paste it into your AI client's MCP server URL field.
+
+Follow the [Jeero MCP setup instructions](https://jeero.ooo/mcp/) to connect your AI client. The endpoint is generated for your WordPress installation, including installations in a subdirectory and sites using plain permalinks. If the adapter is inactive or missing, Settings shows installation instructions instead of an endpoint.
+
 = How do I upgrade? =
 
 Go to the Jeero menu in the WordPress admin and click on the upgrade link next the import that needs to import more than 10 upcoming events.
@@ -50,6 +58,7 @@ Subscription rates range from €30 - €70 per month, depending on your total n
 == Changelog ==
 
 = 1.37 =
+* Added the Jeero MCP endpoint, Copy URL button and setup guidance to Settings (1.37.1).
 * Added an MCP server. See the [setup instructions](https://jeero.ooo/mcp/).
 
 = 1.36 =

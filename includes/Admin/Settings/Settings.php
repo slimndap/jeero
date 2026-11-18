@@ -89,13 +89,23 @@ function register_settings() {
 
     add_settings_field(
         'jeero/enable_mcp',
-        __( 'Enable MCP access', 'jeero' ),
+        __( 'Enable Jeero MCP', 'jeero' ),
         __NAMESPACE__ . '\mcp_field',
         'jeero/settings',
         'jeero/settings/mcp',
         array( 'label_for' => 'jeero-enable-mcp' )
     );
-    
+
+    if ( get_option( 'jeero/enable_mcp', false ) ) {
+        add_settings_field(
+            'jeero/mcp_connection',
+            __( 'Jeero MCP endpoint', 'jeero' ),
+            __NAMESPACE__ . '\mcp_connection_field',
+            'jeero/settings',
+            'jeero/settings/mcp',
+            is_plugin_active( 'mcp-adapter/mcp-adapter.php' ) ? array( 'label_for' => 'jeero-mcp-url' ) : array()
+        );
+    }
 }
 
 /**
@@ -136,6 +146,28 @@ function mcp_field() {
 }
 
 /**
+ * Outputs the Jeero MCP connection details in their own Settings API row.
+ *
+ * @since 1.37.1
+ */
+function mcp_connection_field() {
+    if ( ! get_option( 'jeero/enable_mcp', false ) ) {
+        return;
+    }
+    if ( ! is_plugin_active( 'mcp-adapter/mcp-adapter.php' ) ) {
+        ?><p class="description"><?php esc_html_e( 'Jeero MCP requires the official WordPress MCP Adapter plugin. Go to Plugins → Add New, search for “MCP Adapter” by WordPress.org, install it and activate it.', 'jeero' ); ?>
+        <a href="https://wordpress.org/plugins/mcp-adapter/"><?php esc_html_e( 'Get MCP Adapter', 'jeero' ); ?></a></p><?php
+        return;
+    }
+    ?>
+    <input type="text" id="jeero-mcp-url" class="regular-text code" dir="ltr" readonly value="<?php echo esc_attr( rest_url( 'mcp/mcp-adapter-default-server' ) ); ?>" />
+    <button type="button" class="button button-secondary" id="jeero-mcp-copy" data-success="<?php esc_attr_e( 'URL copied.', 'jeero' ); ?>" data-error="<?php esc_attr_e( 'Could not copy the URL. Select the URL and copy it manually.', 'jeero' ); ?>"><?php esc_html_e( 'Copy URL', 'jeero' ); ?></button>
+    <span id="jeero-mcp-copy-status" role="status" aria-live="polite"></span>
+    <p><a href="https://jeero.ooo/mcp/"><?php esc_html_e( 'Follow the Jeero MCP setup instructions', 'jeero' ); ?></a></p>
+    <?php
+}
+
+/**
  * Outputs the 'Custom Post Types' section instructions.
  *
  * @since 1.30
@@ -171,5 +203,5 @@ function logs_section() {
 function mcp_section() {
     ?><p id="jeero-mcp-description"><?php
         esc_html_e( 'Let your AI agents access your imported event data.', 'jeero' );
-    ?><br><a href="https://jeero.ooo/mcp/"><?php esc_html_e( 'Connect your AI assistant', 'jeero' ); ?></a></p><?php
+    ?><br><a href="https://jeero.ooo/mcp/"><?php esc_html_e( 'Follow the Jeero MCP setup instructions', 'jeero' ); ?></a></p><?php
 }

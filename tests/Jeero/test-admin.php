@@ -21,7 +21,7 @@ class Admin_Test extends Jeero_Test {
 		ob_start();
 		do_settings_sections( 'jeero/settings' );
 		$html = ob_get_clean();
-		$this->assertStringContainsString( 'Connect your AI assistant', $html );
+		$this->assertStringContainsString( 'Follow the Jeero MCP setup instructions', $html );
 		$this->assertStringContainsString( 'href="https://jeero.ooo/mcp/"', $html );
 		$this->assertLessThan( strpos( $html, 'https://jeero.ooo/mcp/' ), strpos( $html, 'MCP server' ) );
 		$this->assertLessThan( strpos( $html, 'name="jeero/enable_mcp"' ), strpos( $html, 'https://jeero.ooo/mcp/' ) );
@@ -36,6 +36,55 @@ class Admin_Test extends Jeero_Test {
 		}
 	}
 	
+	/**
+	 * @dataProvider mcp_connection_states
+	 */
+	function test_mcp_connection_information( $enabled, $adapter, $permalinks ) {
+		update_option( 'jeero/enable_mcp', $enabled );
+		update_option( 'active_plugins', $adapter ? array( 'mcp-adapter/mcp-adapter.php' ) : array() );
+		update_option( 'home', 'https://venue.example/wordpress' );
+		update_option( 'siteurl', 'https://venue.example/wordpress' );
+		update_option( 'permalink_structure', $permalinks );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		unset( $GLOBALS['wp_settings_fields']['jeero/settings'] );
+		Admin\Settings\register_settings();
+		ob_start();
+		do_settings_sections( 'jeero/settings' );
+		$html = ob_get_clean();
+		if ( ! $enabled ) {
+			$this->assertStringNotContainsString( 'jeero-mcp-url', $html );
+			$this->assertStringNotContainsString( 'Get MCP Adapter', $html );
+		} elseif ( ! $adapter ) {
+			$this->assertStringContainsString( 'Jeero MCP requires the official WordPress MCP Adapter', $html );
+			$this->assertStringContainsString( 'install it and activate it', $html );
+			$this->assertStringNotContainsString( 'jeero-mcp-url', $html );
+			$this->assertStringNotContainsString( 'Copy URL', $html );
+		} else {
+			$endpoint = $permalinks ? 'https://venue.example/wordpress/wp-json/mcp/mcp-adapter-default-server' : rest_url( 'mcp/mcp-adapter-default-server' );
+			$this->assertStringContainsString( 'value="' . esc_attr( $endpoint ) . '"', $html );
+			$this->assertStringContainsString( 'https://venue.example/wordpress/', $endpoint );
+			$this->assertStringContainsString( 'mcp/mcp-adapter-default-server', $endpoint );
+			$this->assertStringContainsString( '<th scope="row"><label for="jeero-mcp-url">Jeero MCP endpoint</label></th>', $html );
+			$this->assertStringContainsString( 'class="regular-text code"', $html );
+			$this->assertStringContainsString( 'Copy URL', $html );
+			$this->assertStringContainsString( 'role="status"', $html );
+			$this->assertStringNotContainsString( 'Connect your AI client using your WordPress username', $html );
+			$this->assertStringNotContainsString( 'jeero-mcp-authentication', $html );
+			$this->assertSame( 2, substr_count( $html, '<a href="https://jeero.ooo/mcp/">Follow the Jeero MCP setup instructions</a>' ) );
+			$this->assertStringNotContainsString( 'application-passwords-section', $html );
+		}
+	}
+
+	static function mcp_connection_states() {
+		return array(
+			'off without adapter' => array( false, false, '/%postname%/' ),
+			'off with adapter' => array( false, true, '/%postname%/' ),
+			'on without adapter' => array( true, false, '/%postname%/' ),
+			'on with adapter in subdirectory' => array( true, true, '/%postname%/' ),
+			'on with plain permalinks in subdirectory' => array( true, true, '' ),
+		);
+	}
+
 	protected function setUp(): void {	
 		
 		// Set hook suffix to prevent WP_List_Table from generating warnings.

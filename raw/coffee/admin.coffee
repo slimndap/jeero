@@ -72,3 +72,15 @@ jQuery ->
 			
 				show_tab index
 		
+
+jQuery ->
+	button = document.getElementById 'jeero-mcp-copy'
+	return unless button
+	button.addEventListener 'click', ->
+		status = document.getElementById 'jeero-mcp-copy-status'
+		status.textContent = ''
+		try
+			await navigator.clipboard.writeText document.getElementById('jeero-mcp-url').value
+			status.textContent = button.dataset.success
+		catch error
+			status.textContent = button.dataset.error

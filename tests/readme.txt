@@ -12,3 +12,8 @@ Download the official MCP Adapter release from https://wordpress.org/plugins/mcp
 The tests send JSON-RPC messages through the adapter's HTTP transport route using WordPress's REST test client. They cover initialization, sessions, tools/list, discovery, schemas, all eleven abilities, the MCP setting and read permissions. Mother responses are mocked; no external subscriptions are changed. Without JEERO_MCP_ADAPTER_PLUGIN, these optional tests are skipped.
 
 
+
+Jeero MCP Settings
+------------------
+The admin suite covers disabled MCP, enabled MCP with the official adapter active, a missing/inactive adapter, and endpoint generation in a WordPress subdirectory with pretty and plain permalinks. Adapter activation is simulated through WordPress options for these rendering tests.
+Run `node --test tests/js/mcp-copy.test.cjs` for clipboard success, denial, unavailable clipboard and absent-button states.
