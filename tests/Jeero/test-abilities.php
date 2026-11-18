@@ -59,7 +59,7 @@ class Abilities_Test_Calendar extends \Jeero\Calendars\Post_Based_Calendar {
 }
 
 /**
- * Tests Jeero operations through the WordPress Abilities API and REST.
+ * Tests Jeero abilities, MCP exposure and disabled REST access.
  *
  * @since	1.?
  */
@@ -217,7 +217,7 @@ class Abilities_Test extends Jeero_Test {
 	}
 
 	/**
-	 * Tests if all eleven abilities expose REST and opt out of MCP by default.
+	 * Tests if all eleven abilities stay registered with REST and MCP exposure disabled by default.
 	 *
 	 * @since	1.?
 	 */
@@ -226,7 +226,7 @@ class Abilities_Test extends Jeero_Test {
 		foreach ( $names as $name ) {
 			$ability = wp_get_ability( 'jeero/' . $name );
 			$this->assertNotNull( $ability );
-			$this->assertTrue( $ability->get_meta_item( 'show_in_rest' ) );
+			$this->assertFalse( $ability->get_meta_item( 'show_in_rest' ) );
 			$this->assertFalse( $ability->get_meta_item( 'mcp' )['public'] );
 			$this->assertSame( 'jeero', $ability->get_category() );
 		}
@@ -241,7 +241,7 @@ class Abilities_Test extends Jeero_Test {
 	}
 
 	/**
-	 * Tests if the MCP setting controls every Jeero ability without changing REST or permissions.
+	 * Tests if the MCP setting controls every Jeero ability while REST stays disabled and PHP permissions remain enforced.
 	 *
 	 * @since	1.?
 	 */
@@ -260,12 +260,12 @@ class Abilities_Test extends Jeero_Test {
 					}
 					++$count;
 					$this->assertSame( $enabled, $ability->get_meta_item( 'mcp' )['public'] );
-					$this->assertTrue( $ability->get_meta_item( 'show_in_rest' ) );
+					$this->assertFalse( $ability->get_meta_item( 'show_in_rest' ) );
 				}
 				$this->assertSame( 11, $count );
 				$this->assertSame( 2, $this->call( 'list-subscriptions', array() )['count'] );
 				$response = rest_get_server()->dispatch( new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/jeero/list-subscriptions/run' ) );
-				$this->assertSame( 200, $response->get_status() );
+				$this->assertSame( 404, $response->get_status() );
 				wp_set_current_user( 0 );
 				$this->assertWPError( $this->call( 'list-subscriptions', array() ) );
 				wp_set_current_user( $this->factory()->user->create( array( 'role' => 'administrator' ) ) );
@@ -366,11 +366,6 @@ class Abilities_Test extends Jeero_Test {
 					$this->assertSame( 'jeero_event_not_unique', $event->get_error_code() );
 				}
 			}
-			$request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/jeero/get-events/run' );
-			$request->set_param( 'input', array( 'subscription' => 'one' ) );
-			$response = rest_get_server()->dispatch( $request );
-			$this->assertSame( 200, $response->get_status() );
-			$this->assertSame( $expected, array_column( $response->get_data()['events'], 'ref' ) );
 		}
 	}
 
@@ -831,46 +826,36 @@ class Abilities_Test extends Jeero_Test {
 	}
 
 	/**
-	 * Tests REST permissions, input validation, GET methods and automatic synchronization.
+	 * Tests if every Jeero ability is hidden from REST discovery and execution for all users.
 	 *
 	 * @since	1.?
 	 */
-	function test_rest_uses_the_same_validation_and_permissions() {
+	function test_jeero_abilities_are_hidden_from_rest_discovery_and_execution() {
 		$server = rest_get_server();
-		$request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/jeero/list-subscriptions/run' );
-		$request->set_param( 'input', array( 'theater' => 'stager' ) );
-		$response = $server->dispatch( $request );
+		$discovery = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities' );
+		$discovery->set_param( 'category', 'jeero' );
+		$response = $server->dispatch( $discovery );
 		$this->assertSame( 200, $response->get_status() );
-		$this->assertSame( 1, $response->get_data()['count'] );
-		$editor = self::factory()->user->create( array( 'role' => 'contributor' ) );
-		$subscriber = self::factory()->user->create( array( 'role' => 'subscriber' ) );
-		foreach ( array( 'get-events', 'get-event', 'list-event-categories' ) as $name ) {
-			wp_set_current_user( $editor );
-			$this->requests = array();
-			$this->inbox = array( $this->event() );
-			$this->inbox[0]['data']['production']['title'] = 'Refreshed via ' . $name;
-			delete_transient( 'jeero_sync_' . md5( 'one' ) );
-			$events = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/jeero/' . $name . '/run' );
-			$events->set_param( 'input', array( 'subscription' => 'main' ) + ( 'get-event' === $name ? array( 'ref' => 'e1' ) : array() ) );
-			$response = $server->dispatch( $events );
-			$this->assertSame( 200, $response->get_status(), $name );
-			if ( 'list-event-categories' === $name ) {
-				$this->assertSame( 2, $response->get_data()['count'] );
-				$this->assertSame( array(), $this->requests );
-			} else {
-				$event = 'get-event' === $name ? $response->get_data() : $response->get_data()['events'][0];
-				$this->assertSame( 'Refreshed via ' . $name, $event['production']['title'] );
-				$this->assertSame( 'inbox/big', $this->requests[0][0] );
+		$this->assertSame( array(), $response->get_data() );
+		$abilities = array_filter( wp_get_abilities(), function( $ability ) {
+			return 0 === strpos( $ability->get_name(), 'jeero/' );
+		} );
+		$this->assertCount( 11, $abilities );
+		foreach ( array( get_current_user_id(), self::factory()->user->create( array( 'role' => 'contributor' ) ), self::factory()->user->create( array( 'role' => 'subscriber' ) ), 0 ) as $user_id ) {
+			wp_set_current_user( $user_id );
+			foreach ( $abilities as $ability ) {
+				foreach ( array( 'GET', 'POST', 'DELETE' ) as $method ) {
+					$request = new WP_REST_Request( $method, '/wp-abilities/v1/abilities/' . $ability->get_name() . '/run' );
+					$request->set_param( 'input', array() );
+					$response = $server->dispatch( $request );
+					$this->assertSame( 404, $response->get_status(), $method . ' ' . $ability->get_name() );
+				}
+				if ( $user_id ) {
+					$request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/' . $ability->get_name() );
+					$this->assertSame( 404, $server->dispatch( $request )->get_status() );
+				}
 			}
-			$events->set_method( 'POST' );
-			$this->assertSame( 405, $server->dispatch( $events )->get_status() );
-			$events->set_method( 'GET' );
-			wp_set_current_user( $subscriber );
-			$this->assertSame( 403, $server->dispatch( $events )->get_status() );
-			wp_set_current_user( 0 );
-			$this->assertSame( 401, $server->dispatch( $events )->get_status() );
 		}
-		wp_set_current_user( 0 );
-		$this->assertSame( 401, $server->dispatch( $request )->get_status() );
+		$this->assertSame( array(), $this->requests );
 	}
 }

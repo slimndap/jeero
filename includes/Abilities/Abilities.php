@@ -1,6 +1,6 @@
 <?php
 /**
- * Registers Jeero operations for PHP, REST and the WordPress MCP Adapter.
+ * Registers Jeero operations for PHP and the WordPress MCP Adapter.
  *
  * @since	1.?
  */
@@ -125,7 +125,7 @@ function register_abilities() {
 			'permission_callback' => function() use ( $name ) { return can_execute( $name ); },
 			'execute_callback' => function( $input ) use ( $name ) { return execute( $name, $input ); },
 			'meta' => array(
-				'show_in_rest' => true,
+				'show_in_rest' => false,
 				'mcp' => array( 'public' => (bool) get_option( 'jeero/enable_mcp', false ) ),
 				'annotations' => array( 'readonly' => $readonly, 'destructive' => false, 'idempotent' => 'create-subscription' !== $name ),
 			),

@@ -95,7 +95,7 @@ Subscription rates range from €30 - €70 per month, depending on your total n
 
 == Developer API ==
 
-On WordPress 6.9 or newer, Jeero registers these abilities for PHP, the WordPress Abilities REST API and the separately installed official WordPress MCP Adapter:
+On WordPress 6.9 or newer, Jeero registers these abilities for PHP and the separately installed official WordPress MCP Adapter:
 
 * jeero/list-subscriptions
 * jeero/get-subscription
@@ -109,9 +109,9 @@ On WordPress 6.9 or newer, Jeero registers these abilities for PHP, the WordPres
 * jeero/list-event-categories
 * jeero/get-logs
 
-get-events, get-event and list-event-categories require the edit_posts capability, available to administrators, editors, authors and contributors in the default WordPress roles. All other abilities require manage_options. HTTP clients can authenticate with a WordPress Application Password over HTTPS. Jeero does not include an MCP server or an OAuth server.
+get-events, get-event and list-event-categories require the edit_posts capability, available to administrators, editors, authors and contributors in the default WordPress roles. All other abilities require manage_options. MCP HTTP clients can authenticate with a WordPress Application Password over HTTPS. Jeero does not include an MCP server or an OAuth server.
 
-MCP access is disabled by default. Under Jeero > Settings > MCP server, enable MCP access to expose all Jeero abilities through the separately installed and activated official WordPress MCP Adapter plugin. Turning this setting off removes Jeero abilities from the adapter's default server discovery and execution. PHP and REST abilities remain available with their existing permissions.
+MCP access is disabled by default. Under Jeero > Settings > MCP server, enable MCP access to expose all Jeero abilities through the separately installed and activated official WordPress MCP Adapter plugin. Turning this setting off removes Jeero abilities from the adapter's default server discovery and execution. PHP abilities remain available with their existing permissions. Direct Abilities REST access stays disabled regardless of the MCP setting.
 
 See the [MCP setup instructions](https://jeero.ooo/mcp/) to connect an AI assistant.
 
@@ -123,13 +123,13 @@ PHP example, after WordPress init:
         'limit' => 50,
     ) );
 
-Ability input and output schemas are available from WordPress. REST execution uses /wp-json/wp-abilities/v1/abilities/jeero/{ability}/run. Read abilities use GET with an input parameter, including get-events, get-event and list-event-categories. get-events and get-event retain their automatic synchronization as maintenance while retrieving current data. Management abilities use POST with an input object.
+Ability input and output schemas are available through PHP and MCP. Jeero disables direct discovery and execution through the WordPress Abilities REST API (show_in_rest is false). The MCP Adapter uses its own endpoint and invokes the registered PHP abilities directly. get-events and get-event retain their automatic synchronization while retrieving current data.
 
 The subscription selector accepts the WordPress subscription ID or a local subscription_key assigned by create-subscription. get-subscription and config-subscription require an explicit selector when multiple active subscriptions exist and no default has been set. Event and category lists include imported events from all subscriptions unless filtered.
 
 Configuration accepts only settings.theater. config-subscription returns the existing WordPress admin URL, where the user signs in and enters credentials privately. Credentials, raw connector payloads and upstream error messages are not returned by abilities.
 
-Calendar classes provide get_events(), get_event() and list_event_categories(). Normalized Jeero source data is saved as protected _jeero_event_data postmeta on each imported event, with a _jeero_event_calendar marker. Theater for WordPress stores this on individual performances rather than the parent production. No event table or separate post type is created. Multiple calendar copies are deduplicated by subscription and event reference; trashed or deleted posts are not returned. Event lists, details and category counts only include events whose WordPress post the current user can read (read_post). Theater for WordPress checks the linked production page. This applies to PHP, REST and MCP reads.
+Calendar classes provide get_events(), get_event() and list_event_categories(). Normalized Jeero source data is saved as protected _jeero_event_data postmeta on each imported event, with a _jeero_event_calendar marker. Theater for WordPress stores this on individual performances rather than the parent production. No event table or separate post type is created. Multiple calendar copies are deduplicated by subscription and event reference; trashed or deleted posts are not returned. Event lists, details and category counts only include events whose WordPress post the current user can read (read_post). Theater for WordPress checks the linked production page. This applies to PHP and MCP reads.
 
 Calendar readers use the calendar's event queries where available, or its WordPress posts, to find imported events. Event fields come from the standardized Jeero data saved on import; website edits to titles, descriptions, images, categories, dates, locations, prices or ticket data do not override those fields. Both get-events and get-event add the current WordPress post_id, permalink and post_status. For Theater for WordPress, these three fields describe the linked production page; the Jeero data remains specific to each performance. Sugar Calendar, EventON and Modern Events Calendar use their own event queries. The Events Calendar retains the existing post query workaround for imports without an occurrence index. WP Event Manager uses its listing API, including drafts.
 
