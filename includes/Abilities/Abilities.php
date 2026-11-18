@@ -126,7 +126,7 @@ function register_abilities() {
 			'execute_callback' => function( $input ) use ( $name ) { return execute( $name, $input ); },
 			'meta' => array(
 				'show_in_rest' => true,
-				'mcp' => array( 'public' => true ),
+				'mcp' => array( 'public' => (bool) get_option( 'jeero/enable_mcp', false ) ),
 				'annotations' => array( 'readonly' => $readonly, 'destructive' => false, 'idempotent' => 'create-subscription' !== $name ),
 			),
 		) );

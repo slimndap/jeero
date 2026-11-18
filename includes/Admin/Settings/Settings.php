@@ -42,6 +42,11 @@ function register_settings() {
     // Register settings
     register_setting( 'jeero/settings/group', 'jeero/enable_custom_post_types' );
     register_setting( 'jeero/settings/group', 'jeero/enable_logs' );
+    register_setting( 'jeero/settings/group', 'jeero/enable_mcp', array(
+        'type' => 'boolean',
+        'default' => false,
+        'sanitize_callback' => 'rest_sanitize_boolean',
+    ) );
 
     // Add settings sections
     add_settings_section(
@@ -55,6 +60,13 @@ function register_settings() {
         'jeero/settings/logs',
         __( 'Logs', 'jeero' ),
         __NAMESPACE__ . '\logs_section',
+        'jeero/settings'
+    );
+
+    add_settings_section(
+        'jeero/settings/mcp',
+        __( 'MCP server', 'jeero' ),
+        __NAMESPACE__ . '\mcp_section',
         'jeero/settings'
     );
 
@@ -73,6 +85,15 @@ function register_settings() {
         __NAMESPACE__ . '\show_logs_field',
         'jeero/settings',
         'jeero/settings/logs'
+    );
+
+    add_settings_field(
+        'jeero/enable_mcp',
+        __( 'Enable MCP access', 'jeero' ),
+        __NAMESPACE__ . '\mcp_field',
+        'jeero/settings',
+        'jeero/settings/mcp',
+        array( 'label_for' => 'jeero-enable-mcp' )
     );
     
 }
@@ -102,6 +123,19 @@ function show_logs_field() {
 }
 
 /**
+ * Outputs the setting that exposes Jeero abilities through the MCP Adapter.
+ *
+ * @since 1.?
+ *
+ * @return void
+ */
+function mcp_field() {
+    ?>
+    <input type="checkbox" id="jeero-enable-mcp" name="jeero/enable_mcp" value="1" aria-describedby="jeero-mcp-description" <?php checked( true, get_option( 'jeero/enable_mcp', false ), true ); ?> />
+    <?php
+}
+
+/**
  * Outputs the 'Custom Post Types' section instructions.
  *
  * @since 1.30
@@ -125,4 +159,17 @@ function logs_section() {
 		?><br><?php
 		_e( 'Adds a Logs submenu to the Jeero admin menu.', 'jeero' )
 	?></p><?php
+}
+
+/**
+ * Outputs the 'MCP server' section instructions.
+ *
+ * @since 1.?
+ *
+ * @return void
+ */
+function mcp_section() {
+    ?><p id="jeero-mcp-description"><?php
+        esc_html_e( 'Let your AI agents access your imported event data.', 'jeero' );
+    ?><br><a href="https://jeero.ooo/mcp/"><?php esc_html_e( 'Connect your AI assistant', 'jeero' ); ?></a></p><?php
 }

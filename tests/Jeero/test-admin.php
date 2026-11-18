@@ -7,6 +7,34 @@ use Jeero\Admin;
 use Jeero\Subscriptions;
 
 class Admin_Test extends Jeero_Test {
+	/**
+	 * Tests if the MCP checkbox defaults to off and saves boolean values through Settings.
+	 *
+	 * @since	1.?
+	 */
+	function test_mcp_setting_defaults_to_off_and_renders_saved_checkbox_state() {
+		Admin\Settings\register_settings();
+		$settings = get_registered_settings()['jeero/enable_mcp'];
+		$this->assertSame( 'jeero/settings/group', $settings['group'] );
+		$this->assertSame( 'boolean', $settings['type'] );
+		$this->assertFalse( get_option( 'jeero/enable_mcp' ) );
+		ob_start();
+		do_settings_sections( 'jeero/settings' );
+		$html = ob_get_clean();
+		$this->assertStringContainsString( 'Connect your AI assistant', $html );
+		$this->assertStringContainsString( 'href="https://jeero.ooo/mcp/"', $html );
+		$this->assertLessThan( strpos( $html, 'https://jeero.ooo/mcp/' ), strpos( $html, 'MCP server' ) );
+		$this->assertLessThan( strpos( $html, 'name="jeero/enable_mcp"' ), strpos( $html, 'https://jeero.ooo/mcp/' ) );
+		foreach ( array( '1', null ) as $submitted ) {
+			update_option( 'jeero/enable_mcp', $submitted );
+			$this->assertSame( '1' === $submitted, get_option( 'jeero/enable_mcp' ) );
+			ob_start();
+			Admin\Settings\mcp_field();
+			$html = ob_get_clean();
+			$this->assertStringContainsString( 'name="jeero/enable_mcp"', $html );
+			$this->assertSame( '1' === $submitted, false !== strpos( $html, 'checked=' ) );
+		}
+	}
 	
 	protected function setUp(): void {	
 		

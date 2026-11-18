@@ -217,7 +217,7 @@ class Abilities_Test extends Jeero_Test {
 	}
 
 	/**
-	 * Tests if all eleven abilities expose REST and MCP metadata without sync or snapshot tools.
+	 * Tests if all eleven abilities expose REST and opt out of MCP by default.
 	 *
 	 * @since	1.?
 	 */
@@ -227,7 +227,7 @@ class Abilities_Test extends Jeero_Test {
 			$ability = wp_get_ability( 'jeero/' . $name );
 			$this->assertNotNull( $ability );
 			$this->assertTrue( $ability->get_meta_item( 'show_in_rest' ) );
-			$this->assertTrue( $ability->get_meta_item( 'mcp' )['public'] );
+			$this->assertFalse( $ability->get_meta_item( 'mcp' )['public'] );
 			$this->assertSame( 'jeero', $ability->get_category() );
 		}
 		$this->assertFalse( wp_has_ability( 'jeero/get-ticket-snapshots' ) );
@@ -238,6 +238,42 @@ class Abilities_Test extends Jeero_Test {
 			$this->assertSame( 'jeero_unknown_ability', $error->get_error_code() );
 		}
 		$this->assertSame( array(), $this->requests );
+	}
+
+	/**
+	 * Tests if the MCP setting controls every Jeero ability without changing REST or permissions.
+	 *
+	 * @since	1.?
+	 */
+	function test_mcp_setting_enables_and_disables_all_jeero_abilities() {
+		$registry = WP_Abilities_Registry::get_instance();
+		$instance = new ReflectionProperty( WP_Abilities_Registry::class, 'instance' );
+		$instance->setAccessible( true );
+		try {
+			foreach ( array( false, true, false ) as $enabled ) {
+				update_option( 'jeero/enable_mcp', $enabled );
+				$instance->setValue( null, null );
+				$count = 0;
+				foreach ( wp_get_abilities() as $ability ) {
+					if ( 0 !== strpos( $ability->get_name(), 'jeero/' ) ) {
+						continue;
+					}
+					++$count;
+					$this->assertSame( $enabled, $ability->get_meta_item( 'mcp' )['public'] );
+					$this->assertTrue( $ability->get_meta_item( 'show_in_rest' ) );
+				}
+				$this->assertSame( 11, $count );
+				$this->assertSame( 2, $this->call( 'list-subscriptions', array() )['count'] );
+				$response = rest_get_server()->dispatch( new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/jeero/list-subscriptions/run' ) );
+				$this->assertSame( 200, $response->get_status() );
+				wp_set_current_user( 0 );
+				$this->assertWPError( $this->call( 'list-subscriptions', array() ) );
+				wp_set_current_user( $this->factory()->user->create( array( 'role' => 'administrator' ) ) );
+			}
+		} finally {
+			delete_option( 'jeero/enable_mcp' );
+			$instance->setValue( null, $registry );
+		}
 	}
 
 	/**

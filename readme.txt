@@ -111,6 +111,10 @@ On WordPress 6.9 or newer, Jeero registers these abilities for PHP, the WordPres
 
 get-events, get-event and list-event-categories require the edit_posts capability, available to administrators, editors, authors and contributors in the default WordPress roles. All other abilities require manage_options. HTTP clients can authenticate with a WordPress Application Password over HTTPS. Jeero does not include an MCP server or an OAuth server.
 
+MCP access is disabled by default. Under Jeero > Settings > MCP server, enable MCP access to expose all Jeero abilities through the separately installed and activated official WordPress MCP Adapter plugin. Turning this setting off removes Jeero abilities from the adapter's default server discovery and execution. PHP and REST abilities remain available with their existing permissions.
+
+See the [MCP setup instructions](https://jeero.ooo/mcp/) to connect an AI assistant.
+
 PHP example, after WordPress init:
 
     $result = wp_get_ability( 'jeero/get-events' )->execute( array(
