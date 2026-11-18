@@ -13,11 +13,11 @@ Imports events and tickets from your existing ticketing solution to The Events C
 
 Jeero automatically imports events from your ticketing system into WordPress. Keep showtimes, prices, descriptions, images and ticket links up to date.
 
-Let AI assistants access your imported events and manage your imports with Jeero's MCP server. Enable it in Jeero Settings and follow the [setup instructions](https://jeero.ooo/mcp/).
-
 Supported ticketing solutions include [ActiveTickets](https://jeero.ooo/import/activetickets/), [AudienceView Professional](https://jeero.ooo/import/audienceview/), [Billeto](https://jeero.ooo/import/billeto/), [Billetweb](https://jeero.ooo/import/billetweb/), [BravoBase](https://jeero.ooo/import/bravobase/), [Brown Paper Tickets](https://jeero.ooo/import/bpt/), [Chaplin](https://jeero.ooo/import/chaplin/), [Ciné Office](https://jeero.ooo/import/cineoffice/), [Ents24](https://jeero.ooo/import/ents24/), [Eventive](https://jeero.ooo/import/eventive/), [Fienta](https://jeero.ooo/import/fienta/), [KinoTickets Online](https://jeero.ooo/import/kinotickets/), [Ovatic](https://jeero.ooo/import/ovatic/), [OvationTix](https://jeero.ooo/import/ovationtix/), [PatronBase](https://jeero.ooo/import/patronbase/), [Place2Book](https://jeero.ooo/import/place2book/), [Reservix](https://jeero.ooo/import/reservix/), [RTS](https://jeero.ooo/import/rts/), [Sirius](https://jeero.ooo/import/sirius/), [Stager](https://jeero.ooo/import/stager_pushfeed/), [ThunderTix](https://jeero.ooo/import/thundertix/), [TicketingCiné](https://jeero.ooo/import/ticketingcine/), [Ticketlab](https://jeero.ooo/import/ticketlab/), [Ticketmaster](https://jeero.ooo/import/ticketmaster/), [Ticketmatic](https://jeero.ooo/import/ticketmatic/), [Ticketportal](https://jeero.ooo/import/ticketportal_cz/), [TicketSolve](https://jeero.ooo/import/ticketsolve/), [TicketSource](https://jeero.ooo/import/ticketsource/), [TicketWeb](https://jeero.ooo/import/ticketweb/), [Tixly](https://jeero.ooo/import/tix/) and [Veezi](https://jeero.ooo/import/veezi/).
 
 Supported calendars include [All In One Event Calendar](https://jeero.ooo/import/all-in-one-event-calendar/), [Goodlayers](https://jeero.ooo/import/gdlr-events/) themes that use the Event Post Type plugin, [EventON](https://jeero.ooo/import/eventon/), [Events Schedule WordPress Plugin](https://jeero.ooo/import/events-schedule-wp-plugin/), [Modern Events Calendar](https://jeero.ooo/import/modern-events-calendar/), [Sugar Calendar](https://jeero.ooo/import/sugar-calendar/), [Theater for Wordpress](https://jeero.ooo/import/theater-for-wordpress/), [The Events Calendar](https://jeero.ooo/import/the-events-calendar/), [Very Simple Event List](https://jeero.ooo/import/very-simple-event-list/), [WP Event Manager](https://jeero.ooo/import/wp-event-manager/) and [custom post types](https://jeero.ooo/import/custom-post-type/).
+
+Jeero includes an MCP server that lets AI assistants access your imported events and manage your imports. See the [setup instructions](https://jeero.ooo/mcp/).
 
 = Are you missing a ticketing solution? =
 Contact me to request support for your ticketing system or calendar plugin.
@@ -46,52 +46,6 @@ Go to the Jeero menu in the WordPress admin and click on the upgrade link next t
 = How much does it cost? =
 
 Subscription rates range from €30 - €70 per month, depending on your total number of upcoming events. 
-
-== Developer API ==
-
-On WordPress 6.9 or newer, Jeero registers these abilities for PHP and the separately installed official WordPress MCP Adapter:
-
-* jeero/list-subscriptions
-* jeero/get-subscription
-* jeero/create-subscription
-* jeero/config-subscription
-* jeero/set-default-subscription
-* jeero/activate-subscription
-* jeero/deactivate-subscription
-* jeero/get-events
-* jeero/get-event
-* jeero/list-event-categories
-* jeero/get-logs
-
-get-events, get-event and list-event-categories require the edit_posts capability, available to administrators, editors, authors and contributors in the default WordPress roles. All other abilities require manage_options. MCP HTTP clients can authenticate with a WordPress Application Password over HTTPS. Jeero does not include an MCP server or an OAuth server.
-
-MCP access is disabled by default. Under Jeero > Settings > MCP server, enable MCP access to expose all Jeero abilities through the separately installed and activated official WordPress MCP Adapter plugin. Turning this setting off removes Jeero abilities from the adapter's default server discovery and execution. PHP abilities remain available with their existing permissions. Direct Abilities REST access stays disabled regardless of the MCP setting.
-
-See the [MCP setup instructions](https://jeero.ooo/mcp/) to connect an AI assistant.
-
-PHP example, after WordPress init:
-
-    $result = wp_get_ability( 'jeero/get-events' )->execute( array(
-        'from' => '2026-11-01',
-        'to' => '2026-11-30',
-        'limit' => 50,
-    ) );
-
-Ability input and output schemas are available through PHP and MCP. Jeero disables direct discovery and execution through the WordPress Abilities REST API (show_in_rest is false). The MCP Adapter uses its own endpoint and invokes the registered PHP abilities directly. get-events and get-event retain their automatic synchronization while retrieving current data.
-
-The subscription selector accepts the WordPress subscription ID or a local subscription_key assigned by create-subscription. get-subscription and config-subscription require an explicit selector when multiple active subscriptions exist and no default has been set. Event and category lists include imported events from all subscriptions unless filtered.
-
-Configuration accepts only settings.theater. config-subscription returns the existing WordPress admin URL, where the user signs in and enters credentials privately. Credentials, raw connector payloads and upstream error messages are not returned by abilities.
-
-Calendar classes provide get_events(), get_event() and list_event_categories(). Normalized Jeero source data is saved as protected _jeero_event_data postmeta on each imported event, with a _jeero_event_calendar marker. Theater for WordPress stores this on individual performances rather than the parent production. No event table or separate post type is created. Multiple calendar copies are deduplicated by subscription and event reference; trashed or deleted posts are not returned. Event lists, details and category counts only include events whose WordPress post the current user can read (read_post). Theater for WordPress checks the linked production page. This applies to PHP and MCP reads.
-
-Calendar readers use the calendar's event queries where available, or its WordPress posts, to find imported events. Event fields come from the standardized Jeero data saved on import; website edits to titles, descriptions, images, categories, dates, locations, prices or ticket data do not override those fields. Both get-events and get-event add the current WordPress post_id, permalink and post_status. For Theater for WordPress, these three fields describe the linked production page; the Jeero data remains specific to each performance. Sugar Calendar, EventON and Modern Events Calendar use their own event queries. The Events Calendar retains the existing post query workaround for imports without an occurrence index. WP Event Manager uses its listing API, including drafts.
-
-Older imports without standardized Jeero metadata are omitted until their next successful import; there is no automatic backfill. Custom Post Type reads its configured post types per subscription. Optional source fields, including current ticket totals and availability, remain available when supplied by the connector. There is no ticket snapshot ability or ticket history storage. Date filters use YYYY-MM-DD in the WordPress timezone; creation/update timestamps describe Jeero metadata imports and are UTC.
-
-get-events refreshes active subscriptions at most once per minute; get-event does so when an explicit subscription is provided. Synchronization also updates the configured WordPress calendars and shares an inbox lock with scheduled imports. activate-subscription and deactivate-subscription affect remote delivery in Mother, unlike the standalone Jeero MCP server's local pause. get-logs retains the latest 1000 redacted inbox messages.
-
-Older WordPress installations continue to import events without registering abilities or collecting the additional source metadata. The standalone Jeero MCP server's subscriptions and SQLite data are not migrated or shared automatically.
 
 == Changelog ==
 
