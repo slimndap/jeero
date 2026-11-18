@@ -13,6 +13,18 @@ use Jeero\Db\Subscriptions as Db;
  */
 class Native_Calendar_Read_Test extends Jeero_Test {
 	/**
+	 * Sets up an authorized user for calendar read fixtures.
+	 *
+	 * @since	1.?
+	 *
+	 * @return	void
+	 */
+	protected function setUp(): void {
+		parent::setUp();
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+	}
+
+	/**
 	 * Tests if post calendars preserve standardized Jeero data despite different native fields.
 	 *
 	 * @since	1.?

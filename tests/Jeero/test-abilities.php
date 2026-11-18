@@ -319,6 +319,85 @@ class Abilities_Test extends Jeero_Test {
 	}
 
 	/**
+	 * Tests if event details, lists, pagination and categories respect each post's read permissions.
+	 *
+	 * @since	1.?
+	 */
+	function test_event_readers_only_return_posts_the_current_user_can_read() {
+		$users = array(
+			'administrator' => get_current_user_id(),
+			'contributor' => self::factory()->user->create( array( 'role' => 'contributor' ) ),
+			'author' => self::factory()->user->create( array( 'role' => 'author' ) ),
+			'editor' => self::factory()->user->create( array( 'role' => 'editor' ) ),
+		);
+		$posts = array();
+		foreach ( array( 'public' => 'publish', 'own' => 'draft', 'draft' => 'draft', 'private' => 'private', 'pending' => 'pending', 'future' => 'future' ) as $ref => $status ) {
+			$item = $this->event( $ref );
+			$item['data']['production']['categories'] = array( $ref );
+			$posts[ $ref ] = Inbox\process_item( $item );
+			$args = array( 'ID' => $posts[ $ref ], 'post_status' => $status, 'post_author' => 'own' === $ref ? $users['contributor'] : $users['administrator'] );
+			if ( 'future' === $status ) {
+				$args += array( 'post_date' => '2035-01-01 20:00:00', 'post_date_gmt' => '2035-01-01 20:00:00' );
+			}
+			wp_update_post( $args );
+		}
+		foreach ( $users as $role => $user_id ) {
+			wp_set_current_user( $user_id );
+			$expected = array( 'draft', 'future', 'own', 'pending', 'private', 'public' );
+			if ( 'contributor' === $role ) {
+				$expected = array( 'own', 'public' );
+			} elseif ( 'author' === $role ) {
+				$expected = array( 'public' );
+			}
+			$list = $this->call( 'get-events', array( 'subscription' => 'one' ) );
+			$this->assertIsArray( $list );
+			$this->assertSame( $expected, array_column( $list['events'], 'ref' ), $role );
+			$page = $this->call( 'get-events', array( 'subscription' => 'one', 'limit' => 1 ) );
+			$this->assertSame( count( $expected ), $page['total'] );
+			$this->assertSame( count( $expected ), $page['totalPages'] );
+			$categories = $this->call( 'list-event-categories', array( 'subscription' => 'one' ) );
+			$this->assertSame( $expected, array_column( $categories['categories'], 'name' ) );
+			foreach ( $posts as $ref => $post_id ) {
+				$event = $this->call( 'get-event', array( 'subscription' => 'one', 'ref' => $ref ) );
+				if ( in_array( $ref, $expected, true ) ) {
+					$this->assertSame( $post_id, $event['post_id'] );
+				} else {
+					$this->assertWPError( $event );
+					$this->assertSame( 'jeero_event_not_unique', $event->get_error_code() );
+				}
+			}
+			$request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/jeero/get-events/run' );
+			$request->set_param( 'input', array( 'subscription' => 'one' ) );
+			$response = rest_get_server()->dispatch( $request );
+			$this->assertSame( 200, $response->get_status() );
+			$this->assertSame( $expected, array_column( $response->get_data()['events'], 'ref' ) );
+		}
+	}
+
+	/**
+	 * Tests if a post-specific capability denial hides an event before its source data is read.
+	 *
+	 * @since	1.?
+	 */
+	function test_event_readers_honor_post_specific_capability_filters() {
+		$post_id = Inbox\process_item( $this->event() );
+		$this->assertSame( $post_id, $this->call( 'get-event', array( 'ref' => 'e1' ) )['post_id'] );
+		$deny = function( $caps, $cap, $user_id, $args ) use ( $post_id ) {
+			return 'read_post' === $cap && ( $args[0] ?? null ) === $post_id ? array( 'do_not_allow' ) : $caps;
+		};
+		add_filter( 'map_meta_cap', $deny, 10, 4 );
+		try {
+			$this->assertSame( 0, $this->call( 'get-events' )['total'] );
+			update_post_meta( $post_id, '_jeero_event_data', array( 'ref' => 'e1', 'start' => 'invalid', 'production' => array( 'title' => 'Hidden event' ) ) );
+			$this->assertSame( 0, $this->call( 'get-events' )['total'] );
+			$this->assertSame( 0, $this->call( 'list-event-categories' )['count'] );
+			$this->assertWPError( $this->call( 'get-event', array( 'ref' => 'e1' ) ) );
+		} finally {
+			remove_filter( 'map_meta_cap', $deny, 10 );
+		}
+	}
+
+	/**
 	 * Tests if schemas reject credentials, unknown fields and invalid pagination.
 	 *
 	 * @since	1.?
@@ -595,6 +674,12 @@ class Abilities_Test extends Jeero_Test {
 			update_post_meta( $copy->ID, '_jeero_event_data', wp_slash( $latest ) );
 			$this->assertSame( 0, Data\get_events( array( 'status' => 'onsale' ) )['total'] );
 			$this->assertSame( 1, Data\get_events( array( 'status' => 'soldout' ) )['total'] );
+			$latest['production']['categories'] = array( 'Hidden category' );
+			update_post_meta( $copy->ID, '_jeero_event_data', wp_slash( $latest ) );
+			wp_update_post( array( 'ID' => $copy->ID, 'post_status' => 'private' ) );
+			wp_set_current_user( self::factory()->user->create( array( 'role' => 'contributor' ) ) );
+			$this->assertSame( 'onsale', Data\get_event( array( 'ref' => 'e1' ) )['status'] );
+			$this->assertSame( array( array( 'name' => 'Live', 'events' => 1 ), array( 'name' => 'Music', 'events' => 1 ) ), Data\get_categories( array() )['categories'] );
 		} finally {
 			remove_filter( 'query', $reject_table );
 			remove_filter( 'jeero/inbox/process/item/import/calendar=' . $second->slug, array( $second, 'import' ), 10 );

@@ -93,6 +93,7 @@ class Theater_For_WordPress_Test extends Post_Based_Calendar_Test {
 	 * @since	1.?
 	 */
 	function test_jeero_source_data_belongs_to_each_performance_of_a_production() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 		if ( ! function_exists( 'wp_register_ability' ) ) {
 			$this->markTestSkipped( 'The Abilities API requires WordPress 6.9 or newer.' );
 		}
@@ -145,6 +146,7 @@ class Theater_For_WordPress_Test extends Post_Based_Calendar_Test {
 	 * @since	1.?
 	 */
 	function test_calendar_preserves_standardized_data_and_adds_production_page_details() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 		if ( ! function_exists( 'wp_register_ability' ) ) {
 			$this->markTestSkipped( 'The Abilities API requires WordPress 6.9 or newer.' );
 		}
@@ -204,6 +206,7 @@ class Theater_For_WordPress_Test extends Post_Based_Calendar_Test {
 	 * @since	1.?
 	 */
 	function test_calendar_omits_missing_source_metadata_and_unrelated_or_orphaned_dates() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 		$this->import_event();
 		$calendar = Jeero\Calendars\get_calendar( $this->calendar );
 		$production = $this->get_events( array( 'post_status' => 'any' ) )[0];
@@ -231,6 +234,51 @@ class Theater_For_WordPress_Test extends Post_Based_Calendar_Test {
 		$this->assertSame( array( 'Category A', 'Category B' ), $events[0]['production']['categories'] );
 		wp_trash_post( $production->ID );
 		$this->assertCount( 0, $calendar->get_events() );
+	}
+
+	/**
+	 * Tests if Theater reads check the production page rather than the performance's post status.
+	 *
+	 * @since	1.?
+	 */
+	function test_calendar_reads_require_permission_to_read_the_production_page() {
+		$administrator = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$contributor = self::factory()->user->create( array( 'role' => 'contributor' ) );
+		wp_set_current_user( $administrator );
+		$this->import_event();
+		$calendar = Jeero\Calendars\get_calendar( $this->calendar );
+		$production = $this->get_events( array( 'post_status' => 'any' ) )[0];
+		$performance = get_posts( array( 'post_type' => WPT_Event::post_type_name, 'post_status' => 'any' ) )[0];
+		foreach ( array( 'draft', 'private', 'publish' ) as $status ) {
+			wp_update_post( array( 'ID' => $production->ID, 'post_status' => $status, 'post_author' => $administrator ) );
+			wp_set_current_user( $contributor );
+			if ( 'publish' === $status ) {
+				$this->assertSame( $production->ID, $calendar->get_event( '123' )['post_id'] );
+			} else {
+				$this->assertCount( 0, $calendar->get_events() );
+				$this->assertNull( $calendar->get_event( '123' ) );
+				$this->assertSame( 0, $calendar->list_event_categories()['count'] );
+				$this->assertSame( 0, Jeero\Abilities\Data\get_events( array() )['total'] );
+				$this->assertWPError( Jeero\Abilities\Data\get_event( array( 'ref' => '123' ) ) );
+			}
+			wp_set_current_user( $administrator );
+			$this->assertSame( $production->ID, $calendar->get_event( '123' )['post_id'] );
+		}
+		wp_set_current_user( $contributor );
+		$denied_id = $production->ID;
+		$deny = function( $caps, $cap, $user_id, $args ) use ( &$denied_id ) {
+			return 'read_post' === $cap && ( $args[0] ?? null ) === $denied_id ? array( 'do_not_allow' ) : $caps;
+		};
+		add_filter( 'map_meta_cap', $deny, 10, 4 );
+		try {
+			$this->assertTrue( current_user_can( 'read_post', $performance->ID ) );
+			$this->assertCount( 0, $calendar->get_events() );
+			$denied_id = $performance->ID;
+			$this->assertFalse( current_user_can( 'read_post', $performance->ID ) );
+			$this->assertSame( $production->ID, $calendar->get_event( '123' )['post_id'] );
+		} finally {
+			remove_filter( 'map_meta_cap', $deny, 10 );
+		}
 	}
 
 	function test_jeero_tickets_button_event_template_field_renders_for_event() {

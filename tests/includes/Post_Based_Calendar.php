@@ -106,6 +106,7 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 	 * @since	1.?
 	 */
 	function test_imported_events_are_readable_through_calendar() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 		if ( ! function_exists( 'wp_register_ability' ) ) {
 			$this->markTestSkipped( 'The Abilities API requires WordPress 6.9 or newer.' );
 		}
@@ -124,6 +125,7 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 	 * @since	1.?
 	 */
 	function test_calendar_reads_standardized_data_after_native_edits() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 		$this->import_event();
 		$calendar = \Jeero\Calendars\get_calendar( $this->calendar );
 		$post = $this->get_events( array( 'post_status' => 'any' ) )[0];

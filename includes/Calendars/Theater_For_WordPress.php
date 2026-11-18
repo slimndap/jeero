@@ -72,7 +72,7 @@ class Theater_For_WordPress extends Post_Based_Calendar {
 	}
 	
 	/**
-	 * Gets standardized Jeero performances with their linked WordPress page details.
+	 * Gets standardized Jeero performances with readable linked WordPress pages.
 	 *
 	 * @since	1.?
 	 *
@@ -96,7 +96,8 @@ class Theater_For_WordPress extends Post_Based_Calendar {
 		$events = array();
 		foreach ( $performances as $performance ) {
 			$production = $performance->production();
-			if ( ! $production ) {
+			$post = $production ? $production->post() : null;
+			if ( ! $post || ! current_user_can( 'read_post', $post->ID ) ) {
 				continue;
 			}
 			$subscription_id = get_post_meta( $performance->ID, 'jeero/import/post/subscription', true ) ?: get_post_meta( $production->ID, 'jeero/import/post/subscription', true );
@@ -112,7 +113,7 @@ class Theater_For_WordPress extends Post_Based_Calendar {
 			if ( is_wp_error( $event ) ) {
 				return $event;
 			}
-			$event = $this->get_calendar_event_data( $production->post(), $event );
+			$event = $this->get_calendar_event_data( $post, $event );
 			$event['subscription_id'] = (string) $subscription_id;
 			$event['theater'] = get_post_meta( $performance->ID, '_wpt_source', true );
 			$event['created_at'] = $source['created_at'] ?? '';

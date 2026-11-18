@@ -27,7 +27,7 @@ abstract class Post_Based_Calendar extends Calendar {
 	protected $categories_taxonomy = false;
 
 	/**
-	 * Gets standardized Jeero events with their current WordPress page details.
+	 * Gets readable standardized Jeero events with their current WordPress page details.
 	 *
 	 * @since	1.?
 	 *
@@ -54,7 +54,7 @@ abstract class Post_Based_Calendar extends Calendar {
 		$events = array();
 		foreach ( $posts as $post ) {
 			$post = get_post( $post );
-			if ( ! $post || in_array( $post->post_status, array( 'trash', 'auto-draft', 'inherit' ), true ) ) {
+			if ( ! $post || in_array( $post->post_status, array( 'trash', 'auto-draft', 'inherit' ), true ) || ! current_user_can( 'read_post', $post->ID ) ) {
 				continue;
 			}
 			$source = get_post_meta( $post->ID, '_jeero_event_data', true );
