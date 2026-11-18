@@ -16,33 +16,6 @@ register_calendar( __NAMESPACE__.'\\Very_Simple_Event_List' );
  */
 class Very_Simple_Event_List extends Post_Based_Calendar {
 
-	/**
-	 * Adds current VS Event List dates, location and ticket link.
-	 *
-	 * @since	1.?
-	 *
-	 * @param	\WP_Post                         	$post        	The imported calendar post.
-	 * @param	array                            	$data        	The supplementary Jeero source data.
-	 * @param	\Jeero\Subscriptions\Subscription	$subscription	The subscription.
-	 * @return	array|\WP_Error|null	The combined event fields, null if no readable native event is available, or a read error.
-	 */
-	function get_calendar_event_data( $post, $data, $subscription ) {
-		$data = parent::get_calendar_event_data( $post, $data, $subscription );
-		if ( is_wp_error( $data ) ) {
-			return $data;
-		}
-		$start = get_post_meta( $post->ID, 'event-start-date', true );
-		if ( ! is_numeric( $start ) ) {
-			return null;
-		}
-		$data['start'] = gmdate( 'Y-m-d H:i:s', (int) $start );
-		$end = get_post_meta( $post->ID, 'event-date', true );
-		$data['end'] = is_numeric( $end ) ? gmdate( 'Y-m-d H:i:s', (int) $end ) : false;
-		$data['tickets_url'] = get_post_meta( $post->ID, 'event-link', true );
-		$data['venue'] = array( 'title' => get_post_meta( $post->ID, 'event-location', true ) );
-		return $data;
-	}
-
 	function __construct() {
 		
 		$this->slug = 'Very_Simple_Event_List';

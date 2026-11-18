@@ -15,32 +15,6 @@ register_calendar( __NAMESPACE__.'\\GDLR_Events' );
  */
 class GDLR_Events extends Post_Based_Calendar {
 
-	/**
-	 * Adds current Goodlayers event options to supplementary Jeero data.
-	 *
-	 * @since	1.?
-	 *
-	 * @param	\WP_Post                         	$post        	The imported calendar post.
-	 * @param	array                            	$data        	The supplementary Jeero source data.
-	 * @param	\Jeero\Subscriptions\Subscription	$subscription	The subscription.
-	 * @return	array|\WP_Error|null	The combined event fields, null if no readable native event is available, or a read error.
-	 */
-	function get_calendar_event_data( $post, $data, $subscription ) {
-		$data = parent::get_calendar_event_data( $post, $data, $subscription );
-		if ( is_wp_error( $data ) ) {
-			return $data;
-		}
-		$options = $this->get_post_option( $post->ID );
-		if ( empty( $options['date'] ) ) {
-			return null;
-		}
-		$data['start'] = $options['date'] . ' ' . ( $options['time'] ?? '00:00' );
-		$data['tickets_url'] = $options['buy-now'] ?? '';
-		$data['venue'] = array( 'title' => $options['location'] ?? '' );
-		$data['status'] = array( 'cancelled' => 'cancelled', 'sold-out' => 'soldout', 'buy-now' => 'onsale' )[ $options['status'] ?? 'buy-now' ] ?? 'onsale';
-		return $data;
-	}
-
 	function __construct() {
 		
 		$this->slug = 'GDLR_Events';

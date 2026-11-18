@@ -25,39 +25,6 @@ class EventON extends Post_Based_Calendar {
 		return $query ? $query->posts : array();
 	}
 
-	/**
-	 * Adds current EventON dates, ticket status, ticket link and location.
-	 *
-	 * @since	1.?
-	 *
-	 * @param	\WP_Post                         	$post        	The imported calendar post.
-	 * @param	array                            	$data        	The supplementary Jeero source data.
-	 * @param	\Jeero\Subscriptions\Subscription	$subscription	The subscription.
-	 * @return	array|\WP_Error|null	The combined event fields, null if no readable native event is available, or a read error.
-	 */
-	function get_calendar_event_data( $post, $data, $subscription ) {
-		$data = parent::get_calendar_event_data( $post, $data, $subscription );
-		if ( is_wp_error( $data ) ) {
-			return $data;
-		}
-		$event = new \EVO_Event( $post->ID );
-		$start = $event->get_prop( 'evcal_srow' );
-		if ( ! is_numeric( $start ) ) {
-			return null;
-		}
-		$data['start'] = gmdate( 'Y-m-d H:i:s', (int) $start );
-		$end = $event->get_prop( 'evcal_erow' );
-		$data['end'] = is_numeric( $end ) ? gmdate( 'Y-m-d H:i:s', (int) $end ) : false;
-		$data['tickets_url'] = (string) $event->get_prop( 'evcal_lmlink' );
-		if ( 'cancelled' === $event->get_prop( '_status' ) ) {
-			$data['status'] = 'cancelled';
-		} elseif ( 'cancelled' === $data['status'] ) {
-			$data['status'] = 'onsale';
-		}
-		$data['venue'] = array( 'title' => (string) $event->get_location_name() );
-		return $data;
-	}
-
 	function __construct() {
 		
 		$this->slug = 'EventON';

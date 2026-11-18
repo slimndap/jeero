@@ -13,36 +13,6 @@ register_calendar( __NAMESPACE__.'\\Events_Schedule_Wp_Plugin' );
  */
 class Events_Schedule_Wp_Plugin extends Post_Based_Calendar {
 
-	/**
-	 * Adds current Events Schedule dates, duration, ticket link and rooms.
-	 *
-	 * @since	1.?
-	 *
-	 * @param	\WP_Post                         	$post        	The imported calendar post.
-	 * @param	array                            	$data        	The supplementary Jeero source data.
-	 * @param	\Jeero\Subscriptions\Subscription	$subscription	The subscription.
-	 * @return	array|\WP_Error|null	The combined event fields, null if no readable native event is available, or a read error.
-	 */
-	function get_calendar_event_data( $post, $data, $subscription ) {
-		$data = parent::get_calendar_event_data( $post, $data, $subscription );
-		if ( is_wp_error( $data ) ) {
-			return $data;
-		}
-		$start = get_post_meta( $post->ID, '_wcs_timestamp', true );
-		if ( ! is_numeric( $start ) ) {
-			return null;
-		}
-		$data['start'] = gmdate( 'Y-m-d H:i:s', (int) $start );
-		$data['end'] = gmdate( 'Y-m-d H:i:s', (int) $start + (int) get_post_meta( $post->ID, '_wcs_duration', true ) * MINUTE_IN_SECONDS );
-		$data['tickets_url'] = get_post_meta( $post->ID, '_wcs_action_custom', true );
-		$rooms = wp_get_object_terms( $post->ID, 'wcs-room', array( 'fields' => 'names' ) );
-		if ( is_wp_error( $rooms ) ) {
-			return $rooms;
-		}
-		$data['venue'] = array( 'title' => implode( ', ', $rooms ) );
-		return $data;
-	}
-
 	function __construct() {
 		
 		$this->slug = 'Events_Schedule_Wp_Plugin';

@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests native calendar readers and configured custom post types.
+ * Tests standardized calendar reads and configured custom post types.
  *
  * @since	1.?
  */
@@ -13,7 +13,7 @@ use Jeero\Db\Subscriptions as Db;
  */
 class Native_Calendar_Read_Test extends Jeero_Test {
 	/**
-	 * Tests if post calendars read current native fields without source metadata.
+	 * Tests if post calendars preserve standardized Jeero data despite different native fields.
 	 *
 	 * @since	1.?
 	 *
@@ -23,7 +23,7 @@ class Native_Calendar_Read_Test extends Jeero_Test {
 	 * @param	array 	$meta    	The native metadata for the event fixture.
 	 * @param	string	$taxonomy	The calendar category taxonomy.
 	 */
-	function test_post_calendars_read_native_fields_without_source_metadata( $slug, $meta, $taxonomy ) {
+	function test_post_calendars_preserve_standardized_data( $slug, $meta, $taxonomy ) {
 		switch ( $slug ) {
 			case 'GDLR_Events':
 				$calendar = new class extends Jeero\Calendars\GDLR_Events {
@@ -71,12 +71,19 @@ class Native_Calendar_Read_Test extends Jeero_Test {
 			update_post_meta( $post_id, $key, $value );
 		}
 		wp_set_object_terms( $post_id, array( 'Native category' ), $taxonomy );
-		$events = $calendar->get_events( array( 'date' => '2031-02-03', 'query' => 'Native', 'category' => 'Native category' ) );
+		$source = array(
+			'ref' => 'native-ref', 'start' => '2032-04-05 19:00:00', 'status' => 'onsale',
+			'production' => array( 'title' => 'Source title', 'description' => 'Source description', 'categories' => array( 'Source category' ) ),
+		);
+		$calendar->update_ticket_context_meta( $post_id, $source, new Jeero\Subscriptions\Subscription( 'native' ) );
+		$events = $calendar->get_events( array( 'date' => '2032-04-05', 'query' => 'Source', 'category' => 'Source category' ) );
 		$this->assertIsArray( $events );
 		$this->assertCount( 1, $events );
-		$this->assertSame( 'Native title', $events[0]['production']['title'] );
-		$this->assertSame( 'Native description', $events[0]['production']['description'] );
-		$this->assertSame( '20:15', substr( $events[0]['start'], 11, 5 ) );
+		$this->assertSame( 'Source title', $events[0]['production']['title'] );
+		$this->assertSame( 'Source description', $events[0]['production']['description'] );
+		$this->assertSame( '19:00', substr( $events[0]['start'], 11, 5 ) );
+		$this->assertSame( 'onsale', $events[0]['status'] );
+		$this->assertSame( $post_id, $events[0]['post_id'] );
 		$this->assertSame( 'native-ref', $calendar->get_event( 'native-ref' )['ref'] );
 		$this->assertCount( 0, $calendar->get_events( array( 'date' => '2031-02-04' ) ) );
 		wp_trash_post( $post_id );
@@ -122,8 +129,9 @@ class Native_Calendar_Read_Test extends Jeero_Test {
 		$events = $calendar->get_events();
 		$this->assertCount( 2, $events );
 		foreach ( $events as $event ) {
-			$this->assertSame( 'Native ' . $event['subscription_id'], $event['production']['title'] );
-			$this->assertSame( array( $event['subscription_id'] . ' category' ), $event['production']['categories'] );
+			$this->assertSame( 'Source title', $event['production']['title'] );
+			$this->assertArrayNotHasKey( 'categories', $event['production'] );
+			$this->assertSame( $event['subscription_id'], get_post_type( $event['post_id'] ) );
 		}
 		delete_post_meta( $post_id, '_jeero_event_data' );
 		$this->assertCount( 1, $calendar->get_events() );

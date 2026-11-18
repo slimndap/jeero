@@ -14,38 +14,6 @@ register_calendar( __NAMESPACE__.'\\All_In_One_Event_Calendar' );
  */
 class All_In_One_Event_Calendar extends Post_Based_Calendar {
 
-	/**
-	 * Adds current All-in-One Event Calendar model fields to Jeero event data.
-	 *
-	 * @since	1.?
-	 *
-	 * @param	\WP_Post                         	$post        	The imported calendar post.
-	 * @param	array                            	$data        	The supplementary Jeero source data.
-	 * @param	\Jeero\Subscriptions\Subscription	$subscription	The subscription.
-	 * @return	array|\WP_Error|null	The combined event fields, null if no readable native event is available, or a read error.
-	 */
-	function get_calendar_event_data( $post, $data, $subscription ) {
-		$data = parent::get_calendar_event_data( $post, $data, $subscription );
-		if ( is_wp_error( $data ) ) {
-			return $data;
-		}
-		global $ai1ec_front_controller;
-		$event = $ai1ec_front_controller->return_registry( true )->get( 'model.event' );
-		try {
-			$event->initialize_from_id( $post->ID );
-		} catch ( \Ai1ec_Event_Not_Found_Exception $e ) {
-			return null;
-		}
-		$data['start'] = $event->get( 'start' )->format( 'Y-m-d H:i:sP' );
-		$data['end'] = $event->get( 'instant_event' ) ? false : $event->get( 'end' )->format( 'Y-m-d H:i:sP' );
-		$data['tickets_url'] = (string) $event->get( 'ticket_url' );
-		$data['venue'] = array( 'title' => (string) $event->get( 'venue' ), 'city' => (string) $event->get( 'city' ) );
-		if ( is_numeric( $event->get( 'cost' ) ) ) {
-			$data['prices'] = array( array( 'amount' => (float) $event->get( 'cost' ) ) );
-		}
-		return $data;
-	}
-
 	function __construct() {
 		
 		$this->slug = 'All_In_One_Event_Calendar';

@@ -479,6 +479,55 @@ class Abilities_Test extends Jeero_Test {
 	}
 
 	/**
+	 * Tests if list and detail reads add live page details and preserve all source fields.
+	 *
+	 * @since	1.?
+	 */
+	function test_event_reads_preserve_jeero_data_and_add_live_wordpress_page_details() {
+		$item = $this->event();
+		$item['data'] += array(
+			'end' => '2026-11-15 22:00:00', 'tickets_url' => 'https://example.org/source-tickets',
+			'prices' => array( array( 'title' => 'Standard', 'amount' => 20.0, 'currency' => 'EUR' ) ),
+			'venue' => array( 'title' => 'Source venue', 'city' => 'Source city' ),
+			'post_id' => 999999, 'permalink' => 'https://example.org/source-page', 'post_status' => 'private',
+		);
+		$item['data']['production']['img'] = array( 'ref' => 'source-image', 'url' => 'https://example.org/source-image.jpg', 'alt' => 'Source image' );
+		$post_id = Inbox\process_item( $item );
+		$source = get_post_meta( $post_id, '_jeero_event_data', true );
+		$this->assertArrayNotHasKey( 'post_id', $source );
+		wp_update_post( array( 'ID' => $post_id, 'post_title' => 'Website title', 'post_content' => 'Website description', 'post_status' => 'draft' ) );
+		wp_set_object_terms( $post_id, array( 'Website category' ), 'category' );
+		update_post_meta( $post_id, 'jeero/import/post/tickets_status', 'soldout' );
+		update_post_meta( $post_id, 'jeero/import/post/tickets_url', 'https://example.org/website-tickets' );
+		$event = $this->call( 'get-event', array( 'ref' => 'e1', 'subscription' => 'one' ) );
+		$this->assertIsArray( $event );
+		$this->assertSame( $source, array_intersect_key( $event, $source ) );
+		$this->assertSame( $post_id, $event['post_id'] );
+		$this->assertSame( get_permalink( $post_id ), $event['permalink'] );
+		$this->assertSame( 'draft', $event['post_status'] );
+		$list = $this->call( 'get-events', array( 'subscription' => 'one', 'query' => 'Test concert', 'category' => 'Music', 'status' => 'onsale' ) );
+		$this->assertSame( 1, $list['total'] );
+		foreach ( array( 'post_id', 'permalink', 'post_status', 'ref', 'start', 'end', 'status', 'tickets' ) as $key ) {
+			$this->assertSame( $event[ $key ], $list['events'][0][ $key ] );
+		}
+		$this->assertSame( 'Test concert', $list['events'][0]['production']['title'] );
+		$this->assertSame( $source['production']['categories'], $list['events'][0]['production']['categories'] );
+		$this->assertSame( 0, $this->call( 'get-events', array( 'query' => 'Website title' ) )['total'] );
+		foreach ( array( 'get-events', 'get-event' ) as $name ) {
+			$schema = wp_get_ability( 'jeero/' . $name )->get_output_schema();
+			if ( 'get-events' === $name ) {
+				$schema = $schema['properties']['events']['items'];
+			}
+			$this->assertTrue( rest_validate_value_from_schema( $event, $schema ) );
+		}
+		wp_update_post( array( 'ID' => $post_id, 'post_status' => 'publish', 'post_name' => 'published-event' ) );
+		$published = $this->call( 'get-event', array( 'ref' => 'e1', 'subscription' => 'one' ) );
+		$this->assertSame( 'publish', $published['post_status'] );
+		$this->assertSame( get_permalink( $post_id ), $published['permalink'] );
+		$this->assertSame( $source, array_intersect_key( $published, $source ) );
+	}
+
+	/**
 	 * Tests if reads deduplicate calendar copies without consulting an event table.
 	 *
 	 * @since	1.?

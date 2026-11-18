@@ -115,22 +115,19 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 		$this->assertCount( 1, $events );
 		$this->assertSame( 'A test event', $events[0]['production']['title'] );
 		$this->assertSame( $events[0], $calendar->get_event( $events[0]['ref'] ) );
-		$posts = $this->get_events( array( 'post_status' => 'any' ) );
-		$subscription = new \Jeero\Subscriptions\Subscription( 'a fake ID' );
-		$taxonomy = $calendar->get_categories_taxonomy( $subscription );
-		$categories = $taxonomy && taxonomy_exists( $taxonomy ) ? wp_get_object_terms( $posts[0]->ID, $taxonomy, array( 'fields' => 'names' ) ) : array();
-		$this->assertSame( count( $categories ), $calendar->list_event_categories()['count'] );
+		$this->assertSame( count( $events[0]['production']['categories'] ?? array() ), $calendar->list_event_categories()['count'] );
 	}
 
 	/**
-	 * Tests if edited native titles and dates remain readable without Jeero source metadata.
+	 * Tests if website edits leave standardized Jeero fields unchanged.
 	 *
 	 * @since	1.?
 	 */
-	function test_calendar_reads_edited_native_data_without_source_metadata() {
+	function test_calendar_reads_standardized_data_after_native_edits() {
 		$this->import_event();
 		$calendar = \Jeero\Calendars\get_calendar( $this->calendar );
 		$post = $this->get_events( array( 'post_status' => 'any' ) )[0];
+		$before = $calendar->get_events()[0];
 		$event_id = $post->ID;
 		wp_update_post( array( 'ID' => $post->ID, 'post_title' => 'Edited native title', 'post_content' => 'Edited native description' ) );
 		$start = '2031-02-03 20:15:00';
@@ -180,16 +177,16 @@ class Post_Based_Calendar_Test extends Jeero_Test {
 				update_post_meta( $event_id, 'post-option', wp_json_encode( $options ) );
 				break;
 		}
-		delete_post_meta( $event_id, '_jeero_event_data' );
-		delete_post_meta( $event_id, '_jeero_event_calendar' );
-		$events = $calendar->get_events( array( 'date' => '2031-02-03', 'query' => 'Edited native' ) );
+		$events = $calendar->get_events( array( 'query' => 'A test event' ) );
 		$this->assertIsArray( $events );
 		$this->assertCount( 1, $events );
-		$this->assertSame( 'Edited native title', $events[0]['production']['title'] );
-		$this->assertSame( 'Edited native description', $events[0]['production']['description'] );
-		$this->assertSame( '20:15', substr( $events[0]['start'], 11, 5 ) );
-		$this->assertSame( 'a fake ID', $events[0]['subscription_id'] );
-		$this->assertSame( '', get_post_meta( $event_id, '_jeero_event_data', true ) );
+		$this->assertSame( $before, $events[0] );
+		$this->assertSame( $post->ID, $events[0]['post_id'] );
+		$this->assertSame( get_permalink( $post->ID ), $events[0]['permalink'] );
+		$this->assertSame( $post->post_status, $events[0]['post_status'] );
+		$this->assertCount( 0, $calendar->get_events( array( 'query' => 'Edited native' ) ) );
+		delete_post_meta( $event_id, '_jeero_event_data' );
+		$this->assertCount( 0, $calendar->get_events() );
 	}
 
 	function test_inbox_event_uses_default_templates() {

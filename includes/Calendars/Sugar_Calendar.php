@@ -36,31 +36,6 @@ class Sugar_Calendar extends Post_Based_Calendar {
 		return \sugar_calendar_get_calendar_taxonomy_id();
 	}
 
-	/**
-	 * Adds Sugar Calendar dates with their timezones and the current location.
-	 *
-	 * @since	1.?
-	 *
-	 * @param	\WP_Post                         	$post        	The imported calendar post.
-	 * @param	array                            	$data        	The supplementary Jeero source data.
-	 * @param	\Jeero\Subscriptions\Subscription	$subscription	The subscription.
-	 * @return	array|\WP_Error|null	The combined event fields, null if no readable native event is available, or a read error.
-	 */
-	function get_calendar_event_data( $post, $data, $subscription ) {
-		$data = parent::get_calendar_event_data( $post, $data, $subscription );
-		if ( is_wp_error( $data ) ) {
-			return $data;
-		}
-		$event = \sugar_calendar_get_event_by_object( $post->ID );
-		if ( ! $event || ! $event->id ) {
-			return null;
-		}
-		$data['start'] = $event->start_dto->format( 'Y-m-d H:i:sP' );
-		$data['end'] = $event->end_dto->format( 'Y-m-d H:i:sP' );
-		$data['venue'] = array( 'title' => (string) \get_event_meta( $event->id, 'location', true ) );
-		return $data;
-	}
-
 	function __construct() {
 		
 		$this->slug = 'Sugar_Calendar';

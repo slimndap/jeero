@@ -27,7 +27,7 @@ abstract class Post_Based_Calendar extends Calendar {
 	protected $categories_taxonomy = false;
 
 	/**
-	 * Gets current imported calendar events with supplementary Jeero source fields.
+	 * Gets standardized Jeero events with their current WordPress page details.
 	 *
 	 * @since	1.?
 	 *
@@ -58,7 +58,9 @@ abstract class Post_Based_Calendar extends Calendar {
 				continue;
 			}
 			$source = get_post_meta( $post->ID, '_jeero_event_data', true );
-			$source = is_array( $source ) ? $source : array();
+			if ( ! is_array( $source ) ) {
+				continue;
+			}
 			$subscription_id = get_post_meta( $post->ID, 'jeero/import/post/subscription', true );
 			if ( '' === $subscription_id ) {
 				continue;
@@ -72,22 +74,15 @@ abstract class Post_Based_Calendar extends Calendar {
 			if ( '' === $ref ) {
 				continue;
 			}
-			$data = $this->get_calendar_event_data( $post, $source, $subscription );
-			if ( is_wp_error( $data ) ) {
-				return $data;
-			}
-			if ( ! $data ) {
-				continue;
-			}
-			$data['ref'] = $ref;
-			$event = Event_Data\prepare_event( $data );
+			$event = Event_Data\prepare_event( $source );
 			if ( is_wp_error( $event ) ) {
 				return $event;
 			}
+			$event = $this->get_calendar_event_data( $post, $event );
 			$event['subscription_id'] = (string) $subscription_id;
 			$event['theater'] = $theater;
-			$event['created_at'] = $source['created_at'] ?? $post->post_date_gmt;
-			$event['updated_at'] = max( $source['updated_at'] ?? '', $post->post_modified_gmt );
+			$event['created_at'] = $source['created_at'] ?? '';
+			$event['updated_at'] = $source['updated_at'] ?? '';
 			$events[] = $event;
 		}
 		// shortcut: filter normalized events in PHP; use native query filters if programme size makes this expensive.
@@ -112,31 +107,20 @@ abstract class Post_Based_Calendar extends Calendar {
 	}
 
 	/**
-	 * Adds current post fields and categories to supplementary Jeero event data.
+	 * Adds current WordPress page details without changing standardized Jeero fields.
 	 *
 	 * @since	1.?
 	 *
-	 * @param	\WP_Post                         	$post        	The imported calendar post.
-	 * @param	array                            	$data        	The supplementary Jeero source data.
-	 * @param	\Jeero\Subscriptions\Subscription	$subscription	The subscription.
-	 * @return	array|\WP_Error	The combined event fields, or a category read error.
+	 * @param	\WP_Post	$post	The imported event page or linked Theater production.
+	 * @param	array   	$data	The validated standardized Jeero event data.
+	 * @return	array	The Jeero event data with its WordPress page details.
 	 */
-	function get_calendar_event_data( $post, $data, $subscription ) {
-		$data['production'] = array_merge( $data['production'] ?? array(), array(
-			'title' => $post->post_title, 'description' => $post->post_content,
-			'img' => get_the_post_thumbnail_url( $post, 'full' ),
-		) );
-		$taxonomy = $this->get_categories_taxonomy( $subscription );
-		if ( $taxonomy ) {
-			$categories = taxonomy_exists( $taxonomy ) ? wp_get_object_terms( $post->ID, $taxonomy, array( 'fields' => 'names' ) ) : array();
-			if ( is_wp_error( $categories ) ) {
-				return $categories;
-			}
-			$data['production']['categories'] = $categories;
-		}
-		$data['status'] = $data['status'] ?? ( get_post_meta( $post->ID, 'jeero/import/post/tickets_status', true ) ?: 'onsale' );
-		$data['tickets_url'] = get_post_meta( $post->ID, 'jeero/import/post/tickets_url', true );
-		return $data;
+	function get_calendar_event_data( $post, $data ) {
+		return Event_Data\clean( array_merge( $data, array(
+			'post_id' => $post->ID,
+			'permalink' => get_permalink( $post ),
+			'post_status' => $post->post_status,
+		) ) );
 	}
 
 	/**

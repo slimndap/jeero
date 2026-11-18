@@ -66,6 +66,7 @@ function register_abilities() {
 		'theater' => array( 'type' => 'string' ), 'is_default' => $boolean, 'is_active' => $boolean,
 	), 'required' => array( 'subscription_id', 'subscription_key', 'label', 'theater', 'is_default', 'is_active' ) );
 	$event = array( 'type' => 'object', 'properties' => array(
+		'post_id' => $integer, 'permalink' => array( 'type' => 'string' ), 'post_status' => array( 'type' => 'string' ),
 		'ref' => array( 'type' => array( 'string', 'integer' ) ), 'start' => array( 'type' => 'string' ),
 		'end' => array( 'type' => array( 'string', 'boolean', 'null' ) ), 'status' => array( 'type' => array( 'string', 'null' ) ),
 		'tickets_url' => array( 'type' => array( 'string', 'boolean', 'null' ) ),
@@ -74,10 +75,10 @@ function register_abilities() {
 		'venue' => array( 'type' => array( 'object', 'boolean', 'null' ) ), 'custom' => array( 'type' => 'object' ),
 		'production' => array( 'type' => 'object', 'properties' => array(
 			'title' => array( 'type' => 'string' ), 'categories' => array( 'type' => 'array', 'items' => array( 'type' => 'string' ) ),
-			'description' => array( 'type' => array( 'string', 'boolean', 'null' ) ), 'img' => array( 'type' => array( 'string', 'boolean', 'null' ) ),
+			'description' => array( 'type' => array( 'string', 'boolean', 'null' ) ), 'img' => array( 'type' => array( 'string', 'object', 'boolean', 'null' ) ),
 		), 'required' => array( 'title' ) ),
 		'subscription_id' => $string, 'created_at' => array( 'type' => 'string' ), 'updated_at' => array( 'type' => 'string' ),
-	), 'required' => array( 'ref', 'start', 'production', 'subscription_id' ) );
+	), 'required' => array( 'ref', 'start', 'production', 'subscription_id', 'post_id', 'permalink', 'post_status' ) );
 	$list = function( $field, $items ) use ( $integer ) {
 		return array( 'type' => 'object', 'properties' => array( 'count' => $integer, $field => array( 'type' => 'array', 'items' => $items ) ), 'required' => array( 'count', $field ) );
 	};
@@ -105,8 +106,8 @@ function register_abilities() {
 		'set-default-subscription' => array( 'Set default subscription', 'Choose the subscription used when a single-subscription operation omits its selector.', $subscription, array( 'subscription' ), false ),
 		'activate-subscription' => array( 'Activate subscription', 'Activate this site\'s subscription in Jeero/Mother, resuming its remote delivery.', $subscription, array( 'subscription' ), false ),
 		'deactivate-subscription' => array( 'Deactivate subscription', 'Deactivate this site\'s subscription in Jeero/Mother, pausing remote delivery without deleting imported data.', $subscription, array( 'subscription' ), false ),
-		'get-events' => array( 'Get events', 'Return paginated Jeero data from imported calendar posts, refreshing active subscriptions at most once per minute. Includes all subscriptions unless filtered. Source metadata is collected on import; duplicate calendar copies are returned once.', $filters + $limit + array( 'status' => $string, 'category' => $string, 'page' => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 1000000 ) ), array(), true ),
-		'get-event' => array( 'Get event', 'Return one imported calendar event by ref. Supply subscription if the ref occurs in multiple subscriptions. An explicit subscription is refreshed at most once per minute.', $subscription + array( 'ref' => $string ), array( 'ref' ), true ),
+		'get-events' => array( 'Get events', 'Return paginated standardized Jeero data with WordPress post_id, permalink and post_status from imported calendar posts, refreshing active subscriptions at most once per minute. Includes all subscriptions unless filtered. Source metadata is collected on import; duplicate calendar copies are returned once.', $filters + $limit + array( 'status' => $string, 'category' => $string, 'page' => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 1000000 ) ), array(), true ),
+		'get-event' => array( 'Get event', 'Return one standardized Jeero event by ref with its WordPress post_id, permalink and post_status. Supply subscription if the ref occurs in multiple subscriptions. An explicit subscription is refreshed at most once per minute.', $subscription + array( 'ref' => $string ), array( 'ref' ), true ),
 		'list-event-categories' => array( 'List event categories', 'List categories and event counts from imported calendar event metadata. Does not trigger an import.', $filters, array(), true ),
 		'get-logs' => array( 'Get logs', 'Return recent imported inbox log messages, optionally filtered by subscription. Keeps the latest 1000 messages; does not return raw connector responses.', $subscription + $limit, array(), true ),
 	);
@@ -449,7 +450,7 @@ function run( $operation, $input ) {
 				return $result;
 			}
 			foreach ( $result['events'] as &$event ) {
-				$event = array_intersect_key( $event, array_flip( array( 'subscription_id', 'ref', 'start', 'end', 'status', 'tickets', 'production' ) ) );
+				$event = array_intersect_key( $event, array_flip( array( 'subscription_id', 'ref', 'start', 'end', 'status', 'tickets', 'production', 'post_id', 'permalink', 'post_status' ) ) );
 				$event['production'] = array_intersect_key( $event['production'], array_flip( array( 'title', 'categories' ) ) );
 			}
 			unset( $event );

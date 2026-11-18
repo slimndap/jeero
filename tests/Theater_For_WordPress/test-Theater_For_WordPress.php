@@ -128,7 +128,7 @@ class Theater_For_WordPress_Test extends Post_Based_Calendar_Test {
 		$events = $calendar->get_events();
 		$this->assertCount( 2, $events );
 		$this->assertSame( $first[0]['start'], $calendar->get_event( $first[0]['ref'] )['start'] );
-		$this->assertSame( '2026-12-01 20:00', $calendar->get_event( $second_ref )['start'] );
+		$this->assertSame( '2026-12-01 20:00:00', $calendar->get_event( $second_ref )['start'] );
 		$this->assertCount( 1, get_posts( array( 'post_type' => WPT_Production::post_type_name, 'post_status' => 'any' ) ) );
 		$performances = get_posts( array( 'post_type' => WPT_Event::post_type_name, 'post_status' => 'any' ) );
 		$this->assertCount( 2, $performances );
@@ -140,11 +140,11 @@ class Theater_For_WordPress_Test extends Post_Based_Calendar_Test {
 	}
 
 	/**
-	 * Tests if Theater reads use edited native fields and retain supplementary Jeero data.
+	 * Tests if Theater preserves standardized Jeero fields and adds current production page details.
 	 *
 	 * @since	1.?
 	 */
-	function test_calendar_reads_current_theater_fields_and_retains_supplementary_source_data() {
+	function test_calendar_preserves_standardized_data_and_adds_production_page_details() {
 		if ( ! function_exists( 'wp_register_ability' ) ) {
 			$this->markTestSkipped( 'The Abilities API requires WordPress 6.9 or newer.' );
 		}
@@ -152,7 +152,7 @@ class Theater_For_WordPress_Test extends Post_Based_Calendar_Test {
 		$calendar = Jeero\Calendars\get_calendar( $this->calendar );
 		$production = $this->get_events( array( 'post_status' => 'any' ) )[0];
 		$performance = get_posts( array( 'post_type' => WPT_Event::post_type_name, 'post_status' => 'any' ) )[0];
-		wp_update_post( array( 'ID' => $production->ID, 'post_title' => 'Edited title', 'post_content' => '<p>Edited description.</p>' ) );
+		wp_update_post( array( 'ID' => $production->ID, 'post_title' => 'Edited title', 'post_content' => '<p>Edited description.</p>', 'post_status' => 'publish' ) );
 		wp_set_object_terms( $production->ID, array( 'Edited category' ), 'category' );
 		foreach ( array(
 			'event_date' => '2030-02-03 19:30:00', 'enddate' => '2030-02-03 21:00:00',
@@ -174,44 +174,41 @@ class Theater_For_WordPress_Test extends Post_Based_Calendar_Test {
 		};
 		add_filter( 'wpt/events/get/args', $observe );
 		try {
-			$events = $calendar->get_events( array( 'date' => '2030-02-03', 'query' => 'Edited', 'category' => 'Edited category', 'status' => 'soldout', 'subscription_id' => 'a fake ID', 'theater' => 'veezi' ) );
+			$events = $calendar->get_events( array( 'date' => substr( $source['start'], 0, 10 ), 'query' => 'A test event', 'category' => 'Category A', 'status' => 'onsale', 'subscription_id' => 'a fake ID', 'theater' => 'veezi' ) );
 		} finally {
 			remove_filter( 'wpt/events/get/args', $observe );
 		}
 		$this->assertSame( 1, $native_queries );
 		$this->assertCount( 1, $events );
 		$event = $events[0];
-		$this->assertSame( 'Edited title', $event['production']['title'] );
-		$this->assertSame( '<p>Edited description.</p>', $event['production']['description'] );
-		$this->assertSame( array( 'Edited category' ), $event['production']['categories'] );
-		$this->assertSame( '2030-02-03 19:30', $event['start'] );
-		$this->assertSame( '2030-02-03 21:00', $event['end'] );
-		$this->assertSame( array( 'title' => 'Edited venue', 'city' => 'Edited city' ), $event['venue'] );
-		$this->assertSame( 'https://example.org/edited', $event['tickets_url'] );
-		$this->assertSame( array( array( 'amount' => 25.0, 'title' => 'Ticket (voorverkoop)', 'currency' => 'EUR' ) ), $event['prices'] );
-		$this->assertSame( array( 'total' => 100, 'available' => 0 ), $event['tickets'] );
-		$this->assertSame( $source['custom'], $event['custom'] );
+		foreach ( $source as $key => $value ) {
+			$this->assertSame( $value, $event[ $key ] );
+		}
+		$this->assertSame( $production->ID, $event['post_id'] );
+		$this->assertSame( get_permalink( $production->ID ), $event['permalink'] );
+		$this->assertSame( 'publish', $event['post_status'] );
 		$this->assertSame( $event, $calendar->get_event( '123' ) );
-		$this->assertSame( array( array( 'name' => 'Edited category', 'events' => 1 ) ), $calendar->list_event_categories()['categories'] );
-		$this->assertSame( 'Edited title', Jeero\Abilities\Data\get_events( array() )['events'][0]['production']['title'] );
-		$this->assertCount( 0, $calendar->get_events( array( 'query' => 'A test event' ) ) );
-		$this->assertCount( 0, $calendar->get_events( array( 'category' => 'Category A' ) ) );
-		$this->assertCount( 0, $calendar->get_events( array( 'to' => '2030-02-02' ) ) );
-		$this->assertCount( 0, $calendar->get_events( array( 'status' => 'onsale' ) ) );
+		$this->assertSame( 2, $calendar->list_event_categories()['count'] );
+		$this->assertSame( 'A test event', Jeero\Abilities\Data\get_events( array() )['events'][0]['production']['title'] );
+		$this->assertCount( 0, $calendar->get_events( array( 'query' => 'Edited title' ) ) );
+		$this->assertCount( 0, $calendar->get_events( array( 'category' => 'Edited category' ) ) );
+		$this->assertCount( 0, $calendar->get_events( array( 'date' => '2030-02-03' ) ) );
+		$this->assertCount( 0, $calendar->get_events( array( 'status' => 'soldout' ) ) );
 		$this->assertCount( 0, $calendar->get_events( array( 'subscription_id' => 'other' ) ) );
 		$this->assertWPError( $calendar->get_events( array( 'date' => '2030-02-30' ) ) );
 	}
 
 	/**
-	 * Tests if older Theater imports remain readable while unrelated and orphaned dates are omitted.
+	 * Tests if Theater omits missing source data and unrelated or orphaned dates.
 	 *
 	 * @since	1.?
 	 */
-	function test_calendar_reads_older_imports_without_source_metadata_and_omits_unrelated_or_orphaned_dates() {
+	function test_calendar_omits_missing_source_metadata_and_unrelated_or_orphaned_dates() {
 		$this->import_event();
 		$calendar = Jeero\Calendars\get_calendar( $this->calendar );
 		$production = $this->get_events( array( 'post_status' => 'any' ) )[0];
 		$performance = get_posts( array( 'post_type' => WPT_Event::post_type_name, 'post_status' => 'any' ) )[0];
+		$source = get_post_meta( $performance->ID, '_jeero_event_data', true );
 		foreach ( array( '_jeero_event_data', '_jeero_event_calendar', 'jeero/import/post/subscription', 'jeero/import/post/theater' ) as $key ) {
 			delete_post_meta( $performance->ID, $key );
 		}
@@ -222,13 +219,15 @@ class Theater_For_WordPress_Test extends Post_Based_Calendar_Test {
 			update_post_meta( $other, '_wpt_source_ref', 'unrelated' );
 			update_post_meta( $other, 'event_date', '2030-02-03 19:30:00' );
 		}
+		$this->assertCount( 0, $calendar->get_events() );
+		update_post_meta( $performance->ID, '_jeero_event_data', wp_slash( $source ) );
 		$events = $calendar->get_events();
 		$this->assertCount( 1, $events );
 		$this->assertSame( '123', $events[0]['ref'] );
 		$this->assertSame( 'a fake ID', $events[0]['subscription_id'] );
 		$this->assertSame( 'veezi', $events[0]['theater'] );
 		$this->assertSame( 'A test event', $events[0]['production']['title'] );
-		$this->assertSame( '<p>A description.</p>', $events[0]['production']['description'] );
+		$this->assertSame( $source['production']['description'], $events[0]['production']['description'] );
 		$this->assertSame( array( 'Category A', 'Category B' ), $events[0]['production']['categories'] );
 		wp_trash_post( $production->ID );
 		$this->assertCount( 0, $calendar->get_events() );

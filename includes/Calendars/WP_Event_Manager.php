@@ -33,36 +33,6 @@ class WP_Event_Manager extends Post_Based_Calendar {
 		return $query->posts;
 	}
 
-	/**
-	 * Adds current WP Event Manager dates, times, location and ticket status.
-	 *
-	 * @since	1.?
-	 *
-	 * @param	\WP_Post                         	$post        	The imported calendar post.
-	 * @param	array                            	$data        	The supplementary Jeero source data.
-	 * @param	\Jeero\Subscriptions\Subscription	$subscription	The subscription.
-	 * @return	array|\WP_Error	The combined event fields, or a read error.
-	 */
-	function get_calendar_event_data( $post, $data, $subscription ) {
-		$data = parent::get_calendar_event_data( $post, $data, $subscription );
-		if ( is_wp_error( $data ) ) {
-			return $data;
-		}
-		foreach ( array( 'start', 'end' ) as $field ) {
-			$date = get_post_meta( $post->ID, '_event_' . $field . '_date', true );
-			$time = get_post_meta( $post->ID, '_event_' . $field . '_time', true );
-			$data[ $field ] = $date && $time ? substr( $date, 0, 10 ) . ' ' . $time : ( $date ?: false );
-		}
-		$data['tickets_url'] = get_post_meta( $post->ID, '_registration', true );
-		$data['venue'] = array( 'title' => get_post_meta( $post->ID, '_event_location', true ) );
-		if ( get_post_meta( $post->ID, '_cancelled', true ) ) {
-			$data['status'] = 'cancelled';
-		} elseif ( 'cancelled' === $data['status'] ) {
-			$data['status'] = 'onsale';
-		}
-		return $data;
-	}
-
 	function __construct() {
 		
 		$this->slug = 'WP_Event_Manager';
