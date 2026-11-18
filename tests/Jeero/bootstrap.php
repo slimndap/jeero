@@ -24,6 +24,10 @@ require_once $_tests_dir . '/includes/functions.php';
  */
 function _manually_load_plugin() {
 	require dirname( dirname( __FILE__ ) ) . '/../jeero.php';
+	$mcp_adapter = getenv( 'JEERO_MCP_ADAPTER_PLUGIN' );
+	if ( $mcp_adapter ) {
+		require_once $mcp_adapter;
+	}
 }
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 define('WP_ALLOW_REPAIR', true);
@@ -32,5 +36,10 @@ require 'vendor/yoast/phpunit-polyfills/phpunitpolyfills-autoload.php';
 
 // Start up the WP testing environment.
 require $_tests_dir . '/includes/bootstrap.php';
+
+if ( getenv( 'JEERO_MCP_ADAPTER_PLUGIN' ) ) {
+	// Keep transport hooks in the baseline restored between integration tests.
+	\WP\MCP\Core\McpAdapter::instance()->init();
+}
 
 require 'tests/includes/jeero.php';

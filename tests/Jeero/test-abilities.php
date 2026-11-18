@@ -71,6 +71,8 @@ class Abilities_Test extends Jeero_Test {
 	private $post;
 	private $get;
 	private $calendars_before;
+	private $mcp_registry_before;
+	private $mcp_session;
 
 	/**
 	 * Requires a WordPress version that provides the Abilities API.
@@ -148,13 +150,19 @@ class Abilities_Test extends Jeero_Test {
 	}
 
 	/**
-	 * Restores calendar registrations, connector filters and the current user.
+	 * Restores calendar and ability registrations, connector filters and the current user.
 	 *
 	 * @since	1.?
 	 *
 	 * @return	void
 	 */
 	protected function tearDown(): void {
+		if ( null !== $this->mcp_registry_before ) {
+			$instance = new ReflectionProperty( WP_Abilities_Registry::class, 'instance' );
+			$instance->setAccessible( true );
+			$instance->setValue( null, $this->mcp_registry_before );
+			delete_option( 'jeero/enable_mcp' );
+		}
 		global $_jeero_calendars;
 		$_jeero_calendars = $this->calendars_before;
 		remove_filter( 'jeero/inbox/process/item/import/calendar=' . $this->calendar->slug, array( $this->calendar, 'import' ), 10 );
@@ -214,6 +222,199 @@ class Abilities_Test extends Jeero_Test {
 				'custom' => array( 'note' => 'private-key-123456', 'access_token' => 'unknown-token' ),
 			),
 		);
+	}
+
+	/**
+	 * Reloads ability registrations to simulate a new request after changing MCP access.
+	 *
+	 * @since	1.?
+	 *
+	 * @param	bool	$enabled	Whether Jeero MCP access is enabled.
+	 * @return	void
+	 */
+	private function configure_mcp( $enabled ) {
+		if ( ! class_exists( '\\WP\\MCP\\Core\\McpAdapter' ) ) {
+			$this->markTestSkipped( 'Set JEERO_MCP_ADAPTER_PLUGIN to the official MCP Adapter plugin file.' );
+		}
+		if ( null === $this->mcp_registry_before ) {
+			$this->mcp_registry_before = WP_Abilities_Registry::get_instance();
+		}
+		update_option( 'jeero/enable_mcp', $enabled );
+		$instance = new ReflectionProperty( WP_Abilities_Registry::class, 'instance' );
+		$instance->setAccessible( true );
+		$instance->setValue( null, null );
+		wp_get_abilities();
+	}
+
+	/**
+	 * Sends a JSON-RPC message through the official adapter's HTTP transport route.
+	 *
+	 * @since	1.?
+	 *
+	 * @param	string	$method      	The MCP method.
+	 * @param	array 	$params      	The protocol parameters.
+	 * @param	bool  	$notification	Whether to omit the JSON-RPC request ID.
+	 * @return	WP_REST_Response	The adapter's HTTP response.
+	 */
+	private function mcp_request( $method, $params = array(), $notification = false ) {
+		$request = new WP_REST_Request( 'POST', '/mcp/mcp-adapter-default-server' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_header( 'Accept', 'application/json, text/event-stream' );
+		$request->set_header( 'MCP-Protocol-Version', '2025-11-25' );
+		if ( $this->mcp_session ) {
+			$request->set_header( 'Mcp-Session-Id', $this->mcp_session );
+		}
+		$message = array( 'jsonrpc' => '2.0', 'method' => $method, 'params' => (object) $params );
+		if ( ! $notification ) {
+			$message['id'] = 1;
+		}
+		$request->set_body( wp_json_encode( $message ) );
+		return rest_get_server()->dispatch( $request );
+	}
+
+	/**
+	 * Negotiates an MCP session for the current WordPress user.
+	 *
+	 * @since	1.?
+	 *
+	 * @return	void
+	 */
+	private function initialize_mcp() {
+		$this->mcp_session = null;
+		$response = $this->mcp_request( 'initialize', array(
+			'protocolVersion' => '2025-11-25', 'capabilities' => (object) array(),
+			'clientInfo' => array( 'name' => 'Jeero integration tests', 'version' => '1.0.0' ),
+		) );
+		$this->assertSame( 200, $response->get_status(), wp_json_encode( $response->get_data() ) );
+		$data = json_decode( wp_json_encode( $response->get_data() ), true );
+		$this->assertSame( '2025-11-25', $data['result']['protocolVersion'] );
+		$this->mcp_session = $response->get_headers()['Mcp-Session-Id'];
+		$this->assertNotEmpty( $this->mcp_session );
+		$this->assertSame( 202, $this->mcp_request( 'notifications/initialized', array(), true )->get_status() );
+	}
+
+	/**
+	 * Calls an adapter meta-tool through MCP and returns its protocol result.
+	 *
+	 * @since	1.?
+	 *
+	 * @param	string	$name     	The adapter tool name without its MCP prefix.
+	 * @param	array 	$arguments	The tool arguments.
+	 * @return	array	The MCP tool result, including content and error status.
+	 */
+	private function mcp_tool( $name, $arguments = array() ) {
+		$response = $this->mcp_request( 'tools/call', array( 'name' => 'mcp-adapter-' . $name, 'arguments' => (object) $arguments ) );
+		$this->assertSame( 200, $response->get_status(), wp_json_encode( $response->get_data() ) );
+		$data = json_decode( wp_json_encode( $response->get_data() ), true );
+		$this->assertArrayNotHasKey( 'error', $data, wp_json_encode( $data ) );
+		return $data['result'];
+	}
+
+	/**
+	 * Tests discovery, schemas and all eleven Jeero abilities through the adapter's HTTP transport.
+	 *
+	 * @since	1.?
+	 * @group	mcp-adapter
+	 */
+	function test_mcp_adapter_discovers_and_executes_all_jeero_abilities_without_rest() {
+		$this->configure_mcp( true );
+		Inbox\process_item( $this->event() );
+		$this->initialize_mcp();
+		$tools = $this->mcp_request( 'tools/list' );
+		$this->assertSame( 200, $tools->get_status() );
+		$tools = json_decode( wp_json_encode( $tools->get_data() ), true );
+		$this->assertSame( array( 'mcp-adapter-discover-abilities', 'mcp-adapter-get-ability-info', 'mcp-adapter-execute-ability' ), array_column( $tools['result']['tools'], 'name' ) );
+		$cases = array(
+			'list-subscriptions' => array(),
+			'get-subscription' => array( 'subscription' => 'one' ),
+			'create-subscription' => array( 'subscription_key' => 'mcp-test', 'label' => 'MCP test', 'settings' => array( 'theater' => 'stager' ) ),
+			'config-subscription' => array( 'subscription' => 'one' ),
+			'set-default-subscription' => array( 'subscription' => 'one' ),
+			'activate-subscription' => array( 'subscription' => 'one' ),
+			'get-events' => array( 'subscription' => 'one' ),
+			'get-event' => array( 'subscription' => 'one', 'ref' => 'e1' ),
+			'list-event-categories' => array( 'subscription' => 'one' ),
+			'get-logs' => array( 'subscription' => 'one' ),
+			'deactivate-subscription' => array( 'subscription' => 'one' ),
+		);
+		$discovery = $this->mcp_tool( 'discover-abilities' );
+		$this->assertFalse( $discovery['isError'] );
+		$discovered = array_filter( array_column( $discovery['structuredContent']['abilities'], 'name' ), function( $name ) { return 0 === strpos( $name, 'jeero/' ); } );
+		$this->assertEqualsCanonicalizing( array_map( function( $name ) { return 'jeero/' . $name; }, array_keys( $cases ) ), array_values( $discovered ) );
+		foreach ( $cases as $name => $parameters ) {
+			$info = $this->mcp_tool( 'get-ability-info', array( 'ability_name' => 'jeero/' . $name ) );
+			$this->assertFalse( $info['isError'], $name );
+			$this->assertSame( 'jeero/' . $name, $info['structuredContent']['name'] );
+			$this->assertFalse( $info['structuredContent']['meta']['show_in_rest'] );
+			$result = $this->mcp_tool( 'execute-ability', array( 'ability_name' => 'jeero/' . $name, 'parameters' => (object) $parameters ) );
+			$this->assertFalse( $result['isError'], $name . ': ' . wp_json_encode( $result ) );
+			$this->assertTrue( $result['structuredContent']['success'], $name );
+			$this->assertStringNotContainsString( 'private-key-123456', wp_json_encode( $result ) );
+			if ( 'get-event' === $name ) {
+				$this->assertSame( 'e1', $result['structuredContent']['data']['ref'] );
+				$this->assertArrayHasKey( 'permalink', $result['structuredContent']['data'] );
+			}
+		}
+		$response = rest_get_server()->dispatch( new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/jeero/list-subscriptions/run' ) );
+		$this->assertSame( 404, $response->get_status() );
+	}
+
+	/**
+	 * Tests if toggling MCP access updates discovery and blocks execution in an existing session.
+	 *
+	 * @since	1.?
+	 * @group	mcp-adapter
+	 */
+	function test_mcp_adapter_respects_the_jeero_access_setting() {
+		$this->configure_mcp( false );
+		$this->initialize_mcp();
+		foreach ( array( false, true, false ) as $enabled ) {
+			$this->configure_mcp( $enabled );
+			$discovery = $this->mcp_tool( 'discover-abilities' );
+			$names = array_filter( array_column( $discovery['structuredContent']['abilities'], 'name' ), function( $name ) { return 0 === strpos( $name, 'jeero/' ); } );
+			$this->assertCount( $enabled ? 11 : 0, $names );
+			$info = $this->mcp_tool( 'get-ability-info', array( 'ability_name' => 'jeero/list-subscriptions' ) );
+			$this->assertSame( ! $enabled, $info['isError'] );
+			$result = $this->mcp_tool( 'execute-ability', array( 'ability_name' => 'jeero/list-subscriptions', 'parameters' => (object) array() ) );
+			$this->assertSame( ! $enabled, $result['isError'] );
+			$this->assertSame( 2, $this->call( 'list-subscriptions' )['count'] );
+		}
+		$this->assertSame( array(), $this->requests );
+	}
+
+	/**
+	 * Tests if MCP transport enforces user capabilities and each event's WordPress read permissions.
+	 *
+	 * @since	1.?
+	 * @group	mcp-adapter
+	 */
+	function test_mcp_adapter_enforces_user_and_event_permissions() {
+		$this->configure_mcp( true );
+		Inbox\process_item( $this->event() );
+		$item = $this->event( 'hidden' );
+		$item['data']['production']['categories'] = array( 'Hidden category' );
+		$private_post = Inbox\process_item( $item );
+		wp_update_post( array( 'ID' => $private_post, 'post_status' => 'private' ) );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'contributor' ) ) );
+		$this->initialize_mcp();
+		$list = $this->mcp_tool( 'execute-ability', array( 'ability_name' => 'jeero/get-events', 'parameters' => array( 'subscription' => 'one' ) ) );
+		$this->assertFalse( $list['isError'] );
+		$this->assertSame( array( 'e1' ), array_column( $list['structuredContent']['data']['events'], 'ref' ) );
+		$categories = $this->mcp_tool( 'execute-ability', array( 'ability_name' => 'jeero/list-event-categories', 'parameters' => array( 'subscription' => 'one' ) ) );
+		$this->assertFalse( $categories['isError'] );
+		$this->assertSame( array( 'Live', 'Music' ), array_column( $categories['structuredContent']['data']['categories'], 'name' ) );
+		$private = $this->mcp_tool( 'execute-ability', array( 'ability_name' => 'jeero/get-event', 'parameters' => array( 'subscription' => 'one', 'ref' => 'hidden' ) ) );
+		$this->assertTrue( $private['isError'] );
+		$management = $this->mcp_tool( 'execute-ability', array( 'ability_name' => 'jeero/deactivate-subscription', 'parameters' => array( 'subscription' => 'one' ) ) );
+		$this->assertTrue( $management['isError'] );
+		$this->assertFalse( Db\get_subscription( 'one' )['inactive'] );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'subscriber' ) ) );
+		$this->initialize_mcp();
+		$denied = $this->mcp_tool( 'execute-ability', array( 'ability_name' => 'jeero/get-events', 'parameters' => (object) array() ) );
+		$this->assertTrue( $denied['isError'] );
+		wp_set_current_user( 0 );
+		$this->mcp_session = null;
+		$this->assertSame( 401, $this->mcp_request( 'initialize', array( 'protocolVersion' => '2025-11-25', 'capabilities' => (object) array(), 'clientInfo' => array( 'name' => 'Anonymous', 'version' => '1.0.0' ) ) )->get_status() );
 	}
 
 	/**
