@@ -1,12 +1,25 @@
 <?php
-/** Public campaign links based on imported ticketing references. */
+/**
+ * Resolves campaign links from ticketing references stored by Jeero and its calendars.
+ *
+ * @package Jeero
+ */
 namespace Jeero\Campaign_Links;
 
 use Jeero\Calendars;
 
 add_action( 'template_redirect', __NAMESPACE__ . '\\redirect', 1 );
 
-/** Find published posts using the native reference fields, including pre-1.37 imports. */
+/**
+ * Finds published, password-free posts by an exact reference in calendar metadata.
+ *
+ * @param string|string[] $types      Post type or types to search.
+ * @param string          $key        Meta key containing the reference.
+ * @param string          $ref        Case-sensitive ticketing reference.
+ * @param string          $source_key Optional meta key identifying the importer.
+ * @param string[]        $sources    Accepted importer identifiers when a source key is supplied.
+ * @return \WP_Post[] Matching posts ordered by ID.
+ */
 function find_posts( $types, $key, $ref, $source_key = '', $sources = array() ) {
 	$meta = array( array( 'key' => $key, 'value' => $ref, 'type' => 'BINARY' ) );
 	if ( $source_key ) {
@@ -18,7 +31,14 @@ function find_posts( $types, $key, $ref, $source_key = '', $sources = array() ) 
 	) );
 }
 
-/** A performance can have a different public page and booking context. Keep both IDs. */
+/**
+ * Resolves a reference across active calendars and filters the destination of a unique match.
+ *
+ * @param string $source Ticketing source slug from the query parameter name.
+ * @param string $kind   Reference kind, either 'event' or 'production'.
+ * @param string $ref    Reference supplied by the ticketing source.
+ * @return string|false Filtered destination URL, or false if no unique public match resolves.
+ */
 function destination( $source, $kind, $ref ) {
 	$matches = array();
 	foreach ( Calendars\get_active_calendars() as $calendar ) {
@@ -63,10 +83,31 @@ function destination( $source, $kind, $ref ) {
 	}
 	$post_id = key( $matches );
 	$page_id = current( $matches );
-	/** Filters the local destination. The matched post ID identifies the specific performance for booking plugins. */
+	/**
+	 * Filters the destination before WordPress validates the redirect URL.
+	 *
+	 * For a Theater for WordPress event, a booking plugin can use the performance
+	 * ID to build a ticket link even when the public permalink belongs to its production.
+	 *
+	 * @param string|false $url     Public page permalink, or false if unavailable.
+	 * @param int          $post_id ID of the post matching the external reference.
+	 * @param string       $kind    Reference kind, either 'event' or 'production'.
+	 * @param string       $source Ticketing source slug.
+	 * @param string       $ref    External reference from the request.
+	 * @param int          $page_id ID of the post supplying the public permalink.
+	 */
 	return apply_filters( 'jeero/campaign_link/url', get_permalink( $page_id ), $post_id, $kind, $source, $ref, $page_id );
 }
 
+/**
+ * Handles GET and HEAD campaign requests at the site home URL.
+ *
+ * A single <source>_event_ref or <source>_production_ref parameter selects
+ * the destination. A valid destination receives a 302 redirect. An invalid
+ * campaign request or an unresolved destination receives a 404 response.
+ *
+ * @return void
+ */
 function redirect() {
 	$request = null;
 	foreach ( $_GET as $key => $value ) {

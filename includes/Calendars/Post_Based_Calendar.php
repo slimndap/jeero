@@ -289,12 +289,13 @@ abstract class Post_Based_Calendar extends Calendar {
 	}
 	
 	/**
-	 * Gets an event post by its ref and theater values.
-	 * 
-	 * @since	1.?
-	 * @param 	string			$ref
-	 * @param 	string 			$theater
-	 * @return 	WP_POST|bool					The event post or <false> if not found.
+	 * Gets the first calendar post ID matching an imported reference.
+	 *
+	 * @since 1.?
+	 *
+	 * @param string|int $ref     Imported reference as stored by this calendar.
+	 * @param string     $theater Ticketing source slug.
+	 * @return int|false Matching post ID, or false if no post matches.
 	 */
 	function get_event_by_ref( $ref, $theater ) {
 		
@@ -310,7 +311,15 @@ abstract class Post_Based_Calendar extends Calendar {
 		
 	}
 	
-	/** Query calendar posts by their stored reference, with optional public lookup constraints. */
+	/**
+	 * Queries posts by the reference stored for this calendar and ticketing source.
+	 *
+	 * @param string|int $ref     Imported reference to find.
+	 * @param string     $theater Ticketing source slug used to build the reference meta key.
+	 * @param array      $args    Optional get_posts() arguments. The reference lookup supplies meta_query.
+	 * @param bool       $exact   Whether to compare reference values byte for byte.
+	 * @return \WP_Post[]|int[] Matching posts, or IDs when requested through $args.
+	 */
 	function get_posts_by_ref( $ref, $theater, $args = array(), $exact = false ) {
 		$condition = array( 'key' => $this->get_ref_key( $theater ), 'value' => $ref );
 		if ( $exact ) {
