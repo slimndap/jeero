@@ -291,7 +291,8 @@ abstract class Post_Based_Calendar extends Calendar {
 	/**
 	 * Gets the first calendar post ID matching an imported reference.
 	 *
-	 * @since 1.?
+	 * @since 1.16
+	 * @since 1.38 Uses the shared get_posts_by_ref() query for reference matching.
 	 *
 	 * @param string|int $ref     Imported reference as stored by this calendar.
 	 * @param string     $theater Ticketing source slug.
@@ -313,6 +314,8 @@ abstract class Post_Based_Calendar extends Calendar {
 	
 	/**
 	 * Queries posts by the reference stored for this calendar and ticketing source.
+	 *
+	 * @since 1.38
 	 *
 	 * @param string|int $ref     Imported reference to find.
 	 * @param string     $theater Ticketing source slug used to build the reference meta key.

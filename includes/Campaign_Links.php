@@ -2,6 +2,7 @@
 /**
  * Resolves campaign links from ticketing references stored by Jeero and its calendars.
  *
+ * @since 1.38
  * @package Jeero
  */
 namespace Jeero\Campaign_Links;
@@ -12,6 +13,8 @@ add_action( 'template_redirect', __NAMESPACE__ . '\\redirect', 1 );
 
 /**
  * Finds published, password-free posts by an exact reference in calendar metadata.
+ *
+ * @since 1.38
  *
  * @param string|string[] $types      Post type or types to search.
  * @param string          $key        Meta key containing the reference.
@@ -33,6 +36,8 @@ function find_posts( $types, $key, $ref, $source_key = '', $sources = array() ) 
 
 /**
  * Resolves a reference across active calendars and filters the destination of a unique match.
+ *
+ * @since 1.38
  *
  * @param string $source Ticketing source slug from the query parameter name.
  * @param string $kind   Reference kind, either 'event' or 'production'.
@@ -89,6 +94,8 @@ function destination( $source, $kind, $ref ) {
 	 * For a Theater for WordPress event, a booking plugin can use the performance
 	 * ID to build a ticket link even when the public permalink belongs to its production.
 	 *
+	 * @since 1.38
+	 *
 	 * @param string|false $url     Public page permalink, or false if unavailable.
 	 * @param int          $post_id ID of the post matching the external reference.
 	 * @param string       $kind    Reference kind, either 'event' or 'production'.
@@ -105,6 +112,8 @@ function destination( $source, $kind, $ref ) {
  * A single <source>_event_ref or <source>_production_ref parameter selects
  * the destination. A valid destination receives a 302 redirect. An invalid
  * campaign request or an unresolved destination receives a 404 response.
+ *
+ * @since 1.38
  *
  * @return void
  */
