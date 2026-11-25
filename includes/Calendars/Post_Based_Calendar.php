@@ -300,18 +300,7 @@ abstract class Post_Based_Calendar extends Calendar {
 		
 		$this->log( sprintf( 'Looking for existing %s item %s.', $theater, $ref ) );
 		
-		$args = array(
-			'post_type' => $this->get_post_type(),
-			'post_status' => 'any',
-			'meta_query' => array(
-				array(
-					'key' => $this->get_ref_key( $theater ),
-					'value' => $ref,					
-				),
-			),
-		);
-		
-		$posts = \get_posts( $args );
+		$posts = $this->get_posts_by_ref( $ref, $theater );
 
 		if ( empty( $posts ) ) {
 			return false;
@@ -321,6 +310,17 @@ abstract class Post_Based_Calendar extends Calendar {
 		
 	}
 	
+	/** Query calendar posts by their stored reference, with optional public lookup constraints. */
+	function get_posts_by_ref( $ref, $theater, $args = array(), $exact = false ) {
+		$condition = array( 'key' => $this->get_ref_key( $theater ), 'value' => $ref );
+		if ( $exact ) {
+			$condition['type'] = 'BINARY';
+		}
+		$args += array( 'post_type' => $this->get_post_type(), 'post_status' => 'any' );
+		$args['meta_query'] = array( $condition );
+		return get_posts( $args );
+	}
+
 	/**
 	 * Gets the last update timestamp of an imported post.
 	 * 

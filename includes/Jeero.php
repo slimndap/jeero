@@ -38,6 +38,7 @@ include_once PLUGIN_PATH.'includes/Calendars/Very_Simple_Event_List.php';
 include_once PLUGIN_PATH.'includes/Calendars/Sugar_Calendar.php';
 include_once PLUGIN_PATH.'includes/Calendars/WP_Event_Manager.php';
 include_once PLUGIN_PATH.'includes/Calendars/Custom_Post_Type.php';
+include_once PLUGIN_PATH.'includes/Campaign_Links.php';
 
 include_once PLUGIN_PATH.'includes/Theaters/Theaters.php';
 include_once PLUGIN_PATH.'includes/Theaters/Theater.php';
