@@ -57,6 +57,9 @@ Subscription rates range from €30 - €70 per month, depending on your total n
 
 == Changelog ==
 
+= 1.38 =
+* Added campaign links to public event and production pages using ticketing references.
+
 = 1.37 =
 * Added the Jeero MCP endpoint, Copy URL button and setup guidance to Settings (1.37.1).
 * Added an MCP server. See the [setup instructions](https://jeero.ooo/mcp/).

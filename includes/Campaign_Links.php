@@ -78,7 +78,10 @@ function destination( $source, $kind, $ref ) {
 					continue;
 				}
 			}
-			if ( is_post_publicly_viewable( $page ) && '' === $page->post_password ) {
+			$is_public = function_exists( 'is_post_publicly_viewable' )
+				? is_post_publicly_viewable( $page )
+				: 'publish' === get_post_status( $page ) && is_post_type_viewable( $page->post_type );
+			if ( $is_public && '' === $page->post_password ) {
 				$matches[ $post->ID ] = $page->ID;
 			}
 		}
