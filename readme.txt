@@ -39,12 +39,6 @@ You should see the first 10 upcoming events that are coming from your ticketing 
 
 == Frequently Asked Questions ==
 
-= How do I link to an imported event or production? =
-
-Append `?<source>_event_ref=<reference>` to your site homepage, using the source slug and the event reference from your ticketing system. For a separate public production page, use `?<source>_production_ref=<reference>`. A unique public match redirects to its current permalink. Unknown and ambiguous references return HTTP 404.
-
-Developers can customize the destination with the `jeero/campaign_link/url` filter. Its arguments are the permalink, matched post ID, reference kind (event or production), source slug, reference, and public page ID. For Theater for WordPress, the matched event ID identifies the performance and the page ID identifies its production.
-
 = How do I connect an AI client with Jeero MCP? =
 
 With your Jeero import already working, install and activate the official [MCP Adapter by WordPress.org](https://wordpress.org/plugins/mcp-adapter/) via Plugins → Add New.
